@@ -12,7 +12,10 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import MapView, { Marker } from 'react-native-maps';
 import { colors, radius, spacing } from '../theme/colors';
+import { darkMapStyle } from '../theme/mapStyle';
+import PlaceMarker from '../components/PlaceMarker';
 import { places } from '../data/places';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -62,6 +65,25 @@ export default function PlaceDetailScreen() {
           <Text style={styles.price}>{priceLabel}</Text>
           <Text style={styles.description}>{place.description}</Text>
 
+          <View style={styles.mapWrap}>
+            <MapView
+              style={styles.map}
+              customMapStyle={darkMapStyle}
+              scrollEnabled={false}
+              zoomEnabled={false}
+              pointerEvents="none"
+              initialRegion={{
+                latitude: place.coordinate.latitude,
+                longitude: place.coordinate.longitude,
+                latitudeDelta: 0.05,
+                longitudeDelta: 0.05,
+              }}
+            >
+              <Marker coordinate={place.coordinate} tracksViewChanges={false}>
+                <PlaceMarker selected />
+              </Marker>
+            </MapView>
+          </View>
           <View style={styles.locationCard}>
             <Ionicons name="location-outline" size={18} color={colors.gold} />
             <Text style={styles.locationText}>
@@ -168,6 +190,15 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     textAlign: 'right',
     marginBottom: spacing.xl,
+  },
+  mapWrap: {
+    height: 160,
+    borderRadius: radius.md,
+    overflow: 'hidden',
+    marginBottom: spacing.md,
+  },
+  map: {
+    flex: 1,
   },
   locationCard: {
     flexDirection: 'row-reverse',
