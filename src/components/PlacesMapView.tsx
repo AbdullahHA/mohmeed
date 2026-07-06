@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
-import { StyleSheet } from 'react-native';
-import MapView, { Marker, Region } from 'react-native-maps';
+import { Platform, StyleSheet, View, Text } from 'react-native';
 import { darkMapStyle } from '../theme/mapStyle';
 import PlaceMarker from './PlaceMarker';
 import type { Place } from '../data/places';
@@ -11,7 +10,7 @@ type Props = {
   onMarkerPress?: (place: Place) => void;
 };
 
-function regionFromPlaces(places: Place[]): Region {
+function regionFromPlaces(places: Place[]) {
   if (places.length === 0) {
     return { latitude: 24.7136, longitude: 46.6753, latitudeDelta: 5, longitudeDelta: 5 };
   }
@@ -31,8 +30,24 @@ function regionFromPlaces(places: Place[]): Region {
   };
 }
 
+let MapView: any;
+let Marker: any;
+if (Platform.OS !== 'web') {
+  const Maps = require('react-native-maps');
+  MapView = Maps.default;
+  Marker = Maps.Marker;
+}
+
 export default function PlacesMapView({ places, selectedPlaceId, onMarkerPress }: Props) {
   const initialRegion = useMemo(() => regionFromPlaces(places), [places]);
+
+  if (Platform.OS === 'web') {
+    return (
+      <View style={[styles.map, styles.webFallback]}>
+        <Text style={styles.webFallbackText}>معاينة الخريطة متاحة على الجوال فقط</Text>
+      </View>
+    );
+  }
 
   return (
     <MapView
@@ -42,7 +57,7 @@ export default function PlacesMapView({ places, selectedPlaceId, onMarkerPress }
       showsUserLocation
       showsMyLocationButton={false}
     >
-      {places.map((place) => (
+      {places.map((place: Place) => (
         <Marker
           key={place.id}
           coordinate={place.coordinate}
@@ -59,5 +74,13 @@ export default function PlacesMapView({ places, selectedPlaceId, onMarkerPress }
 const styles = StyleSheet.create({
   map: {
     flex: 1,
+  },
+  webFallback: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#141A29',
+  },
+  webFallbackText: {
+    color: '#9AA3B5',
   },
 });
