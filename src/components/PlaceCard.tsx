@@ -19,7 +19,7 @@ export default function PlaceCard({ place, onPress }: Props) {
 
       <View style={styles.body}>
         <View style={styles.ratingRow}>
-          <Ionicons name="star" size={14} color={colors.gold} />
+          <Ionicons name="star" size={14} color={colors.accent} />
           <Text style={styles.rating}>{place.rating.toFixed(1)}</Text>
         </View>
 
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   rating: {
-    color: colors.gold,
+    color: colors.accentDark,
     fontWeight: '700',
     fontSize: 13,
   },
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
   price: {
-    color: colors.gold,
+    color: colors.accentDark,
     fontSize: 13,
     fontWeight: '600',
     textAlign: 'right',

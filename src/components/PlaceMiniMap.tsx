@@ -1,6 +1,6 @@
 import React from 'react';
 import { Platform, StyleSheet, View, Text } from 'react-native';
-import { darkMapStyle } from '../theme/mapStyle';
+import { lightMapStyle } from '../theme/mapStyle';
 import PlaceMarker from './PlaceMarker';
 import type { Place } from '../data/places';
 
@@ -28,7 +28,7 @@ export default function PlaceMiniMap({ coordinate }: Props) {
   return (
     <MapView
       style={styles.map}
-      customMapStyle={darkMapStyle}
+      customMapStyle={lightMapStyle}
       scrollEnabled={false}
       zoomEnabled={false}
       pointerEvents="none"
@@ -53,9 +53,9 @@ const styles = StyleSheet.create({
   webFallback: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#141A29',
+    backgroundColor: '#F0F3F1',
   },
   webFallbackText: {
-    color: '#9AA3B5',
+    color: '#5B6B68',
   },
 });

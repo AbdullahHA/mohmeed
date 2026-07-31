@@ -5,10 +5,14 @@ export type MainTabParamList = {
   Trips: undefined;
   Home: undefined;
   Chat: undefined;
-  Bookings: undefined;
+  Profile: undefined;
 };
 
 export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   PlaceDetail: { placeId: string };
+  TripDetail: { tripId: string };
+  CreateTrip: undefined;
+  GroupChat: { tripId: string };
+  AddFriend: undefined;
 };

@@ -31,8 +31,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   chipActive: {
-    backgroundColor: colors.gold,
-    borderColor: colors.gold,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   label: {
     color: colors.text,
@@ -40,6 +40,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   labelActive: {
-    color: colors.background,
+    color: colors.textOnPrimary,
   },
 });
