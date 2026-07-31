@@ -11,4 +11,5 @@ export type MainTabParamList = {
 export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   PlaceDetail: { placeId: string };
+  Game: undefined;
 };

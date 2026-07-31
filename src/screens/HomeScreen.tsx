@@ -60,6 +60,14 @@ export default function HomeScreen() {
             <Ionicons name="chatbubble-outline" size={18} color={colors.text} />
             <Text style={styles.quickActionText}>تحدث معنا</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.quickAction}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('Game')}
+          >
+            <Ionicons name="game-controller-outline" size={18} color={colors.text} />
+            <Text style={styles.quickActionText}>العب</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.aiSearchBar}>
