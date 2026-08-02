@@ -1,30 +1,25 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, radius, spacing } from '../theme/colors';
+import { View, Text, StyleSheet } from 'react-native';
+import { colors, spacing } from '../theme/colors';
+import Logo from './Logo';
 
-export default function TopBar() {
+type Props = {
+  title?: string;
+  subtitle?: string;
+};
+
+export default function TopBar({ title, subtitle }: Props) {
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.loginButton} activeOpacity={0.8}>
-        <Text style={styles.loginText}>تسجيل الدخول</Text>
-      </TouchableOpacity>
-
-      <View style={styles.iconsRow}>
-        <View style={[styles.iconCircle, { backgroundColor: colors.red }]}>
-          <Ionicons name="flame" size={16} color={colors.text} />
+      {title ? (
+        <View style={styles.titleWrap}>
+          <Text style={styles.title}>{title}</Text>
+          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
         </View>
-        <View style={[styles.iconCircle, styles.themeCircle]}>
-          <Ionicons name="sunny" size={16} color={colors.gold} />
-        </View>
-      </View>
-
-      <View style={styles.welcomeRow}>
-        <Text style={styles.welcomeText}>مرحباً بك</Text>
-        <View style={styles.avatar}>
-          <Ionicons name="leaf" size={16} color={colors.gold} />
-        </View>
-      </View>
+      ) : (
+        <View style={styles.spacer} />
+      )}
+      <Logo withWordmark={!title} size={34} />
     </View>
   );
 }
@@ -38,49 +33,22 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
     paddingBottom: spacing.md,
   },
-  loginButton: {
-    backgroundColor: colors.gold,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.pill,
+  spacer: {
+    flex: 1,
   },
-  loginText: {
-    color: colors.background,
-    fontWeight: '700',
-    fontSize: 13,
+  titleWrap: {
+    flex: 1,
   },
-  iconsRow: {
-    flexDirection: 'row-reverse',
-    gap: spacing.sm,
-  },
-  iconCircle: {
-    width: 34,
-    height: 34,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  themeCircle: {
-    backgroundColor: colors.surfaceAlt,
-    borderWidth: 1,
-    borderColor: colors.gold,
-  },
-  welcomeRow: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  welcomeText: {
+  title: {
     color: colors.text,
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: '800',
+    textAlign: 'right',
   },
-  avatar: {
-    width: 34,
-    height: 34,
-    borderRadius: radius.md,
-    backgroundColor: colors.surfaceAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
+  subtitle: {
+    color: colors.textMuted,
+    fontSize: 12,
+    textAlign: 'right',
+    marginTop: 2,
   },
 });

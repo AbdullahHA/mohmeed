@@ -1,6 +1,7 @@
 import React from 'react';
 import { Platform, StyleSheet, View, Text } from 'react-native';
 import { darkMapStyle } from '../theme/mapStyle';
+import { colors } from '../theme/colors';
 import PlaceMarker from './PlaceMarker';
 import type { Place } from '../data/places';
 
@@ -53,9 +54,9 @@ const styles = StyleSheet.create({
   webFallback: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#141A29',
+    backgroundColor: colors.surfaceAlt,
   },
   webFallbackText: {
-    color: '#9AA3B5',
+    color: colors.textMuted,
   },
 });

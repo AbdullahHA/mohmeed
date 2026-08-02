@@ -1,100 +1,108 @@
 import React, { useMemo, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  ImageBackground,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import TopBar from '../components/TopBar';
-import FilterChip from '../components/FilterChip';
-import PlaceCard from '../components/PlaceCard';
-import PlacesMapView from '../components/PlacesMapView';
+import SectionHeader from '../components/SectionHeader';
+import DestinationCard from '../components/DestinationCard';
 import { colors, radius, spacing } from '../theme/colors';
-import { places, type Place } from '../data/places';
+import { destinations, heroDestination } from '../data/destinations';
+import { CITIES } from '../data/cities';
+import { features } from '../data/features';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
-type ViewMode = 'list' | 'map';
-
-const FILTERS: Array<Place['category']> = ['الافتراضي', 'هادئ الآن', 'Hot Spot'];
 
 export default function DiscoverScreen() {
   const navigation = useNavigation<Nav>();
   const [query, setQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState<Place['category']>('الافتراضي');
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
 
-  const filteredPlaces = useMemo(() => {
-    return places.filter((place) => {
-      const matchesFilter = activeFilter === 'الافتراضي' || place.category === activeFilter;
-      const matchesQuery = place.name.toLowerCase().includes(query.trim().toLowerCase());
-      return matchesFilter && matchesQuery;
-    });
-  }, [query, activeFilter]);
+  const filteredCities = useMemo(
+    () => CITIES.filter((c) => c.name.includes(query.trim())),
+    [query],
+  );
+
+  const goToCity = (citySlug: string) => {
+    navigation.navigate('MainTabs', { screen: 'Trending', params: { city: citySlug } });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar />
-      <View style={styles.searchRow}>
-        <TouchableOpacity
-          style={styles.toggleButton}
-          activeOpacity={0.8}
-          onPress={() => setViewMode((mode) => (mode === 'list' ? 'map' : 'list'))}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <TopBar title="اكتشف" subtitle="مدن ووجهات تستاهل الزيارة" />
+
+        <ImageBackground
+          source={heroDestination.image}
+          style={styles.hero}
+          imageStyle={styles.heroImage}
         >
-          <Ionicons
-            name={viewMode === 'list' ? 'map-outline' : 'list-outline'}
-            size={18}
-            color={colors.gold}
-          />
-        </TouchableOpacity>
+          <View style={styles.heroOverlay} />
+          <Text style={styles.heroText}>استكشف قبل ما تسافر</Text>
+        </ImageBackground>
+
         <View style={styles.searchBar}>
           <Ionicons name="search" size={18} color={colors.textMuted} />
           <TextInput
             style={styles.searchInput}
-            placeholder="ابحث عن مكان..."
+            placeholder="ابحث عن مدينة..."
             placeholderTextColor={colors.textFaint}
             value={query}
             onChangeText={setQuery}
             textAlign="right"
           />
         </View>
-      </View>
 
-      <FlatList
-        data={FILTERS}
-        horizontal
-        keyExtractor={(item) => item}
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filtersRow}
-        renderItem={({ item }) => (
-          <FilterChip
-            label={item}
-            active={activeFilter === item}
-            onPress={() => setActiveFilter(item)}
-          />
-        )}
-      />
+        <SectionHeader title="المدن" />
+        <View style={styles.citiesGrid}>
+          {filteredCities.map((city) => (
+            <TouchableOpacity
+              key={city.slug}
+              style={styles.cityChip}
+              activeOpacity={0.85}
+              onPress={() => goToCity(city.slug)}
+            >
+              <Text style={styles.cityName}>{city.name}</Text>
+              <Text style={styles.cityCountry}>{city.country}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      {viewMode === 'list' ? (
-        <FlatList
-          data={filteredPlaces}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <PlaceCard
-              place={item}
-              onPress={() => navigation.navigate('PlaceDetail', { placeId: item.id })}
-            />
-          )}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>لا توجد نتائج مطابقة لبحثك</Text>
-          }
-        />
-      ) : (
-        <PlacesMapView
-          places={filteredPlaces}
-          onMarkerPress={(place) => navigation.navigate('PlaceDetail', { placeId: place.id })}
-        />
-      )}
+        <SectionHeader title="وجهات مقترحة لك" actionLabel="شوف الرائج" onActionPress={() => goToCity('riyadh')} />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.destinationsRow}
+        >
+          {destinations.map((destination) => (
+            <DestinationCard key={destination.id} destination={destination} />
+          ))}
+        </ScrollView>
+
+        <SectionHeader title="ليش يلا نسافر؟" />
+        <View style={styles.featuresList}>
+          {features.map((feature) => (
+            <View key={feature.id} style={styles.featureCard}>
+              <View style={styles.featureIconWrap}>
+                <Ionicons name={feature.icon as any} size={18} color={colors.primary} />
+              </View>
+              <View style={styles.featureTextWrap}>
+                <Text style={styles.featureTitle}>{feature.title}</Text>
+                <Text style={styles.featureBody}>{feature.body}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -104,51 +112,123 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  searchRow: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.md,
+  scrollContent: {
+    paddingBottom: spacing.xxl,
   },
-  toggleButton: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
+  hero: {
+    height: 160,
+    marginHorizontal: spacing.lg,
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+    marginBottom: spacing.lg,
+    justifyContent: 'flex-end',
+  },
+  heroImage: {
+    borderRadius: radius.lg,
+  },
+  heroOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: colors.overlay,
+  },
+  heroText: {
+    color: colors.onPrimary,
+    fontSize: 18,
+    fontWeight: '800',
+    textAlign: 'right',
+    padding: spacing.lg,
   },
   searchBar: {
-    flex: 1,
     flexDirection: 'row-reverse',
     alignItems: 'center',
-    gap: spacing.sm,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.pill,
+    marginHorizontal: spacing.lg,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
+    gap: spacing.sm,
+    marginBottom: spacing.xl,
   },
   searchInput: {
     flex: 1,
     color: colors.text,
     fontSize: 13,
   },
-  filtersRow: {
+  citiesGrid: {
+    flexDirection: 'row-reverse',
+    flexWrap: 'wrap',
+    paddingHorizontal: spacing.lg,
+    columnGap: spacing.sm,
+    rowGap: spacing.sm,
+    marginBottom: spacing.xl,
+  },
+  cityChip: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    minWidth: '30%',
+  },
+  cityName: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: '700',
+    textAlign: 'right',
+  },
+  cityCountry: {
+    color: colors.textMuted,
+    fontSize: 11,
+    textAlign: 'right',
+    marginTop: 2,
+  },
+  destinationsRow: {
     flexDirection: 'row-reverse',
     paddingHorizontal: spacing.lg,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xl,
   },
-  list: {
-    paddingBottom: spacing.xxl,
+  featuresList: {
+    paddingHorizontal: spacing.lg,
+    gap: spacing.md,
   },
-  emptyText: {
+  featureCard: {
+    flexDirection: 'row-reverse',
+    gap: spacing.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
+  },
+  featureIconWrap: {
+    width: 38,
+    height: 38,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  featureTextWrap: {
+    flex: 1,
+  },
+  featureTitle: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: '700',
+    textAlign: 'right',
+    marginBottom: 4,
+  },
+  featureBody: {
     color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.xl,
+    fontSize: 12,
+    textAlign: 'right',
+    lineHeight: 18,
   },
 });

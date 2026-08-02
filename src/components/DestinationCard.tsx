@@ -12,7 +12,7 @@ export default function DestinationCard({ destination, onPress }: Props) {
   return (
     <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={onPress}>
       <ImageBackground
-        source={{ uri: destination.image }}
+        source={destination.image}
         style={styles.image}
         imageStyle={styles.imageRadius}
       >
@@ -25,7 +25,7 @@ export default function DestinationCard({ destination, onPress }: Props) {
         <View style={styles.textWrap}>
           <Text style={styles.name}>{destination.name}</Text>
           <Text style={styles.tagline} numberOfLines={1}>
-            {destination.tagline}
+            {destination.tagline} · أفضل وقت: {destination.months}
           </Text>
         </View>
       </ImageBackground>
@@ -33,12 +33,12 @@ export default function DestinationCard({ destination, onPress }: Props) {
   );
 }
 
-const CARD_WIDTH = 150;
+const CARD_WIDTH = 160;
 
 const styles = StyleSheet.create({
   card: {
     width: CARD_WIDTH,
-    height: 190,
+    height: 200,
     marginLeft: spacing.md,
     borderRadius: radius.md,
     overflow: 'hidden',
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     margin: spacing.sm,
   },
   badgeText: {
-    color: colors.text,
+    color: colors.onPrimary,
     fontSize: 10,
     fontWeight: '700',
   },
@@ -75,13 +75,13 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
   },
   name: {
-    color: colors.text,
+    color: colors.onPrimary,
     fontSize: 16,
     fontWeight: '700',
     textAlign: 'right',
   },
   tagline: {
-    color: colors.textMuted,
+    color: colors.onPrimaryMuted,
     fontSize: 11,
     textAlign: 'right',
     marginTop: 2,

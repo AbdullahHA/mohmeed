@@ -1,46 +1,50 @@
 export type Destination = {
   id: string;
   name: string;
+  country: string;
   tagline: string;
-  image: string;
+  months: string;
+  image: number;
   trending?: boolean;
 };
 
 export const destinations: Destination[] = [
   {
-    id: 'cannes',
-    name: 'كان',
-    tagline: 'لؤلؤة الريفيرا',
-    image: 'https://images.unsplash.com/photo-1533929418994-9f3e4ae4d5f1?w=800&q=80',
-  },
-  {
-    id: 'redsea',
-    name: 'البحر الأحمر',
-    tagline: 'الوجهة التي يتحدث عنها الجميع',
-    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
-  },
-  {
-    id: 'marbella',
-    name: 'ماربيا',
-    tagline: 'أجواء شاطئية ورحلات بحرية',
-    image: 'https://images.unsplash.com/photo-1591825729269-caeb344f6df2?w=800&q=80',
+    id: 'jeddah',
+    name: 'جدة التاريخية',
+    country: 'السعودية',
+    tagline: 'تراث وبحر',
+    months: 'نوفمبر – فبراير',
+    image: require('../../assets/dest-jeddah.jpg'),
     trending: true,
   },
   {
-    id: 'riyadh',
-    name: 'الرياض',
-    tagline: 'حيث يلتقي التراث بالحداثة',
-    image: 'https://images.unsplash.com/photo-1578894381163-e72c17f2d45f?w=800&q=80',
+    id: 'istanbul',
+    name: 'إسطنبول',
+    country: 'تركيا',
+    tagline: 'مدن وأسواق',
+    months: 'أبريل – يونيو',
+    image: require('../../assets/dest-istanbul.jpg'),
   },
   {
-    id: 'jeddah',
-    name: 'جدة',
-    tagline: 'عروس البحر الأحمر',
-    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80',
+    id: 'maldives',
+    name: 'المالديف',
+    country: 'المحيط الهندي',
+    tagline: 'شهر عسل',
+    months: 'يناير – مارس',
+    image: require('../../assets/dest-maldives.jpg'),
+  },
+  {
+    id: 'tbilisi',
+    name: 'تبليسي',
+    country: 'جورجيا',
+    tagline: 'طبيعة وجبال',
+    months: 'مايو – سبتمبر',
+    image: require('../../assets/dest-tbilisi.jpg'),
   },
 ];
 
 export const heroDestination = {
-  name: 'الدرعية',
-  image: 'https://images.unsplash.com/photo-1621887700004-b4e8a2f4f6a3?w=1200&q=80',
+  name: 'العلا',
+  image: require('../../assets/hero-alula.jpg'),
 };

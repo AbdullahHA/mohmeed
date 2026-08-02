@@ -46,7 +46,7 @@ export default function PlaceDetailScreen() {
             onPress={() => navigation.goBack()}
             activeOpacity={0.85}
           >
-            <Ionicons name="arrow-forward" size={20} color={colors.text} />
+            <Ionicons name="arrow-forward" size={20} color={colors.onPrimary} />
           </TouchableOpacity>
         </View>
 

@@ -11,24 +11,29 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import TopBar from '../components/TopBar';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
+import type { RootStackParamList } from '../navigation/types';
+
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 type Message = {
   id: string;
   text: string;
-  from: 'me' | 'concierge';
+  from: 'me' | 'companion';
 };
 
 const initialMessages: Message[] = [
   {
     id: '1',
-    from: 'concierge',
-    text: 'مرحباً بك 👋 أنا مساعدك في ماي ناف. كيف أقدر أساعدك في رحلتك اليوم؟',
+    from: 'companion',
+    text: 'مرحباً 👋 أنا رفيقك في يلا نسافر. اسألني عن أفضل الأماكن، الفنادق، أو المطاعم في رحلتك.',
   },
 ];
 
 export default function ChatScreen() {
+  const navigation = useNavigation<Nav>();
   const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState('');
 
@@ -41,7 +46,13 @@ export default function ChatScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar />
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7}>
+          <Ionicons name="arrow-forward" size={22} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>رفيق السفر</Text>
+        <View style={{ width: 22 }} />
+      </View>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -55,21 +66,23 @@ export default function ChatScreen() {
             <View
               style={[
                 styles.bubble,
-                item.from === 'me' ? styles.bubbleMe : styles.bubbleConcierge,
+                item.from === 'me' ? styles.bubbleMe : styles.bubbleCompanion,
               ]}
             >
-              <Text style={styles.bubbleText}>{item.text}</Text>
+              <Text style={[styles.bubbleText, item.from === 'me' && styles.bubbleTextMe]}>
+                {item.text}
+              </Text>
             </View>
           )}
         />
 
         <View style={styles.inputRow}>
           <TouchableOpacity style={styles.sendButton} onPress={send} activeOpacity={0.8}>
-            <Ionicons name="send" size={16} color={colors.background} />
+            <Ionicons name="send" size={16} color={colors.onPrimary} />
           </TouchableOpacity>
           <TextInput
             style={styles.input}
-            placeholder="اكتب رسالتك..."
+            placeholder="وش أفضل وجهة في هذا الشهر؟"
             placeholderTextColor={colors.textFaint}
             value={input}
             onChangeText={setInput}
@@ -86,6 +99,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  header: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  headerTitle: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: '700',
+  },
   flex: {
     flex: 1,
   },
@@ -99,14 +126,14 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     marginBottom: spacing.sm,
   },
-  bubbleConcierge: {
+  bubbleCompanion: {
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     alignSelf: 'flex-end',
   },
   bubbleMe: {
-    backgroundColor: colors.gold,
+    backgroundColor: colors.primary,
     alignSelf: 'flex-start',
   },
   bubbleText: {
@@ -114,6 +141,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'right',
     lineHeight: 20,
+  },
+  bubbleTextMe: {
+    color: colors.onPrimary,
   },
   inputRow: {
     flexDirection: 'row-reverse',
@@ -137,7 +167,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: radius.pill,
-    backgroundColor: colors.gold,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },

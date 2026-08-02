@@ -1,13 +1,15 @@
 {
   "expo": {
-    "name": "mohmeed",
+    "name": "يلا نسافر",
     "slug": "mohmeed",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "description": "يلا نسافر — دليلك ورفيقك في السفر: اقتراحات أماكن، رحلات جماعية، وميزانية مقسّمة.",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yallanesafer.app"
     },
     "android": {
       "adaptiveIcon": {
