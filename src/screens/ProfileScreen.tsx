@@ -1,7 +1,8 @@
 import React from 'react';
-import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, spacing } from '../theme/colors';
+import { fonts } from '../theme/fonts';
 import { trips } from '../data/trips';
 
 const SETTINGS_ROWS: { icon: keyof typeof Ionicons.glyphMap; label: string }[] = [
@@ -42,7 +43,12 @@ export default function ProfileScreen() {
 
         <View style={styles.settingsList}>
           {SETTINGS_ROWS.map((row) => (
-            <TouchableOpacity key={row.label} style={styles.settingsRow} activeOpacity={0.7}>
+            <TouchableOpacity
+              key={row.label}
+              style={styles.settingsRow}
+              activeOpacity={0.7}
+              onPress={() => Alert.alert(row.label, 'هذه الميزة قريباً إن شاء الله.')}
+            >
               <Ionicons name="chevron-back" size={16} color={colors.textMuted} />
               <Text style={styles.settingsLabel}>{row.label}</Text>
               <View style={styles.settingsIconWrap}>
@@ -52,7 +58,16 @@ export default function ProfileScreen() {
           ))}
         </View>
 
-        <TouchableOpacity style={styles.signOutButton} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={styles.signOutButton}
+          activeOpacity={0.8}
+          onPress={() =>
+            Alert.alert('تسجيل الخروج', 'هل تريد تسجيل الخروج من حسابك؟', [
+              { text: 'إلغاء', style: 'cancel' },
+              { text: 'تسجيل الخروج', style: 'destructive' },
+            ])
+          }
+        >
           <Ionicons name="log-out-outline" size={18} color={colors.red} />
           <Text style={styles.signOutText}>تسجيل الخروج</Text>
         </TouchableOpacity>
@@ -73,7 +88,7 @@ const styles = StyleSheet.create({
   title: {
     color: colors.text,
     fontSize: 24,
-    fontWeight: '800',
+    fontFamily: fonts.bold,
     textAlign: 'right',
     marginTop: spacing.sm,
     marginBottom: spacing.lg,
@@ -99,16 +114,17 @@ const styles = StyleSheet.create({
   avatarInitial: {
     color: colors.onPrimary,
     fontSize: 28,
-    fontWeight: '800',
+    fontFamily: fonts.bold,
   },
   name: {
     color: colors.text,
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
   },
   email: {
     color: colors.textMuted,
     fontSize: 13,
+    fontFamily: fonts.regular,
     marginTop: 2,
   },
   statsRow: {
@@ -123,11 +139,12 @@ const styles = StyleSheet.create({
   statValue: {
     color: colors.text,
     fontSize: 18,
-    fontWeight: '800',
+    fontFamily: fonts.bold,
   },
   statLabel: {
     color: colors.textMuted,
     fontSize: 12,
+    fontFamily: fonts.regular,
     marginTop: 2,
   },
   statDivider: {
@@ -164,7 +181,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: colors.text,
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: fonts.semiBold,
     textAlign: 'right',
   },
   signOutButton: {
@@ -177,6 +194,6 @@ const styles = StyleSheet.create({
   signOutText: {
     color: colors.red,
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
   },
 });

@@ -16,6 +16,7 @@ import TopBar from '../components/TopBar';
 import SectionHeader from '../components/SectionHeader';
 import DestinationCard from '../components/DestinationCard';
 import { colors, radius, spacing } from '../theme/colors';
+import { fonts } from '../theme/fonts';
 import { destinations, heroDestination } from '../data/destinations';
 import { CITIES } from '../data/cities';
 import { features } from '../data/features';
@@ -84,7 +85,11 @@ export default function DiscoverScreen() {
           contentContainerStyle={styles.destinationsRow}
         >
           {destinations.map((destination) => (
-            <DestinationCard key={destination.id} destination={destination} />
+            <DestinationCard
+              key={destination.id}
+              destination={destination}
+              onPress={() => goToCity(destination.id)}
+            />
           ))}
         </ScrollView>
 
@@ -137,7 +142,7 @@ const styles = StyleSheet.create({
   heroText: {
     color: colors.onPrimary,
     fontSize: 18,
-    fontWeight: '800',
+    fontFamily: fonts.bold,
     textAlign: 'right',
     padding: spacing.lg,
   },
@@ -158,6 +163,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: colors.text,
     fontSize: 13,
+    fontFamily: fonts.regular,
   },
   citiesGrid: {
     flexDirection: 'row-reverse',
@@ -179,12 +185,13 @@ const styles = StyleSheet.create({
   cityName: {
     color: colors.text,
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
     textAlign: 'right',
   },
   cityCountry: {
     color: colors.textMuted,
     fontSize: 11,
+    fontFamily: fonts.regular,
     textAlign: 'right',
     marginTop: 2,
   },
@@ -221,13 +228,14 @@ const styles = StyleSheet.create({
   featureTitle: {
     color: colors.text,
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
     textAlign: 'right',
     marginBottom: 4,
   },
   featureBody: {
     color: colors.textMuted,
     fontSize: 12,
+    fontFamily: fonts.regular,
     textAlign: 'right',
     lineHeight: 18,
   },

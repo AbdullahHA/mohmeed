@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { colors, radius, spacing } from '../theme/colors';
+import { fonts } from '../theme/fonts';
 import type { BudgetItem } from '../data/trips';
 
 type Props = {
@@ -36,11 +37,12 @@ const styles = StyleSheet.create({
   label: {
     color: colors.text,
     fontSize: 13,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
   },
   amount: {
     color: colors.textMuted,
     fontSize: 12,
+    fontFamily: fonts.regular,
   },
   track: {
     height: 8,

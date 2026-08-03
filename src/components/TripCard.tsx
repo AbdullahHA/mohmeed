@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, spacing } from '../theme/colors';
+import { fonts } from '../theme/fonts';
 import type { Trip } from '../data/trips';
 
 type Props = {
@@ -58,7 +59,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: colors.text,
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
     textAlign: 'right',
   },
   dateBadge: {
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
   dateText: {
     color: colors.textMuted,
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: fonts.semiBold,
   },
   destRow: {
     flexDirection: 'row-reverse',
@@ -81,6 +82,7 @@ const styles = StyleSheet.create({
   destText: {
     color: colors.textMuted,
     fontSize: 13,
+    fontFamily: fonts.regular,
   },
   footerRow: {
     flexDirection: 'row-reverse',
@@ -95,6 +97,6 @@ const styles = StyleSheet.create({
   metaText: {
     color: colors.textMuted,
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: fonts.semiBold,
   },
 });

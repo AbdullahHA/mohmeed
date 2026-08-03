@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
 import { colors, radius, spacing } from '../theme/colors';
+import { fonts } from '../theme/fonts';
 import type { Destination } from '../data/destinations';
 
 type Props = {
@@ -69,7 +70,7 @@ const styles = StyleSheet.create({
   badgeText: {
     color: colors.onPrimary,
     fontSize: 10,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
   },
   textWrap: {
     padding: spacing.sm,
@@ -77,12 +78,13 @@ const styles = StyleSheet.create({
   name: {
     color: colors.onPrimary,
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
     textAlign: 'right',
   },
   tagline: {
     color: colors.onPrimaryMuted,
     fontSize: 11,
+    fontFamily: fonts.regular,
     textAlign: 'right',
     marginTop: 2,
   },

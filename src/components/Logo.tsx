@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, spacing } from '../theme/colors';
+import { fonts } from '../theme/fonts';
 
 type Props = {
   withWordmark?: boolean;
@@ -33,6 +34,6 @@ const styles = StyleSheet.create({
   wordmark: {
     color: colors.text,
     fontSize: 16,
-    fontWeight: '800',
+    fontFamily: fonts.bold,
   },
 });

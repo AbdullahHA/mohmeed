@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, spacing } from '../theme/colors';
+import { fonts } from '../theme/fonts';
 import type { Place } from '../data/places';
 
 type Props = {
@@ -31,10 +32,6 @@ export default function PlaceCard({ place, onPress }: Props) {
         <Text style={styles.price}>{priceLabel}</Text>
 
         <View style={styles.actionsRow}>
-          <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
-            <Ionicons name="git-network-outline" size={14} color={colors.text} />
-            <Text style={styles.actionText}>مسارات</Text>
-          </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionButton}
             activeOpacity={0.8}
@@ -84,26 +81,27 @@ const styles = StyleSheet.create({
   },
   rating: {
     color: colors.gold,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
     fontSize: 13,
   },
   name: {
     color: colors.text,
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
     textAlign: 'right',
     marginBottom: spacing.xs,
   },
   description: {
     color: colors.textMuted,
     fontSize: 13,
+    fontFamily: fonts.regular,
     textAlign: 'right',
     lineHeight: 19,
   },
   price: {
     color: colors.gold,
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: fonts.semiBold,
     textAlign: 'right',
     marginTop: spacing.sm,
   },
@@ -124,6 +122,6 @@ const styles = StyleSheet.create({
   actionText: {
     color: colors.text,
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: fonts.semiBold,
   },
 });

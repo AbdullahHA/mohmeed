@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
+import { fonts } from '../theme/fonts';
 import TripsScreen from '../screens/TripsScreen';
 import DiscoverScreen from '../screens/DiscoverScreen';
 import CheckInScreen from '../screens/CheckInScreen';
@@ -48,7 +49,7 @@ function MainTabs() {
           paddingTop: 8,
         },
         tabBarLabel: TAB_LABELS[route.name as keyof MainTabParamList],
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+        tabBarLabelStyle: { fontSize: 11, fontFamily: fonts.semiBold },
         tabBarIcon: ({ color, size }) => (
           <Ionicons name={TAB_ICONS[route.name as keyof MainTabParamList]} color={color} size={size} />
         ),

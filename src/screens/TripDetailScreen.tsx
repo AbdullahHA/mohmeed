@@ -1,21 +1,31 @@
-import React from 'react';
-import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, Share } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AvatarStack from '../components/AvatarStack';
 import BudgetBar from '../components/BudgetBar';
 import { colors, radius, spacing } from '../theme/colors';
-import { tripById } from '../data/trips';
+import { fonts } from '../theme/fonts';
+import { tripById, type Friend } from '../data/trips';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'TripDetail'>;
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
+const FRIEND_POOL: Friend[] = [
+  { id: 'f-noura', name: 'نورة', initial: 'ن' },
+  { id: 'f-yousef', name: 'يوسف', initial: 'ي' },
+  { id: 'f-lama', name: 'لمى', initial: 'ل' },
+  { id: 'f-khalid', name: 'خالد', initial: 'خ' },
+  { id: 'f-sara', name: 'سارة', initial: 'س' },
+];
+
 export default function TripDetailScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const trip = tripById(route.params.tripId);
+  const [friends, setFriends] = useState<Friend[]>(trip?.friends ?? []);
 
   if (!trip) {
     return (
@@ -25,6 +35,18 @@ export default function TripDetailScreen() {
     );
   }
 
+  const shareTrip = () => {
+    Share.share({
+      message: `${trip.title} — ${trip.destination} (${trip.startDate} – ${trip.endDate}) عبر يلا نسافر`,
+    });
+  };
+
+  const addFriend = () => {
+    const available = FRIEND_POOL.filter((f) => !friends.some((existing) => existing.id === f.id));
+    if (available.length === 0) return;
+    setFriends((prev) => [...prev, available[0]]);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -32,7 +54,7 @@ export default function TripDetailScreen() {
           <Ionicons name="arrow-forward" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>تفاصيل الرحلة</Text>
-        <TouchableOpacity activeOpacity={0.7}>
+        <TouchableOpacity activeOpacity={0.7} onPress={shareTrip}>
           <Ionicons name="share-social-outline" size={20} color={colors.text} />
         </TouchableOpacity>
       </View>
@@ -49,8 +71,8 @@ export default function TripDetailScreen() {
         </View>
 
         <View style={styles.friendsRow}>
-          <AvatarStack friends={trip.friends} />
-          <TouchableOpacity style={styles.addFriendButton} activeOpacity={0.8}>
+          <AvatarStack friends={friends} />
+          <TouchableOpacity style={styles.addFriendButton} activeOpacity={0.8} onPress={addFriend}>
             <Ionicons name="person-add-outline" size={14} color={colors.primary} />
             <Text style={styles.addFriendText}>أضف صديق</Text>
           </TouchableOpacity>
@@ -98,6 +120,7 @@ const styles = StyleSheet.create({
   },
   notFound: {
     color: colors.textMuted,
+    fontFamily: fonts.regular,
     textAlign: 'center',
     marginTop: spacing.xxl,
   },
@@ -111,7 +134,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: colors.text,
     fontSize: 15,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
   },
   scrollContent: {
     paddingHorizontal: spacing.lg,
@@ -120,7 +143,7 @@ const styles = StyleSheet.create({
   title: {
     color: colors.text,
     fontSize: 22,
-    fontWeight: '800',
+    fontFamily: fonts.bold,
     textAlign: 'right',
   },
   metaRow: {
@@ -133,10 +156,12 @@ const styles = StyleSheet.create({
   metaText: {
     color: colors.textMuted,
     fontSize: 13,
+    fontFamily: fonts.regular,
   },
   metaDot: {
     color: colors.textMuted,
     fontSize: 13,
+    fontFamily: fonts.regular,
   },
   friendsRow: {
     flexDirection: 'row-reverse',
@@ -157,7 +182,7 @@ const styles = StyleSheet.create({
   addFriendText: {
     color: colors.primary,
     fontSize: 12,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
   },
   companionButton: {
     flexDirection: 'row-reverse',
@@ -172,12 +197,12 @@ const styles = StyleSheet.create({
   companionText: {
     color: colors.onPrimary,
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
   },
   sectionTitle: {
     color: colors.text,
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
     textAlign: 'right',
     marginBottom: spacing.md,
   },
@@ -204,11 +229,12 @@ const styles = StyleSheet.create({
   dayBadgeText: {
     color: colors.text,
     fontSize: 11,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
   },
   itineraryText: {
     color: colors.text,
     fontSize: 13,
+    fontFamily: fonts.regular,
     flex: 1,
     textAlign: 'right',
   },
@@ -222,6 +248,7 @@ const styles = StyleSheet.create({
   budgetTotal: {
     color: colors.textMuted,
     fontSize: 12,
+    fontFamily: fonts.regular,
     textAlign: 'right',
     marginBottom: spacing.lg,
   },

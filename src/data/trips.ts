@@ -72,3 +72,7 @@ export const trips: Trip[] = [
 export function tripById(id: string): Trip | undefined {
   return trips.find((t) => t.id === id);
 }
+
+export function addTrip(trip: Trip) {
+  trips.unshift(trip);
+}

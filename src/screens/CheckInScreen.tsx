@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, FlatList, TouchableOpacity, Share } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import TopBar from '../components/TopBar';
 import AvatarStack from '../components/AvatarStack';
 import { colors, radius, spacing } from '../theme/colors';
+import { fonts } from '../theme/fonts';
 import { placesByCity, type Place } from '../data/places';
 
 const NEARBY_PLACES: Place[] = placesByCity('riyadh');
@@ -21,6 +22,11 @@ export default function CheckInScreen() {
   const selectPlace = (place: Place) => {
     setSelected(place);
     setCheckedInAt(null);
+  };
+
+  const shareCheckIn = () => {
+    if (!selected) return;
+    Share.share({ message: `وصلت إلى ${selected.name} الحين 📍 عبر يلا نسافر` });
   };
 
   const confirmCheckIn = () => {
@@ -52,7 +58,7 @@ export default function CheckInScreen() {
             <View style={styles.successBox}>
               <Ionicons name="checkmark-circle" size={22} color={colors.success} />
               <Text style={styles.successText}>وصلت إلى {selected.name} الساعة {checkedInAt}</Text>
-              <TouchableOpacity style={styles.shareButton} activeOpacity={0.85}>
+              <TouchableOpacity style={styles.shareButton} activeOpacity={0.85} onPress={shareCheckIn}>
                 <Ionicons name="share-social-outline" size={16} color={colors.primary} />
                 <Text style={styles.shareText}>مشاركة مع أصدقائي</Text>
               </TouchableOpacity>
@@ -101,7 +107,7 @@ const styles = StyleSheet.create({
   listHeader: {
     color: colors.text,
     fontSize: 15,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
     textAlign: 'right',
     marginBottom: spacing.md,
   },
@@ -130,12 +136,13 @@ const styles = StyleSheet.create({
   nearbyName: {
     color: colors.text,
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
     textAlign: 'right',
   },
   nearbyMeta: {
     color: colors.textMuted,
     fontSize: 12,
+    fontFamily: fonts.regular,
     textAlign: 'right',
     marginTop: 2,
   },
@@ -156,11 +163,12 @@ const styles = StyleSheet.create({
   backText: {
     color: colors.textMuted,
     fontSize: 13,
+    fontFamily: fonts.regular,
   },
   placeName: {
     color: colors.text,
     fontSize: 20,
-    fontWeight: '800',
+    fontFamily: fonts.bold,
     textAlign: 'right',
     marginBottom: spacing.lg,
   },
@@ -173,6 +181,7 @@ const styles = StyleSheet.create({
   whosHereText: {
     color: colors.textMuted,
     fontSize: 12,
+    fontFamily: fonts.regular,
   },
   checkInButton: {
     flexDirection: 'row-reverse',
@@ -186,7 +195,7 @@ const styles = StyleSheet.create({
   checkInText: {
     color: colors.onPrimary,
     fontSize: 15,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
   },
   successBox: {
     alignItems: 'center',
@@ -198,7 +207,7 @@ const styles = StyleSheet.create({
   successText: {
     color: colors.text,
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
     textAlign: 'center',
   },
   shareButton: {
@@ -210,6 +219,6 @@ const styles = StyleSheet.create({
   shareText: {
     color: colors.primary,
     fontSize: 13,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
   },
 });

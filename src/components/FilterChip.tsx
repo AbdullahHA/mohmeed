@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors, radius, spacing } from '../theme/colors';
+import { fonts } from '../theme/fonts';
 
 type Props = {
   label: string;
@@ -37,7 +38,7 @@ const styles = StyleSheet.create({
   label: {
     color: colors.text,
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: fonts.semiBold,
   },
   labelActive: {
     color: colors.background,

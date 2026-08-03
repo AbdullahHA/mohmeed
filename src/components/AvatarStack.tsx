@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { colors, radius } from '../theme/colors';
+import { fonts } from '../theme/fonts';
 import type { Friend } from '../data/trips';
 
 type Props = {
@@ -46,6 +47,6 @@ const styles = StyleSheet.create({
   initial: {
     color: colors.primaryDark,
     fontSize: 13,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
   },
 });

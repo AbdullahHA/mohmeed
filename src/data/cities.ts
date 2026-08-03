@@ -15,6 +15,7 @@ export const CITIES: City[] = [
   { slug: 'istanbul', name: 'إسطنبول', country: 'تركيا' },
   { slug: 'london', name: 'لندن', country: 'بريطانيا' },
   { slug: 'tbilisi', name: 'تبليسي', country: 'جورجيا' },
+  { slug: 'maldives', name: 'المالديف', country: 'المحيط الهندي' },
 ];
 
 export function cityBySlug(slug: string): City | undefined {

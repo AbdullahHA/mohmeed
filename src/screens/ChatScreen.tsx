@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
+import { fonts } from '../theme/fonts';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -86,6 +87,8 @@ export default function ChatScreen() {
             placeholderTextColor={colors.textFaint}
             value={input}
             onChangeText={setInput}
+            onSubmitEditing={send}
+            returnKeyType="send"
             textAlign="right"
           />
         </View>
@@ -111,7 +114,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: colors.text,
     fontSize: 15,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
   },
   flex: {
     flex: 1,
@@ -139,6 +142,7 @@ const styles = StyleSheet.create({
   bubbleText: {
     color: colors.text,
     fontSize: 14,
+    fontFamily: fonts.regular,
     textAlign: 'right',
     lineHeight: 20,
   },
@@ -160,6 +164,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     color: colors.text,
+    fontFamily: fonts.regular,
     borderWidth: 1,
     borderColor: colors.border,
   },

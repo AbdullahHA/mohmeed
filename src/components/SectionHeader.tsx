@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors, spacing } from '../theme/colors';
+import { fonts } from '../theme/fonts';
 
 type Props = {
   title: string;
@@ -32,11 +33,11 @@ const styles = StyleSheet.create({
   title: {
     color: colors.text,
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
   },
   action: {
     color: colors.gold,
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: fonts.semiBold,
   },
 });

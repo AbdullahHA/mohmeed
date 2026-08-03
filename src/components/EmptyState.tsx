@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing } from '../theme/colors';
+import { fonts } from '../theme/fonts';
 
 type Props = {
   icon: keyof typeof Ionicons.glyphMap;
@@ -42,13 +43,14 @@ const styles = StyleSheet.create({
   title: {
     color: colors.text,
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
     marginBottom: spacing.sm,
     textAlign: 'center',
   },
   subtitle: {
     color: colors.textMuted,
     fontSize: 13,
+    fontFamily: fonts.regular,
     textAlign: 'center',
     lineHeight: 20,
   },

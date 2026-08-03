@@ -9,6 +9,7 @@ import PlaceCard from '../components/PlaceCard';
 import PlacesMapView from '../components/PlacesMapView';
 import EmptyState from '../components/EmptyState';
 import { colors, radius, spacing } from '../theme/colors';
+import { fonts } from '../theme/fonts';
 import { placesByCity } from '../data/places';
 import { CATEGORIES, type TrendCategory } from '../data/categories';
 import { CITIES, cityBySlug } from '../data/cities';
@@ -45,6 +46,7 @@ export default function TrendingScreen() {
         horizontal
         keyExtractor={(item) => item.slug}
         showsHorizontalScrollIndicator={false}
+        style={styles.cityRowList}
         contentContainerStyle={styles.cityRow}
         renderItem={({ item }) => (
           <FilterChip
@@ -118,6 +120,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  cityRowList: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   cityRow: {
     flexDirection: 'row-reverse',
     paddingHorizontal: spacing.lg,
@@ -148,6 +154,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     color: colors.textMuted,
+    fontFamily: fonts.regular,
     textAlign: 'center',
     marginTop: spacing.xl,
   },

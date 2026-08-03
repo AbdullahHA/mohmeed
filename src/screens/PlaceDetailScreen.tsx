@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
+import { fonts } from '../theme/fonts';
 import PlaceMiniMap from '../components/PlaceMiniMap';
 import { places } from '../data/places';
 import type { RootStackParamList } from '../navigation/types';
@@ -106,6 +107,7 @@ const styles = StyleSheet.create({
   },
   notFound: {
     color: colors.textMuted,
+    fontFamily: fonts.regular,
     textAlign: 'center',
     marginTop: spacing.xxl,
   },
@@ -139,7 +141,7 @@ const styles = StyleSheet.create({
   },
   rating: {
     color: colors.gold,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
     fontSize: 14,
   },
   categoryBadge: {
@@ -151,24 +153,26 @@ const styles = StyleSheet.create({
   categoryText: {
     color: colors.textMuted,
     fontSize: 11,
+    fontFamily: fonts.regular,
   },
   name: {
     color: colors.text,
     fontSize: 24,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
     textAlign: 'right',
     marginBottom: spacing.xs,
   },
   price: {
     color: colors.gold,
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: fonts.semiBold,
     textAlign: 'right',
     marginBottom: spacing.lg,
   },
   description: {
     color: colors.textMuted,
     fontSize: 14,
+    fontFamily: fonts.regular,
     lineHeight: 22,
     textAlign: 'right',
     marginBottom: spacing.xl,
@@ -193,6 +197,7 @@ const styles = StyleSheet.create({
   locationText: {
     color: colors.textMuted,
     fontSize: 13,
+    fontFamily: fonts.regular,
   },
   actionsRow: {
     flexDirection: 'row-reverse',
@@ -216,12 +221,12 @@ const styles = StyleSheet.create({
   },
   actionPrimaryText: {
     color: colors.background,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
     fontSize: 13,
   },
   actionText: {
     color: colors.text,
-    fontWeight: '600',
+    fontFamily: fonts.semiBold,
     fontSize: 13,
   },
 });
