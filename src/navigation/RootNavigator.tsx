@@ -12,6 +12,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 import PlaceDetailScreen from '../screens/PlaceDetailScreen';
 import TripDetailScreen from '../screens/TripDetailScreen';
 import ChatScreen from '../screens/ChatScreen';
+import DashboardScreen from '../screens/DashboardScreen';
 import type { MainTabParamList, RootStackParamList } from './types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -71,6 +72,7 @@ export default function RootNavigator() {
       <Stack.Screen name="PlaceDetail" component={PlaceDetailScreen} />
       <Stack.Screen name="TripDetail" component={TripDetailScreen} />
       <Stack.Screen name="Chat" component={ChatScreen} />
+      <Stack.Screen name="Dashboard" component={DashboardScreen} />
     </Stack.Navigator>
   );
 }

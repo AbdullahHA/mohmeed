@@ -76,3 +76,8 @@ export function tripById(id: string): Trip | undefined {
 export function addTrip(trip: Trip) {
   trips.unshift(trip);
 }
+
+export function removeTrip(id: string) {
+  const index = trips.findIndex((t) => t.id === id);
+  if (index !== -1) trips.splice(index, 1);
+}

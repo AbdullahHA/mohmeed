@@ -1,9 +1,14 @@
 import React from 'react';
 import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { trips } from '../data/trips';
+import type { RootStackParamList } from '../navigation/types';
+
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 const SETTINGS_ROWS: { icon: keyof typeof Ionicons.glyphMap; label: string }[] = [
   { icon: 'person-outline', label: 'تعديل الملف الشخصي' },
@@ -14,6 +19,7 @@ const SETTINGS_ROWS: { icon: keyof typeof Ionicons.glyphMap; label: string }[] =
 ];
 
 export default function ProfileScreen() {
+  const navigation = useNavigation<Nav>();
   const friendsCount = new Set(trips.flatMap((t) => t.friends.map((f) => f.id))).size;
 
   return (
@@ -40,6 +46,18 @@ export default function ProfileScreen() {
             </View>
           </View>
         </View>
+
+        <TouchableOpacity
+          style={styles.dashboardButton}
+          activeOpacity={0.85}
+          onPress={() => navigation.navigate('Dashboard')}
+        >
+          <Ionicons name="chevron-back" size={16} color={colors.onPrimary} />
+          <Text style={styles.dashboardLabel}>لوحة التحكم</Text>
+          <View style={styles.dashboardIconWrap}>
+            <Ionicons name="speedometer-outline" size={18} color={colors.onPrimary} />
+          </View>
+        </TouchableOpacity>
 
         <View style={styles.settingsList}>
           {SETTINGS_ROWS.map((row) => (
@@ -151,6 +169,31 @@ const styles = StyleSheet.create({
     width: 1,
     height: 28,
     backgroundColor: colors.border,
+  },
+  dashboardButton: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.primary,
+    borderRadius: radius.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  dashboardIconWrap: {
+    width: 34,
+    height: 34,
+    borderRadius: radius.sm,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dashboardLabel: {
+    flex: 1,
+    color: colors.onPrimary,
+    fontSize: 14,
+    fontFamily: fonts.bold,
+    textAlign: 'right',
   },
   settingsList: {
     backgroundColor: colors.surface,

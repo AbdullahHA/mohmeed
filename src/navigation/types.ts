@@ -13,4 +13,5 @@ export type RootStackParamList = {
   PlaceDetail: { placeId: string };
   TripDetail: { tripId: string };
   Chat: { tripId?: string } | undefined;
+  Dashboard: undefined;
 };

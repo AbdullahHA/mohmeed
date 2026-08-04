@@ -6,6 +6,8 @@ import AvatarStack from '../components/AvatarStack';
 import { colors, radius, spacing } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { placesByCity, type Place } from '../data/places';
+import { recordCheckIn } from '../data/activityLog';
+import { cityBySlug } from '../data/cities';
 
 const NEARBY_PLACES: Place[] = placesByCity('riyadh');
 
@@ -30,10 +32,17 @@ export default function CheckInScreen() {
   };
 
   const confirmCheckIn = () => {
+    if (!selected) return;
     const now = new Date();
     setCheckedInAt(
       now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
     );
+    recordCheckIn({
+      id: `checkin-${Date.now()}`,
+      placeName: selected.name,
+      cityName: cityBySlug(selected.city)?.name ?? selected.city,
+      at: now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
+    });
   };
 
   return (
