@@ -7,12 +7,25 @@ import TopBar from '../components/TopBar';
 import { colors, radius, spacing } from '../theme/colors';
 import { useAppState } from '../context/AppState';
 import type { RootStackParamList } from '../navigation/types';
+import type { Feedback } from '../types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
+const FEEDBACK_OPTIONS: { value: Feedback; emoji: string; label: string }[] = [
+  { value: 'bad', emoji: '😞', label: 'محتاج تحسين' },
+  { value: 'ok', emoji: '😐', label: 'عادي' },
+  { value: 'loved', emoji: '❤️', label: 'حبيت' },
+];
+
+const FEEDBACK_THANKS: Record<Feedback, string> = {
+  loved: 'يسعدنا إنك مستمتع بالتطبيق! 🎉',
+  ok: 'تمام، خبرنا وش ينقص لو خطر على بالك.',
+  bad: 'آسفين إنها ما كانت تجربة حلوة، بنحاول نحسّن.',
+};
+
 export default function ProfileScreen() {
   const navigation = useNavigation<Nav>();
-  const { currentUser, friends, trips } = useAppState();
+  const { currentUser, friends, trips, feedback, setFeedback } = useAppState();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -83,6 +96,35 @@ export default function ProfileScreen() {
             </View>
           </View>
         ))}
+
+        <View style={styles.feedbackCard}>
+          {feedback ? (
+            <>
+              <Text style={styles.feedbackThanks}>{FEEDBACK_THANKS[feedback]}</Text>
+              <TouchableOpacity onPress={() => setFeedback(null)} activeOpacity={0.7}>
+                <Text style={styles.feedbackChange}>غيّر رأيك</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <Text style={styles.feedbackTitle}>قيّم تجربتك مع يلا نسافر</Text>
+              <Text style={styles.feedbackSubtitle}>يُحفظ على جهازك فقط حاليًا، ما يُرسل لأي مكان</Text>
+              <View style={styles.feedbackRow}>
+                {FEEDBACK_OPTIONS.map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={styles.feedbackOption}
+                    activeOpacity={0.7}
+                    onPress={() => setFeedback(option.value)}
+                  >
+                    <Text style={styles.feedbackEmoji}>{option.emoji}</Text>
+                    <Text style={styles.feedbackLabel}>{option.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </>
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -165,4 +207,27 @@ const styles = StyleSheet.create({
   friendTextWrap: { flex: 1 },
   friendName: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
   friendUsername: { color: colors.textFaint, fontSize: 11 },
+  feedbackCard: {
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    marginTop: spacing.lg,
+  },
+  feedbackTitle: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'center' },
+  feedbackSubtitle: {
+    color: colors.textFaint,
+    fontSize: 11,
+    textAlign: 'center',
+    marginTop: 4,
+    marginBottom: spacing.md,
+  },
+  feedbackRow: { flexDirection: 'row-reverse', gap: spacing.lg },
+  feedbackOption: { alignItems: 'center', width: 70 },
+  feedbackEmoji: { fontSize: 28, marginBottom: 4 },
+  feedbackLabel: { color: colors.textMuted, fontSize: 11, fontWeight: '600', textAlign: 'center' },
+  feedbackThanks: { color: colors.text, fontSize: 13, fontWeight: '600', textAlign: 'center' },
+  feedbackChange: { color: colors.primary, fontSize: 12, fontWeight: '700', marginTop: spacing.sm },
 });

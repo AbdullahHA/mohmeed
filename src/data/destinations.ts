@@ -8,7 +8,10 @@ export type Destination = {
   whyVisit: string;
   topHotels: string[];
   topRestaurants: string[];
+  interests: string[];
 };
+
+export const INTEREST_TAGS = ['مغامرة', 'شواطئ', 'ثقافة', 'عائلي', 'رومانسي', 'طبيعة'] as const;
 
 export const destinations: Destination[] = [
   {
@@ -21,6 +24,7 @@ export const destinations: Destination[] = [
     whyVisit: 'أجواء معتدلة ومهرجان الشتاء ينشط الوجهة بالفعاليات والحرف.',
     topHotels: ['Habitas AlUla', 'Shaden Resort', 'Our Habitas AlUla'],
     topRestaurants: ['مطعم صحارى', 'Somewhere Cafe', 'مطعم الفرن'],
+    interests: ['مغامرة', 'ثقافة'],
   },
   {
     id: 'redsea',
@@ -31,6 +35,7 @@ export const destinations: Destination[] = [
     whyVisit: 'مياه فيروزية وشعاب مرجانية ومنتجعات جزرية بعيدة عن الزحام.',
     topHotels: ['Six Senses Southern Dunes', 'St. Regis Red Sea Resort'],
     topRestaurants: ['Turquoiz', 'Kaia'],
+    interests: ['شواطئ', 'مغامرة'],
   },
   {
     id: 'marbella',
@@ -41,6 +46,7 @@ export const destinations: Destination[] = [
     whyVisit: 'صيف أوروبي حيوي بين الشواطئ والمارينا والحياة الليلية.',
     topHotels: ['Puente Romano', 'Marbella Club Hotel'],
     topRestaurants: ['Nobu Marbella', 'La Sala by the Sea'],
+    interests: ['شواطئ', 'رومانسي'],
   },
   {
     id: 'riyadh',
@@ -51,6 +57,7 @@ export const destinations: Destination[] = [
     whyVisit: 'شتاء لطيف يناسب التجول في بوليفارد رياض سيتي وحي الدرعية.',
     topHotels: ['Kimpton KAFD Riyadh by IHG', 'Ritz-Carlton Riyadh'],
     topRestaurants: ['مطعم بوابة الدرعية', 'Angelina Riyadh'],
+    interests: ['ثقافة', 'عائلي'],
   },
   {
     id: 'jeddah',
@@ -61,6 +68,7 @@ export const destinations: Destination[] = [
     whyVisit: 'كورنيش بحري وأمسيات صيفية وأجواء تاريخية في البلد.',
     topHotels: ['Rosewood Jeddah', 'InterContinental Jeddah'],
     topRestaurants: ['Byblos', 'Al Nakheel Seafood'],
+    interests: ['شواطئ', 'عائلي'],
   },
   {
     id: 'abha',
@@ -71,6 +79,7 @@ export const destinations: Destination[] = [
     whyVisit: 'مصيف جبلي منعش هرباً من حرارة الصيف مع تلفريك السودة.',
     topHotels: ['Boudl Abha', 'Abha Palace Hotel'],
     topRestaurants: ['مطعم شذا أبها', 'Cafe Rosto'],
+    interests: ['طبيعة', 'مغامرة'],
   },
 ];
 

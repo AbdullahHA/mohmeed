@@ -42,7 +42,7 @@ export default function DestinationDetailScreen() {
 
   const askGuide = () => {
     sendGuideMessage(`وش أفضل وقت وأماكن أزورها في ${destination.name}؟`);
-    navigation.navigate('MainTabs', { screen: 'Chat' });
+    navigation.navigate('GuideChat');
   };
 
   return (

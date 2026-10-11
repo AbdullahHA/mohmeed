@@ -3,9 +3,18 @@ import { ActivityIndicator, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { currentUser, seedFriends } from '../data/friends';
 import { seedTrips } from '../data/trips';
+import { seedCommunities } from '../data/communities';
 import { destinations } from '../data/destinations';
 import { colors } from '../theme/colors';
-import type { BudgetItem, ChatMessage, Friend, ItineraryItem, Trip } from '../types';
+import type {
+  BudgetItem,
+  ChatMessage,
+  Community,
+  Feedback,
+  Friend,
+  ItineraryItem,
+  Trip,
+} from '../types';
 
 const STORAGE_KEY = 'yalla-nsafer:state:v1';
 
@@ -20,6 +29,8 @@ type PersistedState = {
   friends: Friend[];
   trips: Trip[];
   guideMessages: ChatMessage[];
+  communities: Community[];
+  feedback: Feedback | null;
 };
 
 type NewTripInput = {
@@ -37,6 +48,8 @@ type AppStateValue = {
   friends: Friend[];
   trips: Trip[];
   guideMessages: ChatMessage[];
+  communities: Community[];
+  feedback: Feedback | null;
   addFriend: (name: string) => Friend;
   createTrip: (input: NewTripInput) => Trip;
   addMember: (tripId: string, friendId: string) => void;
@@ -46,6 +59,10 @@ type AppStateValue = {
   removeItineraryItem: (tripId: string, itemId: string) => void;
   sendGroupMessage: (tripId: string, text: string) => void;
   sendGuideMessage: (text: string) => void;
+  joinCommunity: (communityId: string) => void;
+  leaveCommunity: (communityId: string) => void;
+  sendCommunityMessage: (communityId: string, text: string) => void;
+  setFeedback: (value: Feedback | null) => void;
 };
 
 const AVATAR_EMOJIS = ['🌵', '🏖️', '🏔️', '🕌', '🚗', '🎈', '🧳', '☕'];
@@ -92,6 +109,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [friends, setFriends] = useState<Friend[]>(seedFriends);
   const [trips, setTrips] = useState<Trip[]>(seedTrips);
   const [guideMessages, setGuideMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
+  const [communities, setCommunities] = useState<Community[]>(seedCommunities);
+  const [feedback, setFeedbackState] = useState<Feedback | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const hydratedRef = useRef(false);
   // Set only when hydration actually replaced seed data, so the write effect below
@@ -117,6 +136,14 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
             setGuideMessages(parsed.guideMessages);
             loadedFromStorage = true;
           }
+          if (Array.isArray(parsed.communities)) {
+            setCommunities(parsed.communities);
+            loadedFromStorage = true;
+          }
+          if (parsed.feedback === 'loved' || parsed.feedback === 'ok' || parsed.feedback === 'bad') {
+            setFeedbackState(parsed.feedback);
+            loadedFromStorage = true;
+          }
         }
       } catch {
         // corrupt or unavailable storage: keep the seed data
@@ -134,9 +161,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       justHydratedRef.current = false;
       return;
     }
-    const payload: PersistedState = { friends, trips, guideMessages };
+    const payload: PersistedState = { friends, trips, guideMessages, communities, feedback };
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload)).catch(() => {});
-  }, [friends, trips, guideMessages]);
+  }, [friends, trips, guideMessages, communities, feedback]);
 
   const addFriend = (name: string): Friend => {
     const friend: Friend = {
@@ -231,12 +258,40 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setGuideMessages((prev) => [...prev, userMessage, replyMessage]);
   };
 
+  const updateCommunity = (communityId: string, updater: (community: Community) => Community) => {
+    setCommunities((prev) => prev.map((c) => (c.id === communityId ? updater(c) : c)));
+  };
+
+  const joinCommunity = (communityId: string) => {
+    updateCommunity(communityId, (c) => (c.joined ? c : { ...c, joined: true }));
+  };
+
+  const leaveCommunity = (communityId: string) => {
+    updateCommunity(communityId, (c) => (c.joined ? { ...c, joined: false } : c));
+  };
+
+  const sendCommunityMessage = (communityId: string, text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    updateCommunity(communityId, (c) => ({
+      ...c,
+      joined: true,
+      messages: [...c.messages, { id: uid('cmsg'), fromName: currentUser.name, text: trimmed, at: Date.now() }],
+    }));
+  };
+
+  const setFeedback = (value: Feedback | null) => {
+    setFeedbackState(value);
+  };
+
   const value = useMemo<AppStateValue>(
     () => ({
       currentUser,
       friends,
       trips,
       guideMessages,
+      communities,
+      feedback,
       addFriend,
       createTrip,
       addMember,
@@ -246,8 +301,12 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       removeItineraryItem,
       sendGroupMessage,
       sendGuideMessage,
+      joinCommunity,
+      leaveCommunity,
+      sendCommunityMessage,
+      setFeedback,
     }),
-    [friends, trips, guideMessages]
+    [friends, trips, guideMessages, communities, feedback]
   );
 
   if (!hydrated) {

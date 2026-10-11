@@ -14,6 +14,8 @@ import TripDetailScreen from '../screens/TripDetailScreen';
 import CreateTripScreen from '../screens/CreateTripScreen';
 import JoinTripScreen from '../screens/JoinTripScreen';
 import GroupChatScreen from '../screens/GroupChatScreen';
+import GuideChatScreen from '../screens/GuideChatScreen';
+import CommunityChatScreen from '../screens/CommunityChatScreen';
 import AddFriendScreen from '../screens/AddFriendScreen';
 import type { MainTabParamList, RootStackParamList } from './types';
 
@@ -77,6 +79,8 @@ export default function RootNavigator() {
       <Stack.Screen name="CreateTrip" component={CreateTripScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="JoinTrip" component={JoinTripScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="GroupChat" component={GroupChatScreen} />
+      <Stack.Screen name="GuideChat" component={GuideChatScreen} />
+      <Stack.Screen name="CommunityChat" component={CommunityChatScreen} />
       <Stack.Screen name="AddFriend" component={AddFriendScreen} options={{ presentation: 'modal' }} />
     </Stack.Navigator>
   );

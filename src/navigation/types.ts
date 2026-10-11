@@ -16,5 +16,7 @@ export type RootStackParamList = {
   CreateTrip: { destinationId?: string } | undefined;
   JoinTrip: undefined;
   GroupChat: { tripId: string };
+  GuideChat: undefined;
+  CommunityChat: { communityId: string };
   AddFriend: undefined;
 };

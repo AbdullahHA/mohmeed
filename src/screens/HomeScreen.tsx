@@ -15,8 +15,10 @@ import { useNavigation } from '@react-navigation/native';
 import TopBar from '../components/TopBar';
 import SectionHeader from '../components/SectionHeader';
 import DestinationCard from '../components/DestinationCard';
+import FilterChip from '../components/FilterChip';
 import { colors, radius, spacing } from '../theme/colors';
-import { destinations, heroDestination } from '../data/destinations';
+import { destinations, heroDestination, INTEREST_TAGS } from '../data/destinations';
+import { seasonalHighlights } from '../data/seasonalHighlights';
 import { useAppState } from '../context/AppState';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -31,6 +33,7 @@ export default function HomeScreen() {
   const navigation = useNavigation<Nav>();
   const { trips, sendGuideMessage } = useAppState();
   const [query, setQuery] = useState('');
+  const [activeInterest, setActiveInterest] = useState<string | null>(null);
 
   const currentMonth = new Date().getMonth() + 1;
   const monthlyDestinations = useMemo(() => {
@@ -40,12 +43,17 @@ export default function HomeScreen() {
 
   const nextTrip = trips[0];
 
+  const filteredAllDestinations = useMemo(() => {
+    if (!activeInterest) return destinations;
+    return destinations.filter((d) => d.interests.includes(activeInterest));
+  }, [activeInterest]);
+
   const askGuide = () => {
     const trimmed = query.trim();
     if (!trimmed) return;
     sendGuideMessage(trimmed);
     setQuery('');
-    navigation.navigate('MainTabs', { screen: 'Chat' });
+    navigation.navigate('GuideChat');
   };
 
   return (
@@ -106,10 +114,33 @@ export default function HomeScreen() {
           />
         </View>
 
+        <SectionHeader title="لفتات الموسم" />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.highlightsRow}
+        >
+          {seasonalHighlights.map((highlight) => (
+            <TouchableOpacity
+              key={highlight.id}
+              style={styles.highlightItem}
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('DestinationDetail', { destinationId: highlight.destinationId })}
+            >
+              <View style={[styles.highlightAvatar, { borderColor: highlight.color }]}>
+                <Text style={styles.highlightEmoji}>{highlight.emoji}</Text>
+              </View>
+              <Text style={styles.highlightLabel} numberOfLines={2}>
+                {highlight.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
         <SectionHeader
           title={`أفضل الوجهات في ${MONTH_NAMES[currentMonth - 1]}`}
           actionLabel="اسأل الدليل"
-          onActionPress={() => navigation.navigate('MainTabs', { screen: 'Chat' })}
+          onActionPress={() => navigation.navigate('GuideChat')}
         />
         <ScrollView
           horizontal
@@ -165,15 +196,34 @@ export default function HomeScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.destinationsRow}
+          contentContainerStyle={styles.interestChipsRow}
         >
-          {destinations.map((destination) => (
-            <DestinationCard
-              key={destination.id}
-              destination={destination}
-              onPress={() => navigation.navigate('DestinationDetail', { destinationId: destination.id })}
+          <FilterChip label="الكل" active={!activeInterest} onPress={() => setActiveInterest(null)} />
+          {INTEREST_TAGS.map((tag) => (
+            <FilterChip
+              key={tag}
+              label={tag}
+              active={activeInterest === tag}
+              onPress={() => setActiveInterest(tag)}
             />
           ))}
+        </ScrollView>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.destinationsRow}
+        >
+          {filteredAllDestinations.length === 0 ? (
+            <Text style={styles.emptyMuted}>ما فيه وجهات بهذا التصنيف حاليًا</Text>
+          ) : (
+            filteredAllDestinations.map((destination) => (
+              <DestinationCard
+                key={destination.id}
+                destination={destination}
+                onPress={() => navigation.navigate('DestinationDetail', { destinationId: destination.id })}
+              />
+            ))
+          )}
         </ScrollView>
 
         <TouchableOpacity
@@ -285,10 +335,49 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 13,
   },
+  highlightsRow: {
+    flexDirection: 'row-reverse',
+    paddingHorizontal: spacing.lg,
+    gap: spacing.md,
+    marginBottom: spacing.xl,
+  },
+  highlightItem: {
+    alignItems: 'center',
+    width: 76,
+  },
+  highlightAvatar: {
+    width: 64,
+    height: 64,
+    borderRadius: radius.pill,
+    borderWidth: 2,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
+  },
+  highlightEmoji: {
+    fontSize: 26,
+  },
+  highlightLabel: {
+    color: colors.text,
+    fontSize: 11,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  interestChipsRow: {
+    flexDirection: 'row-reverse',
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+  },
   destinationsRow: {
     flexDirection: 'row-reverse',
     paddingHorizontal: spacing.lg,
     marginBottom: spacing.xl,
+  },
+  emptyMuted: {
+    color: colors.textFaint,
+    fontSize: 12,
+    paddingHorizontal: spacing.lg,
   },
   tripPreview: {
     height: 130,
