@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
 import { destinations } from '../data/destinations';
@@ -17,13 +17,21 @@ import { useAppState } from '../context/AppState';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
+type Route = RouteProp<RootStackParamList, 'CreateTrip'>;
 
 export default function CreateTripScreen() {
   const navigation = useNavigation<Nav>();
+  const route = useRoute<Route>();
   const { friends, createTrip } = useAppState();
 
+  const preselectedDestinationId = route.params?.destinationId;
+  const initialDestinationId =
+    preselectedDestinationId && destinations.some((d) => d.id === preselectedDestinationId)
+      ? preselectedDestinationId
+      : destinations[0].id;
+
   const [title, setTitle] = useState('');
-  const [destinationId, setDestinationId] = useState(destinations[0].id);
+  const [destinationId, setDestinationId] = useState(initialDestinationId);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [budgetTotal, setBudgetTotal] = useState('');
@@ -48,7 +56,7 @@ export default function CreateTripScreen() {
       startDate: startDate.trim() || '—',
       endDate: endDate.trim() || '—',
       memberIds: selectedFriendIds,
-      budgetTotal: Number(budgetTotal) || 0,
+      budgetTotal: Math.max(0, Number(budgetTotal) || 0),
     });
     navigation.replace('TripDetail', { tripId: trip.id });
   };

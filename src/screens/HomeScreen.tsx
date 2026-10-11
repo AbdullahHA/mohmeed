@@ -117,7 +117,11 @@ export default function HomeScreen() {
           contentContainerStyle={styles.destinationsRow}
         >
           {monthlyDestinations.map((destination) => (
-            <DestinationCard key={destination.id} destination={destination} />
+            <DestinationCard
+              key={destination.id}
+              destination={destination}
+              onPress={() => navigation.navigate('DestinationDetail', { destinationId: destination.id })}
+            />
           ))}
         </ScrollView>
 
@@ -164,7 +168,11 @@ export default function HomeScreen() {
           contentContainerStyle={styles.destinationsRow}
         >
           {destinations.map((destination) => (
-            <DestinationCard key={destination.id} destination={destination} />
+            <DestinationCard
+              key={destination.id}
+              destination={destination}
+              onPress={() => navigation.navigate('DestinationDetail', { destinationId: destination.id })}
+            />
           ))}
         </ScrollView>
 

@@ -29,14 +29,24 @@ export default function TripsScreen() {
 
       <View style={styles.headerRow}>
         <Text style={styles.headerTitle}>رحلاتي</Text>
-        <TouchableOpacity
-          style={styles.newButton}
-          activeOpacity={0.85}
-          onPress={() => navigation.navigate('CreateTrip')}
-        >
-          <Ionicons name="add" size={16} color={colors.textOnPrimary} />
-          <Text style={styles.newButtonText}>رحلة جديدة</Text>
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            style={styles.joinButton}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('JoinTrip')}
+          >
+            <Ionicons name="key-outline" size={16} color={colors.primary} />
+            <Text style={styles.joinButtonText}>لدي رمز دعوة</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.newButton}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('CreateTrip')}
+          >
+            <Ionicons name="add" size={16} color={colors.textOnPrimary} />
+            <Text style={styles.newButtonText}>رحلة جديدة</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {trips.length === 0 ? (
@@ -103,6 +113,27 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 20,
     fontWeight: '800',
+  },
+  headerActions: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  joinButton: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: 4,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  joinButtonText: {
+    color: colors.primaryDark,
+    fontSize: 12,
+    fontWeight: '700',
   },
   newButton: {
     flexDirection: 'row-reverse',

@@ -15,6 +15,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
 import PlaceMiniMap from '../components/PlaceMiniMap';
 import { places } from '../data/places';
+import { getMapsUrl, getPriceLabel } from '../utils/place';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'PlaceDetail'>;
@@ -33,8 +34,8 @@ export default function PlaceDetailScreen() {
     );
   }
 
-  const priceLabel = '$'.repeat(place.priceLevel);
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${place.coordinate.latitude},${place.coordinate.longitude}`;
+  const priceLabel = getPriceLabel(place.priceLevel);
+  const mapsUrl = getMapsUrl(place.coordinate);
 
   return (
     <SafeAreaView style={styles.container}>

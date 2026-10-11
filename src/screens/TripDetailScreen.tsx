@@ -63,11 +63,11 @@ export default function TripDetailScreen() {
 
   const spent = trip.budgetItems.reduce((sum, item) => sum + item.amount, 0);
   const perPerson = members.length > 0 ? Math.ceil(spent / members.length) : spent;
-  const spentRatio = trip.budgetTotal > 0 ? Math.min(spent / trip.budgetTotal, 1) : 0;
+  const spentRatio = trip.budgetTotal > 0 ? Math.max(0, Math.min(spent / trip.budgetTotal, 1)) : 0;
 
   const handleAddBudgetItem = () => {
     const amount = Number(budgetAmount);
-    if (!budgetLabel.trim() || !amount) return;
+    if (!budgetLabel.trim() || !Number.isFinite(amount) || amount <= 0) return;
     addBudgetItem(trip.id, { category: budgetCategory, label: budgetLabel.trim(), amount });
     setBudgetLabel('');
     setBudgetAmount('');

@@ -9,8 +9,10 @@ import TripsScreen from '../screens/TripsScreen';
 import ChatScreen from '../screens/ChatScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import PlaceDetailScreen from '../screens/PlaceDetailScreen';
+import DestinationDetailScreen from '../screens/DestinationDetailScreen';
 import TripDetailScreen from '../screens/TripDetailScreen';
 import CreateTripScreen from '../screens/CreateTripScreen';
+import JoinTripScreen from '../screens/JoinTripScreen';
 import GroupChatScreen from '../screens/GroupChatScreen';
 import AddFriendScreen from '../screens/AddFriendScreen';
 import type { MainTabParamList, RootStackParamList } from './types';
@@ -70,8 +72,10 @@ export default function RootNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MainTabs" component={MainTabs} />
       <Stack.Screen name="PlaceDetail" component={PlaceDetailScreen} />
+      <Stack.Screen name="DestinationDetail" component={DestinationDetailScreen} />
       <Stack.Screen name="TripDetail" component={TripDetailScreen} />
       <Stack.Screen name="CreateTrip" component={CreateTripScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="JoinTrip" component={JoinTripScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="GroupChat" component={GroupChatScreen} />
       <Stack.Screen name="AddFriend" component={AddFriendScreen} options={{ presentation: 'modal' }} />
     </Stack.Navigator>

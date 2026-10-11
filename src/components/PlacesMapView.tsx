@@ -1,7 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Platform, StyleSheet, View, Text } from 'react-native';
+import type MapViewType from 'react-native-maps';
 import { lightMapStyle } from '../theme/mapStyle';
 import PlaceMarker from './PlaceMarker';
+import { MapView, Marker } from './mapModule';
 import type { Place } from '../data/places';
 
 type Props = {
@@ -30,18 +32,16 @@ function regionFromPlaces(places: Place[]) {
   };
 }
 
-let MapView: any;
-let Marker: any;
-if (Platform.OS !== 'web') {
-  const Maps = require('react-native-maps');
-  MapView = Maps.default;
-  Marker = Maps.Marker;
-}
-
 export default function PlacesMapView({ places, selectedPlaceId, onMarkerPress }: Props) {
-  const initialRegion = useMemo(() => regionFromPlaces(places), [places]);
+  const mapRef = useRef<MapViewType | null>(null);
+  const initialRegion = useMemo(() => regionFromPlaces(places), []);
 
-  if (Platform.OS === 'web') {
+  useEffect(() => {
+    if (!mapRef.current) return;
+    mapRef.current.animateToRegion(regionFromPlaces(places), 350);
+  }, [places]);
+
+  if (Platform.OS === 'web' || !MapView || !Marker) {
     return (
       <View style={[styles.map, styles.webFallback]}>
         <Text style={styles.webFallbackText}>معاينة الخريطة متاحة على الجوال فقط</Text>
@@ -49,8 +49,14 @@ export default function PlacesMapView({ places, selectedPlaceId, onMarkerPress }
     );
   }
 
+  // Narrowed to non-null locally: TS can't track the module-level `let` export's
+  // null-check across the early return above, but the guard makes this safe at runtime.
+  const MapComponent = MapView;
+  const MarkerComponent = Marker;
+
   return (
-    <MapView
+    <MapComponent
+      ref={mapRef}
       style={styles.map}
       initialRegion={initialRegion}
       customMapStyle={lightMapStyle}
@@ -58,16 +64,16 @@ export default function PlacesMapView({ places, selectedPlaceId, onMarkerPress }
       showsMyLocationButton={false}
     >
       {places.map((place: Place) => (
-        <Marker
+        <MarkerComponent
           key={place.id}
           coordinate={place.coordinate}
           onPress={() => onMarkerPress?.(place)}
           tracksViewChanges={false}
         >
           <PlaceMarker selected={place.id === selectedPlaceId} />
-        </Marker>
+        </MarkerComponent>
       ))}
-    </MapView>
+    </MapComponent>
   );
 }
 

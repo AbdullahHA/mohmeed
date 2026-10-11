@@ -94,23 +94,35 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [guideMessages, setGuideMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
   const [hydrated, setHydrated] = useState(false);
   const hydratedRef = useRef(false);
+  // Set only when hydration actually replaced seed data, so the write effect below
+  // can skip the one redundant write-back of data it just read from storage.
+  const justHydratedRef = useRef(false);
 
   useEffect(() => {
     (async () => {
+      let loadedFromStorage = false;
       try {
         const raw = await AsyncStorage.getItem(STORAGE_KEY);
         if (raw) {
           const parsed: Partial<PersistedState> = JSON.parse(raw);
-          if (Array.isArray(parsed.friends)) setFriends(parsed.friends);
-          if (Array.isArray(parsed.trips)) setTrips(parsed.trips);
+          if (Array.isArray(parsed.friends)) {
+            setFriends(parsed.friends);
+            loadedFromStorage = true;
+          }
+          if (Array.isArray(parsed.trips)) {
+            setTrips(parsed.trips);
+            loadedFromStorage = true;
+          }
           if (Array.isArray(parsed.guideMessages) && parsed.guideMessages.length > 0) {
             setGuideMessages(parsed.guideMessages);
+            loadedFromStorage = true;
           }
         }
       } catch {
         // corrupt or unavailable storage: keep the seed data
       } finally {
         hydratedRef.current = true;
+        justHydratedRef.current = loadedFromStorage;
         setHydrated(true);
       }
     })();
@@ -118,6 +130,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!hydratedRef.current) return;
+    if (justHydratedRef.current) {
+      justHydratedRef.current = false;
+      return;
+    }
     const payload: PersistedState = { friends, trips, guideMessages };
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload)).catch(() => {});
   }, [friends, trips, guideMessages]);

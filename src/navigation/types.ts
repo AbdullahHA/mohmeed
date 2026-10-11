@@ -11,8 +11,10 @@ export type MainTabParamList = {
 export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   PlaceDetail: { placeId: string };
+  DestinationDetail: { destinationId: string };
   TripDetail: { tripId: string };
-  CreateTrip: undefined;
+  CreateTrip: { destinationId?: string } | undefined;
+  JoinTrip: undefined;
   GroupChat: { tripId: string };
   AddFriend: undefined;
 };
