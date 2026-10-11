@@ -1,8 +1,26 @@
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { currentUser, seedFriends } from '../data/friends';
 import { seedTrips } from '../data/trips';
 import { destinations } from '../data/destinations';
+import { colors } from '../theme/colors';
 import type { BudgetItem, ChatMessage, Friend, ItineraryItem, Trip } from '../types';
+
+const STORAGE_KEY = 'yalla-nsafer:state:v1';
+
+const WELCOME_MESSAGE: ChatMessage = {
+  id: 'guide-welcome',
+  fromId: 'guide',
+  text: 'مرحباً بك في يلا نسافر 👋 أنا دليلك للسفر. اسألني عن أفضل الوجهات، الفنادق، أو المطاعم في أي شهر.',
+  at: Date.now(),
+};
+
+type PersistedState = {
+  friends: Friend[];
+  trips: Trip[];
+  guideMessages: ChatMessage[];
+};
 
 type NewTripInput = {
   title: string;
@@ -73,14 +91,36 @@ const AppStateContext = createContext<AppStateValue | undefined>(undefined);
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [friends, setFriends] = useState<Friend[]>(seedFriends);
   const [trips, setTrips] = useState<Trip[]>(seedTrips);
-  const [guideMessages, setGuideMessages] = useState<ChatMessage[]>([
-    {
-      id: 'guide-welcome',
-      fromId: 'guide',
-      text: 'مرحباً بك في يلا نسافر 👋 أنا دليلك للسفر. اسألني عن أفضل الوجهات، الفنادق، أو المطاعم في أي شهر.',
-      at: Date.now(),
-    },
-  ]);
+  const [guideMessages, setGuideMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
+  const [hydrated, setHydrated] = useState(false);
+  const hydratedRef = useRef(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const raw = await AsyncStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed: Partial<PersistedState> = JSON.parse(raw);
+          if (Array.isArray(parsed.friends)) setFriends(parsed.friends);
+          if (Array.isArray(parsed.trips)) setTrips(parsed.trips);
+          if (Array.isArray(parsed.guideMessages) && parsed.guideMessages.length > 0) {
+            setGuideMessages(parsed.guideMessages);
+          }
+        }
+      } catch {
+        // corrupt or unavailable storage: keep the seed data
+      } finally {
+        hydratedRef.current = true;
+        setHydrated(true);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+    const payload: PersistedState = { friends, trips, guideMessages };
+    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload)).catch(() => {});
+  }, [friends, trips, guideMessages]);
 
   const addFriend = (name: string): Friend => {
     const friend: Friend = {
@@ -193,6 +233,14 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     }),
     [friends, trips, guideMessages]
   );
+
+  if (!hydrated) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
+        <ActivityIndicator color={colors.primary} />
+      </View>
+    );
+  }
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;
 }
