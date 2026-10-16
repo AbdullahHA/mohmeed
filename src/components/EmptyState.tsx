@@ -13,7 +13,7 @@ export default function EmptyState({ icon, title, subtitle }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.iconWrap}>
-        <Ionicons name={icon} size={32} color={colors.gold} />
+        <Ionicons name={icon} size={32} color={colors.primary} />
       </View>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.subtitle}>{subtitle}</Text>

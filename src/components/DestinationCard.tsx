@@ -19,7 +19,7 @@ export default function DestinationCard({ destination, onPress }: Props) {
         <View style={styles.overlay} />
         {destination.trending ? (
           <View style={styles.badge}>
-            <Text style={styles.badgeText}>رائجة 🔥</Text>
+            <Text style={styles.badgeText}>الأكثر بحثاً</Text>
           </View>
         ) : null}
         <View style={styles.textWrap}>
@@ -60,14 +60,14 @@ const styles = StyleSheet.create({
   },
   badge: {
     alignSelf: 'flex-end',
-    backgroundColor: colors.red,
+    backgroundColor: colors.accent,
     borderRadius: radius.sm,
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     margin: spacing.sm,
   },
   badgeText: {
-    color: colors.text,
+    color: colors.textOnPrimary,
     fontSize: 10,
     fontWeight: '700',
   },
@@ -75,13 +75,13 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
   },
   name: {
-    color: colors.text,
+    color: colors.textOnPrimary,
     fontSize: 16,
     fontWeight: '700',
     textAlign: 'right',
   },
   tagline: {
-    color: colors.textMuted,
+    color: 'rgba(255,255,255,0.85)',
     fontSize: 11,
     textAlign: 'right',
     marginTop: 2,

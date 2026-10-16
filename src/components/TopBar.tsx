@@ -1,28 +1,25 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, spacing } from '../theme/colors';
+import { useAppState } from '../context/AppState';
 
 export default function TopBar() {
+  const { currentUser } = useAppState();
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.loginButton} activeOpacity={0.8}>
-        <Text style={styles.loginText}>تسجيل الدخول</Text>
-      </TouchableOpacity>
-
-      <View style={styles.iconsRow}>
-        <View style={[styles.iconCircle, { backgroundColor: colors.red }]}>
-          <Ionicons name="flame" size={16} color={colors.text} />
+      <View style={styles.brandRow}>
+        <View style={styles.brandIcon}>
+          <Ionicons name="compass" size={18} color={colors.textOnPrimary} />
         </View>
-        <View style={[styles.iconCircle, styles.themeCircle]}>
-          <Ionicons name="sunny" size={16} color={colors.gold} />
-        </View>
+        <Text style={styles.brandText}>يلا نسافر</Text>
       </View>
 
       <View style={styles.welcomeRow}>
-        <Text style={styles.welcomeText}>مرحباً بك</Text>
-        <View style={styles.avatar}>
-          <Ionicons name="leaf" size={16} color={colors.gold} />
+        <Text style={styles.welcomeText}>أهلاً {currentUser.name}</Text>
+        <View style={[styles.avatar, { backgroundColor: currentUser.color }]}>
+          <Text style={styles.avatarEmoji}>{currentUser.emoji}</Text>
         </View>
       </View>
     </View>
@@ -38,32 +35,23 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
     paddingBottom: spacing.md,
   },
-  loginButton: {
-    backgroundColor: colors.gold,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.pill,
-  },
-  loginText: {
-    color: colors.background,
-    fontWeight: '700',
-    fontSize: 13,
-  },
-  iconsRow: {
+  brandRow: {
     flexDirection: 'row-reverse',
+    alignItems: 'center',
     gap: spacing.sm,
   },
-  iconCircle: {
-    width: 34,
-    height: 34,
+  brandIcon: {
+    width: 32,
+    height: 32,
     borderRadius: radius.pill,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  themeCircle: {
-    backgroundColor: colors.surfaceAlt,
-    borderWidth: 1,
-    borderColor: colors.gold,
+  brandText: {
+    color: colors.primary,
+    fontSize: 17,
+    fontWeight: '800',
   },
   welcomeRow: {
     flexDirection: 'row-reverse',
@@ -72,15 +60,17 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     color: colors.text,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
   },
   avatar: {
     width: 34,
     height: 34,
     borderRadius: radius.md,
-    backgroundColor: colors.surfaceAlt,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  avatarEmoji: {
+    fontSize: 16,
   },
 });

@@ -10,7 +10,7 @@ type Props = {
 export default function PlaceMarker({ selected }: Props) {
   return (
     <View style={[styles.pin, selected && styles.pinSelected]}>
-      <Ionicons name="location" size={14} color={selected ? colors.background : colors.gold} />
+      <Ionicons name="location" size={14} color={selected ? colors.textOnPrimary : colors.primary} />
     </View>
   );
 }
@@ -22,11 +22,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     backgroundColor: colors.surface,
     borderWidth: 2,
-    borderColor: colors.gold,
+    borderColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   pinSelected: {
-    backgroundColor: colors.gold,
+    backgroundColor: colors.primary,
   },
 });

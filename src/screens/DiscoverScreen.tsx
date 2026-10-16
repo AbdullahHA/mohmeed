@@ -42,7 +42,7 @@ export default function DiscoverScreen() {
           <Ionicons
             name={viewMode === 'list' ? 'map-outline' : 'list-outline'}
             size={18}
-            color={colors.gold}
+            color={colors.primary}
           />
         </TouchableOpacity>
         <View style={styles.searchBar}>

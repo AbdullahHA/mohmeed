@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   action: {
-    color: colors.gold,
+    color: colors.primary,
     fontSize: 13,
     fontWeight: '600',
   },
