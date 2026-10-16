@@ -1,11 +1,14 @@
 import React from 'react';
-import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import TopBar from '../components/TopBar';
 import { colors, radius, spacing } from '../theme/colors';
+import { destinations } from '../data/destinations';
+import { places } from '../data/places';
 import { useAppState } from '../context/AppState';
+import { BUDGET_CATEGORY_LABELS } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 import type { Feedback } from '../types';
 
@@ -25,7 +28,32 @@ const FEEDBACK_THANKS: Record<Feedback, string> = {
 
 export default function ProfileScreen() {
   const navigation = useNavigation<Nav>();
-  const { currentUser, friends, trips, feedback, setFeedback } = useAppState();
+  const {
+    currentUser,
+    friends,
+    trips,
+    feedback,
+    setFeedback,
+    visitedStamps,
+    recommendedPlaceIds,
+    airlineReviews,
+    removeAirlineReview,
+    tripTemplates,
+  } = useAppState();
+
+  const visitedDestinations = visitedStamps
+    .map((stamp) => destinations.find((d) => d.id === stamp.destinationId))
+    .filter((d): d is NonNullable<typeof d> => Boolean(d));
+
+  const recommendedPlaces = places.filter((p) => recommendedPlaceIds.includes(p.id));
+  const recommendedByCity = destinations
+    .map((destination) => ({
+      destination,
+      places: recommendedPlaces.filter((p) => p.destinationId === destination.id),
+    }))
+    .filter((group) => group.places.length > 0);
+
+  const myTemplates = tripTemplates.filter((t) => t.isMine);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -45,11 +73,41 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
+              <Text style={styles.statValue}>{visitedDestinations.length}</Text>
+              <Text style={styles.statLabel}>أماكن زرتها</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
               <Text style={styles.statValue}>{friends.length}</Text>
               <Text style={styles.statLabel}>أصدقاء</Text>
             </View>
           </View>
         </View>
+
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionTitle}>جواز رحلاتي</Text>
+        </View>
+        {visitedDestinations.length === 0 ? (
+          <Text style={styles.emptyMuted}>
+            ما سجلت أي مكان بعد — افتح أي وجهة واضغط "أضفها لأماكن زرتها" عشان تبدأ جوازك
+          </Text>
+        ) : (
+          <View style={styles.stampsGrid}>
+            {visitedDestinations.map((destination) => (
+              <TouchableOpacity
+                key={destination.id}
+                style={styles.stamp}
+                activeOpacity={0.85}
+                onPress={() => navigation.navigate('DestinationDetail', { destinationId: destination.id })}
+              >
+                <Image source={{ uri: destination.image }} style={styles.stampImage} />
+                <View style={styles.stampOverlay} />
+                <Ionicons name="ribbon" size={16} color={colors.textOnPrimary} style={styles.stampIcon} />
+                <Text style={styles.stampName}>{destination.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>رحلاتي</Text>
@@ -71,6 +129,107 @@ export default function ProfileScreen() {
               </View>
               <Ionicons name="airplane-outline" size={18} color={colors.primary} />
             </TouchableOpacity>
+          ))
+        )}
+
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionTitle}>قوالب رحلاتي</Text>
+          <TouchableOpacity
+            style={styles.linkButton}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('TripTemplates')}
+          >
+            <Text style={styles.linkButtonText}>تصفح كل القوالب</Text>
+            <Ionicons name="chevron-back" size={13} color={colors.primary} />
+          </TouchableOpacity>
+        </View>
+        {myTemplates.length === 0 ? (
+          <TouchableOpacity
+            style={styles.ctaCard}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('CreateTripTemplate')}
+          >
+            <Ionicons name="document-text-outline" size={20} color={colors.primary} />
+            <Text style={styles.ctaCardText}>أنشئ قالب رحلة كامل وشاركه مع الآخرين</Text>
+          </TouchableOpacity>
+        ) : (
+          myTemplates.map((template) => {
+            const destination = destinations.find((d) => d.id === template.destinationId);
+            return (
+              <TouchableOpacity
+                key={template.id}
+                style={styles.tripRow}
+                activeOpacity={0.8}
+                onPress={() => navigation.navigate('TripTemplateDetail', { templateId: template.id })}
+              >
+                <Ionicons name="chevron-back" size={16} color={colors.textMuted} />
+                <View style={styles.tripTextWrap}>
+                  <Text style={styles.tripTitle}>{template.title}</Text>
+                  <Text style={styles.tripSubtitle}>
+                    {destination?.name} · {template.price === 0 ? 'مجاني' : `${template.price} ر.س`}
+                  </Text>
+                </View>
+                <Ionicons name="document-text-outline" size={18} color={colors.primary} />
+              </TouchableOpacity>
+            );
+          })
+        )}
+
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionTitle}>توصياتي</Text>
+        </View>
+        {recommendedByCity.length === 0 ? (
+          <Text style={styles.emptyMuted}>
+            ما ضفت توصيات بعد — اضغط على أيقونة القلب بأي مكان من "اكتشف" عشان تضيفه هنا
+          </Text>
+        ) : (
+          recommendedByCity.map((group) => (
+            <View key={group.destination.id} style={styles.recommendGroup}>
+              <Text style={styles.recommendCity}>{group.destination.name}</Text>
+              {group.places.map((place) => (
+                <TouchableOpacity
+                  key={place.id}
+                  style={styles.recommendRow}
+                  activeOpacity={0.8}
+                  onPress={() => navigation.navigate('PlaceDetail', { placeId: place.id })}
+                >
+                  <Ionicons name="heart" size={14} color={colors.accent} />
+                  <Text style={styles.recommendName}>{place.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ))
+        )}
+
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionTitle}>تجاربي بالطيران</Text>
+          <TouchableOpacity
+            style={styles.linkButton}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('AddAirlineReview')}
+          >
+            <Ionicons name="add" size={14} color={colors.primary} />
+            <Text style={styles.linkButtonText}>أضف تجربة</Text>
+          </TouchableOpacity>
+        </View>
+        {airlineReviews.length === 0 ? (
+          <Text style={styles.emptyMuted}>ما سجلت أي تجربة طيران بعد</Text>
+        ) : (
+          airlineReviews.map((review) => (
+            <View key={review.id} style={styles.airlineRow}>
+              <TouchableOpacity onPress={() => removeAirlineReview(review.id)} activeOpacity={0.7}>
+                <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
+              </TouchableOpacity>
+              <View style={styles.airlineTextWrap}>
+                <Text style={styles.airlineRoute}>{review.fromCity} → {review.toCity}</Text>
+                <Text style={styles.airlineName}>{review.airline}</Text>
+                {review.note ? <Text style={styles.airlineNote}>{review.note}</Text> : null}
+              </View>
+              <View style={styles.airlineRating}>
+                <Ionicons name="star" size={13} color={colors.accent} />
+                <Text style={styles.airlineRatingText}>{review.rating}</Text>
+              </View>
+            </View>
           ))
         )}
 
@@ -130,6 +289,8 @@ export default function ProfileScreen() {
   );
 }
 
+const STAMP_SIZE = '31%';
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scrollContent: { paddingBottom: spacing.xxl, paddingHorizontal: spacing.lg },
@@ -154,7 +315,7 @@ const styles = StyleSheet.create({
   name: { color: colors.text, fontSize: 18, fontWeight: '800' },
   username: { color: colors.textMuted, fontSize: 12, marginTop: 2, marginBottom: spacing.lg },
   statsRow: { flexDirection: 'row-reverse', alignItems: 'center' },
-  statItem: { alignItems: 'center', paddingHorizontal: spacing.xl },
+  statItem: { alignItems: 'center', paddingHorizontal: spacing.lg },
   statValue: { color: colors.primary, fontSize: 18, fontWeight: '800' },
   statLabel: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
   statDivider: { width: 1, height: 28, backgroundColor: colors.border },
@@ -166,7 +327,54 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   sectionTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
-  emptyMuted: { color: colors.textFaint, fontSize: 12, textAlign: 'center', paddingVertical: spacing.md },
+  emptyMuted: {
+    color: colors.textFaint,
+    fontSize: 12,
+    textAlign: 'center',
+    paddingVertical: spacing.md,
+    lineHeight: 18,
+  },
+  linkButton: { flexDirection: 'row-reverse', alignItems: 'center', gap: 2 },
+  linkButtonText: { color: colors.primary, fontSize: 12, fontWeight: '700' },
+  ctaCard: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.primarySoft,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderStyle: 'dashed',
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  ctaCardText: { color: colors.primaryDark, fontSize: 13, fontWeight: '600', flex: 1, textAlign: 'right' },
+  stampsGrid: {
+    flexDirection: 'row-reverse',
+    flexWrap: 'wrap',
+    columnGap: spacing.sm,
+    rowGap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  stamp: {
+    width: STAMP_SIZE,
+    aspectRatio: 1,
+    borderRadius: radius.md,
+    overflow: 'hidden',
+    justifyContent: 'flex-end',
+    padding: spacing.xs,
+  },
+  stampImage: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+  stampOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: colors.overlay,
+  },
+  stampIcon: { position: 'absolute', top: spacing.xs, right: spacing.xs },
+  stampName: { color: colors.textOnPrimary, fontSize: 11, fontWeight: '700', textAlign: 'right' },
   addFriendButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -191,6 +399,37 @@ const styles = StyleSheet.create({
   tripTextWrap: { flex: 1 },
   tripTitle: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
   tripSubtitle: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: 2 },
+  recommendGroup: { marginBottom: spacing.md },
+  recommendCity: { color: colors.textMuted, fontSize: 12, fontWeight: '700', textAlign: 'right', marginBottom: spacing.xs },
+  recommendRow: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  recommendName: { color: colors.text, fontSize: 13, fontWeight: '600', textAlign: 'right', flex: 1 },
+  airlineRow: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  airlineTextWrap: { flex: 1 },
+  airlineRoute: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
+  airlineName: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 1 },
+  airlineNote: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: 2 },
+  airlineRating: { flexDirection: 'row-reverse', alignItems: 'center', gap: 2 },
+  airlineRatingText: { color: colors.accentDark, fontSize: 12, fontWeight: '700' },
   friendRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

@@ -72,3 +72,41 @@ export type Community = {
 };
 
 export type Feedback = 'loved' | 'ok' | 'bad';
+
+export type VisitedStamp = {
+  destinationId: string;
+  visitedAt: number;
+};
+
+export type AirlineReview = {
+  id: string;
+  fromCity: string;
+  toCity: string;
+  airline: string;
+  note: string;
+  rating: number;
+};
+
+export type TripTemplateItem = {
+  id: string;
+  category: BudgetCategory;
+  label: string;
+};
+
+export type TripTemplate = {
+  id: string;
+  title: string;
+  destinationId: string;
+  authorName: string;
+  isMine: boolean;
+  days: number;
+  price: number;
+  items: TripTemplateItem[];
+};
+
+export type CheckInPeer = {
+  id: string;
+  name: string;
+  emoji: string;
+  color: string;
+};

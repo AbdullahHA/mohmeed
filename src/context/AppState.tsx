@@ -4,9 +4,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { currentUser, seedFriends } from '../data/friends';
 import { seedTrips } from '../data/trips';
 import { seedCommunities } from '../data/communities';
+import { seedTripTemplates } from '../data/tripTemplates';
 import { destinations } from '../data/destinations';
 import { colors } from '../theme/colors';
 import type {
+  AirlineReview,
   BudgetItem,
   ChatMessage,
   Community,
@@ -14,6 +16,9 @@ import type {
   Friend,
   ItineraryItem,
   Trip,
+  TripTemplate,
+  TripTemplateItem,
+  VisitedStamp,
 } from '../types';
 
 const STORAGE_KEY = 'yalla-nsafer:state:v1';
@@ -31,6 +36,11 @@ type PersistedState = {
   guideMessages: ChatMessage[];
   communities: Community[];
   feedback: Feedback | null;
+  visitedStamps: VisitedStamp[];
+  recommendedPlaceIds: string[];
+  airlineReviews: AirlineReview[];
+  tripTemplates: TripTemplate[];
+  myCheckIn: string | null;
 };
 
 type NewTripInput = {
@@ -43,6 +53,14 @@ type NewTripInput = {
   budgetTotal: number;
 };
 
+type NewTripTemplateInput = {
+  title: string;
+  destinationId: string;
+  days: number;
+  price: number;
+  items: Omit<TripTemplateItem, 'id'>[];
+};
+
 type AppStateValue = {
   currentUser: Friend;
   friends: Friend[];
@@ -50,6 +68,11 @@ type AppStateValue = {
   guideMessages: ChatMessage[];
   communities: Community[];
   feedback: Feedback | null;
+  visitedStamps: VisitedStamp[];
+  recommendedPlaceIds: string[];
+  airlineReviews: AirlineReview[];
+  tripTemplates: TripTemplate[];
+  myCheckIn: string | null;
   addFriend: (name: string) => Friend;
   createTrip: (input: NewTripInput) => Trip;
   addMember: (tripId: string, friendId: string) => void;
@@ -63,6 +86,15 @@ type AppStateValue = {
   leaveCommunity: (communityId: string) => void;
   sendCommunityMessage: (communityId: string, text: string) => void;
   setFeedback: (value: Feedback | null) => void;
+  toggleVisited: (destinationId: string) => void;
+  toggleRecommended: (placeId: string) => void;
+  addAirlineReview: (input: Omit<AirlineReview, 'id'>) => void;
+  removeAirlineReview: (id: string) => void;
+  addTripTemplate: (input: NewTripTemplateInput) => TripTemplate;
+  removeTripTemplate: (id: string) => void;
+  applyTripTemplate: (templateId: string) => Trip | null;
+  checkIn: (destinationId: string) => void;
+  checkOut: () => void;
 };
 
 const AVATAR_EMOJIS = ['🌵', '🏖️', '🏔️', '🕌', '🚗', '🎈', '🧳', '☕'];
@@ -111,6 +143,11 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [guideMessages, setGuideMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
   const [communities, setCommunities] = useState<Community[]>(seedCommunities);
   const [feedback, setFeedbackState] = useState<Feedback | null>(null);
+  const [visitedStamps, setVisitedStamps] = useState<VisitedStamp[]>([]);
+  const [recommendedPlaceIds, setRecommendedPlaceIds] = useState<string[]>([]);
+  const [airlineReviews, setAirlineReviews] = useState<AirlineReview[]>([]);
+  const [tripTemplates, setTripTemplates] = useState<TripTemplate[]>(seedTripTemplates);
+  const [myCheckIn, setMyCheckIn] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const hydratedRef = useRef(false);
   // Set only when hydration actually replaced seed data, so the write effect below
@@ -144,6 +181,26 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
             setFeedbackState(parsed.feedback);
             loadedFromStorage = true;
           }
+          if (Array.isArray(parsed.visitedStamps)) {
+            setVisitedStamps(parsed.visitedStamps);
+            loadedFromStorage = true;
+          }
+          if (Array.isArray(parsed.recommendedPlaceIds)) {
+            setRecommendedPlaceIds(parsed.recommendedPlaceIds);
+            loadedFromStorage = true;
+          }
+          if (Array.isArray(parsed.airlineReviews)) {
+            setAirlineReviews(parsed.airlineReviews);
+            loadedFromStorage = true;
+          }
+          if (Array.isArray(parsed.tripTemplates)) {
+            setTripTemplates(parsed.tripTemplates);
+            loadedFromStorage = true;
+          }
+          if (typeof parsed.myCheckIn === 'string' || parsed.myCheckIn === null) {
+            setMyCheckIn(parsed.myCheckIn ?? null);
+            loadedFromStorage = true;
+          }
         }
       } catch {
         // corrupt or unavailable storage: keep the seed data
@@ -161,9 +218,31 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       justHydratedRef.current = false;
       return;
     }
-    const payload: PersistedState = { friends, trips, guideMessages, communities, feedback };
+    const payload: PersistedState = {
+      friends,
+      trips,
+      guideMessages,
+      communities,
+      feedback,
+      visitedStamps,
+      recommendedPlaceIds,
+      airlineReviews,
+      tripTemplates,
+      myCheckIn,
+    };
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload)).catch(() => {});
-  }, [friends, trips, guideMessages, communities, feedback]);
+  }, [
+    friends,
+    trips,
+    guideMessages,
+    communities,
+    feedback,
+    visitedStamps,
+    recommendedPlaceIds,
+    airlineReviews,
+    tripTemplates,
+    myCheckIn,
+  ]);
 
   const addFriend = (name: string): Friend => {
     const friend: Friend = {
@@ -284,6 +363,74 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setFeedbackState(value);
   };
 
+  const toggleVisited = (destinationId: string) => {
+    setVisitedStamps((prev) =>
+      prev.some((s) => s.destinationId === destinationId)
+        ? prev.filter((s) => s.destinationId !== destinationId)
+        : [...prev, { destinationId, visitedAt: Date.now() }]
+    );
+  };
+
+  const toggleRecommended = (placeId: string) => {
+    setRecommendedPlaceIds((prev) =>
+      prev.includes(placeId) ? prev.filter((id) => id !== placeId) : [...prev, placeId]
+    );
+  };
+
+  const addAirlineReview = (input: Omit<AirlineReview, 'id'>) => {
+    setAirlineReviews((prev) => [{ ...input, id: uid('air') }, ...prev]);
+  };
+
+  const removeAirlineReview = (id: string) => {
+    setAirlineReviews((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  const addTripTemplate = (input: NewTripTemplateInput): TripTemplate => {
+    const template: TripTemplate = {
+      id: uid('tpl'),
+      title: input.title,
+      destinationId: input.destinationId,
+      authorName: currentUser.name,
+      isMine: true,
+      days: input.days,
+      price: input.price,
+      items: input.items.map((item) => ({ ...item, id: uid('tplitem') })),
+    };
+    setTripTemplates((prev) => [template, ...prev]);
+    return template;
+  };
+
+  const removeTripTemplate = (id: string) => {
+    setTripTemplates((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const applyTripTemplate = (templateId: string): Trip | null => {
+    const template = tripTemplates.find((t) => t.id === templateId);
+    if (!template) return null;
+    const destination = destinations.find((d) => d.id === template.destinationId);
+    const trip = createTrip({
+      title: template.title,
+      destination: destination?.name ?? template.destinationId,
+      coverImage: destination?.image ?? '',
+      startDate: '—',
+      endDate: '—',
+      memberIds: [],
+      budgetTotal: 0,
+    });
+    template.items.forEach((item) => {
+      addItineraryItem(trip.id, { day: 'غير محدد', time: '—', title: item.label });
+    });
+    return trip;
+  };
+
+  const checkIn = (destinationId: string) => {
+    setMyCheckIn(destinationId);
+  };
+
+  const checkOut = () => {
+    setMyCheckIn(null);
+  };
+
   const value = useMemo<AppStateValue>(
     () => ({
       currentUser,
@@ -292,6 +439,11 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       guideMessages,
       communities,
       feedback,
+      visitedStamps,
+      recommendedPlaceIds,
+      airlineReviews,
+      tripTemplates,
+      myCheckIn,
       addFriend,
       createTrip,
       addMember,
@@ -305,8 +457,28 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       leaveCommunity,
       sendCommunityMessage,
       setFeedback,
+      toggleVisited,
+      toggleRecommended,
+      addAirlineReview,
+      removeAirlineReview,
+      addTripTemplate,
+      removeTripTemplate,
+      applyTripTemplate,
+      checkIn,
+      checkOut,
     }),
-    [friends, trips, guideMessages, communities, feedback]
+    [
+      friends,
+      trips,
+      guideMessages,
+      communities,
+      feedback,
+      visitedStamps,
+      recommendedPlaceIds,
+      airlineReviews,
+      tripTemplates,
+      myCheckIn,
+    ]
   );
 
   if (!hydrated) {

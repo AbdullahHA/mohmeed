@@ -20,10 +20,11 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export default function PlaceCard({ place, onPress }: Props) {
   const navigation = useNavigation<Nav>();
-  const { trips, addItineraryItem } = useAppState();
+  const { trips, addItineraryItem, recommendedPlaceIds, toggleRecommended } = useAppState();
   const [pickerVisible, setPickerVisible] = useState(false);
   const priceLabel = getPriceLabel(place.priceLevel);
   const mapsUrl = getMapsUrl(place.coordinate);
+  const isRecommended = recommendedPlaceIds.includes(place.id);
 
   const handleAddToTrip = () => {
     if (trips.length === 0) {
@@ -45,8 +46,21 @@ export default function PlaceCard({ place, onPress }: Props) {
 
       <View style={styles.body}>
         <View style={styles.ratingRow}>
-          <Ionicons name="star" size={14} color={colors.accent} />
-          <Text style={styles.rating}>{place.rating.toFixed(1)}</Text>
+          <TouchableOpacity
+            onPress={() => toggleRecommended(place.id)}
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Ionicons
+              name={isRecommended ? 'heart' : 'heart-outline'}
+              size={18}
+              color={isRecommended ? colors.accent : colors.textFaint}
+            />
+          </TouchableOpacity>
+          <View style={styles.ratingGroup}>
+            <Ionicons name="star" size={14} color={colors.accent} />
+            <Text style={styles.rating}>{place.rating.toFixed(1)}</Text>
+          </View>
         </View>
 
         <Text style={styles.name}>{place.name}</Text>
@@ -113,8 +127,13 @@ const styles = StyleSheet.create({
   ratingRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
-    gap: spacing.xs,
+    justifyContent: 'space-between',
     marginBottom: spacing.xs,
+  },
+  ratingGroup: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.xs,
   },
   rating: {
     color: colors.accentDark,

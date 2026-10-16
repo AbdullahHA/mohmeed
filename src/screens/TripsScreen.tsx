@@ -49,6 +49,16 @@ export default function TripsScreen() {
         </View>
       </View>
 
+      <TouchableOpacity
+        style={styles.templatesBanner}
+        activeOpacity={0.85}
+        onPress={() => navigation.navigate('TripTemplates')}
+      >
+        <Ionicons name="chevron-back" size={14} color={colors.primary} />
+        <Text style={styles.templatesBannerText}>تصفح قوالب رحلات جاهزة من مسافرين ثانين</Text>
+        <Ionicons name="document-text-outline" size={16} color={colors.primary} />
+      </TouchableOpacity>
+
       {trips.length === 0 ? (
         <EmptyState
           icon="airplane-outline"
@@ -119,6 +129,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
   },
+  templatesBanner: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.primarySoft,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  templatesBannerText: { color: colors.primaryDark, fontSize: 12, fontWeight: '600', flex: 1, textAlign: 'right' },
   joinButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

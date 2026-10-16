@@ -8,6 +8,7 @@ export type Place = {
   category: 'هادئ الآن' | 'Hot Spot' | 'الافتراضي';
   coordinate: { latitude: number; longitude: number };
   website?: string;
+  destinationId: string;
 };
 
 export const places: Place[] = [
@@ -22,6 +23,7 @@ export const places: Place[] = [
     category: 'Hot Spot',
     coordinate: { latitude: 24.7743, longitude: 46.6389 },
     website: 'https://www.ihg.com',
+    destinationId: 'riyadh',
   },
   {
     id: 'boulevard-riyadh',
@@ -33,6 +35,7 @@ export const places: Place[] = [
     priceLevel: 2,
     category: 'الافتراضي',
     coordinate: { latitude: 24.7690, longitude: 46.6560 },
+    destinationId: 'riyadh',
   },
   {
     id: 'edge-of-the-world',
@@ -44,6 +47,7 @@ export const places: Place[] = [
     priceLevel: 1,
     category: 'هادئ الآن',
     coordinate: { latitude: 24.9601, longitude: 45.9739 },
+    destinationId: 'riyadh',
   },
   {
     id: 'diriyah-gate',
@@ -55,6 +59,7 @@ export const places: Place[] = [
     priceLevel: 2,
     category: 'Hot Spot',
     coordinate: { latitude: 24.7332, longitude: 46.5750 },
+    destinationId: 'riyadh',
   },
   {
     id: 'red-sea-resort',
@@ -66,5 +71,6 @@ export const places: Place[] = [
     priceLevel: 3,
     category: 'هادئ الآن',
     coordinate: { latitude: 25.5000, longitude: 36.5000 },
+    destinationId: 'redsea',
   },
 ];

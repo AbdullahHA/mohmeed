@@ -16,6 +16,7 @@ import { colors, radius, spacing } from '../theme/colors';
 import PlaceMiniMap from '../components/PlaceMiniMap';
 import { places } from '../data/places';
 import { getMapsUrl, getPriceLabel } from '../utils/place';
+import { useAppState } from '../context/AppState';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'PlaceDetail'>;
@@ -24,6 +25,7 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 export default function PlaceDetailScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
+  const { recommendedPlaceIds, toggleRecommended } = useAppState();
   const place = places.find((p) => p.id === route.params.placeId);
 
   if (!place) {
@@ -36,6 +38,7 @@ export default function PlaceDetailScreen() {
 
   const priceLabel = getPriceLabel(place.priceLevel);
   const mapsUrl = getMapsUrl(place.coordinate);
+  const isRecommended = recommendedPlaceIds.includes(place.id);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -53,10 +56,23 @@ export default function PlaceDetailScreen() {
 
         <View style={styles.body}>
           <View style={styles.ratingRow}>
-            <Ionicons name="star" size={16} color={colors.accent} />
-            <Text style={styles.rating}>{place.rating.toFixed(1)}</Text>
-            <View style={styles.categoryBadge}>
-              <Text style={styles.categoryText}>{place.category}</Text>
+            <TouchableOpacity
+              onPress={() => toggleRecommended(place.id)}
+              activeOpacity={0.7}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons
+                name={isRecommended ? 'heart' : 'heart-outline'}
+                size={20}
+                color={isRecommended ? colors.accent : colors.textFaint}
+              />
+            </TouchableOpacity>
+            <View style={styles.ratingGroup}>
+              <Ionicons name="star" size={16} color={colors.accent} />
+              <Text style={styles.rating}>{place.rating.toFixed(1)}</Text>
+              <View style={styles.categoryBadge}>
+                <Text style={styles.categoryText}>{place.category}</Text>
+              </View>
             </View>
           </View>
 
@@ -135,8 +151,13 @@ const styles = StyleSheet.create({
   ratingRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
-    gap: spacing.sm,
+    justifyContent: 'space-between',
     marginBottom: spacing.sm,
+  },
+  ratingGroup: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
   },
   rating: {
     color: colors.accentDark,
