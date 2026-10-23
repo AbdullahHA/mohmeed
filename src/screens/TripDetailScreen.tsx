@@ -94,7 +94,7 @@ export default function TripDetailScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.imageWrap}>
-          <Image source={{ uri: trip.coverImage }} style={styles.image} />
+          <Image source={trip.coverImage} style={styles.image} />
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}

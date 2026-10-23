@@ -12,7 +12,7 @@ export default function DestinationCard({ destination, onPress }: Props) {
   return (
     <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={onPress}>
       <ImageBackground
-        source={{ uri: destination.image }}
+        source={destination.image}
         style={styles.image}
         imageStyle={styles.imageRadius}
       >

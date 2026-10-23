@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, type ImageSourcePropType } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { currentUser, seedFriends } from '../data/friends';
 import { seedTrips } from '../data/trips';
 import { seedCommunities } from '../data/communities';
 import { seedTripTemplates } from '../data/tripTemplates';
-import { destinations } from '../data/destinations';
+import { destinations, heroDestination } from '../data/destinations';
 import { colors } from '../theme/colors';
 import type {
   AirlineReview,
@@ -46,7 +46,7 @@ type PersistedState = {
 type NewTripInput = {
   title: string;
   destination: string;
-  coverImage: string;
+  coverImage: ImageSourcePropType;
   startDate: string;
   endDate: string;
   memberIds: string[];
@@ -411,7 +411,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     const trip = createTrip({
       title: template.title,
       destination: destination?.name ?? template.destinationId,
-      coverImage: destination?.image ?? '',
+      coverImage: destination?.image ?? heroDestination.image,
       startDate: '—',
       endDate: '—',
       memberIds: [],

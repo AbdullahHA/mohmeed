@@ -61,7 +61,7 @@ export default function HomeScreen() {
       <TopBar />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <ImageBackground
-          source={{ uri: heroDestination.image }}
+          source={heroDestination.image}
           style={styles.hero}
           imageStyle={styles.heroImage}
         >
@@ -168,7 +168,7 @@ export default function HomeScreen() {
             onPress={() => navigation.navigate('TripDetail', { tripId: nextTrip.id })}
           >
             <ImageBackground
-              source={{ uri: nextTrip.coverImage }}
+              source={nextTrip.coverImage}
               style={styles.tripPreviewImage}
               imageStyle={styles.heroImage}
             >

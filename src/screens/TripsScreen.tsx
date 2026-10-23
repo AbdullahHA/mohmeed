@@ -80,7 +80,7 @@ export default function TripsScreen() {
                 onPress={() => navigation.navigate('TripDetail', { tripId: item.id })}
               >
                 <ImageBackground
-                  source={{ uri: item.coverImage }}
+                  source={item.coverImage}
                   style={styles.cardImage}
                   imageStyle={styles.cardImageRadius}
                 >

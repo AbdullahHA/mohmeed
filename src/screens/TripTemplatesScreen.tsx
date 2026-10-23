@@ -12,7 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
-import { destinations } from '../data/destinations';
+import { destinations, heroDestination } from '../data/destinations';
 import { useAppState } from '../context/AppState';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -52,7 +52,7 @@ export default function TripTemplatesScreen() {
               onPress={() => navigation.navigate('TripTemplateDetail', { templateId: item.id })}
             >
               <ImageBackground
-                source={{ uri: destination?.image }}
+                source={destination?.image ?? heroDestination.image}
                 style={styles.cardImage}
                 imageStyle={styles.cardImageRadius}
               >

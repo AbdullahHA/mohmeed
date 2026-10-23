@@ -44,7 +44,7 @@ export default function PlaceDetailScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.imageWrap}>
-          <Image source={{ uri: place.image }} style={styles.image} />
+          <Image source={place.image} style={styles.image} />
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}

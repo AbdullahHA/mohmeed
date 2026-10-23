@@ -1,3 +1,5 @@
+import type { ImageSourcePropType } from 'react-native';
+
 export type Friend = {
   id: string;
   name: string;
@@ -34,7 +36,7 @@ export type Trip = {
   id: string;
   title: string;
   destination: string;
-  coverImage: string;
+  coverImage: ImageSourcePropType;
   startDate: string;
   endDate: string;
   memberIds: string[];

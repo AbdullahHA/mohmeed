@@ -12,7 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
-import { destinations } from '../data/destinations';
+import { destinations, heroDestination } from '../data/destinations';
 import { useAppState } from '../context/AppState';
 import { BUDGET_CATEGORY_LABELS } from '../types';
 import type { RootStackParamList } from '../navigation/types';
@@ -59,7 +59,7 @@ export default function TripTemplateDetailScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.imageWrap}>
-          <Image source={{ uri: destination?.image }} style={styles.image} />
+          <Image source={destination?.image ?? heroDestination.image} style={styles.image} />
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}

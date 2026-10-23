@@ -42,7 +42,7 @@ export default function PlaceCard({ place, onPress }: Props) {
 
   return (
     <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={onPress}>
-      <Image source={{ uri: place.image }} style={styles.image} />
+      <Image source={place.image} style={styles.image} />
 
       <View style={styles.body}>
         <View style={styles.ratingRow}>

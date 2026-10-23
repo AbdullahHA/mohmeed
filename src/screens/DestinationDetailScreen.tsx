@@ -53,7 +53,7 @@ export default function DestinationDetailScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.imageWrap}>
-          <Image source={{ uri: destination.image }} style={styles.image} />
+          <Image source={destination.image} style={styles.image} />
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}

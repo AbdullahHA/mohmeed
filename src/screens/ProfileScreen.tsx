@@ -100,7 +100,7 @@ export default function ProfileScreen() {
                 activeOpacity={0.85}
                 onPress={() => navigation.navigate('DestinationDetail', { destinationId: destination.id })}
               >
-                <Image source={{ uri: destination.image }} style={styles.stampImage} />
+                <Image source={destination.image} style={styles.stampImage} />
                 <View style={styles.stampOverlay} />
                 <Ionicons name="ribbon" size={16} color={colors.textOnPrimary} style={styles.stampIcon} />
                 <Text style={styles.stampName}>{destination.name}</Text>
