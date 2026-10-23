@@ -1,22 +1,22 @@
-// Almosafer-inspired light palette: deep teal as the brand/navigation color,
-// warm coral as the CTA/highlight accent, on soft sand/white surfaces.
+// Brand palette: royal blue from the app logo as the primary/navigation
+// color, with a warm sunset-orange accent for CTAs and highlights.
 export const colors = {
-  background: '#FAFAF7',
+  background: '#F7F8FA',
   surface: '#FFFFFF',
-  surfaceAlt: '#F0F3F1',
-  border: '#E3E7E3',
-  primary: '#0E5F58',
-  primaryDark: '#0A4B45',
-  primarySoft: '#E4F0EE',
-  accent: '#FF6A45',
-  accentDark: '#E85A38',
-  accentSoft: '#FFE9E1',
+  surfaceAlt: '#EEF1F6',
+  border: '#E2E6ED',
+  primary: '#1359D3',
+  primaryDark: '#0E4098',
+  primarySoft: '#ECF2FB',
+  accent: '#F98824',
+  accentDark: '#CC701E',
+  accentSoft: '#FEF3E9',
   red: '#E14F4F',
-  text: '#182422',
-  textMuted: '#5B6B68',
-  textFaint: '#94A29F',
+  text: '#15202E',
+  textMuted: '#5C6B7E',
+  textFaint: '#95A1B2',
   textOnPrimary: '#FFFFFF',
-  overlay: 'rgba(12,26,24,0.45)',
+  overlay: 'rgba(10,20,38,0.45)',
   success: '#2E9E6B',
 };
 

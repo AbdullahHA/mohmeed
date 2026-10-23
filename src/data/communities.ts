@@ -6,7 +6,7 @@ export const seedCommunities: Community[] = [
     name: 'محبي الرحلات البرية',
     tagline: 'تجمع عشاق التخييم والصحراء والدفع الرباعي',
     emoji: '🏜️',
-    color: '#E85A38',
+    color: '#CC701E',
     baseMemberCount: 1240,
     joined: false,
     messages: [
@@ -19,7 +19,7 @@ export const seedCommunities: Community[] = [
     name: 'عشاق الغوص بالبحر الأحمر',
     tagline: 'شعاب مرجانية ونقاط غوص ومعدات',
     emoji: '🤿',
-    color: '#0E5F58',
+    color: '#1359D3',
     baseMemberCount: 860,
     joined: false,
     messages: [
@@ -32,7 +32,7 @@ export const seedCommunities: Community[] = [
     name: 'مسافرين العلا',
     tagline: 'كل شي عن العلا: فنادق، مطاعم، وأنشطة',
     emoji: '🏔️',
-    color: '#B4924C',
+    color: '#F98824',
     baseMemberCount: 2010,
     joined: false,
     messages: [
@@ -45,7 +45,7 @@ export const seedCommunities: Community[] = [
     name: 'محبي المطاعم والمأكولات',
     tagline: 'اكتشافات مطاعم محلية وعالمية بكل مدينة',
     emoji: '🍽️',
-    color: '#FF6A45',
+    color: '#F98824',
     baseMemberCount: 3150,
     joined: false,
     messages: [

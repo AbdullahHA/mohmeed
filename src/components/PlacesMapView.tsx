@@ -84,9 +84,9 @@ const styles = StyleSheet.create({
   webFallback: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F0F3F1',
+    backgroundColor: '#EEF1F6',
   },
   webFallbackText: {
-    color: '#5B6B68',
+    color: '#5C6B7E',
   },
 });

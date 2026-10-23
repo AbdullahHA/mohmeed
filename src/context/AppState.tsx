@@ -98,7 +98,7 @@ type AppStateValue = {
 };
 
 const AVATAR_EMOJIS = ['🌵', '🏖️', '🏔️', '🕌', '🚗', '🎈', '🧳', '☕'];
-const AVATAR_COLORS = ['#0E5F58', '#FF6A45', '#2E9E6B', '#E85A38', '#5B6B68'];
+const AVATAR_COLORS = ['#1359D3', '#F98824', '#2E9E6B', '#CC701E', '#5C6B7E'];
 
 function uid(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
