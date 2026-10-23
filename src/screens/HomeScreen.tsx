@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -15,42 +15,81 @@ import { useNavigation } from '@react-navigation/native';
 import TopBar from '../components/TopBar';
 import SectionHeader from '../components/SectionHeader';
 import DestinationCard from '../components/DestinationCard';
-import ServiceTile, { MoreSoonTile } from '../components/ServiceTile';
+import FilterChip from '../components/FilterChip';
 import { colors, radius, spacing } from '../theme/colors';
-import { destinations, heroDestination } from '../data/destinations';
-import { services } from '../data/services';
+import { heroDestination, INTEREST_TAGS } from '../data/destinations';
+import { seasonalHighlights } from '../data/seasonalHighlights';
+import { useAppState } from '../context/AppState';
+import { useContent } from '../context/ContentContext';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
+const MONTH_NAMES = [
+  'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+  'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
+];
+
 export default function HomeScreen() {
   const navigation = useNavigation<Nav>();
+  const { trips, sendGuideMessage } = useAppState();
+  const { destinations } = useContent();
   const [query, setQuery] = useState('');
+  const [activeInterest, setActiveInterest] = useState<string | null>(null);
+
+  const currentMonth = new Date().getMonth() + 1;
+  const monthlyDestinations = useMemo(() => {
+    const matches = destinations.filter((d) => d.bestMonths.includes(currentMonth));
+    return matches.length > 0 ? matches : destinations;
+  }, [currentMonth, destinations]);
+
+  const nextTrip = trips[0];
+
+  const filteredAllDestinations = useMemo(() => {
+    if (!activeInterest) return destinations;
+    return destinations.filter((d) => d.interests.includes(activeInterest));
+  }, [activeInterest, destinations]);
+
+  const askGuide = () => {
+    const trimmed = query.trim();
+    if (!trimmed) return;
+    sendGuideMessage(trimmed);
+    setQuery('');
+    navigation.navigate('GuideChat');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <TopBar />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <ImageBackground
-          source={{ uri: heroDestination.image }}
+          source={heroDestination.image}
           style={styles.hero}
           imageStyle={styles.heroImage}
         >
           <View style={styles.heroOverlay} />
+          <View style={styles.heroTextWrap}>
+            <Text style={styles.heroTitle}>رفيقك في كل رحلة</Text>
+            <Text style={styles.heroSubtitle}>اكتشف، خطط، وشارك رحلتك مع أصدقائك</Text>
+          </View>
         </ImageBackground>
 
         <View style={styles.quickActions}>
-          <TouchableOpacity style={styles.quickAction} activeOpacity={0.85}>
-            <Ionicons name="map-outline" size={18} color={colors.text} />
-            <Text style={styles.quickActionText}>خطط رحلتك</Text>
-          </TouchableOpacity>
           <TouchableOpacity
             style={[styles.quickAction, styles.quickActionActive]}
             activeOpacity={0.85}
+            onPress={() => navigation.navigate('CreateTrip')}
+          >
+            <Ionicons name="add-circle-outline" size={18} color={colors.textOnPrimary} />
+            <Text style={[styles.quickActionText, styles.quickActionTextActive]}>خطط رحلة</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.quickAction}
+            activeOpacity={0.85}
             onPress={() => navigation.navigate('MainTabs', { screen: 'Discover' })}
           >
-            <Ionicons name="search" size={18} color={colors.background} />
-            <Text style={[styles.quickActionText, styles.quickActionTextActive]}>استكشف</Text>
+            <Ionicons name="search" size={18} color={colors.text} />
+            <Text style={styles.quickActionText}>استكشف</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.quickAction}
@@ -63,46 +102,146 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.aiSearchBar}>
-          <Ionicons name="paper-plane-outline" size={18} color={colors.gold} />
+          <TouchableOpacity onPress={askGuide} activeOpacity={0.8}>
+            <Ionicons name="paper-plane-outline" size={18} color={colors.primary} />
+          </TouchableOpacity>
           <TextInput
             style={styles.aiInput}
-            placeholder="وش الشائع في جدة الحين؟"
+            placeholder="وين تحب تسافر؟ أو أي شهر يناسبك؟"
             placeholderTextColor={colors.textFaint}
             value={query}
             onChangeText={setQuery}
+            onSubmitEditing={askGuide}
             textAlign="right"
           />
         </View>
 
-        <SectionHeader title="الوجهات" actionLabel="عرض الكل" />
+        <SectionHeader title="لفتات الموسم" />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.highlightsRow}
+        >
+          {seasonalHighlights.map((highlight) => (
+            <TouchableOpacity
+              key={highlight.id}
+              style={styles.highlightItem}
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('DestinationDetail', { destinationId: highlight.destinationId })}
+            >
+              <View style={[styles.highlightAvatar, { borderColor: highlight.color }]}>
+                <Text style={styles.highlightEmoji}>{highlight.emoji}</Text>
+              </View>
+              <Text style={styles.highlightLabel} numberOfLines={2}>
+                {highlight.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        <SectionHeader
+          title={`أفضل الوجهات في ${MONTH_NAMES[currentMonth - 1]}`}
+          actionLabel="اسأل الدليل"
+          onActionPress={() => navigation.navigate('GuideChat')}
+        />
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.destinationsRow}
         >
-          {destinations.map((destination) => (
-            <DestinationCard key={destination.id} destination={destination} />
+          {monthlyDestinations.map((destination) => (
+            <DestinationCard
+              key={destination.id}
+              destination={destination}
+              onPress={() => navigation.navigate('DestinationDetail', { destinationId: destination.id })}
+            />
           ))}
         </ScrollView>
 
-        <SectionHeader title="الخدمات" actionLabel="عرض الكل" />
-        <View style={styles.servicesGrid}>
-          {services.map((service) => (
-            <ServiceTile key={service.id} service={service} />
-          ))}
-          <MoreSoonTile />
-        </View>
+        <SectionHeader
+          title="رحلاتك القادمة"
+          actionLabel="عرض الكل"
+          onActionPress={() => navigation.navigate('MainTabs', { screen: 'Trips' })}
+        />
+        {nextTrip ? (
+          <TouchableOpacity
+            style={styles.tripPreview}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('TripDetail', { tripId: nextTrip.id })}
+          >
+            <ImageBackground
+              source={nextTrip.coverImage}
+              style={styles.tripPreviewImage}
+              imageStyle={styles.heroImage}
+            >
+              <View style={styles.heroOverlay} />
+              <View style={styles.tripPreviewTextWrap}>
+                <Text style={styles.tripPreviewTitle}>{nextTrip.title}</Text>
+                <Text style={styles.tripPreviewSubtitle}>
+                  {nextTrip.startDate} · {nextTrip.memberIds.length} أشخاص
+                </Text>
+              </View>
+            </ImageBackground>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.emptyTripCard}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('CreateTrip')}
+          >
+            <Ionicons name="airplane-outline" size={22} color={colors.primary} />
+            <Text style={styles.emptyTripText}>ما عندك رحلات بعد، ابدأ رحلتك الأولى</Text>
+          </TouchableOpacity>
+        )}
 
-        <View style={styles.membershipBanner}>
-          <View style={styles.membershipIcon}>
-            <Ionicons name="sparkles" size={18} color={colors.gold} />
+        <SectionHeader title="كل الوجهات" />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.interestChipsRow}
+        >
+          <FilterChip label="الكل" active={!activeInterest} onPress={() => setActiveInterest(null)} />
+          {INTEREST_TAGS.map((tag) => (
+            <FilterChip
+              key={tag}
+              label={tag}
+              active={activeInterest === tag}
+              onPress={() => setActiveInterest(tag)}
+            />
+          ))}
+        </ScrollView>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.destinationsRow}
+        >
+          {filteredAllDestinations.length === 0 ? (
+            <Text style={styles.emptyMuted}>ما فيه وجهات بهذا التصنيف حاليًا</Text>
+          ) : (
+            filteredAllDestinations.map((destination) => (
+              <DestinationCard
+                key={destination.id}
+                destination={destination}
+                onPress={() => navigation.navigate('DestinationDetail', { destinationId: destination.id })}
+              />
+            ))
+          )}
+        </ScrollView>
+
+        <TouchableOpacity
+          style={styles.banner}
+          activeOpacity={0.85}
+          onPress={() => navigation.navigate('CreateTrip')}
+        >
+          <View style={styles.bannerIcon}>
+            <Ionicons name="people-outline" size={18} color={colors.primary} />
           </View>
-          <View style={styles.membershipTextWrap}>
-            <Text style={styles.membershipTitle}>اكتشف مزايا عضوية ماي ناف</Text>
-            <Text style={styles.membershipSubtitle}>استعرض الباقات والمزايا</Text>
+          <View style={styles.bannerTextWrap}>
+            <Text style={styles.bannerTitle}>خطط رحلتك مع أصدقائك</Text>
+            <Text style={styles.bannerSubtitle}>ميزانية، جدول، ومحادثة جماعية بمكان واحد</Text>
           </View>
           <Ionicons name="chevron-back" size={18} color={colors.textMuted} />
-        </View>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -122,6 +261,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     overflow: 'hidden',
     marginBottom: spacing.lg,
+    justifyContent: 'flex-end',
   },
   heroImage: {
     borderRadius: radius.lg,
@@ -133,6 +273,21 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: colors.overlay,
+  },
+  heroTextWrap: {
+    padding: spacing.lg,
+  },
+  heroTitle: {
+    color: colors.textOnPrimary,
+    fontSize: 22,
+    fontWeight: '800',
+    textAlign: 'right',
+  },
+  heroSubtitle: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 13,
+    textAlign: 'right',
+    marginTop: 4,
   },
   quickActions: {
     flexDirection: 'row-reverse',
@@ -153,8 +308,8 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   quickActionActive: {
-    backgroundColor: colors.gold,
-    borderColor: colors.gold,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   quickActionText: {
     color: colors.text,
@@ -162,14 +317,14 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   quickActionTextActive: {
-    color: colors.background,
+    color: colors.textOnPrimary,
   },
   aiSearchBar: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
     backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: colors.gold,
+    borderColor: colors.primary,
     borderRadius: radius.pill,
     marginHorizontal: spacing.lg,
     paddingHorizontal: spacing.lg,
@@ -182,20 +337,97 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 13,
   },
+  highlightsRow: {
+    flexDirection: 'row-reverse',
+    paddingHorizontal: spacing.lg,
+    gap: spacing.md,
+    marginBottom: spacing.xl,
+  },
+  highlightItem: {
+    alignItems: 'center',
+    width: 76,
+  },
+  highlightAvatar: {
+    width: 64,
+    height: 64,
+    borderRadius: radius.pill,
+    borderWidth: 2,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
+  },
+  highlightEmoji: {
+    fontSize: 26,
+  },
+  highlightLabel: {
+    color: colors.text,
+    fontSize: 11,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  interestChipsRow: {
+    flexDirection: 'row-reverse',
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+  },
   destinationsRow: {
     flexDirection: 'row-reverse',
     paddingHorizontal: spacing.lg,
     marginBottom: spacing.xl,
   },
-  servicesGrid: {
-    flexDirection: 'row-reverse',
-    flexWrap: 'wrap',
+  emptyMuted: {
+    color: colors.textFaint,
+    fontSize: 12,
     paddingHorizontal: spacing.lg,
-    columnGap: spacing.sm,
-    rowGap: spacing.md,
+  },
+  tripPreview: {
+    height: 130,
+    marginHorizontal: spacing.lg,
+    borderRadius: radius.md,
+    overflow: 'hidden',
     marginBottom: spacing.xl,
   },
-  membershipBanner: {
+  tripPreviewImage: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  tripPreviewTextWrap: {
+    padding: spacing.md,
+  },
+  tripPreviewTitle: {
+    color: colors.textOnPrimary,
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'right',
+  },
+  tripPreviewSubtitle: {
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: 12,
+    textAlign: 'right',
+    marginTop: 2,
+  },
+  emptyTripCard: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
+    padding: spacing.lg,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderStyle: 'dashed',
+  },
+  emptyTripText: {
+    color: colors.primaryDark,
+    fontSize: 13,
+    fontWeight: '600',
+    flex: 1,
+    textAlign: 'right',
+  },
+  banner: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
     gap: spacing.md,
@@ -206,24 +438,24 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.md,
   },
-  membershipIcon: {
+  bannerIcon: {
     width: 40,
     height: 40,
     borderRadius: radius.sm,
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  membershipTextWrap: {
+  bannerTextWrap: {
     flex: 1,
   },
-  membershipTitle: {
+  bannerTitle: {
     color: colors.text,
     fontSize: 14,
     fontWeight: '700',
     textAlign: 'right',
   },
-  membershipSubtitle: {
+  bannerSubtitle: {
     color: colors.textMuted,
     fontSize: 12,
     textAlign: 'right',

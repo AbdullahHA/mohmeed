@@ -14,7 +14,9 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
 import PlaceMiniMap from '../components/PlaceMiniMap';
-import { places } from '../data/places';
+import { getMapsUrl, getPriceLabel } from '../utils/place';
+import { useAppState } from '../context/AppState';
+import { useContent } from '../context/ContentContext';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'PlaceDetail'>;
@@ -23,6 +25,8 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 export default function PlaceDetailScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
+  const { recommendedPlaceIds, toggleRecommended } = useAppState();
+  const { places } = useContent();
   const place = places.find((p) => p.id === route.params.placeId);
 
   if (!place) {
@@ -33,29 +37,43 @@ export default function PlaceDetailScreen() {
     );
   }
 
-  const priceLabel = '$'.repeat(place.priceLevel);
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${place.coordinate.latitude},${place.coordinate.longitude}`;
+  const priceLabel = getPriceLabel(place.priceLevel);
+  const mapsUrl = getMapsUrl(place.coordinate);
+  const isRecommended = recommendedPlaceIds.includes(place.id);
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.imageWrap}>
-          <Image source={{ uri: place.image }} style={styles.image} />
+          <Image source={place.image} style={styles.image} />
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
             activeOpacity={0.85}
           >
-            <Ionicons name="arrow-forward" size={20} color={colors.text} />
+            <Ionicons name="arrow-forward" size={20} color={colors.textOnPrimary} />
           </TouchableOpacity>
         </View>
 
         <View style={styles.body}>
           <View style={styles.ratingRow}>
-            <Ionicons name="star" size={16} color={colors.gold} />
-            <Text style={styles.rating}>{place.rating.toFixed(1)}</Text>
-            <View style={styles.categoryBadge}>
-              <Text style={styles.categoryText}>{place.category}</Text>
+            <TouchableOpacity
+              onPress={() => toggleRecommended(place.id)}
+              activeOpacity={0.7}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons
+                name={isRecommended ? 'heart' : 'heart-outline'}
+                size={20}
+                color={isRecommended ? colors.accent : colors.textFaint}
+              />
+            </TouchableOpacity>
+            <View style={styles.ratingGroup}>
+              <Ionicons name="star" size={16} color={colors.accent} />
+              <Text style={styles.rating}>{place.rating.toFixed(1)}</Text>
+              <View style={styles.categoryBadge}>
+                <Text style={styles.categoryText}>{place.category}</Text>
+              </View>
             </View>
           </View>
 
@@ -67,7 +85,7 @@ export default function PlaceDetailScreen() {
             <PlaceMiniMap coordinate={place.coordinate} />
           </View>
           <View style={styles.locationCard}>
-            <Ionicons name="location-outline" size={18} color={colors.gold} />
+            <Ionicons name="location-outline" size={18} color={colors.primary} />
             <Text style={styles.locationText}>
               {place.coordinate.latitude.toFixed(4)}, {place.coordinate.longitude.toFixed(4)}
             </Text>
@@ -79,7 +97,7 @@ export default function PlaceDetailScreen() {
               activeOpacity={0.85}
               onPress={() => Linking.openURL(mapsUrl)}
             >
-              <Ionicons name="navigate" size={16} color={colors.background} />
+              <Ionicons name="navigate" size={16} color={colors.textOnPrimary} />
               <Text style={styles.actionPrimaryText}>الاتجاهات</Text>
             </TouchableOpacity>
             {place.website ? (
@@ -134,11 +152,16 @@ const styles = StyleSheet.create({
   ratingRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
-    gap: spacing.sm,
+    justifyContent: 'space-between',
     marginBottom: spacing.sm,
   },
+  ratingGroup: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
   rating: {
-    color: colors.gold,
+    color: colors.accentDark,
     fontWeight: '700',
     fontSize: 14,
   },
@@ -160,7 +183,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   price: {
-    color: colors.gold,
+    color: colors.accentDark,
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'right',
@@ -209,13 +232,13 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   actionPrimary: {
-    backgroundColor: colors.gold,
-    borderColor: colors.gold,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
     flex: 1,
     justifyContent: 'center',
   },
   actionPrimaryText: {
-    color: colors.background,
+    color: colors.textOnPrimary,
     fontWeight: '700',
     fontSize: 13,
   },

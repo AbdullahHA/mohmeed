@@ -8,7 +8,8 @@ import FilterChip from '../components/FilterChip';
 import PlaceCard from '../components/PlaceCard';
 import PlacesMapView from '../components/PlacesMapView';
 import { colors, radius, spacing } from '../theme/colors';
-import { places, type Place } from '../data/places';
+import type { Place } from '../data/places';
+import { useContent } from '../context/ContentContext';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -18,6 +19,7 @@ const FILTERS: Array<Place['category']> = ['الافتراضي', 'هادئ ال�
 
 export default function DiscoverScreen() {
   const navigation = useNavigation<Nav>();
+  const { places } = useContent();
   const [query, setQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<Place['category']>('الافتراضي');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
@@ -28,7 +30,7 @@ export default function DiscoverScreen() {
       const matchesQuery = place.name.toLowerCase().includes(query.trim().toLowerCase());
       return matchesFilter && matchesQuery;
     });
-  }, [query, activeFilter]);
+  }, [query, activeFilter, places]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -42,7 +44,7 @@ export default function DiscoverScreen() {
           <Ionicons
             name={viewMode === 'list' ? 'map-outline' : 'list-outline'}
             size={18}
-            color={colors.gold}
+            color={colors.primary}
           />
         </TouchableOpacity>
         <View style={styles.searchBar}>
