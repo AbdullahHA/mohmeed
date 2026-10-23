@@ -5,7 +5,8 @@ import { currentUser, seedFriends } from '../data/friends';
 import { seedTrips } from '../data/trips';
 import { seedCommunities } from '../data/communities';
 import { seedTripTemplates } from '../data/tripTemplates';
-import { destinations, heroDestination } from '../data/destinations';
+import { heroDestination, type Destination } from '../data/destinations';
+import { useContent } from './ContentContext';
 import { colors } from '../theme/colors';
 import type {
   AirlineReview,
@@ -104,7 +105,7 @@ function uid(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 }
 
-function buildGuideReply(question: string): string {
+function buildGuideReply(question: string, destinations: Destination[]): string {
   const text = question.trim();
   const lower = text.toLowerCase();
 
@@ -138,6 +139,7 @@ function buildGuideReply(question: string): string {
 const AppStateContext = createContext<AppStateValue | undefined>(undefined);
 
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
+  const { destinations } = useContent();
   const [friends, setFriends] = useState<Friend[]>(seedFriends);
   const [trips, setTrips] = useState<Trip[]>(seedTrips);
   const [guideMessages, setGuideMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
@@ -331,7 +333,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     const replyMessage: ChatMessage = {
       id: uid('gmsg'),
       fromId: 'guide',
-      text: buildGuideReply(trimmed),
+      text: buildGuideReply(trimmed, destinations),
       at: Date.now() + 1,
     };
     setGuideMessages((prev) => [...prev, userMessage, replyMessage]);

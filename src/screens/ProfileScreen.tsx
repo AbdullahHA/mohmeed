@@ -5,9 +5,9 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import TopBar from '../components/TopBar';
 import { colors, radius, spacing } from '../theme/colors';
-import { destinations } from '../data/destinations';
-import { places } from '../data/places';
 import { useAppState } from '../context/AppState';
+import { useContent } from '../context/ContentContext';
+import { useAuth } from '../context/AuthContext';
 import { BUDGET_CATEGORY_LABELS } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 import type { Feedback } from '../types';
@@ -40,6 +40,8 @@ export default function ProfileScreen() {
     removeAirlineReview,
     tripTemplates,
   } = useAppState();
+  const { destinations, places } = useContent();
+  const { profile } = useAuth();
 
   const visitedDestinations = visitedStamps
     .map((stamp) => destinations.find((d) => d.id === stamp.destinationId))
@@ -284,6 +286,15 @@ export default function ProfileScreen() {
             </>
           )}
         </View>
+
+        <TouchableOpacity
+          style={styles.adminLink}
+          activeOpacity={0.7}
+          onPress={() => navigation.navigate(profile?.isAdmin ? 'AdminDashboard' : 'AdminLogin')}
+        >
+          <Ionicons name="shield-outline" size={14} color={colors.textFaint} />
+          <Text style={styles.adminLinkText}>لوحة التحكم</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -292,6 +303,15 @@ export default function ProfileScreen() {
 const STAMP_SIZE = '31%';
 
 const styles = StyleSheet.create({
+  adminLink: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
+  adminLinkText: { color: colors.textFaint, fontSize: 12, fontWeight: '600' },
   container: { flex: 1, backgroundColor: colors.background },
   scrollContent: { paddingBottom: spacing.xxl, paddingHorizontal: spacing.lg },
   profileCard: {

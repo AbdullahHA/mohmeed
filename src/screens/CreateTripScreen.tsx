@@ -12,8 +12,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
-import { destinations } from '../data/destinations';
 import { useAppState } from '../context/AppState';
+import { useContent } from '../context/ContentContext';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -23,6 +23,7 @@ export default function CreateTripScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { friends, createTrip } = useAppState();
+  const { destinations } = useContent();
 
   const preselectedDestinationId = route.params?.destinationId;
   const initialDestinationId =

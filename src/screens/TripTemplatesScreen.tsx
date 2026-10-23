@@ -12,8 +12,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
-import { destinations, heroDestination } from '../data/destinations';
+import { heroDestination } from '../data/destinations';
 import { useAppState } from '../context/AppState';
+import { useContent } from '../context/ContentContext';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -21,6 +22,7 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 export default function TripTemplatesScreen() {
   const navigation = useNavigation<Nav>();
   const { tripTemplates } = useAppState();
+  const { destinations } = useContent();
 
   return (
     <SafeAreaView style={styles.container}>

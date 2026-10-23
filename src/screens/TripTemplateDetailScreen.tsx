@@ -12,8 +12,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
-import { destinations, heroDestination } from '../data/destinations';
+import { heroDestination } from '../data/destinations';
 import { useAppState } from '../context/AppState';
+import { useContent } from '../context/ContentContext';
 import { BUDGET_CATEGORY_LABELS } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -32,6 +33,7 @@ export default function TripTemplateDetailScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { tripTemplates, applyTripTemplate, removeTripTemplate } = useAppState();
+  const { destinations } = useContent();
   const template = tripTemplates.find((t) => t.id === route.params.templateId);
 
   if (!template) {

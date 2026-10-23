@@ -12,9 +12,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
-import { destinations } from '../data/destinations';
 import { checkInPeersByDestination } from '../data/checkInPeers';
 import { useAppState } from '../context/AppState';
+import { useContent } from '../context/ContentContext';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'DestinationDetail'>;
@@ -29,6 +29,7 @@ export default function DestinationDetailScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { currentUser, visitedStamps, toggleVisited, myCheckIn, checkIn, checkOut, sendGuideMessage } = useAppState();
+  const { destinations } = useContent();
   const destination = destinations.find((d) => d.id === route.params.destinationId);
 
   if (!destination) {

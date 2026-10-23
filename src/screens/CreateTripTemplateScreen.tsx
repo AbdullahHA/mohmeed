@@ -12,8 +12,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
-import { destinations } from '../data/destinations';
 import { useAppState } from '../context/AppState';
+import { useContent } from '../context/ContentContext';
 import { BUDGET_CATEGORY_LABELS, type BudgetCategory } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -26,6 +26,7 @@ type DraftItem = { id: string; category: BudgetCategory; label: string };
 export default function CreateTripTemplateScreen() {
   const navigation = useNavigation<Nav>();
   const { addTripTemplate } = useAppState();
+  const { destinations } = useContent();
 
   const [title, setTitle] = useState('');
   const [destinationId, setDestinationId] = useState(destinations[0].id);

@@ -17,9 +17,10 @@ import SectionHeader from '../components/SectionHeader';
 import DestinationCard from '../components/DestinationCard';
 import FilterChip from '../components/FilterChip';
 import { colors, radius, spacing } from '../theme/colors';
-import { destinations, heroDestination, INTEREST_TAGS } from '../data/destinations';
+import { heroDestination, INTEREST_TAGS } from '../data/destinations';
 import { seasonalHighlights } from '../data/seasonalHighlights';
 import { useAppState } from '../context/AppState';
+import { useContent } from '../context/ContentContext';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -32,6 +33,7 @@ const MONTH_NAMES = [
 export default function HomeScreen() {
   const navigation = useNavigation<Nav>();
   const { trips, sendGuideMessage } = useAppState();
+  const { destinations } = useContent();
   const [query, setQuery] = useState('');
   const [activeInterest, setActiveInterest] = useState<string | null>(null);
 
@@ -39,14 +41,14 @@ export default function HomeScreen() {
   const monthlyDestinations = useMemo(() => {
     const matches = destinations.filter((d) => d.bestMonths.includes(currentMonth));
     return matches.length > 0 ? matches : destinations;
-  }, [currentMonth]);
+  }, [currentMonth, destinations]);
 
   const nextTrip = trips[0];
 
   const filteredAllDestinations = useMemo(() => {
     if (!activeInterest) return destinations;
     return destinations.filter((d) => d.interests.includes(activeInterest));
-  }, [activeInterest]);
+  }, [activeInterest, destinations]);
 
   const askGuide = () => {
     const trimmed = query.trim();

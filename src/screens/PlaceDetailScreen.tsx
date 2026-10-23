@@ -14,9 +14,9 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
 import PlaceMiniMap from '../components/PlaceMiniMap';
-import { places } from '../data/places';
 import { getMapsUrl, getPriceLabel } from '../utils/place';
 import { useAppState } from '../context/AppState';
+import { useContent } from '../context/ContentContext';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'PlaceDetail'>;
@@ -26,6 +26,7 @@ export default function PlaceDetailScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { recommendedPlaceIds, toggleRecommended } = useAppState();
+  const { places } = useContent();
   const place = places.find((p) => p.id === route.params.placeId);
 
   if (!place) {
