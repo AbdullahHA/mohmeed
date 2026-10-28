@@ -19,24 +19,17 @@ type AuthState = {
   profile: Profile | null;
   loading: boolean;
   guestMode: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (
-    email: string,
-    password: string,
-    name: string,
-    username: string
-  ) => Promise<{ error: string | null }>;
+  signIn: (email: string, password: string) => Promise<AuthResult>;
+  signUp: (email: string, password: string, name: string, username: string) => Promise<AuthResult>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   continueAsGuest: () => void;
   exitGuestMode: () => void;
-  requestPasswordReset: (email: string) => Promise<{ error: string | null }>;
-  confirmPasswordReset: (
-    email: string,
-    code: string,
-    newPassword: string
-  ) => Promise<{ error: string | null }>;
+  requestPasswordReset: (email: string) => Promise<AuthResult>;
+  confirmPasswordReset: (email: string, code: string, newPassword: string) => Promise<AuthResult>;
 };
+
+export type AuthResult = { error: string | null; errorKind?: 'network' | 'auth' };
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
@@ -89,9 +82,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn: AuthState['signIn'] = async (email, password) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      return { error: error?.message ?? null };
+      return { error: error?.message ?? null, errorKind: 'auth' };
     } catch (e: any) {
-      return { error: e?.message ?? 'network error' };
+      return { error: e?.message ?? 'network error', errorKind: 'network' };
     }
   };
 
@@ -102,9 +95,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
         options: { data: { name, username } },
       });
-      return { error: error?.message ?? null };
+      return { error: error?.message ?? null, errorKind: 'auth' };
     } catch (e: any) {
-      return { error: e?.message ?? 'network error' };
+      return { error: e?.message ?? 'network error', errorKind: 'network' };
     }
   };
 
@@ -131,9 +124,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const requestPasswordReset: AuthState['requestPasswordReset'] = async (email) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email);
-      return { error: error?.message ?? null };
+      return { error: error?.message ?? null, errorKind: 'auth' };
     } catch (e: any) {
-      return { error: e?.message ?? 'network error' };
+      return { error: e?.message ?? 'network error', errorKind: 'network' };
     }
   };
 
@@ -144,11 +137,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         token: code,
         type: 'recovery',
       });
-      if (verifyError) return { error: verifyError.message };
+      if (verifyError) return { error: verifyError.message, errorKind: 'auth' };
       const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
-      return { error: updateError?.message ?? null };
+      return { error: updateError?.message ?? null, errorKind: 'auth' };
     } catch (e: any) {
-      return { error: e?.message ?? 'network error' };
+      return { error: e?.message ?? 'network error', errorKind: 'network' };
     }
   };
 

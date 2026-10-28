@@ -14,21 +14,22 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, spacing } from '../theme/colors';
 import { useAuth } from '../context/AuthContext';
+import type { AuthResult } from '../context/AuthContext';
 
 type Mode = 'signIn' | 'signUp' | 'forgotPassword';
 type ResetStep = 'request' | 'confirm';
-
-function isNetworkError(message: string) {
-  return /network|fetch|failed to fetch/i.test(message);
-}
 
 function isRateLimitError(message: string) {
   return /security purposes|rate limit|after \d+ seconds/i.test(message);
 }
 
-function friendlyAuthError(rawMessage: string, fallback: string) {
-  if (isNetworkError(rawMessage)) {
-    return 'تعذّر الاتصال بالخادم — تأكد من اتصالك بالإنترنت وحاول مرة ثانية.';
+function friendlyAuthError(result: AuthResult, fallback: string) {
+  const rawMessage = result.error ?? '';
+  if (result.errorKind === 'network') {
+    // Include the raw browser error so it's visible in a screenshot —
+    // Safari's fetch failure wording differs from Chrome's and this is
+    // the only way to see it without devtools access.
+    return `تعذّر الاتصال بالخادم — تأكد من اتصالك بالإنترنت وحاول مرة ثانية.\n(${rawMessage})`;
   }
   if (isRateLimitError(rawMessage)) {
     return 'طلبات كثيرة بوقت قصير — انتظر دقيقة وحاول مرة ثانية.';
@@ -72,12 +73,12 @@ export default function AuthGateScreen() {
     if (result.error) {
       setError(
         friendlyAuthError(
-          result.error,
+          result,
           mode === 'signIn'
             ? 'بيانات الدخول غير صحيحة، أو الحساب غير موجود.'
             : result.error.includes('already registered')
               ? 'هذا البريد مسجّل من قبل — جرّب تسجيل الدخول.'
-              : 'تعذّر إنشاء الحساب، تأكد من البيانات وحاول مرة ثانية.'
+              : `تعذّر إنشاء الحساب، تأكد من البيانات وحاول مرة ثانية.\n(${result.error})`
         )
       );
     }
@@ -90,7 +91,7 @@ export default function AuthGateScreen() {
     const result = await requestPasswordReset(email.trim());
     setLoading(false);
     if (result.error) {
-      setError(friendlyAuthError(result.error, 'تعذّر إرسال رمز التحقق، تأكد من البريد وحاول مرة ثانية.'));
+      setError(friendlyAuthError(result, 'تعذّر إرسال رمز التحقق، تأكد من البريد وحاول مرة ثانية.'));
       return;
     }
     setInfo('أرسلنا رمز تحقق لبريدك — افتح الإيميل واكتب الرمز هنا.');
@@ -104,7 +105,7 @@ export default function AuthGateScreen() {
     const result = await confirmPasswordReset(email.trim(), resetCode.trim(), newPassword);
     setLoading(false);
     if (result.error) {
-      setError(friendlyAuthError(result.error, 'الرمز غير صحيح أو منتهي، تأكد منه وحاول مرة ثانية.'));
+      setError(friendlyAuthError(result, 'الرمز غير صحيح أو منتهي، تأكد منه وحاول مرة ثانية.'));
       return;
     }
     // confirmPasswordReset establishes a real session on success — the app
