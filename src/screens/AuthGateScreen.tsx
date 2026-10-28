@@ -18,7 +18,7 @@ import { useAuth } from '../context/AuthContext';
 type Mode = 'signIn' | 'signUp';
 
 export default function AuthGateScreen() {
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, continueAsGuest } = useAuth();
   const [mode, setMode] = useState<Mode>('signIn');
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
@@ -142,6 +142,20 @@ export default function AuthGateScreen() {
               {mode === 'signIn' ? 'ما عندك حساب؟ أنشئ واحد' : 'عندك حساب؟ سجّل دخولك'}
             </Text>
           </TouchableOpacity>
+
+          <View style={styles.divider}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>أو</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          <TouchableOpacity style={styles.guestButton} activeOpacity={0.7} onPress={continueAsGuest}>
+            <Ionicons name="eye-outline" size={16} color={colors.textMuted} />
+            <Text style={styles.guestButtonText}>المتابعة كضيف بدون تسجيل</Text>
+          </TouchableOpacity>
+          <Text style={styles.guestHint}>
+            تقدر تتصفح الوجهات والأماكن، بس ميزات مثل الأصدقاء والمفضلة تحتاج حساب
+          </Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -200,4 +214,30 @@ const styles = StyleSheet.create({
   submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
   switchModeButton: { alignItems: 'center', marginTop: spacing.lg, paddingVertical: spacing.sm },
   switchModeText: { color: colors.primary, fontSize: 13, fontWeight: '600' },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.xl,
+    marginBottom: spacing.md,
+  },
+  dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
+  dividerText: { color: colors.textFaint, fontSize: 12 },
+  guestButton: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.md,
+  },
+  guestButtonText: { color: colors.textMuted, fontSize: 13, fontWeight: '600' },
+  guestHint: {
+    color: colors.textFaint,
+    fontSize: 11,
+    textAlign: 'center',
+    marginTop: spacing.sm,
+  },
 });

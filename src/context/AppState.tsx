@@ -138,10 +138,12 @@ const AppStateContext = createContext<AppStateValue | undefined>(undefined);
 
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const { destinations } = useContent();
-  const { profile } = useAuth();
+  const { profile, loading: authLoading } = useAuth();
   const currentUser: Friend = profile
     ? { id: 'me', name: profile.name, username: profile.username, emoji: profile.emoji, color: profile.color }
-    : { id: 'me', name: '...', username: '', emoji: '🧳', color: colors.primary };
+    : authLoading
+      ? { id: 'me', name: '...', username: '', emoji: '🧳', color: colors.primary }
+      : { id: 'me', name: 'ضيف', username: 'guest', emoji: '🧳', color: colors.textFaint };
   const [friends, setFriends] = useState<Friend[]>([]);
   const [friendsLoading, setFriendsLoading] = useState(true);
   const [trips, setTrips] = useState<Trip[]>(seedTrips);
@@ -244,7 +246,11 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   ]);
 
   const loadFriends = async () => {
-    if (!profile) return;
+    if (!profile) {
+      setFriends([]);
+      setFriendsLoading(false);
+      return;
+    }
     setFriendsLoading(true);
     try {
       const [outgoing, incoming] = await Promise.all([

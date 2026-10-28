@@ -41,7 +41,7 @@ export default function ProfileScreen() {
     tripTemplates,
   } = useAppState();
   const { destinations, places } = useContent();
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, exitGuestMode } = useAuth();
 
   const visitedDestinations = visitedStamps
     .map((stamp) => destinations.find((d) => d.id === stamp.destinationId))
@@ -85,6 +85,19 @@ export default function ProfileScreen() {
             </View>
           </View>
         </View>
+
+        {!profile ? (
+          <TouchableOpacity
+            style={styles.guestBanner}
+            activeOpacity={0.8}
+            onPress={() => exitGuestMode()}
+          >
+            <Ionicons name="person-add-outline" size={16} color={colors.primary} />
+            <Text style={styles.guestBannerText}>
+              أنت تتصفح كضيف — سجّل دخول أو أنشئ حساب عشان تضيف أصدقاء وتحفظ بياناتك
+            </Text>
+          </TouchableOpacity>
+        ) : null}
 
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>جواز رحلاتي</Text>
@@ -296,10 +309,12 @@ export default function ProfileScreen() {
           <Text style={styles.adminLinkText}>لوحة التحكم</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.adminLink} activeOpacity={0.7} onPress={() => signOut()}>
-          <Ionicons name="log-out-outline" size={14} color={colors.red} />
-          <Text style={[styles.adminLinkText, { color: colors.red }]}>تسجيل الخروج</Text>
-        </TouchableOpacity>
+        {profile ? (
+          <TouchableOpacity style={styles.adminLink} activeOpacity={0.7} onPress={() => signOut()}>
+            <Ionicons name="log-out-outline" size={14} color={colors.red} />
+            <Text style={[styles.adminLinkText, { color: colors.red }]}>تسجيل الخروج</Text>
+          </TouchableOpacity>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );
@@ -308,6 +323,16 @@ export default function ProfileScreen() {
 const STAMP_SIZE = '31%';
 
 const styles = StyleSheet.create({
+  guestBanner: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.xl,
+  },
+  guestBannerText: { flex: 1, color: colors.text, fontSize: 12, textAlign: 'right', lineHeight: 18 },
   adminLink: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

@@ -22,7 +22,7 @@ const navigationTheme = {
 };
 
 function Gate() {
-  const { session, loading } = useAuth();
+  const { session, guestMode, loading } = useAuth();
 
   if (loading) {
     return (
@@ -32,7 +32,7 @@ function Gate() {
     );
   }
 
-  if (!session) {
+  if (!session && !guestMode) {
     return <AuthGateScreen />;
   }
 
