@@ -81,17 +81,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn: AuthState['signIn'] = async (email, password) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error?.message ?? null };
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      return { error: error?.message ?? null };
+    } catch (e: any) {
+      return { error: e?.message ?? 'network error' };
+    }
   };
 
   const signUp: AuthState['signUp'] = async (email, password, name, username) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { name, username } },
-    });
-    return { error: error?.message ?? null };
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { name, username } },
+      });
+      return { error: error?.message ?? null };
+    } catch (e: any) {
+      return { error: e?.message ?? 'network error' };
+    }
   };
 
   const signOut = async () => {

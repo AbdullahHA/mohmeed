@@ -42,12 +42,15 @@ export default function AuthGateScreen() {
         : await signUp(email.trim(), password, name.trim(), username.trim().toLowerCase().replace(/\s+/g, '_'));
     setLoading(false);
     if (result.error) {
+      const isNetworkError = /network|fetch|failed to fetch/i.test(result.error);
       setError(
-        mode === 'signIn'
-          ? 'بيانات الدخول غير صحيحة، أو الحساب غير موجود.'
-          : result.error.includes('already registered')
-            ? 'هذا البريد مسجّل من قبل — جرّب تسجيل الدخول.'
-            : 'تعذّر إنشاء الحساب، تأكد من البيانات وحاول مرة ثانية.'
+        isNetworkError
+          ? 'تعذّر الاتصال بالخادم — تأكد من اتصالك بالإنترنت وحاول مرة ثانية.'
+          : mode === 'signIn'
+            ? 'بيانات الدخول غير صحيحة، أو الحساب غير موجود.'
+            : result.error.includes('already registered')
+              ? 'هذا البريد مسجّل من قبل — جرّب تسجيل الدخول.'
+              : 'تعذّر إنشاء الحساب، تأكد من البيانات وحاول مرة ثانية.'
       );
     }
   };
