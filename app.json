@@ -22,6 +22,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "44a23fa1-c44c-42b0-8320-92967af2907e"
+      }
+    },
+    "owner": "abdullbmo"
   }
 }
