@@ -90,6 +90,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp: AuthState['signUp'] = async (email, password, name, username) => {
     try {
+      const { data: isAvailable, error: lookupError } = await supabase.rpc('username_available', {
+        check_username: username,
+      });
+      if (lookupError) return { error: lookupError.message, errorKind: 'network' };
+      if (isAvailable === false) return { error: 'username taken', errorKind: 'auth' };
+
       const { error } = await supabase.auth.signUp({
         email,
         password,

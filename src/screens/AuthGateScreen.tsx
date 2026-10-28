@@ -76,9 +76,11 @@ export default function AuthGateScreen() {
           result,
           mode === 'signIn'
             ? 'بيانات الدخول غير صحيحة، أو الحساب غير موجود.'
-            : result.error.includes('already registered')
-              ? 'هذا البريد مسجّل من قبل — جرّب تسجيل الدخول.'
-              : `تعذّر إنشاء الحساب، تأكد من البيانات وحاول مرة ثانية.\n(${result.error})`
+            : result.error === 'username taken'
+              ? 'اسم المستخدم هذا محجوز من قبل، جرّب اسمًا آخر.'
+              : result.error.includes('already registered')
+                ? 'هذا البريد مسجّل من قبل — جرّب تسجيل الدخول.'
+                : `تعذّر إنشاء الحساب، تأكد من البيانات وحاول مرة ثانية.\n(${result.error})`
         )
       );
     }
