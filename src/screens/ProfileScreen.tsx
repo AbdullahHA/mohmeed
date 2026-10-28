@@ -41,7 +41,7 @@ export default function ProfileScreen() {
     tripTemplates,
   } = useAppState();
   const { destinations, places } = useContent();
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
 
   const visitedDestinations = visitedStamps
     .map((stamp) => destinations.find((d) => d.id === stamp.destinationId))
@@ -290,10 +290,15 @@ export default function ProfileScreen() {
         <TouchableOpacity
           style={styles.adminLink}
           activeOpacity={0.7}
-          onPress={() => navigation.navigate(profile?.isAdmin ? 'AdminDashboard' : 'AdminLogin')}
+          onPress={() => navigation.navigate('AdminDashboard')}
         >
           <Ionicons name="shield-outline" size={14} color={colors.textFaint} />
           <Text style={styles.adminLinkText}>لوحة التحكم</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.adminLink} activeOpacity={0.7} onPress={() => signOut()}>
+          <Ionicons name="log-out-outline" size={14} color={colors.red} />
+          <Text style={[styles.adminLinkText, { color: colors.red }]}>تسجيل الخروج</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

@@ -21,7 +21,6 @@ import TripTemplatesScreen from '../screens/TripTemplatesScreen';
 import TripTemplateDetailScreen from '../screens/TripTemplateDetailScreen';
 import CreateTripTemplateScreen from '../screens/CreateTripTemplateScreen';
 import AddAirlineReviewScreen from '../screens/AddAirlineReviewScreen';
-import AdminLoginScreen from '../screens/AdminLoginScreen';
 import AdminDashboardScreen from '../screens/AdminDashboardScreen';
 import AdminEditDestinationScreen from '../screens/AdminEditDestinationScreen';
 import AdminEditPlaceScreen from '../screens/AdminEditPlaceScreen';
@@ -103,7 +102,6 @@ export default function RootNavigator() {
         component={AddAirlineReviewScreen}
         options={{ presentation: 'modal' }}
       />
-      <Stack.Screen name="AdminLogin" component={AdminLoginScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
       <Stack.Screen name="AdminEditDestination" component={AdminEditDestinationScreen} />
       <Stack.Screen name="AdminEditPlace" component={AdminEditPlaceScreen} />

@@ -21,28 +21,13 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export default function AdminDashboardScreen() {
   const navigation = useNavigation<Nav>();
-  const { session, profile, loading, signOut } = useAuth();
+  const { profile, loading, signOut } = useAuth();
   const { destinations, places, refresh } = useContent();
 
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, styles.center]}>
         <ActivityIndicator color={colors.primary} />
-      </SafeAreaView>
-    );
-  }
-
-  if (!session) {
-    return (
-      <SafeAreaView style={[styles.container, styles.center]}>
-        <Text style={styles.notice}>ما تسجلت دخول. ارجع لشاشة الدخول.</Text>
-        <TouchableOpacity
-          style={styles.smallButton}
-          activeOpacity={0.85}
-          onPress={() => navigation.replace('AdminLogin')}
-        >
-          <Text style={styles.smallButtonText}>تسجيل الدخول</Text>
-        </TouchableOpacity>
       </SafeAreaView>
     );
   }

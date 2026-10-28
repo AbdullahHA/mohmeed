@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -12,11 +20,20 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 export default function AddFriendScreen() {
   const navigation = useNavigation<Nav>();
   const { addFriend } = useAppState();
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleAdd = () => {
-    if (!name.trim()) return;
-    addFriend(name.trim());
+  const handleAdd = async () => {
+    if (!username.trim() || loading) return;
+    setError(null);
+    setLoading(true);
+    const { error: addError } = await addFriend(username.trim());
+    setLoading(false);
+    if (addError) {
+      setError(addError);
+      return;
+    }
     navigation.goBack();
   };
 
@@ -31,23 +48,26 @@ export default function AddFriendScreen() {
       </View>
 
       <View style={styles.body}>
-        <Text style={styles.label}>اسم صديقك أو معرّفه</Text>
+        <Text style={styles.label}>اسم المستخدم (username) لصديقك</Text>
         <TextInput
           style={styles.input}
-          placeholder="مثال: عبدالله"
+          placeholder="مثال: abdullah_s"
           placeholderTextColor={colors.textFaint}
-          value={name}
-          onChangeText={setName}
+          value={username}
+          onChangeText={setUsername}
+          autoCapitalize="none"
           textAlign="right"
           autoFocus
         />
+        <Text style={styles.hint}>لازم يكون صديقك مسجّل حساب في التطبيق مسبقاً</Text>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
         <TouchableOpacity
-          style={[styles.submitButton, !name.trim() && styles.submitDisabled]}
+          style={[styles.submitButton, (!username.trim() || loading) && styles.submitDisabled]}
           activeOpacity={0.85}
-          disabled={!name.trim()}
+          disabled={!username.trim() || loading}
           onPress={handleAdd}
         >
-          <Text style={styles.submitText}>إضافة</Text>
+          {loading ? <ActivityIndicator color={colors.textOnPrimary} /> : <Text style={styles.submitText}>إضافة</Text>}
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -68,6 +88,8 @@ const styles = StyleSheet.create({
   headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
   body: { padding: spacing.lg },
   label: { color: colors.textMuted, fontSize: 13, fontWeight: '600', textAlign: 'right', marginBottom: spacing.xs },
+  hint: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: spacing.xs },
+  error: { color: colors.red, fontSize: 12, textAlign: 'right', marginTop: spacing.sm },
   input: {
     backgroundColor: colors.surface,
     borderWidth: 1,

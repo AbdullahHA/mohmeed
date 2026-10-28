@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, View, type ImageSourcePropType } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { currentUser, seedFriends } from '../data/friends';
 import { seedTrips } from '../data/trips';
 import { seedCommunities } from '../data/communities';
 import { seedTripTemplates } from '../data/tripTemplates';
 import { heroDestination, type Destination } from '../data/destinations';
 import { useContent } from './ContentContext';
+import { useAuth } from './AuthContext';
+import { supabase } from '../lib/supabase';
 import { colors } from '../theme/colors';
 import type {
   AirlineReview,
@@ -32,7 +33,6 @@ const WELCOME_MESSAGE: ChatMessage = {
 };
 
 type PersistedState = {
-  friends: Friend[];
   trips: Trip[];
   guideMessages: ChatMessage[];
   communities: Community[];
@@ -74,7 +74,8 @@ type AppStateValue = {
   airlineReviews: AirlineReview[];
   tripTemplates: TripTemplate[];
   myCheckIn: string | null;
-  addFriend: (name: string) => Friend;
+  friendsLoading: boolean;
+  addFriend: (username: string) => Promise<{ error: string | null }>;
   createTrip: (input: NewTripInput) => Trip;
   addMember: (tripId: string, friendId: string) => void;
   addBudgetItem: (tripId: string, item: Omit<BudgetItem, 'id'>) => void;
@@ -97,9 +98,6 @@ type AppStateValue = {
   checkIn: (destinationId: string) => void;
   checkOut: () => void;
 };
-
-const AVATAR_EMOJIS = ['🌵', '🏖️', '🏔️', '🕌', '🚗', '🎈', '🧳', '☕'];
-const AVATAR_COLORS = ['#1359D3', '#F98824', '#2E9E6B', '#CC701E', '#5C6B7E'];
 
 function uid(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
@@ -140,7 +138,12 @@ const AppStateContext = createContext<AppStateValue | undefined>(undefined);
 
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const { destinations } = useContent();
-  const [friends, setFriends] = useState<Friend[]>(seedFriends);
+  const { profile } = useAuth();
+  const currentUser: Friend = profile
+    ? { id: 'me', name: profile.name, username: profile.username, emoji: profile.emoji, color: profile.color }
+    : { id: 'me', name: '...', username: '', emoji: '🧳', color: colors.primary };
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [friendsLoading, setFriendsLoading] = useState(true);
   const [trips, setTrips] = useState<Trip[]>(seedTrips);
   const [guideMessages, setGuideMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
   const [communities, setCommunities] = useState<Community[]>(seedCommunities);
@@ -163,10 +166,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         const raw = await AsyncStorage.getItem(STORAGE_KEY);
         if (raw) {
           const parsed: Partial<PersistedState> = JSON.parse(raw);
-          if (Array.isArray(parsed.friends)) {
-            setFriends(parsed.friends);
-            loadedFromStorage = true;
-          }
           if (Array.isArray(parsed.trips)) {
             setTrips(parsed.trips);
             loadedFromStorage = true;
@@ -221,7 +220,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     const payload: PersistedState = {
-      friends,
       trips,
       guideMessages,
       communities,
@@ -234,7 +232,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     };
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload)).catch(() => {});
   }, [
-    friends,
     trips,
     guideMessages,
     communities,
@@ -246,16 +243,61 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     myCheckIn,
   ]);
 
-  const addFriend = (name: string): Friend => {
-    const friend: Friend = {
-      id: uid('friend'),
-      name,
-      username: name.trim().replace(/\s+/g, '_').toLowerCase(),
-      emoji: AVATAR_EMOJIS[Math.floor(Math.random() * AVATAR_EMOJIS.length)],
-      color: AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)],
-    };
-    setFriends((prev) => [...prev, friend]);
-    return friend;
+  const loadFriends = async () => {
+    if (!profile) return;
+    setFriendsLoading(true);
+    try {
+      const [outgoing, incoming] = await Promise.all([
+        supabase
+          .from('friendships')
+          .select('friend:profiles!friendships_friend_id_fkey(id,name,username,emoji,color)')
+          .eq('user_id', profile.id),
+        supabase
+          .from('friendships')
+          .select('user:profiles!friendships_user_id_fkey(id,name,username,emoji,color)')
+          .eq('friend_id', profile.id),
+      ]);
+      const list: Friend[] = [
+        ...((outgoing.data ?? []).map((r: any) => r.friend).filter(Boolean) as Friend[]),
+        ...((incoming.data ?? []).map((r: any) => r.user).filter(Boolean) as Friend[]),
+      ];
+      setFriends(list);
+    } catch {
+      // keep whatever we had — network/Supabase hiccup
+    } finally {
+      setFriendsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadFriends();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id]);
+
+  const addFriend = async (username: string): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'سجّل دخولك أولاً' };
+    const handle = username.trim().toLowerCase().replace(/^@/, '');
+    if (!handle) return { error: 'اكتب اسم المستخدم' };
+    if (handle === profile.username) return { error: 'ما تقدر تضيف نفسك' };
+
+    const { data: found, error: lookupError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('username', handle)
+      .maybeSingle();
+    if (lookupError) return { error: 'تعذّر البحث، حاول مرة ثانية' };
+    if (!found) return { error: 'ما فيه مستخدم بهذا الاسم' };
+
+    const alreadyFriend = friends.some((f) => f.username === handle);
+    if (alreadyFriend) return { error: 'هذا الشخص بالفعل في قائمة أصدقائك' };
+
+    const { error: insertError } = await supabase
+      .from('friendships')
+      .insert({ user_id: profile.id, friend_id: found.id });
+    if (insertError) return { error: 'تعذّرت الإضافة، حاول مرة ثانية' };
+
+    await loadFriends();
+    return { error: null };
   };
 
   const createTrip = (input: NewTripInput): Trip => {
@@ -437,6 +479,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     () => ({
       currentUser,
       friends,
+      friendsLoading,
       trips,
       guideMessages,
       communities,
@@ -470,7 +513,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       checkOut,
     }),
     [
+      currentUser,
       friends,
+      friendsLoading,
       trips,
       guideMessages,
       communities,
