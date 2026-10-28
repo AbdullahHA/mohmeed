@@ -22,6 +22,20 @@ function isNetworkError(message: string) {
   return /network|fetch|failed to fetch/i.test(message);
 }
 
+function isRateLimitError(message: string) {
+  return /security purposes|rate limit|after \d+ seconds/i.test(message);
+}
+
+function friendlyAuthError(rawMessage: string, fallback: string) {
+  if (isNetworkError(rawMessage)) {
+    return 'تعذّر الاتصال بالخادم — تأكد من اتصالك بالإنترنت وحاول مرة ثانية.';
+  }
+  if (isRateLimitError(rawMessage)) {
+    return 'طلبات كثيرة بوقت قصير — انتظر دقيقة وحاول مرة ثانية.';
+  }
+  return fallback;
+}
+
 export default function AuthGateScreen() {
   const { signIn, signUp, continueAsGuest, requestPasswordReset, confirmPasswordReset } = useAuth();
   const [mode, setMode] = useState<Mode>('signIn');
@@ -57,13 +71,14 @@ export default function AuthGateScreen() {
     setLoading(false);
     if (result.error) {
       setError(
-        isNetworkError(result.error)
-          ? 'تعذّر الاتصال بالخادم — تأكد من اتصالك بالإنترنت وحاول مرة ثانية.'
-          : mode === 'signIn'
+        friendlyAuthError(
+          result.error,
+          mode === 'signIn'
             ? 'بيانات الدخول غير صحيحة، أو الحساب غير موجود.'
             : result.error.includes('already registered')
               ? 'هذا البريد مسجّل من قبل — جرّب تسجيل الدخول.'
               : 'تعذّر إنشاء الحساب، تأكد من البيانات وحاول مرة ثانية.'
+        )
       );
     }
   };
@@ -75,11 +90,7 @@ export default function AuthGateScreen() {
     const result = await requestPasswordReset(email.trim());
     setLoading(false);
     if (result.error) {
-      setError(
-        isNetworkError(result.error)
-          ? 'تعذّر الاتصال بالخادم — تأكد من اتصالك بالإنترنت وحاول مرة ثانية.'
-          : 'تعذّر إرسال رمز التحقق، تأكد من البريد وحاول مرة ثانية.'
-      );
+      setError(friendlyAuthError(result.error, 'تعذّر إرسال رمز التحقق، تأكد من البريد وحاول مرة ثانية.'));
       return;
     }
     setInfo('أرسلنا رمز تحقق لبريدك — افتح الإيميل واكتب الرمز هنا.');
@@ -93,11 +104,7 @@ export default function AuthGateScreen() {
     const result = await confirmPasswordReset(email.trim(), resetCode.trim(), newPassword);
     setLoading(false);
     if (result.error) {
-      setError(
-        isNetworkError(result.error)
-          ? 'تعذّر الاتصال بالخادم — تأكد من اتصالك بالإنترنت وحاول مرة ثانية.'
-          : 'الرمز غير صحيح أو منتهي، تأكد منه وحاول مرة ثانية.'
-      );
+      setError(friendlyAuthError(result.error, 'الرمز غير صحيح أو منتهي، تأكد منه وحاول مرة ثانية.'));
       return;
     }
     // confirmPasswordReset establishes a real session on success — the app
