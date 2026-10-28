@@ -30,6 +30,12 @@ type AuthState = {
   refreshProfile: () => Promise<void>;
   continueAsGuest: () => void;
   exitGuestMode: () => void;
+  requestPasswordReset: (email: string) => Promise<{ error: string | null }>;
+  confirmPasswordReset: (
+    email: string,
+    code: string,
+    newPassword: string
+  ) => Promise<{ error: string | null }>;
 };
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
@@ -122,6 +128,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     AsyncStorage.removeItem(GUEST_MODE_KEY).catch(() => {});
   };
 
+  const requestPasswordReset: AuthState['requestPasswordReset'] = async (email) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      return { error: error?.message ?? null };
+    } catch (e: any) {
+      return { error: e?.message ?? 'network error' };
+    }
+  };
+
+  const confirmPasswordReset: AuthState['confirmPasswordReset'] = async (email, code, newPassword) => {
+    try {
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email,
+        token: code,
+        type: 'recovery',
+      });
+      if (verifyError) return { error: verifyError.message };
+      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+      return { error: updateError?.message ?? null };
+    } catch (e: any) {
+      return { error: e?.message ?? 'network error' };
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -135,6 +165,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         refreshProfile,
         continueAsGuest,
         exitGuestMode,
+        requestPasswordReset,
+        confirmPasswordReset,
       }}
     >
       {children}

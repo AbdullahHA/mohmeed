@@ -15,16 +15,25 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, spacing } from '../theme/colors';
 import { useAuth } from '../context/AuthContext';
 
-type Mode = 'signIn' | 'signUp';
+type Mode = 'signIn' | 'signUp' | 'forgotPassword';
+type ResetStep = 'request' | 'confirm';
+
+function isNetworkError(message: string) {
+  return /network|fetch|failed to fetch/i.test(message);
+}
 
 export default function AuthGateScreen() {
-  const { signIn, signUp, continueAsGuest } = useAuth();
+  const { signIn, signUp, continueAsGuest, requestPasswordReset, confirmPasswordReset } = useAuth();
   const [mode, setMode] = useState<Mode>('signIn');
+  const [resetStep, setResetStep] = useState<ResetStep>('request');
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [resetCode, setResetCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const canSubmit =
@@ -32,9 +41,14 @@ export default function AuthGateScreen() {
     password.length >= 6 &&
     (mode === 'signIn' || (name.trim().length > 0 && username.trim().length >= 3));
 
+  const resetFeedback = () => {
+    setError(null);
+    setInfo(null);
+  };
+
   const handleSubmit = async () => {
     if (!canSubmit) return;
-    setError(null);
+    resetFeedback();
     setLoading(true);
     const result =
       mode === 'signIn'
@@ -42,9 +56,8 @@ export default function AuthGateScreen() {
         : await signUp(email.trim(), password, name.trim(), username.trim().toLowerCase().replace(/\s+/g, '_'));
     setLoading(false);
     if (result.error) {
-      const isNetworkError = /network|fetch|failed to fetch/i.test(result.error);
       setError(
-        isNetworkError
+        isNetworkError(result.error)
           ? 'تعذّر الاتصال بالخادم — تأكد من اتصالك بالإنترنت وحاول مرة ثانية.'
           : mode === 'signIn'
             ? 'بيانات الدخول غير صحيحة، أو الحساب غير موجود.'
@@ -54,6 +67,145 @@ export default function AuthGateScreen() {
       );
     }
   };
+
+  const handleRequestReset = async () => {
+    if (email.trim().length < 4) return;
+    resetFeedback();
+    setLoading(true);
+    const result = await requestPasswordReset(email.trim());
+    setLoading(false);
+    if (result.error) {
+      setError(
+        isNetworkError(result.error)
+          ? 'تعذّر الاتصال بالخادم — تأكد من اتصالك بالإنترنت وحاول مرة ثانية.'
+          : 'تعذّر إرسال رمز التحقق، تأكد من البريد وحاول مرة ثانية.'
+      );
+      return;
+    }
+    setInfo('أرسلنا رمز تحقق لبريدك — افتح الإيميل واكتب الرمز هنا.');
+    setResetStep('confirm');
+  };
+
+  const handleConfirmReset = async () => {
+    if (resetCode.trim().length < 4 || newPassword.length < 6) return;
+    resetFeedback();
+    setLoading(true);
+    const result = await confirmPasswordReset(email.trim(), resetCode.trim(), newPassword);
+    setLoading(false);
+    if (result.error) {
+      setError(
+        isNetworkError(result.error)
+          ? 'تعذّر الاتصال بالخادم — تأكد من اتصالك بالإنترنت وحاول مرة ثانية.'
+          : 'الرمز غير صحيح أو منتهي، تأكد منه وحاول مرة ثانية.'
+      );
+      return;
+    }
+    // confirmPasswordReset establishes a real session on success — the app
+    // gate will pick it up automatically and move past this screen.
+  };
+
+  const goToMode = (next: Mode) => {
+    resetFeedback();
+    setResetStep('request');
+    setResetCode('');
+    setNewPassword('');
+    setMode(next);
+  };
+
+  if (mode === 'forgotPassword') {
+    return (
+      <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
+            <View style={styles.badge}>
+              <Ionicons name="key-outline" size={32} color={colors.primary} />
+            </View>
+            <Text style={styles.title}>استرجاع كلمة المرور</Text>
+            <Text style={styles.subtitle}>
+              {resetStep === 'request'
+                ? 'اكتب بريدك وبنرسل لك رمز تحقق لإعادة تعيين كلمة المرور'
+                : 'اكتب الرمز اللي وصلك بالبريد وكلمة المرور الجديدة'}
+            </Text>
+
+            <Text style={styles.label}>البريد الإلكتروني</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="name@example.com"
+              placeholderTextColor={colors.textFaint}
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              editable={resetStep === 'request'}
+              textAlign="right"
+            />
+
+            {resetStep === 'confirm' ? (
+              <>
+                <Text style={styles.label}>رمز التحقق</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="123456"
+                  placeholderTextColor={colors.textFaint}
+                  value={resetCode}
+                  onChangeText={setResetCode}
+                  keyboardType="number-pad"
+                  textAlign="right"
+                />
+
+                <Text style={styles.label}>كلمة المرور الجديدة</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="••••••••"
+                  placeholderTextColor={colors.textFaint}
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  secureTextEntry
+                  textAlign="right"
+                />
+              </>
+            ) : null}
+
+            {info ? <Text style={styles.info}>{info}</Text> : null}
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+
+            <TouchableOpacity
+              style={[
+                styles.submitButton,
+                (loading ||
+                  (resetStep === 'request' ? email.trim().length < 4 : resetCode.trim().length < 4 || newPassword.length < 6)) &&
+                  styles.submitDisabled,
+              ]}
+              activeOpacity={0.85}
+              disabled={
+                loading ||
+                (resetStep === 'request' ? email.trim().length < 4 : resetCode.trim().length < 4 || newPassword.length < 6)
+              }
+              onPress={resetStep === 'request' ? handleRequestReset : handleConfirmReset}
+            >
+              {loading ? (
+                <ActivityIndicator color={colors.textOnPrimary} />
+              ) : (
+                <Text style={styles.submitText}>
+                  {resetStep === 'request' ? 'إرسال رمز التحقق' : 'تعيين كلمة المرور الجديدة'}
+                </Text>
+              )}
+            </TouchableOpacity>
+
+            {resetStep === 'confirm' ? (
+              <TouchableOpacity style={styles.switchModeButton} activeOpacity={0.7} onPress={handleRequestReset}>
+                <Text style={styles.switchModeText}>ما وصلني رمز؟ أعد الإرسال</Text>
+              </TouchableOpacity>
+            ) : null}
+
+            <TouchableOpacity style={styles.switchModeButton} activeOpacity={0.7} onPress={() => goToMode('signIn')}>
+              <Text style={styles.switchModeText}>رجوع لتسجيل الدخول</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -118,6 +270,16 @@ export default function AuthGateScreen() {
             textAlign="right"
           />
 
+          {mode === 'signIn' ? (
+            <TouchableOpacity
+              style={styles.forgotLink}
+              activeOpacity={0.7}
+              onPress={() => goToMode('forgotPassword')}
+            >
+              <Text style={styles.forgotLinkText}>نسيت كلمة المرور؟</Text>
+            </TouchableOpacity>
+          ) : null}
+
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <TouchableOpacity
@@ -136,10 +298,7 @@ export default function AuthGateScreen() {
           <TouchableOpacity
             style={styles.switchModeButton}
             activeOpacity={0.7}
-            onPress={() => {
-              setError(null);
-              setMode((m) => (m === 'signIn' ? 'signUp' : 'signIn'));
-            }}
+            onPress={() => goToMode(mode === 'signIn' ? 'signUp' : 'signIn')}
           >
             <Text style={styles.switchModeText}>
               {mode === 'signIn' ? 'ما عندك حساب؟ أنشئ واحد' : 'عندك حساب؟ سجّل دخولك'}
@@ -206,6 +365,9 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   error: { color: colors.red, fontSize: 12, textAlign: 'right', marginTop: spacing.sm },
+  info: { color: colors.success, fontSize: 12, textAlign: 'right', marginTop: spacing.sm },
+  forgotLink: { alignItems: 'flex-end', marginTop: spacing.sm },
+  forgotLinkText: { color: colors.primary, fontSize: 12, fontWeight: '600' },
   submitButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.pill,
