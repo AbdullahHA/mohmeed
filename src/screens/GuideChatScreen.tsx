@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Animated,
+  Easing,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -37,10 +39,26 @@ const dark = {
 
 export default function GuideChatScreen() {
   const navigation = useNavigation<Nav>();
-  const { guideMessages, sendGuideMessage } = useAppState();
+  const { guideMessages, guideThinking, sendGuideMessage } = useAppState();
   const [input, setInput] = useState('');
+  const pulse = useRef(new Animated.Value(0.4)).current;
 
   const hasConversation = guideMessages.length > 1;
+
+  useEffect(() => {
+    if (!guideThinking) {
+      pulse.setValue(0.4);
+      return;
+    }
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, { toValue: 1, duration: 600, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 0.4, duration: 600, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [guideThinking, pulse]);
 
   const send = () => {
     if (!input.trim()) return;
@@ -58,12 +76,28 @@ export default function GuideChatScreen() {
       </View>
 
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        {hasConversation ? (
+        {guideThinking && !hasConversation ? (
+          <View style={styles.emptyState}>
+            <Animated.View style={[styles.orb, { opacity: pulse }]}>
+              <Ionicons name="sparkles" size={30} color={dark.text} />
+            </Animated.View>
+            <Text style={styles.emptyTitle}>جار البحث عن أفضل الاقتراحات...</Text>
+          </View>
+        ) : hasConversation ? (
           <FlatList
             data={[...guideMessages].reverse()}
             keyExtractor={(item) => item.id}
             inverted
             contentContainerStyle={styles.list}
+            ListHeaderComponent={
+              guideThinking ? (
+                <View style={[styles.bubble, styles.bubbleGuide, styles.typingBubble]}>
+                  <Animated.View style={{ opacity: pulse }}>
+                    <Ionicons name="sparkles" size={16} color={dark.textMuted} />
+                  </Animated.View>
+                </View>
+              ) : null
+            }
             renderItem={({ item }) => (
               <View style={[styles.bubble, item.fromId === 'me' ? styles.bubbleMe : styles.bubbleGuide]}>
                 <Text style={[styles.bubbleText, item.fromId === 'me' && styles.bubbleTextMe]}>{item.text}</Text>
@@ -126,6 +160,7 @@ const styles = StyleSheet.create({
   list: { padding: spacing.lg, gap: spacing.md },
   bubble: { maxWidth: '80%', padding: spacing.md, borderRadius: radius.md, marginBottom: spacing.sm },
   bubbleGuide: { backgroundColor: dark.surface, alignSelf: 'flex-end' },
+  typingBubble: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg },
   bubbleMe: { backgroundColor: dark.accent, alignSelf: 'flex-start' },
   bubbleText: { color: dark.text, fontSize: 14, textAlign: 'right', lineHeight: 20 },
   bubbleTextMe: { color: '#FFFFFF' },

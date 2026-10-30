@@ -67,6 +67,7 @@ type AppStateValue = {
   friends: Friend[];
   trips: Trip[];
   guideMessages: ChatMessage[];
+  guideThinking: boolean;
   communities: Community[];
   feedback: Feedback | null;
   visitedStamps: VisitedStamp[];
@@ -148,6 +149,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [friendsLoading, setFriendsLoading] = useState(true);
   const [trips, setTrips] = useState<Trip[]>(seedTrips);
   const [guideMessages, setGuideMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
+  const [guideThinking, setGuideThinking] = useState(false);
   const [communities, setCommunities] = useState<Community[]>(seedCommunities);
   const [feedback, setFeedbackState] = useState<Feedback | null>(null);
   const [visitedStamps, setVisitedStamps] = useState<VisitedStamp[]>([]);
@@ -378,13 +380,18 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     const trimmed = text.trim();
     if (!trimmed) return;
     const userMessage: ChatMessage = { id: uid('gmsg'), fromId: 'me', text: trimmed, at: Date.now() };
-    const replyMessage: ChatMessage = {
-      id: uid('gmsg'),
-      fromId: 'guide',
-      text: buildGuideReply(trimmed, destinations),
-      at: Date.now() + 1,
-    };
-    setGuideMessages((prev) => [...prev, userMessage, replyMessage]);
+    setGuideMessages((prev) => [...prev, userMessage]);
+    setGuideThinking(true);
+    setTimeout(() => {
+      const replyMessage: ChatMessage = {
+        id: uid('gmsg'),
+        fromId: 'guide',
+        text: buildGuideReply(trimmed, destinations),
+        at: Date.now() + 1,
+      };
+      setGuideMessages((prev) => [...prev, replyMessage]);
+      setGuideThinking(false);
+    }, 700);
   };
 
   const updateCommunity = (communityId: string, updater: (community: Community) => Community) => {
@@ -488,6 +495,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       friendsLoading,
       trips,
       guideMessages,
+      guideThinking,
       communities,
       feedback,
       visitedStamps,
@@ -524,6 +532,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       friendsLoading,
       trips,
       guideMessages,
+      guideThinking,
       communities,
       feedback,
       visitedStamps,
