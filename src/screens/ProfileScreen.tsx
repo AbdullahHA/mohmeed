@@ -275,9 +275,8 @@ export default function ProfileScreen() {
         ) : null}
 
         {profile ? (
-          <TouchableOpacity style={styles.adminLink} activeOpacity={0.7} onPress={() => signOut()}>
-            <Ionicons name="log-out-outline" size={14} color={colors.red} />
-            <Text style={[styles.adminLinkText, { color: colors.red }]}>تسجيل الخروج</Text>
+          <TouchableOpacity style={styles.signOutButton} activeOpacity={0.85} onPress={() => signOut()}>
+            <Text style={styles.signOutText}>تسجيل الخروج</Text>
           </TouchableOpacity>
         ) : null}
       </ScrollView>
@@ -307,6 +306,14 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   adminLinkText: { color: colors.textFaint, fontSize: 12, fontWeight: '600' },
+  signOutButton: {
+    backgroundColor: '#1C1C22',
+    borderRadius: radius.pill,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+    marginTop: spacing.lg,
+  },
+  signOutText: { color: colors.red, fontSize: 14, fontWeight: '700' },
   container: { flex: 1, backgroundColor: colors.background },
   scrollContent: { paddingBottom: 120, paddingHorizontal: spacing.lg },
   profileCard: {
