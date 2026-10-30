@@ -138,6 +138,7 @@ export default function CreateTripScreen() {
             value={(activePicker === 'start' ? startDate : endDate) ?? new Date()}
             mode="date"
             display={Platform.OS === 'ios' ? 'inline' : 'default'}
+            locale="ar"
             minimumDate={activePicker === 'end' && startDate ? startDate : undefined}
             onChange={(_event, selected) => {
               if (Platform.OS === 'android') setActivePicker(null);
