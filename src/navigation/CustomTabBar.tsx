@@ -39,6 +39,19 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
             }
           };
 
+          if (isFocused) {
+            return (
+              <TouchableOpacity key={route.key} onPress={onPress} activeOpacity={0.85} style={styles.tabItem}>
+                <View style={styles.activePill}>
+                  <Ionicons name={TAB_ICONS[name]} size={20} color={colors.textOnPrimary} />
+                  <Text numberOfLines={1} style={styles.activeLabel}>
+                    {TAB_LABELS[name]}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          }
+
           return (
             <TouchableOpacity
               key={route.key}
@@ -46,17 +59,8 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
               activeOpacity={0.8}
               style={styles.tabItem}
             >
-              <View style={[styles.iconWrap, isFocused && styles.iconWrapActive]}>
-                <Ionicons
-                  name={TAB_ICONS[name]}
-                  size={22}
-                  color={isFocused ? colors.textOnPrimary : colors.textFaint}
-                />
-              </View>
-              <Text
-                numberOfLines={1}
-                style={[styles.label, isFocused && styles.labelActive]}
-              >
+              <Ionicons name={TAB_ICONS[name]} size={22} color={colors.textFaint} />
+              <Text numberOfLines={1} style={styles.label}>
                 {TAB_LABELS[name]}
               </Text>
             </TouchableOpacity>
@@ -78,6 +82,7 @@ const styles = StyleSheet.create({
   },
   bar: {
     flexDirection: 'row',
+    alignItems: 'flex-end',
     width: '100%',
     backgroundColor: colors.surface,
     borderRadius: radius.xl,
@@ -95,22 +100,29 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     gap: 4,
   },
-  iconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconWrapActive: {
-    backgroundColor: colors.primary,
-  },
   label: {
     fontSize: 11,
     fontWeight: '600',
     color: colors.textFaint,
   },
-  labelActive: {
-    color: colors.primary,
+  activePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.primary,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm + 2,
+    marginTop: -spacing.lg,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  activeLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.textOnPrimary,
   },
 });
