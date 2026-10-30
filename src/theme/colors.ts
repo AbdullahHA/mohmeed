@@ -18,6 +18,7 @@ export const colors = {
   textOnPrimary: '#FFFFFF',
   overlay: 'rgba(10,20,38,0.45)',
   success: '#2E9E6B',
+  warning: '#F2B900',
 };
 
 export const spacing = {

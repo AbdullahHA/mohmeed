@@ -73,7 +73,11 @@ export type Community = {
   messages: CommunityMessage[];
 };
 
-export type Feedback = 'loved' | 'ok' | 'bad';
+export type Feedback = {
+  rating: 1 | 2 | 3 | 4 | 5;
+  reasons: string[];
+  note: string;
+};
 
 export type VisitedStamp = {
   destinationId: string;

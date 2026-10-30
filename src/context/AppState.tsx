@@ -182,7 +182,11 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
             setCommunities(parsed.communities);
             loadedFromStorage = true;
           }
-          if (parsed.feedback === 'loved' || parsed.feedback === 'ok' || parsed.feedback === 'bad') {
+          if (
+            parsed.feedback &&
+            typeof parsed.feedback === 'object' &&
+            [1, 2, 3, 4, 5].includes(parsed.feedback.rating)
+          ) {
             setFeedbackState(parsed.feedback);
             loadedFromStorage = true;
           }
