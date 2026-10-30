@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
 import { useAppState } from '../context/AppState';
+import { useRequireAccount } from '../hooks/useRequireAccount';
 import { getMapsUrl, getPriceLabel } from '../utils/place';
 import TripPickerModal from './TripPickerModal';
 import type { RootStackParamList } from '../navigation/types';
@@ -21,17 +22,20 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 export default function PlaceCard({ place, onPress }: Props) {
   const navigation = useNavigation<Nav>();
   const { trips, addItineraryItem, recommendedPlaceIds, toggleRecommended } = useAppState();
+  const { requireAccount } = useRequireAccount();
   const [pickerVisible, setPickerVisible] = useState(false);
   const priceLabel = getPriceLabel(place.priceLevel);
   const mapsUrl = getMapsUrl(place.coordinate);
   const isRecommended = recommendedPlaceIds.includes(place.id);
 
   const handleAddToTrip = () => {
-    if (trips.length === 0) {
-      navigation.navigate('CreateTrip');
-      return;
-    }
-    setPickerVisible(true);
+    requireAccount('trip', () => {
+      if (trips.length === 0) {
+        navigation.navigate('CreateTrip');
+        return;
+      }
+      setPickerVisible(true);
+    });
   };
 
   const handleSelectTrip = (trip: Trip) => {
@@ -47,7 +51,7 @@ export default function PlaceCard({ place, onPress }: Props) {
       <View style={styles.body}>
         <View style={styles.ratingRow}>
           <TouchableOpacity
-            onPress={() => toggleRecommended(place.id)}
+            onPress={() => requireAccount('recommend', () => toggleRecommended(place.id))}
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >

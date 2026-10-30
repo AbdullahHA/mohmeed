@@ -15,6 +15,7 @@ import { colors, radius, spacing } from '../theme/colors';
 import { checkInPeersByDestination } from '../data/checkInPeers';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
+import { useRequireAccount } from '../hooks/useRequireAccount';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'DestinationDetail'>;
@@ -30,6 +31,7 @@ export default function DestinationDetailScreen() {
   const route = useRoute<Route>();
   const { currentUser, visitedStamps, toggleVisited, myCheckIn, checkIn, checkOut, sendGuideMessage } = useAppState();
   const { destinations } = useContent();
+  const { requireAccount } = useRequireAccount();
   const destination = destinations.find((d) => d.id === route.params.destinationId);
 
   if (!destination) {
@@ -64,7 +66,7 @@ export default function DestinationDetailScreen() {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.stampButton, isVisited && styles.stampButtonActive]}
-            onPress={() => toggleVisited(destination.id)}
+            onPress={() => requireAccount('visited', () => toggleVisited(destination.id))}
             activeOpacity={0.85}
           >
             <Ionicons
@@ -139,7 +141,9 @@ export default function DestinationDetailScreen() {
             <TouchableOpacity
               style={[styles.checkInButton, isCheckedInHere && styles.checkInButtonActive]}
               activeOpacity={0.85}
-              onPress={() => (isCheckedInHere ? checkOut() : checkIn(destination.id))}
+              onPress={() =>
+                isCheckedInHere ? checkOut() : requireAccount('checkIn', () => checkIn(destination.id))
+              }
             >
               <Ionicons
                 name={isCheckedInHere ? 'close-circle-outline' : 'location-outline'}
@@ -156,7 +160,9 @@ export default function DestinationDetailScreen() {
             <TouchableOpacity
               style={[styles.actionButton, styles.actionPrimary]}
               activeOpacity={0.85}
-              onPress={() => navigation.navigate('CreateTrip', { destinationId: destination.id })}
+              onPress={() =>
+                requireAccount('trip', () => navigation.navigate('CreateTrip', { destinationId: destination.id }))
+              }
             >
               <Ionicons name="add-circle-outline" size={16} color={colors.textOnPrimary} />
               <Text style={styles.actionPrimaryText}>خطط رحلة لهذي الوجهة</Text>

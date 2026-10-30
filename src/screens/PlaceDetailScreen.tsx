@@ -17,6 +17,7 @@ import PlaceMiniMap from '../components/PlaceMiniMap';
 import { getMapsUrl, getPriceLabel } from '../utils/place';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
+import { useRequireAccount } from '../hooks/useRequireAccount';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'PlaceDetail'>;
@@ -26,6 +27,7 @@ export default function PlaceDetailScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { recommendedPlaceIds, toggleRecommended } = useAppState();
+  const { requireAccount } = useRequireAccount();
   const { places } = useContent();
   const place = places.find((p) => p.id === route.params.placeId);
 
@@ -58,7 +60,7 @@ export default function PlaceDetailScreen() {
         <View style={styles.body}>
           <View style={styles.ratingRow}>
             <TouchableOpacity
-              onPress={() => toggleRecommended(place.id)}
+              onPress={() => requireAccount('recommend', () => toggleRecommended(place.id))}
               activeOpacity={0.7}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >

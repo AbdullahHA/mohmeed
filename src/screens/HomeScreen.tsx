@@ -21,6 +21,7 @@ import { heroDestination, INTEREST_TAGS } from '../data/destinations';
 import { seasonalHighlights } from '../data/seasonalHighlights';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
+import { useRequireAccount } from '../hooks/useRequireAccount';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -33,6 +34,7 @@ const MONTH_NAMES = [
 export default function HomeScreen() {
   const navigation = useNavigation<Nav>();
   const { trips, sendGuideMessage } = useAppState();
+  const { requireAccount } = useRequireAccount();
   const { destinations } = useContent();
   const [query, setQuery] = useState('');
   const [activeInterest, setActiveInterest] = useState<string | null>(null);
@@ -78,7 +80,7 @@ export default function HomeScreen() {
           <TouchableOpacity
             style={[styles.quickAction, styles.quickActionActive]}
             activeOpacity={0.85}
-            onPress={() => navigation.navigate('CreateTrip')}
+            onPress={() => requireAccount('trip', () => navigation.navigate('CreateTrip'))}
           >
             <Ionicons name="add-circle-outline" size={18} color={colors.textOnPrimary} />
             <Text style={[styles.quickActionText, styles.quickActionTextActive]}>خطط رحلة</Text>
@@ -187,7 +189,7 @@ export default function HomeScreen() {
           <TouchableOpacity
             style={styles.emptyTripCard}
             activeOpacity={0.85}
-            onPress={() => navigation.navigate('CreateTrip')}
+            onPress={() => requireAccount('trip', () => navigation.navigate('CreateTrip'))}
           >
             <Ionicons name="airplane-outline" size={22} color={colors.primary} />
             <Text style={styles.emptyTripText}>ما عندك رحلات بعد، ابدأ رحلتك الأولى</Text>
@@ -231,7 +233,7 @@ export default function HomeScreen() {
         <TouchableOpacity
           style={styles.banner}
           activeOpacity={0.85}
-          onPress={() => navigation.navigate('CreateTrip')}
+          onPress={() => requireAccount('trip', () => navigation.navigate('CreateTrip'))}
         >
           <View style={styles.bannerIcon}>
             <Ionicons name="people-outline" size={18} color={colors.primary} />

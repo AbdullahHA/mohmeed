@@ -15,6 +15,7 @@ import { colors, radius, spacing } from '../theme/colors';
 import { heroDestination } from '../data/destinations';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
+import { useRequireAccount } from '../hooks/useRequireAccount';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -23,6 +24,7 @@ export default function TripTemplatesScreen() {
   const navigation = useNavigation<Nav>();
   const { tripTemplates } = useAppState();
   const { destinations } = useContent();
+  const { requireAccount } = useRequireAccount();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -34,7 +36,7 @@ export default function TripTemplatesScreen() {
         <TouchableOpacity
           style={styles.createButton}
           activeOpacity={0.85}
-          onPress={() => navigation.navigate('CreateTripTemplate')}
+          onPress={() => requireAccount('template', () => navigation.navigate('CreateTripTemplate'))}
         >
           <Ionicons name="add" size={16} color={colors.textOnPrimary} />
         </TouchableOpacity>

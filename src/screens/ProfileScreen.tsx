@@ -8,6 +8,7 @@ import { colors, radius, spacing } from '../theme/colors';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
+import { useRequireAccount } from '../hooks/useRequireAccount';
 import { BUDGET_CATEGORY_LABELS } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 import type { Feedback } from '../types';
@@ -42,6 +43,7 @@ export default function ProfileScreen() {
   } = useAppState();
   const { destinations, places } = useContent();
   const { profile, signOut, exitGuestMode } = useAuth();
+  const { requireAccount } = useRequireAccount();
 
   const visitedDestinations = visitedStamps
     .map((stamp) => destinations.find((d) => d.id === stamp.destinationId))
@@ -162,7 +164,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             style={styles.ctaCard}
             activeOpacity={0.85}
-            onPress={() => navigation.navigate('CreateTripTemplate')}
+            onPress={() => requireAccount('template', () => navigation.navigate('CreateTripTemplate'))}
           >
             <Ionicons name="document-text-outline" size={20} color={colors.primary} />
             <Text style={styles.ctaCardText}>أنشئ قالب رحلة كامل وشاركه مع الآخرين</Text>
@@ -221,7 +223,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             style={styles.linkButton}
             activeOpacity={0.85}
-            onPress={() => navigation.navigate('AddAirlineReview')}
+            onPress={() => requireAccount('review', () => navigation.navigate('AddAirlineReview'))}
           >
             <Ionicons name="add" size={14} color={colors.primary} />
             <Text style={styles.linkButtonText}>أضف تجربة</Text>
@@ -253,7 +255,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             style={styles.addFriendButton}
             activeOpacity={0.85}
-            onPress={() => navigation.navigate('AddFriend')}
+            onPress={() => requireAccount('friend', () => navigation.navigate('AddFriend'))}
           >
             <Ionicons name="person-add-outline" size={14} color={colors.textOnPrimary} />
             <Text style={styles.addFriendText}>إضافة صديق</Text>

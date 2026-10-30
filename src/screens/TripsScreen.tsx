@@ -15,6 +15,7 @@ import TopBar from '../components/TopBar';
 import EmptyState from '../components/EmptyState';
 import { colors, radius, spacing } from '../theme/colors';
 import { useAppState } from '../context/AppState';
+import { useRequireAccount } from '../hooks/useRequireAccount';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -22,6 +23,7 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 export default function TripsScreen() {
   const navigation = useNavigation<Nav>();
   const { trips } = useAppState();
+  const { requireAccount } = useRequireAccount();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -33,7 +35,7 @@ export default function TripsScreen() {
           <TouchableOpacity
             style={styles.joinButton}
             activeOpacity={0.85}
-            onPress={() => navigation.navigate('JoinTrip')}
+            onPress={() => requireAccount('trip', () => navigation.navigate('JoinTrip'))}
           >
             <Ionicons name="key-outline" size={16} color={colors.primary} />
             <Text style={styles.joinButtonText}>لدي رمز دعوة</Text>
@@ -41,7 +43,7 @@ export default function TripsScreen() {
           <TouchableOpacity
             style={styles.newButton}
             activeOpacity={0.85}
-            onPress={() => navigation.navigate('CreateTrip')}
+            onPress={() => requireAccount('trip', () => navigation.navigate('CreateTrip'))}
           >
             <Ionicons name="add" size={16} color={colors.textOnPrimary} />
             <Text style={styles.newButtonText}>رحلة جديدة</Text>

@@ -15,6 +15,7 @@ import { colors, radius, spacing } from '../theme/colors';
 import { heroDestination } from '../data/destinations';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
+import { useRequireAccount } from '../hooks/useRequireAccount';
 import { BUDGET_CATEGORY_LABELS } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -34,6 +35,7 @@ export default function TripTemplateDetailScreen() {
   const route = useRoute<Route>();
   const { tripTemplates, applyTripTemplate, removeTripTemplate } = useAppState();
   const { destinations } = useContent();
+  const { requireAccount } = useRequireAccount();
   const template = tripTemplates.find((t) => t.id === route.params.templateId);
 
   if (!template) {
@@ -48,8 +50,10 @@ export default function TripTemplateDetailScreen() {
   const isFree = template.price === 0;
 
   const handleUse = () => {
-    const trip = applyTripTemplate(template.id);
-    if (trip) navigation.replace('TripDetail', { tripId: trip.id });
+    requireAccount('trip', () => {
+      const trip = applyTripTemplate(template.id);
+      if (trip) navigation.replace('TripDetail', { tripId: trip.id });
+    });
   };
 
   const handleDelete = () => {

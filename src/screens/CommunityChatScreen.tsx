@@ -15,6 +15,7 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
 import { useAppState } from '../context/AppState';
+import { useRequireAccount } from '../hooks/useRequireAccount';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'CommunityChat'>;
@@ -24,6 +25,7 @@ export default function CommunityChatScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { communities, currentUser, joinCommunity, leaveCommunity, sendCommunityMessage } = useAppState();
+  const { requireAccount } = useRequireAccount();
   const [input, setInput] = useState('');
 
   const community = communities.find((c) => c.id === route.params.communityId);
@@ -64,7 +66,9 @@ export default function CommunityChatScreen() {
         <TouchableOpacity
           style={[styles.joinButton, community.joined && styles.joinedButton]}
           activeOpacity={0.85}
-          onPress={() => (community.joined ? leaveCommunity(community.id) : joinCommunity(community.id))}
+          onPress={() =>
+            community.joined ? leaveCommunity(community.id) : requireAccount('chat', () => joinCommunity(community.id))
+          }
         >
           <Text style={[styles.joinButtonText, community.joined && styles.joinedButtonText]}>
             {community.joined ? 'عضو ✓' : 'انضم'}
@@ -109,7 +113,7 @@ export default function CommunityChatScreen() {
           <TouchableOpacity
             style={styles.joinToPostBar}
             activeOpacity={0.85}
-            onPress={() => joinCommunity(community.id)}
+            onPress={() => requireAccount('chat', () => joinCommunity(community.id))}
           >
             <Text style={styles.joinToPostText}>انضم للمجتمع عشان تقدر تشارك</Text>
           </TouchableOpacity>
