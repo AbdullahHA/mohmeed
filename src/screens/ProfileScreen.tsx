@@ -274,32 +274,28 @@ export default function ProfileScreen() {
         ))}
 
         <View style={styles.feedbackCard}>
-          {feedback ? (
-            <>
-              <Text style={styles.feedbackThanks}>{FEEDBACK_THANKS[feedback]}</Text>
-              <TouchableOpacity onPress={() => setFeedback(null)} activeOpacity={0.7}>
-                <Text style={styles.feedbackChange}>غيّر رأيك</Text>
-              </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <Text style={styles.feedbackTitle}>قيّم تجربتك مع يلا نسافر</Text>
-              <Text style={styles.feedbackSubtitle}>يُحفظ على جهازك فقط حاليًا، ما يُرسل لأي مكان</Text>
-              <View style={styles.feedbackRow}>
-                {FEEDBACK_OPTIONS.map((option) => (
-                  <TouchableOpacity
-                    key={option.value}
-                    style={styles.feedbackOption}
-                    activeOpacity={0.7}
-                    onPress={() => setFeedback(option.value)}
-                  >
-                    <Text style={styles.feedbackEmoji}>{option.emoji}</Text>
-                    <Text style={styles.feedbackLabel}>{option.label}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </>
-          )}
+          <Text style={styles.feedbackTitle}>قيّم تجربتك مع يلا نسافر</Text>
+          <Text style={styles.feedbackSubtitle}>
+            {feedback ? FEEDBACK_THANKS[feedback] : 'يُحفظ على جهازك فقط حاليًا، ما يُرسل لأي مكان'}
+          </Text>
+          <View style={styles.feedbackRow}>
+            {FEEDBACK_OPTIONS.map((option) => {
+              const selected = feedback === option.value;
+              return (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[styles.feedbackOption, selected && styles.feedbackOptionSelected]}
+                  activeOpacity={0.7}
+                  onPress={() => setFeedback(selected ? null : option.value)}
+                >
+                  <Text style={styles.feedbackEmoji}>{option.emoji}</Text>
+                  <Text style={[styles.feedbackLabel, selected && styles.feedbackLabelSelected]}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
 
         <TouchableOpacity
@@ -516,9 +512,19 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   feedbackRow: { flexDirection: 'row-reverse', gap: spacing.lg },
-  feedbackOption: { alignItems: 'center', width: 70 },
+  feedbackOption: {
+    alignItems: 'center',
+    width: 70,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  feedbackOptionSelected: {
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
+  },
   feedbackEmoji: { fontSize: 28, marginBottom: 4 },
   feedbackLabel: { color: colors.textMuted, fontSize: 11, fontWeight: '600', textAlign: 'center' },
-  feedbackThanks: { color: colors.text, fontSize: 13, fontWeight: '600', textAlign: 'center' },
-  feedbackChange: { color: colors.primary, fontSize: 12, fontWeight: '700', marginTop: spacing.sm },
+  feedbackLabelSelected: { color: colors.primary },
 });
