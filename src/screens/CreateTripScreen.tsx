@@ -7,8 +7,10 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
@@ -18,6 +20,10 @@ import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type Route = RouteProp<RootStackParamList, 'CreateTrip'>;
+
+function formatDate(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
 
 export default function CreateTripScreen() {
   const navigation = useNavigation<Nav>();
@@ -33,8 +39,9 @@ export default function CreateTripScreen() {
 
   const [title, setTitle] = useState('');
   const [destinationId, setDestinationId] = useState(initialDestinationId);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [activePicker, setActivePicker] = useState<'start' | 'end' | null>(null);
   const [budgetTotal, setBudgetTotal] = useState('');
   const [selectedFriendIds, setSelectedFriendIds] = useState<string[]>([]);
 
@@ -54,8 +61,8 @@ export default function CreateTripScreen() {
       title: title.trim(),
       destination: selectedDestination.name,
       coverImage: selectedDestination.image,
-      startDate: startDate.trim() || '—',
-      endDate: endDate.trim() || '—',
+      startDate: startDate ? formatDate(startDate) : '—',
+      endDate: endDate ? formatDate(endDate) : '—',
       memberIds: selectedFriendIds,
       budgetTotal: Math.max(0, Number(budgetTotal) || 0),
     });
@@ -102,27 +109,54 @@ export default function CreateTripScreen() {
         <View style={styles.dateRow}>
           <View style={styles.dateField}>
             <Text style={styles.label}>تاريخ العودة</Text>
-            <TextInput
+            <TouchableOpacity
               style={styles.input}
-              placeholder="2026-08-10"
-              placeholderTextColor={colors.textFaint}
-              value={endDate}
-              onChangeText={setEndDate}
-              textAlign="right"
-            />
+              activeOpacity={0.8}
+              onPress={() => setActivePicker('end')}
+            >
+              <Text style={endDate ? styles.dateValue : styles.datePlaceholder}>
+                {endDate ? formatDate(endDate) : 'اختر التاريخ'}
+              </Text>
+            </TouchableOpacity>
           </View>
           <View style={styles.dateField}>
             <Text style={styles.label}>تاريخ البداية</Text>
-            <TextInput
+            <TouchableOpacity
               style={styles.input}
-              placeholder="2026-08-05"
-              placeholderTextColor={colors.textFaint}
-              value={startDate}
-              onChangeText={setStartDate}
-              textAlign="right"
-            />
+              activeOpacity={0.8}
+              onPress={() => setActivePicker('start')}
+            >
+              <Text style={startDate ? styles.dateValue : styles.datePlaceholder}>
+                {startDate ? formatDate(startDate) : 'اختر التاريخ'}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
+
+        {activePicker ? (
+          <DateTimePicker
+            value={(activePicker === 'start' ? startDate : endDate) ?? new Date()}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'inline' : 'default'}
+            minimumDate={activePicker === 'end' && startDate ? startDate : undefined}
+            onChange={(_event, selected) => {
+              if (Platform.OS === 'android') setActivePicker(null);
+              if (!selected) return;
+              if (activePicker === 'start') {
+                setStartDate(selected);
+                if (endDate && endDate < selected) setEndDate(selected);
+              } else {
+                setEndDate(selected);
+              }
+            }}
+          />
+        ) : null}
+
+        {activePicker && Platform.OS === 'ios' ? (
+          <TouchableOpacity style={styles.pickerDoneButton} onPress={() => setActivePicker(null)}>
+            <Text style={styles.pickerDoneText}>تم</Text>
+          </TouchableOpacity>
+        ) : null}
 
         <Text style={styles.label}>الميزانية التقديرية (ريال)</Text>
         <TextInput
@@ -215,6 +249,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'right',
   },
+  dateValue: { color: colors.text, fontSize: 14, textAlign: 'right' },
+  datePlaceholder: { color: colors.textFaint, fontSize: 14, textAlign: 'right' },
+  pickerDoneButton: {
+    alignSelf: 'flex-end',
+    backgroundColor: colors.primary,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  pickerDoneText: { color: colors.textOnPrimary, fontSize: 13, fontWeight: '700' },
   chipsRow: {
     flexDirection: 'row-reverse',
     gap: spacing.sm,
