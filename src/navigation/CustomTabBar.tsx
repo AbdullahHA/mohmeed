@@ -1,18 +1,10 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Platform, type LayoutChangeEvent } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { GlassView, isGlassEffectAPIAvailable, isLiquidGlassAvailable } from 'expo-glass-effect';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { colors, radius, spacing } from '../theme/colors';
 import type { MainTabParamList } from './types';
-
-// iOS 26+ renders a real frosted "Liquid Glass" material here; everywhere
-// else (older iOS, Android, web) we paint an opaque surface ourselves.
-// isGlassEffectAPIAvailable() is required in addition to isLiquidGlassAvailable():
-// some iOS point releases report the latter as available but crash when the
-// native view is actually mounted (https://github.com/expo/expo/issues/40911).
-const useGlassBar = Platform.OS === 'ios' && isLiquidGlassAvailable() && isGlassEffectAPIAvailable();
 
 const TAB_ICONS: Record<keyof MainTabParamList, keyof typeof Ionicons.glyphMap> = {
   Discover: 'compass-outline',
@@ -64,12 +56,9 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
     }
   };
 
-  const Bar = useGlassBar ? GlassView : View;
-  const barProps = useGlassBar ? { glassEffectStyle: 'regular' as const } : {};
-
   return (
     <View style={[styles.wrapper, { paddingBottom: Math.max(insets.bottom, spacing.md) }]} pointerEvents="box-none">
-      <Bar {...barProps} style={[styles.bar, !useGlassBar && styles.barFallback]}>
+      <View style={[styles.bar, styles.barFallback]}>
         {pillVisible ? (
           <Animated.View
             pointerEvents="none"
@@ -107,7 +96,7 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
             </TouchableOpacity>
           );
         })}
-      </Bar>
+      </View>
     </View>
   );
 }
