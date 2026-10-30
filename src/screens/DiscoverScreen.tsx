@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, ScrollView, FlatList, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -60,20 +60,20 @@ export default function DiscoverScreen() {
         </View>
       </View>
 
-      <FlatList
-        data={FILTERS}
+      <ScrollView
         horizontal
-        keyExtractor={(item) => item}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.filtersRow}
-        renderItem={({ item }) => (
+      >
+        {FILTERS.map((item) => (
           <FilterChip
+            key={item}
             label={item}
             active={activeFilter === item}
             onPress={() => setActiveFilter(item)}
           />
-        )}
-      />
+        ))}
+      </ScrollView>
 
       {viewMode === 'list' ? (
         <FlatList
