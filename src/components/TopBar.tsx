@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, Image, StyleSheet } from 'react-native';
 import { colors, radius, spacing } from '../theme/colors';
 import { useAppState } from '../context/AppState';
 
@@ -10,9 +9,7 @@ export default function TopBar() {
   return (
     <View style={styles.container}>
       <View style={styles.brandRow}>
-        <View style={styles.brandIcon}>
-          <Ionicons name="compass" size={18} color={colors.textOnPrimary} />
-        </View>
+        <Image source={require('../../assets/icon.png')} style={styles.brandIcon} resizeMode="contain" />
         <Text style={styles.brandText}>يلا نسافر</Text>
       </View>
 
@@ -43,10 +40,7 @@ const styles = StyleSheet.create({
   brandIcon: {
     width: 32,
     height: 32,
-    borderRadius: radius.pill,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: radius.md,
   },
   brandText: {
     color: colors.primary,

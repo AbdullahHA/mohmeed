@@ -10,6 +10,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, spacing } from '../theme/colors';
@@ -239,8 +240,8 @@ export default function AuthGateScreen() {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
-          <View style={styles.badge}>
-            <Ionicons name="compass-outline" size={32} color={colors.primary} />
+          <View style={styles.logoBadge}>
+            <Image source={require('../../assets/icon.png')} style={styles.logo} resizeMode="contain" />
           </View>
           <Text style={styles.title}>يلا نسافر</Text>
           <Text style={styles.subtitle}>
@@ -374,6 +375,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.md,
+  },
+  logoBadge: {
+    alignSelf: 'center',
+    width: 72,
+    height: 72,
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+    marginBottom: spacing.md,
+  },
+  logo: {
+    width: '100%',
+    height: '100%',
   },
   title: { color: colors.text, fontSize: 24, fontWeight: '800', textAlign: 'center' },
   subtitle: {
