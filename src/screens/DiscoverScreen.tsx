@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   list: {
-    paddingBottom: spacing.xxl,
+    paddingBottom: 120,
   },
   emptyText: {
     color: colors.textMuted,

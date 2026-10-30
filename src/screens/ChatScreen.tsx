@@ -134,7 +134,7 @@ export default function ChatScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  scrollContent: { paddingBottom: spacing.xxl },
+  scrollContent: { paddingBottom: 120 },
   guideCard: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

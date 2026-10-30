@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xxl,
+    paddingBottom: 120,
   },
   card: {
     borderRadius: radius.md,

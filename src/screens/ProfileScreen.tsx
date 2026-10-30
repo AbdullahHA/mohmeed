@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
   },
   adminLinkText: { color: colors.textFaint, fontSize: 12, fontWeight: '600' },
   container: { flex: 1, backgroundColor: colors.background },
-  scrollContent: { paddingBottom: spacing.xxl, paddingHorizontal: spacing.lg },
+  scrollContent: { paddingBottom: 120, paddingHorizontal: spacing.lg },
   profileCard: {
     alignItems: 'center',
     backgroundColor: colors.surface,

@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   scrollContent: {
-    paddingBottom: spacing.xxl,
+    paddingBottom: 120,
   },
   hero: {
     height: 220,
