@@ -45,6 +45,8 @@ export default function AuthGateScreen() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [resetCode, setResetCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -164,15 +166,28 @@ export default function AuthGateScreen() {
                 />
 
                 <Text style={styles.label}>كلمة المرور الجديدة</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="••••••••"
-                  placeholderTextColor={colors.textFaint}
-                  value={newPassword}
-                  onChangeText={setNewPassword}
-                  secureTextEntry
-                  textAlign="right"
-                />
+                <View style={styles.passwordRow}>
+                  <TextInput
+                    style={[styles.input, styles.passwordInput]}
+                    placeholder="••••••••"
+                    placeholderTextColor={colors.textFaint}
+                    value={newPassword}
+                    onChangeText={setNewPassword}
+                    secureTextEntry={!showNewPassword}
+                    textAlign="right"
+                  />
+                  <TouchableOpacity
+                    style={styles.eyeButton}
+                    activeOpacity={0.7}
+                    onPress={() => setShowNewPassword((v) => !v)}
+                  >
+                    <Ionicons
+                      name={showNewPassword ? 'eye-off-outline' : 'eye-outline'}
+                      size={20}
+                      color={colors.textFaint}
+                    />
+                  </TouchableOpacity>
+                </View>
               </>
             ) : null}
 
@@ -270,15 +285,28 @@ export default function AuthGateScreen() {
           />
 
           <Text style={styles.label}>كلمة المرور</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="••••••••"
-            placeholderTextColor={colors.textFaint}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            textAlign="right"
-          />
+          <View style={styles.passwordRow}>
+            <TextInput
+              style={[styles.input, styles.passwordInput]}
+              placeholder="••••••••"
+              placeholderTextColor={colors.textFaint}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              textAlign="right"
+            />
+            <TouchableOpacity
+              style={styles.eyeButton}
+              activeOpacity={0.7}
+              onPress={() => setShowPassword((v) => !v)}
+            >
+              <Ionicons
+                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                size={20}
+                color={colors.textFaint}
+              />
+            </TouchableOpacity>
+          </View>
 
           {mode === 'signIn' ? (
             <TouchableOpacity
@@ -373,6 +401,17 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 14,
     textAlign: 'right',
+  },
+  passwordRow: {
+    justifyContent: 'center',
+  },
+  passwordInput: {
+    paddingLeft: spacing.xxl,
+  },
+  eyeButton: {
+    position: 'absolute',
+    left: spacing.sm,
+    padding: spacing.xs,
   },
   error: { color: colors.red, fontSize: 12, textAlign: 'right', marginTop: spacing.sm },
   info: { color: colors.success, fontSize: 12, textAlign: 'right', marginTop: spacing.sm },
