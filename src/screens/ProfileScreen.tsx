@@ -298,14 +298,16 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <TouchableOpacity
-          style={styles.adminLink}
-          activeOpacity={0.7}
-          onPress={() => navigation.navigate('AdminDashboard')}
-        >
-          <Ionicons name="shield-outline" size={14} color={colors.textFaint} />
-          <Text style={styles.adminLinkText}>لوحة التحكم</Text>
-        </TouchableOpacity>
+        {profile?.isAdmin ? (
+          <TouchableOpacity
+            style={styles.adminLink}
+            activeOpacity={0.7}
+            onPress={() => navigation.navigate('AdminDashboard')}
+          >
+            <Ionicons name="shield-outline" size={14} color={colors.textFaint} />
+            <Text style={styles.adminLinkText}>لوحة التحكم</Text>
+          </TouchableOpacity>
+        ) : null}
 
         {profile ? (
           <TouchableOpacity style={styles.adminLink} activeOpacity={0.7} onPress={() => signOut()}>
