@@ -1,10 +1,16 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, type LayoutChangeEvent } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Platform, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { colors, radius, spacing } from '../theme/colors';
 import type { MainTabParamList } from './types';
+
+// iOS 26+ renders a real frosted "Liquid Glass" material here; everywhere
+// else (older iOS, Android, web) GlassView quietly falls back to a plain
+// View, so we paint an opaque surface ourselves in that case.
+const useGlassBar = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
 const TAB_ICONS: Record<keyof MainTabParamList, keyof typeof Ionicons.glyphMap> = {
   Discover: 'compass-outline',
@@ -58,7 +64,10 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
 
   return (
     <View style={[styles.wrapper, { paddingBottom: Math.max(insets.bottom, spacing.md) }]} pointerEvents="box-none">
-      <View style={styles.bar}>
+      <GlassView
+        glassEffectStyle="regular"
+        style={[styles.bar, !useGlassBar && styles.barFallback]}
+      >
         {pillVisible ? (
           <Animated.View
             pointerEvents="none"
@@ -96,7 +105,7 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
             </TouchableOpacity>
           );
         })}
-      </View>
+      </GlassView>
     </View>
   );
 }
@@ -114,7 +123,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     width: '100%',
-    backgroundColor: colors.surface,
     borderRadius: radius.xl,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.xs,
@@ -123,6 +131,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 20,
     elevation: 10,
+  },
+  barFallback: {
+    backgroundColor: colors.surface,
   },
   tabItem: {
     flex: 1,
