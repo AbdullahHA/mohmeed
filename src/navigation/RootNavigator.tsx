@@ -17,6 +17,11 @@ import GuideChatScreen from '../screens/GuideChatScreen';
 import CommunityChatScreen from '../screens/CommunityChatScreen';
 import AddFriendScreen from '../screens/AddFriendScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
+import AddLoyaltyMembershipScreen from '../screens/AddLoyaltyMembershipScreen';
+import SettingsScreen from '../screens/SettingsScreen';
+import AboutScreen from '../screens/AboutScreen';
+import TermsScreen from '../screens/TermsScreen';
+import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
 import TripTemplatesScreen from '../screens/TripTemplatesScreen';
 import TripTemplateDetailScreen from '../screens/TripTemplateDetailScreen';
 import CreateTripTemplateScreen from '../screens/CreateTripTemplateScreen';
@@ -60,6 +65,15 @@ export default function RootNavigator() {
       <Stack.Screen name="CommunityChat" component={CommunityChatScreen} />
       <Stack.Screen name="AddFriend" component={AddFriendScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen
+        name="AddLoyaltyMembership"
+        component={AddLoyaltyMembershipScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen name="Settings" component={SettingsScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="About" component={AboutScreen} />
+      <Stack.Screen name="Terms" component={TermsScreen} />
+      <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
       <Stack.Screen name="TripTemplates" component={TripTemplatesScreen} />
       <Stack.Screen name="TripTemplateDetail" component={TripTemplateDetailScreen} />
       <Stack.Screen

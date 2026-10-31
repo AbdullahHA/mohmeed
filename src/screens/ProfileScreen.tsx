@@ -7,7 +7,7 @@ import TopBar from '../components/TopBar';
 import FeedbackCard from '../components/FeedbackCard';
 import FilterChip from '../components/FilterChip';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
-import { useTheme, type ThemeMode } from '../context/ThemeContext';
+import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
@@ -15,12 +15,6 @@ import { useRequireAccount } from '../hooks/useRequireAccount';
 import { BUDGET_CATEGORY_LABELS } from '../types';
 import { INTEREST_TAGS } from '../data/destinations';
 import type { RootStackParamList } from '../navigation/types';
-
-const APPEARANCE_OPTIONS: Array<{ value: ThemeMode; label: string }> = [
-  { value: 'system', label: 'تلقائي' },
-  { value: 'light', label: 'فاتح' },
-  { value: 'dark', label: 'داكن' },
-];
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -36,7 +30,7 @@ function formatStampDate(timestamp: number) {
 
 export default function ProfileScreen() {
   const navigation = useNavigation<Nav>();
-  const { colors, mode, setMode } = useTheme();
+  const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const {
     currentUser,
@@ -46,8 +40,12 @@ export default function ProfileScreen() {
     setFeedback,
     visitedStamps,
     recommendedPlaceIds,
+    favoriteDestinationIds,
+    toggleFavoriteDestination,
     airlineReviews,
     removeAirlineReview,
+    loyaltyMemberships,
+    removeLoyaltyMembership,
     tripTemplates,
   } = useAppState();
   const { destinations, places } = useContent();
@@ -70,6 +68,8 @@ export default function ProfileScreen() {
       return destination ? { destination, visitedAt: stamp.visitedAt } : null;
     })
     .filter((entry): entry is { destination: (typeof destinations)[number]; visitedAt: number } => Boolean(entry));
+
+  const favoriteDestinations = destinations.filter((d) => favoriteDestinationIds.includes(d.id));
 
   const recommendedPlaces = places.filter((p) => recommendedPlaceIds.includes(p.id));
   const recommendedByCity = destinations
@@ -95,6 +95,13 @@ export default function ProfileScreen() {
               <Ionicons name="pencil" size={14} color={colors.primary} />
             </TouchableOpacity>
           ) : null}
+          <TouchableOpacity
+            style={styles.settingsButton}
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate('Settings')}
+          >
+            <Ionicons name="settings-outline" size={16} color={colors.primary} />
+          </TouchableOpacity>
           <View style={[styles.avatar, { backgroundColor: currentUser.color }]}>
             <Text style={styles.avatarEmoji}>{currentUser.emoji}</Text>
           </View>
@@ -145,6 +152,29 @@ export default function ProfileScreen() {
             />
           ))}
         </View>
+
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionTitle}>وجهاتي المفضلة</Text>
+        </View>
+        {favoriteDestinations.length === 0 ? (
+          <Text style={styles.emptyMuted}>
+            ما ضفت وجهات مفضلة بعد — اضغط على أيقونة القلب بصفحة أي وجهة عشان تضيفها هنا
+          </Text>
+        ) : (
+          <View style={styles.favoriteDestRow}>
+            {favoriteDestinations.map((destination) => (
+              <TouchableOpacity
+                key={destination.id}
+                style={styles.favoriteDestChip}
+                activeOpacity={0.85}
+                onPress={() => navigation.navigate('DestinationDetail', { destinationId: destination.id })}
+              >
+                <Ionicons name="heart" size={14} color={colors.accent} />
+                <Text style={styles.favoriteDestText}>{destination.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>جواز رحلاتي</Text>
@@ -301,6 +331,34 @@ export default function ProfileScreen() {
         )}
 
         <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionTitle}>برامج الولاء</Text>
+          <TouchableOpacity
+            style={styles.linkButton}
+            activeOpacity={0.85}
+            onPress={() => requireAccount('loyalty', () => navigation.navigate('AddLoyaltyMembership'))}
+          >
+            <Ionicons name="add" size={14} color={colors.primary} />
+            <Text style={styles.linkButtonText}>أضف برنامج</Text>
+          </TouchableOpacity>
+        </View>
+        {loyaltyMemberships.length === 0 ? (
+          <Text style={styles.emptyMuted}>ما ضفت أي برنامج ولاء بعد</Text>
+        ) : (
+          loyaltyMemberships.map((membership) => (
+            <View key={membership.id} style={styles.loyaltyRow}>
+              <TouchableOpacity onPress={() => removeLoyaltyMembership(membership.id)} activeOpacity={0.7}>
+                <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
+              </TouchableOpacity>
+              <View style={styles.loyaltyTextWrap}>
+                <Text style={styles.loyaltyAirline}>{membership.airline}</Text>
+                <Text style={styles.loyaltyNumber}>{membership.memberNumber}</Text>
+              </View>
+              <Ionicons name="star-outline" size={16} color={colors.accent} />
+            </View>
+          ))
+        )}
+
+        <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>أصدقائي</Text>
           <TouchableOpacity
             style={styles.addFriendButton}
@@ -322,27 +380,6 @@ export default function ProfileScreen() {
             </View>
           </View>
         ))}
-
-        <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionTitle}>المظهر</Text>
-        </View>
-        <View style={styles.appearanceRow}>
-          {APPEARANCE_OPTIONS.map((option) => {
-            const active = mode === option.value;
-            return (
-              <TouchableOpacity
-                key={option.value}
-                style={[styles.appearanceChip, active && styles.appearanceChipActive]}
-                activeOpacity={0.85}
-                onPress={() => setMode(option.value)}
-              >
-                <Text style={[styles.appearanceChipText, active && styles.appearanceChipTextActive]}>
-                  {option.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
 
         <FeedbackCard feedback={feedback} onSubmit={setFeedback} />
 
@@ -413,6 +450,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     position: 'absolute',
     top: spacing.md,
     left: spacing.md,
+    width: 30,
+    height: 30,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  settingsButton: {
+    position: 'absolute',
+    top: spacing.md,
+    right: spacing.md,
     width: 30,
     height: 30,
     borderRadius: radius.pill,
@@ -556,6 +604,24 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.xs,
   },
   recommendName: { color: colors.text, fontSize: 13, fontWeight: '600', textAlign: 'right', flex: 1 },
+  favoriteDestRow: {
+    flexDirection: 'row-reverse',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  favoriteDestChip: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  favoriteDestText: { color: colors.text, fontSize: 13, fontWeight: '600' },
   airlineRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -573,6 +639,20 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   airlineNote: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: 2 },
   airlineRating: { flexDirection: 'row-reverse', alignItems: 'center', gap: 2 },
   airlineRatingText: { color: colors.accentDark, fontSize: 12, fontWeight: '700' },
+  loyaltyRow: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  loyaltyTextWrap: { flex: 1 },
+  loyaltyAirline: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
+  loyaltyNumber: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 1 },
   friendRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -589,29 +669,4 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   friendTextWrap: { flex: 1 },
   friendName: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
   friendUsername: { color: colors.textFaint, fontSize: 11 },
-  appearanceRow: {
-    flexDirection: 'row-reverse',
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
-  },
-  appearanceChip: {
-    flex: 1,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.pill,
-    paddingVertical: spacing.sm,
-  },
-  appearanceChipActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  appearanceChipText: {
-    color: colors.text,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  appearanceChipTextActive: {
-    color: colors.textOnPrimary,
-  },
 });

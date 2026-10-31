@@ -18,6 +18,7 @@ import type {
   Feedback,
   Friend,
   ItineraryItem,
+  LoyaltyMembership,
   Trip,
   TripTemplate,
   TripTemplateItem,
@@ -40,7 +41,9 @@ type PersistedState = {
   feedback: Feedback | null;
   visitedStamps: VisitedStamp[];
   recommendedPlaceIds: string[];
+  favoriteDestinationIds: string[];
   airlineReviews: AirlineReview[];
+  loyaltyMemberships: LoyaltyMembership[];
   tripTemplates: TripTemplate[];
   myCheckIn: string | null;
 };
@@ -73,7 +76,9 @@ type AppStateValue = {
   feedback: Feedback | null;
   visitedStamps: VisitedStamp[];
   recommendedPlaceIds: string[];
+  favoriteDestinationIds: string[];
   airlineReviews: AirlineReview[];
+  loyaltyMemberships: LoyaltyMembership[];
   tripTemplates: TripTemplate[];
   myCheckIn: string | null;
   friendsLoading: boolean;
@@ -92,8 +97,11 @@ type AppStateValue = {
   setFeedback: (value: Feedback | null) => void;
   toggleVisited: (destinationId: string) => void;
   toggleRecommended: (placeId: string) => void;
+  toggleFavoriteDestination: (destinationId: string) => void;
   addAirlineReview: (input: Omit<AirlineReview, 'id'>) => void;
   removeAirlineReview: (id: string) => void;
+  addLoyaltyMembership: (input: Omit<LoyaltyMembership, 'id'>) => void;
+  removeLoyaltyMembership: (id: string) => void;
   addTripTemplate: (input: NewTripTemplateInput) => TripTemplate;
   removeTripTemplate: (id: string) => void;
   applyTripTemplate: (templateId: string) => Trip | null;
@@ -156,7 +164,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [feedback, setFeedbackState] = useState<Feedback | null>(null);
   const [visitedStamps, setVisitedStamps] = useState<VisitedStamp[]>([]);
   const [recommendedPlaceIds, setRecommendedPlaceIds] = useState<string[]>([]);
+  const [favoriteDestinationIds, setFavoriteDestinationIds] = useState<string[]>([]);
   const [airlineReviews, setAirlineReviews] = useState<AirlineReview[]>([]);
+  const [loyaltyMemberships, setLoyaltyMemberships] = useState<LoyaltyMembership[]>([]);
   const [tripTemplates, setTripTemplates] = useState<TripTemplate[]>(seedTripTemplates);
   const [myCheckIn, setMyCheckIn] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -200,8 +210,16 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
             setRecommendedPlaceIds(parsed.recommendedPlaceIds);
             loadedFromStorage = true;
           }
+          if (Array.isArray(parsed.favoriteDestinationIds)) {
+            setFavoriteDestinationIds(parsed.favoriteDestinationIds);
+            loadedFromStorage = true;
+          }
           if (Array.isArray(parsed.airlineReviews)) {
             setAirlineReviews(parsed.airlineReviews);
+            loadedFromStorage = true;
+          }
+          if (Array.isArray(parsed.loyaltyMemberships)) {
+            setLoyaltyMemberships(parsed.loyaltyMemberships);
             loadedFromStorage = true;
           }
           if (Array.isArray(parsed.tripTemplates)) {
@@ -236,7 +254,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       feedback,
       visitedStamps,
       recommendedPlaceIds,
+      favoriteDestinationIds,
       airlineReviews,
+      loyaltyMemberships,
       tripTemplates,
       myCheckIn,
     };
@@ -248,7 +268,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     feedback,
     visitedStamps,
     recommendedPlaceIds,
+    favoriteDestinationIds,
     airlineReviews,
+    loyaltyMemberships,
     tripTemplates,
     myCheckIn,
   ]);
@@ -465,12 +487,26 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  const toggleFavoriteDestination = (destinationId: string) => {
+    setFavoriteDestinationIds((prev) =>
+      prev.includes(destinationId) ? prev.filter((id) => id !== destinationId) : [...prev, destinationId]
+    );
+  };
+
   const addAirlineReview = (input: Omit<AirlineReview, 'id'>) => {
     setAirlineReviews((prev) => [{ ...input, id: uid('air') }, ...prev]);
   };
 
   const removeAirlineReview = (id: string) => {
     setAirlineReviews((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  const addLoyaltyMembership = (input: Omit<LoyaltyMembership, 'id'>) => {
+    setLoyaltyMemberships((prev) => [{ ...input, id: uid('loy') }, ...prev]);
+  };
+
+  const removeLoyaltyMembership = (id: string) => {
+    setLoyaltyMemberships((prev) => prev.filter((m) => m.id !== id));
   };
 
   const addTripTemplate = (input: NewTripTemplateInput): TripTemplate => {
@@ -531,7 +567,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       feedback,
       visitedStamps,
       recommendedPlaceIds,
+      favoriteDestinationIds,
       airlineReviews,
+      loyaltyMemberships,
       tripTemplates,
       myCheckIn,
       addFriend,
@@ -549,8 +587,11 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       setFeedback,
       toggleVisited,
       toggleRecommended,
+      toggleFavoriteDestination,
       addAirlineReview,
       removeAirlineReview,
+      addLoyaltyMembership,
+      removeLoyaltyMembership,
       addTripTemplate,
       removeTripTemplate,
       applyTripTemplate,
@@ -568,7 +609,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       feedback,
       visitedStamps,
       recommendedPlaceIds,
+      favoriteDestinationIds,
       airlineReviews,
+      loyaltyMemberships,
       tripTemplates,
       myCheckIn,
     ]

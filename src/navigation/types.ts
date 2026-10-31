@@ -20,6 +20,11 @@ export type RootStackParamList = {
   CommunityChat: { communityId: string };
   AddFriend: undefined;
   EditProfile: undefined;
+  AddLoyaltyMembership: undefined;
+  Settings: undefined;
+  About: undefined;
+  Terms: undefined;
+  PrivacyPolicy: undefined;
   TripTemplates: undefined;
   TripTemplateDetail: { templateId: string };
   CreateTripTemplate: undefined;

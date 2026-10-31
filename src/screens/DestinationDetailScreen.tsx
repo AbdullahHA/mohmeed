@@ -37,7 +37,17 @@ export default function DestinationDetailScreen() {
   const route = useRoute<Route>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { currentUser, visitedStamps, toggleVisited, myCheckIn, checkIn, checkOut, sendGuideMessage } = useAppState();
+  const {
+    currentUser,
+    visitedStamps,
+    toggleVisited,
+    favoriteDestinationIds,
+    toggleFavoriteDestination,
+    myCheckIn,
+    checkIn,
+    checkOut,
+    sendGuideMessage,
+  } = useAppState();
   const { destinations, places } = useContent();
   const { requireAccount } = useRequireAccount();
   const destination = destinations.find((d) => d.id === route.params.destinationId);
@@ -61,6 +71,7 @@ export default function DestinationDetailScreen() {
   }
 
   const isVisited = visitedStamps.some((s) => s.destinationId === destination.id);
+  const isFavorite = favoriteDestinationIds.includes(destination.id);
   const isCheckedInHere = myCheckIn === destination.id;
   const nearbyPeers = checkInPeersByDestination[destination.id] ?? [];
   const bestMonthsLabel = destination.bestMonths.map((m) => MONTH_NAMES[m - 1]).join('، ');
@@ -99,7 +110,19 @@ export default function DestinationDetailScreen() {
         </View>
 
         <View style={styles.body}>
-          <Text style={styles.name}>{destination.name}</Text>
+          <View style={styles.nameRow}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => requireAccount('favoriteDestination', () => toggleFavoriteDestination(destination.id))}
+            >
+              <Ionicons
+                name={isFavorite ? 'heart' : 'heart-outline'}
+                size={22}
+                color={isFavorite ? colors.accent : colors.textFaint}
+              />
+            </TouchableOpacity>
+            <Text style={styles.name}>{destination.name}</Text>
+          </View>
           <Text style={styles.tagline}>{destination.tagline}</Text>
 
           <View style={styles.monthsRow}>
@@ -249,6 +272,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   stampButtonText: { color: colors.textOnPrimary, fontSize: 11, fontWeight: '700' },
   stampButtonTextActive: { color: colors.textOnPrimary },
   body: { padding: spacing.xl },
+  nameRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
   name: { color: colors.text, fontSize: 24, fontWeight: '800', textAlign: 'right' },
   tagline: { color: colors.textMuted, fontSize: 14, textAlign: 'right', marginTop: 4, marginBottom: spacing.md },
   monthsRow: {

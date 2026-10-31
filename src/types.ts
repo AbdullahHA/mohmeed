@@ -110,6 +110,12 @@ export type TripTemplate = {
   items: TripTemplateItem[];
 };
 
+export type LoyaltyMembership = {
+  id: string;
+  airline: string;
+  memberNumber: string;
+};
+
 export type CheckInPeer = {
   id: string;
   name: string;
