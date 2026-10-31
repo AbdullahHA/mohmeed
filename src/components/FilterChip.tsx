@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
   label: {
     color: colors.text,
     fontSize: 12,
+    lineHeight: 18,
     fontWeight: '600',
   },
   labelActive: {

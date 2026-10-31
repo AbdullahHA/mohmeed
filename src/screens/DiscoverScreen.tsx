@@ -63,6 +63,7 @@ export default function DiscoverScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.filtersScroll}
         contentContainerStyle={styles.filtersRow}
       >
         {FILTERS.map((item) => (
@@ -140,10 +141,16 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 13,
   },
+  filtersScroll: {
+    // The list below takes flex: 1; without this the chips row gets squeezed and clips the labels.
+    flexGrow: 0,
+    flexShrink: 0,
+    marginBottom: spacing.lg,
+  },
   filtersRow: {
     flexDirection: 'row-reverse',
+    alignItems: 'center',
     paddingHorizontal: spacing.lg,
-    marginBottom: spacing.lg,
   },
   list: {
     paddingBottom: 120,
