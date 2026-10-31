@@ -10,6 +10,7 @@ export type Profile = {
   emoji: string;
   color: string;
   isAdmin: boolean;
+  interests: string[];
 };
 
 const GUEST_MODE_KEY = 'yalla-nsafer:guest-mode';
@@ -23,6 +24,7 @@ type AuthState = {
   signUp: (email: string, password: string, name: string, username: string) => Promise<AuthResult>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  updateInterests: (interests: string[]) => Promise<AuthResult>;
   continueAsGuest: () => void;
   exitGuestMode: () => void;
   requestPasswordReset: (email: string) => Promise<AuthResult>;
@@ -41,6 +43,7 @@ function mapProfileRow(row: any): Profile {
     emoji: row.emoji,
     color: row.color,
     isAdmin: row.is_admin,
+    interests: row.interests ?? [],
   };
 }
 
@@ -117,6 +120,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (session) await loadProfile(session.user.id);
   };
 
+  const updateInterests: AuthState['updateInterests'] = async (interests) => {
+    if (!session) return { error: 'no session', errorKind: 'auth' };
+    try {
+      const { error } = await supabase.from('profiles').update({ interests }).eq('id', session.user.id);
+      if (!error) await loadProfile(session.user.id);
+      return { error: error?.message ?? null, errorKind: 'network' };
+    } catch (e: any) {
+      return { error: e?.message ?? 'network error', errorKind: 'network' };
+    }
+  };
+
   const continueAsGuest = () => {
     setGuestMode(true);
     AsyncStorage.setItem(GUEST_MODE_KEY, '1').catch(() => {});
@@ -162,6 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signUp,
         signOut,
         refreshProfile,
+        updateInterests,
         continueAsGuest,
         exitGuestMode,
         requestPasswordReset,

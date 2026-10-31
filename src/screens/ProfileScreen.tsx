@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import TopBar from '../components/TopBar';
 import FeedbackCard from '../components/FeedbackCard';
+import FilterChip from '../components/FilterChip';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme, type ThemeMode } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
@@ -12,6 +13,7 @@ import { useContent } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import { BUDGET_CATEGORY_LABELS } from '../types';
+import { INTEREST_TAGS } from '../data/destinations';
 import type { RootStackParamList } from '../navigation/types';
 
 const APPEARANCE_OPTIONS: Array<{ value: ThemeMode; label: string }> = [
@@ -49,8 +51,18 @@ export default function ProfileScreen() {
     tripTemplates,
   } = useAppState();
   const { destinations, places } = useContent();
-  const { profile, signOut, exitGuestMode } = useAuth();
+  const { profile, signOut, exitGuestMode, updateInterests } = useAuth();
   const { requireAccount } = useRequireAccount();
+
+  const toggleInterest = (tag: string) => {
+    requireAccount('interests', () => {
+      if (!profile) return;
+      const next = profile.interests.includes(tag)
+        ? profile.interests.filter((t) => t !== tag)
+        : [...profile.interests, tag];
+      updateInterests(next);
+    });
+  };
 
   const visitedDestinations = visitedStamps
     .map((stamp) => {
@@ -110,6 +122,20 @@ export default function ProfileScreen() {
             </Text>
           </TouchableOpacity>
         ) : null}
+
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionTitle}>اهتماماتي</Text>
+        </View>
+        <View style={styles.interestsRow}>
+          {INTEREST_TAGS.map((tag) => (
+            <FilterChip
+              key={tag}
+              label={tag}
+              active={Boolean(profile?.interests.includes(tag))}
+              onPress={() => toggleInterest(tag)}
+            />
+          ))}
+        </View>
 
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>جواز رحلاتي</Text>
@@ -389,6 +415,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   statValue: { color: colors.primary, fontSize: 18, fontWeight: '800' },
   statLabel: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
   statDivider: { width: 1, height: 28, backgroundColor: colors.border },
+  interestsRow: {
+    flexDirection: 'row-reverse',
+    flexWrap: 'wrap',
+    marginBottom: spacing.xl,
+  },
   sectionHeaderRow: {
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
