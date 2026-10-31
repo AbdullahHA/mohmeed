@@ -6,6 +6,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import TopBar from '../components/TopBar';
 import FeedbackCard from '../components/FeedbackCard';
 import FilterChip from '../components/FilterChip';
+import DestinationsMapView from '../components/DestinationsMapView';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
@@ -14,6 +15,7 @@ import { useAuth } from '../context/AuthContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import { BUDGET_CATEGORY_LABELS } from '../types';
 import { INTEREST_TAGS } from '../data/destinations';
+import { haversineDistanceKm } from '../lib/geo';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -46,6 +48,8 @@ export default function ProfileScreen() {
     removeAirlineReview,
     loyaltyMemberships,
     removeLoyaltyMembership,
+    wishlist,
+    removeWishlistItem,
     tripTemplates,
   } = useAppState();
   const { destinations, places } = useContent();
@@ -68,6 +72,18 @@ export default function ProfileScreen() {
       return destination ? { destination, visitedAt: stamp.visitedAt } : null;
     })
     .filter((entry): entry is { destination: (typeof destinations)[number]; visitedAt: number } => Boolean(entry));
+
+  const visitedWithCoords = visitedDestinations
+    .filter(
+      (entry): entry is { destination: typeof entry.destination & { latitude: number; longitude: number }; visitedAt: number } =>
+        typeof entry.destination.latitude === 'number' && typeof entry.destination.longitude === 'number'
+    )
+    .sort((a, b) => a.visitedAt - b.visitedAt);
+
+  const totalDistanceKm = visitedWithCoords.slice(1).reduce((sum, entry, i) => {
+    const prev = visitedWithCoords[i].destination;
+    return sum + haversineDistanceKm(prev, entry.destination);
+  }, 0);
 
   const favoriteDestinations = destinations.filter((d) => favoriteDestinationIds.includes(d.id));
 
@@ -177,8 +193,51 @@ export default function ProfileScreen() {
         )}
 
         <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionTitle}>قائمة أمنياتي</Text>
+          <TouchableOpacity
+            style={styles.linkButton}
+            activeOpacity={0.85}
+            onPress={() => requireAccount('wishlist', () => navigation.navigate('AddWishlistItem'))}
+          >
+            <Ionicons name="add" size={14} color={colors.primary} />
+            <Text style={styles.linkButtonText}>أضف</Text>
+          </TouchableOpacity>
+        </View>
+        {wishlist.length === 0 ? (
+          <Text style={styles.emptyMuted}>
+            ما ضفت أي دولة أو مدينة تحلم فيها بعد — أضف أي وجهة بالعالم حتى لو مو موجودة بكتالوجنا
+          </Text>
+        ) : (
+          <View style={styles.favoriteDestRow}>
+            {wishlist.map((item) => (
+              <View key={item.id} style={styles.favoriteDestChip}>
+                <TouchableOpacity activeOpacity={0.7} onPress={() => removeWishlistItem(item.id)}>
+                  <Ionicons name="close-circle-outline" size={14} color={colors.textFaint} />
+                </TouchableOpacity>
+                <Text style={styles.favoriteDestText}>{item.name}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>جواز رحلاتي</Text>
         </View>
+        {visitedWithCoords.length > 0 ? (
+          <View style={styles.passportMapWrap}>
+            <DestinationsMapView
+              destinations={visitedWithCoords.map((entry) => entry.destination)}
+              onMarkerPress={(destination) =>
+                navigation.navigate('DestinationDetail', { destinationId: destination.id })
+              }
+            />
+            {totalDistanceKm > 0 ? (
+              <Text style={styles.distanceCaption}>
+                قطعت تقريبًا {Math.round(totalDistanceKm).toLocaleString()} كم بين الوجهات اللي زرتها
+              </Text>
+            ) : null}
+          </View>
+        ) : null}
         {visitedDestinations.length === 0 ? (
           <Text style={styles.emptyMuted}>
             ما سجلت أي مكان بعد — افتح أي وجهة واضغط "أضفها لأماكن زرتها" عشان تبدأ جوازك
@@ -519,6 +578,19 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.lg,
   },
   ctaCardText: { color: colors.primaryDark, fontSize: 13, fontWeight: '600', flex: 1, textAlign: 'right' },
+  passportMapWrap: {
+    height: 180,
+    borderRadius: radius.md,
+    overflow: 'hidden',
+    marginBottom: spacing.md,
+  },
+  distanceCaption: {
+    color: colors.textMuted,
+    fontSize: 11,
+    fontWeight: '600',
+    textAlign: 'right',
+    marginTop: spacing.xs,
+  },
   stampsGrid: {
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',

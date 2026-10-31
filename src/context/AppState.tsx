@@ -23,6 +23,7 @@ import type {
   TripTemplate,
   TripTemplateItem,
   VisitedStamp,
+  WishlistItem,
 } from '../types';
 
 const STORAGE_KEY = 'yalla-nsafer:state:v1';
@@ -44,6 +45,7 @@ type PersistedState = {
   favoriteDestinationIds: string[];
   airlineReviews: AirlineReview[];
   loyaltyMemberships: LoyaltyMembership[];
+  wishlist: WishlistItem[];
   tripTemplates: TripTemplate[];
   myCheckIn: string | null;
 };
@@ -79,6 +81,7 @@ type AppStateValue = {
   favoriteDestinationIds: string[];
   airlineReviews: AirlineReview[];
   loyaltyMemberships: LoyaltyMembership[];
+  wishlist: WishlistItem[];
   tripTemplates: TripTemplate[];
   myCheckIn: string | null;
   friendsLoading: boolean;
@@ -102,6 +105,8 @@ type AppStateValue = {
   removeAirlineReview: (id: string) => void;
   addLoyaltyMembership: (input: Omit<LoyaltyMembership, 'id'>) => void;
   removeLoyaltyMembership: (id: string) => void;
+  addWishlistItem: (name: string) => void;
+  removeWishlistItem: (id: string) => void;
   addTripTemplate: (input: NewTripTemplateInput) => TripTemplate;
   removeTripTemplate: (id: string) => void;
   applyTripTemplate: (templateId: string) => Trip | null;
@@ -167,6 +172,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [favoriteDestinationIds, setFavoriteDestinationIds] = useState<string[]>([]);
   const [airlineReviews, setAirlineReviews] = useState<AirlineReview[]>([]);
   const [loyaltyMemberships, setLoyaltyMemberships] = useState<LoyaltyMembership[]>([]);
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [tripTemplates, setTripTemplates] = useState<TripTemplate[]>(seedTripTemplates);
   const [myCheckIn, setMyCheckIn] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -222,6 +228,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
             setLoyaltyMemberships(parsed.loyaltyMemberships);
             loadedFromStorage = true;
           }
+          if (Array.isArray(parsed.wishlist)) {
+            setWishlist(parsed.wishlist);
+            loadedFromStorage = true;
+          }
           if (Array.isArray(parsed.tripTemplates)) {
             setTripTemplates(parsed.tripTemplates);
             loadedFromStorage = true;
@@ -257,6 +267,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       favoriteDestinationIds,
       airlineReviews,
       loyaltyMemberships,
+      wishlist,
       tripTemplates,
       myCheckIn,
     };
@@ -271,6 +282,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     favoriteDestinationIds,
     airlineReviews,
     loyaltyMemberships,
+    wishlist,
     tripTemplates,
     myCheckIn,
   ]);
@@ -509,6 +521,16 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setLoyaltyMemberships((prev) => prev.filter((m) => m.id !== id));
   };
 
+  const addWishlistItem = (name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    setWishlist((prev) => [{ id: uid('wish'), name: trimmed }, ...prev]);
+  };
+
+  const removeWishlistItem = (id: string) => {
+    setWishlist((prev) => prev.filter((item) => item.id !== id));
+  };
+
   const addTripTemplate = (input: NewTripTemplateInput): TripTemplate => {
     const template: TripTemplate = {
       id: uid('tpl'),
@@ -570,6 +592,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       favoriteDestinationIds,
       airlineReviews,
       loyaltyMemberships,
+      wishlist,
       tripTemplates,
       myCheckIn,
       addFriend,
@@ -592,6 +615,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       removeAirlineReview,
       addLoyaltyMembership,
       removeLoyaltyMembership,
+      addWishlistItem,
+      removeWishlistItem,
       addTripTemplate,
       removeTripTemplate,
       applyTripTemplate,
@@ -612,6 +637,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       favoriteDestinationIds,
       airlineReviews,
       loyaltyMemberships,
+      wishlist,
       tripTemplates,
       myCheckIn,
     ]

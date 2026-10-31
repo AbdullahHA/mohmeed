@@ -116,6 +116,11 @@ export type LoyaltyMembership = {
   memberNumber: string;
 };
 
+export type WishlistItem = {
+  id: string;
+  name: string;
+};
+
 export type CheckInPeer = {
   id: string;
   name: string;

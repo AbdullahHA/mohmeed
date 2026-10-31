@@ -21,6 +21,7 @@ export type RootStackParamList = {
   AddFriend: undefined;
   EditProfile: undefined;
   AddLoyaltyMembership: undefined;
+  AddWishlistItem: undefined;
   Settings: undefined;
   About: undefined;
   Terms: undefined;

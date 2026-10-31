@@ -18,6 +18,7 @@ import CommunityChatScreen from '../screens/CommunityChatScreen';
 import AddFriendScreen from '../screens/AddFriendScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import AddLoyaltyMembershipScreen from '../screens/AddLoyaltyMembershipScreen';
+import AddWishlistItemScreen from '../screens/AddWishlistItemScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import AboutScreen from '../screens/AboutScreen';
 import TermsScreen from '../screens/TermsScreen';
@@ -68,6 +69,11 @@ export default function RootNavigator() {
       <Stack.Screen
         name="AddLoyaltyMembership"
         component={AddLoyaltyMembershipScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen
+        name="AddWishlistItem"
+        component={AddWishlistItemScreen}
         options={{ presentation: 'modal' }}
       />
       <Stack.Screen name="Settings" component={SettingsScreen} options={{ presentation: 'modal' }} />

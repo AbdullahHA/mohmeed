@@ -32,6 +32,8 @@ function mapDestinationRow(row: any): Destination {
     topHotels: row.top_hotels ?? [],
     topRestaurants: row.top_restaurants ?? [],
     interests: row.interests ?? [],
+    latitude: row.latitude ?? undefined,
+    longitude: row.longitude ?? undefined,
   };
 }
 

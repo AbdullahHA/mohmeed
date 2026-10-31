@@ -11,6 +11,8 @@ export type Destination = {
   topHotels: string[];
   topRestaurants: string[];
   interests: string[];
+  latitude?: number;
+  longitude?: number;
 };
 
 export const INTEREST_TAGS = ['مغامرة', 'شواطئ', 'ثقافة', 'عائلي', 'رومانسي', 'طبيعة'] as const;
@@ -27,6 +29,8 @@ export const destinations: Destination[] = [
     topHotels: ['Habitas AlUla', 'Shaden Resort', 'Our Habitas AlUla'],
     topRestaurants: ['مطعم صحارى', 'Somewhere Cafe', 'مطعم الفرن'],
     interests: ['مغامرة', 'ثقافة'],
+    latitude: 26.6097,
+    longitude: 37.9154,
   },
   {
     id: 'redsea',
@@ -38,6 +42,8 @@ export const destinations: Destination[] = [
     topHotels: ['Six Senses Southern Dunes', 'St. Regis Red Sea Resort'],
     topRestaurants: ['Turquoiz', 'Kaia'],
     interests: ['شواطئ', 'مغامرة'],
+    latitude: 25.0167,
+    longitude: 37.2667,
   },
   {
     id: 'marbella',
@@ -49,6 +55,8 @@ export const destinations: Destination[] = [
     topHotels: ['Puente Romano', 'Marbella Club Hotel'],
     topRestaurants: ['Nobu Marbella', 'La Sala by the Sea'],
     interests: ['شواطئ', 'رومانسي'],
+    latitude: 36.5099,
+    longitude: -4.8863,
   },
   {
     id: 'riyadh',
@@ -60,6 +68,8 @@ export const destinations: Destination[] = [
     topHotels: ['Kimpton KAFD Riyadh by IHG', 'Ritz-Carlton Riyadh'],
     topRestaurants: ['مطعم بوابة الدرعية', 'Angelina Riyadh'],
     interests: ['ثقافة', 'عائلي'],
+    latitude: 24.7136,
+    longitude: 46.6753,
   },
   {
     id: 'jeddah',
@@ -71,6 +81,8 @@ export const destinations: Destination[] = [
     topHotels: ['Rosewood Jeddah', 'InterContinental Jeddah'],
     topRestaurants: ['Byblos', 'Al Nakheel Seafood'],
     interests: ['شواطئ', 'عائلي'],
+    latitude: 21.4858,
+    longitude: 39.1925,
   },
   {
     id: 'abha',
@@ -82,6 +94,8 @@ export const destinations: Destination[] = [
     topHotels: ['Boudl Abha', 'Abha Palace Hotel'],
     topRestaurants: ['مطعم شذا أبها', 'Cafe Rosto'],
     interests: ['طبيعة', 'مغامرة'],
+    latitude: 18.2164,
+    longitude: 42.5053,
   },
 ];
 
