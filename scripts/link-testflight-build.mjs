@@ -91,7 +91,9 @@ function resolveAppId() {
 async function main() {
   const keyId = requireEnv('ASC_KEY_ID');
   const issuerId = requireEnv('ASC_ISSUER_ID');
-  const privateKey = requireEnv('ASC_PRIVATE_KEY');
+  // Env var UIs often store the key as one line with literal "\n" sequences
+  // instead of real newlines — normalize so the PEM parses either way.
+  const privateKey = requireEnv('ASC_PRIVATE_KEY').replace(/\\n/g, '\n');
   const appId = resolveAppId();
   const groupName = process.env.ASC_GROUP_NAME || 'Internal Testers';
 
