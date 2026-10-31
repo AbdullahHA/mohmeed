@@ -6,7 +6,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
 import { useAppState } from '../context/AppState';
 import { useRequireAccount } from '../hooks/useRequireAccount';
-import { getMapsUrl, getPriceLabel } from '../utils/place';
+import { getMapsUrl } from '../utils/place';
 import TripPickerModal from './TripPickerModal';
 import type { RootStackParamList } from '../navigation/types';
 import type { Trip } from '../types';
@@ -24,7 +24,6 @@ export default function PlaceCard({ place, onPress }: Props) {
   const { trips, addItineraryItem, recommendedPlaceIds, toggleRecommended } = useAppState();
   const { requireAccount } = useRequireAccount();
   const [pickerVisible, setPickerVisible] = useState(false);
-  const priceLabel = getPriceLabel(place.priceLevel);
   const mapsUrl = getMapsUrl(place.coordinate);
   const isRecommended = recommendedPlaceIds.includes(place.id);
 
@@ -46,21 +45,25 @@ export default function PlaceCard({ place, onPress }: Props) {
 
   return (
     <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={onPress}>
-      <Image source={place.image} style={styles.image} />
+      <View style={styles.imageWrap}>
+        <Image source={place.image} style={styles.image} />
+        <TouchableOpacity
+          style={styles.favoriteButton}
+          onPress={() => requireAccount('recommend', () => toggleRecommended(place.id))}
+          activeOpacity={0.7}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Ionicons
+            name={isRecommended ? 'heart' : 'heart-outline'}
+            size={18}
+            color={isRecommended ? colors.accent : '#FFFFFF'}
+          />
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.body}>
-        <View style={styles.ratingRow}>
-          <TouchableOpacity
-            onPress={() => requireAccount('recommend', () => toggleRecommended(place.id))}
-            activeOpacity={0.7}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <Ionicons
-              name={isRecommended ? 'heart' : 'heart-outline'}
-              size={18}
-              color={isRecommended ? colors.accent : colors.textFaint}
-            />
-          </TouchableOpacity>
+        <View style={styles.metaRow}>
+          <Text style={styles.category}>{place.category}</Text>
           <View style={styles.ratingGroup}>
             <Ionicons name="star" size={14} color={colors.accent} />
             <Text style={styles.rating}>{place.rating.toFixed(1)}</Text>
@@ -71,8 +74,6 @@ export default function PlaceCard({ place, onPress }: Props) {
         <Text style={styles.description} numberOfLines={2}>
           {place.description}
         </Text>
-
-        <Text style={styles.price}>{priceLabel}</Text>
 
         <View style={styles.actionsRow}>
           <TouchableOpacity style={styles.actionButton} activeOpacity={0.8} onPress={handleAddToTrip}>
@@ -121,18 +122,38 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     overflow: 'hidden',
   },
+  imageWrap: {
+    width: '100%',
+    height: 220,
+  },
   image: {
     width: '100%',
-    height: 190,
+    height: '100%',
+  },
+  favoriteButton: {
+    position: 'absolute',
+    top: spacing.md,
+    left: spacing.md,
+    width: 34,
+    height: 34,
+    borderRadius: radius.pill,
+    backgroundColor: colors.overlay,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   body: {
     padding: spacing.lg,
   },
-  ratingRow: {
+  metaRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: spacing.xs,
+  },
+  category: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: '600',
   },
   ratingGroup: {
     flexDirection: 'row-reverse',
@@ -156,13 +177,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textAlign: 'right',
     lineHeight: 19,
-  },
-  price: {
-    color: colors.accentDark,
-    fontSize: 13,
-    fontWeight: '600',
-    textAlign: 'right',
-    marginTop: spacing.sm,
   },
   actionsRow: {
     flexDirection: 'row-reverse',
