@@ -89,9 +89,9 @@ export default function AdminNotificationsScreen() {
         <View style={styles.noticeBox}>
           <Ionicons name="information-circle-outline" size={18} color={colors.primary} />
           <Text style={styles.noticeText}>
-            تسجيل أجهزة المستخدمين يعمل الآن فعلياً. لكن هذا النموذج لسا يسجل الإشعار بقاعدة
-            البيانات فقط — الإرسال الفعلي للأجهزة (عبر دالة خادم) يحتاج إعداد إضافي لاحقاً.
-            حالياً عدد الأجهزة المسجلة: <Text style={styles.noticeCount}>{tokenCount ?? '...'}</Text>
+            هذا يسجل الإشعار فعلياً في قاعدة البيانات. التوصيل الفعلي لإشعارات الجوال (Push)
+            يحتاج إعداد إضافي لاحقاً (تسجيل أجهزة المستخدمين + دالة إرسال). حالياً عدد الأجهزة
+            المسجلة: <Text style={styles.noticeCount}>{tokenCount ?? '...'}</Text>
           </Text>
         </View>
 

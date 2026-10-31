@@ -34,8 +34,7 @@
     "owner": "abdullbmo",
     "plugins": [
       "expo-status-bar",
-      "@react-native-community/datetimepicker",
-      "expo-notifications"
+      "@react-native-community/datetimepicker"
     ]
   }
 }
