@@ -26,6 +26,7 @@ type AuthState = {
   refreshProfile: () => Promise<void>;
   updateInterests: (interests: string[]) => Promise<AuthResult>;
   updateProfile: (fields: { name?: string; username?: string; emoji?: string; color?: string }) => Promise<AuthResult>;
+  deleteAccount: () => Promise<AuthResult>;
   continueAsGuest: () => void;
   exitGuestMode: () => void;
   requestPasswordReset: (email: string) => Promise<AuthResult>;
@@ -117,6 +118,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     AsyncStorage.removeItem(GUEST_MODE_KEY).catch(() => {});
   };
 
+  const deleteAccount: AuthState['deleteAccount'] = async () => {
+    if (!session) return { error: 'no session', errorKind: 'auth' };
+    try {
+      const { data, error } = await supabase.functions.invoke('delete-account');
+      if (error) return { error: error.message ?? 'network error', errorKind: 'network' };
+      if (data?.error) return { error: data.error, errorKind: 'auth' };
+      await supabase.auth.signOut();
+      setGuestMode(false);
+      AsyncStorage.removeItem(GUEST_MODE_KEY).catch(() => {});
+      return { error: null };
+    } catch (e: any) {
+      return { error: e?.message ?? 'network error', errorKind: 'network' };
+    }
+  };
+
   const refreshProfile = async () => {
     if (session) await loadProfile(session.user.id);
   };
@@ -199,6 +215,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         refreshProfile,
         updateInterests,
         updateProfile,
+        deleteAccount,
         continueAsGuest,
         exitGuestMode,
         requestPasswordReset,
