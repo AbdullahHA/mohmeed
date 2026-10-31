@@ -46,20 +46,15 @@ export default function EditProfileScreen() {
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
 
+  // Picking/removing a photo only stages it locally — it isn't written to
+  // the profile until "حفظ" is pressed, same as the other fields below.
   const handlePickAvatar = async () => {
     if (!profile || avatarUploading) return;
     setAvatarError(null);
     setAvatarUploading(true);
     try {
       const url = await pickAndUploadAvatar(profile.id);
-      if (url) {
-        const { error: saveError } = await updateProfile({ avatar_url: url });
-        if (saveError) {
-          setAvatarError('تعذّر حفظ الصورة، حاول مرة ثانية');
-        } else {
-          setAvatarUrl(url);
-        }
-      }
+      if (url) setAvatarUrl(url);
     } catch {
       setAvatarError('تعذّر رفع الصورة، حاول مرة ثانية');
     } finally {
@@ -67,16 +62,8 @@ export default function EditProfileScreen() {
     }
   };
 
-  const handleRemoveAvatar = async () => {
-    if (avatarUploading) return;
+  const handleRemoveAvatar = () => {
     setAvatarError(null);
-    setAvatarUploading(true);
-    const { error: saveError } = await updateProfile({ avatar_url: null });
-    setAvatarUploading(false);
-    if (saveError) {
-      setAvatarError('تعذّر إزالة الصورة، حاول مرة ثانية');
-      return;
-    }
     setAvatarUrl(null);
   };
 
@@ -84,7 +71,8 @@ export default function EditProfileScreen() {
     name.trim() !== profile?.name ||
     username.trim() !== profile?.username ||
     emoji !== profile?.emoji ||
-    color !== profile?.color;
+    color !== profile?.color ||
+    avatarUrl !== (profile?.avatarUrl ?? null);
 
   const handleSave = async () => {
     if (!name.trim() || !username.trim() || loading || !hasChanges) return;
@@ -99,6 +87,7 @@ export default function EditProfileScreen() {
       username: username.trim(),
       emoji,
       color,
+      avatar_url: avatarUrl,
     });
     setLoading(false);
     if (saveError) {
