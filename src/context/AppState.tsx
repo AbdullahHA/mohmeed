@@ -386,18 +386,43 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     const trimmed = text.trim();
     if (!trimmed) return;
     const userMessage: ChatMessage = { id: uid('gmsg'), fromId: 'me', text: trimmed, at: Date.now() };
+    const history = [...guideMessages, userMessage].slice(-12).map((m) => ({
+      role: m.fromId === 'me' ? 'user' : 'assistant',
+      content: m.text,
+    }));
     setGuideMessages((prev) => [...prev, userMessage]);
     setGuideThinking(true);
-    setTimeout(() => {
+    (async () => {
+      let replyText: string | null = null;
+      try {
+        const { data, error } = await supabase.functions.invoke('guide-chat', {
+          body: {
+            messages: history,
+            destinations: destinations.map((d) => ({
+              name: d.name,
+              whyVisit: d.whyVisit,
+              topHotels: d.topHotels,
+              topRestaurants: d.topRestaurants,
+              bestMonths: d.bestMonths,
+            })),
+          },
+        });
+        if (error) throw error;
+        if (typeof data?.reply === 'string' && data.reply.trim()) {
+          replyText = data.reply.trim();
+        }
+      } catch {
+        // fall back below
+      }
       const replyMessage: ChatMessage = {
         id: uid('gmsg'),
         fromId: 'guide',
-        text: buildGuideReply(trimmed, destinations),
+        text: replyText ?? buildGuideReply(trimmed, destinations),
         at: Date.now() + 1,
       };
       setGuideMessages((prev) => [...prev, replyMessage]);
       setGuideThinking(false);
-    }, 700);
+    })();
   };
 
   const updateCommunity = (communityId: string, updater: (community: Community) => Community) => {
