@@ -102,7 +102,7 @@ async function main() {
   console.log(`Looking up the latest build for app ${appId}...`);
   const builds = await ascFetch(
     jwt,
-    `/apps/${appId}/builds?sort=-uploadedDate&limit=1&fields[builds]=version,uploadedDate,processingState`
+    `/builds?filter[app]=${appId}&sort=-uploadedDate&limit=1&fields[builds]=version,uploadedDate,processingState`
   );
   const build = builds.data?.[0];
   if (!build) throw new Error('No builds found for this app');
@@ -111,7 +111,7 @@ async function main() {
   console.log(`Looking up beta group "${groupName}"...`);
   const groups = await ascFetch(
     jwt,
-    `/apps/${appId}/betaGroups?filter[name]=${encodeURIComponent(groupName)}`
+    `/betaGroups?filter[app]=${appId}&filter[name]=${encodeURIComponent(groupName)}`
   );
   const group = groups.data?.[0];
   if (!group) throw new Error(`Beta group "${groupName}" not found`);
