@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, View } from 'react-native';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
@@ -7,6 +8,7 @@ import { AppStateProvider } from './src/context/AppState';
 import { ContentProvider } from './src/context/ContentContext';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import AuthGateScreen from './src/screens/AuthGateScreen';
+import AppIntro from './src/components/AppIntro';
 import { colors } from './src/theme/colors';
 
 const navigationTheme = {
@@ -48,11 +50,14 @@ function Gate() {
 }
 
 export default function App() {
+  const [showIntro, setShowIntro] = useState(true);
+
   return (
     <SafeAreaProvider>
       <AuthProvider>
         <Gate />
       </AuthProvider>
+      {showIntro && <AppIntro onDone={() => setShowIntro(false)} />}
       <StatusBar style="dark" />
     </SafeAreaProvider>
   );
