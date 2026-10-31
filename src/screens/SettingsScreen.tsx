@@ -10,6 +10,7 @@ import {
   Switch,
   Platform,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -46,7 +47,8 @@ export default function SettingsScreen() {
   const navigation = useNavigation<Nav>();
   const { colors, mode, setMode } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { profile, updateProfile } = useAuth();
+  const { profile, updateProfile, deleteAccount } = useAuth();
+  const [deleting, setDeleting] = useState(false);
 
   const [phone, setPhone] = useState(profile?.phone ?? '');
   const [title, setTitle] = useState(profile?.title ?? '');
@@ -105,6 +107,28 @@ export default function SettingsScreen() {
       return;
     }
     setSavedTick(true);
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'حذف الحساب نهائيًا؟',
+      'بيُحذف حسابك وكل بياناتك (رحلاتك، تقييماتك، اهتماماتك، صداقاتك، محادثاتك) بشكل نهائي ولا يمكن التراجع عنه.',
+      [
+        { text: 'إلغاء', style: 'cancel' },
+        {
+          text: 'حذف الحساب',
+          style: 'destructive',
+          onPress: async () => {
+            setDeleting(true);
+            const { error: deleteError } = await deleteAccount();
+            setDeleting(false);
+            if (deleteError) {
+              Alert.alert('صار خطأ', 'تعذّر حذف الحساب، حاول مرة ثانية لاحقًا.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -318,6 +342,21 @@ export default function SettingsScreen() {
           <Text style={styles.linkRowText}>سياسة الخصوصية</Text>
           <Ionicons name="lock-closed-outline" size={18} color={colors.textMuted} />
         </TouchableOpacity>
+
+        {profile ? (
+          <TouchableOpacity
+            style={styles.deleteButton}
+            activeOpacity={0.8}
+            disabled={deleting}
+            onPress={handleDeleteAccount}
+          >
+            {deleting ? (
+              <ActivityIndicator color={colors.red} />
+            ) : (
+              <Text style={styles.deleteButtonText}>حذف الحساب نهائيًا</Text>
+            )}
+          </TouchableOpacity>
+        ) : null}
       </ScrollView>
 
       <CountryPickerModal
@@ -446,4 +485,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.sm,
   },
   linkRowText: { flex: 1, color: colors.text, fontSize: 14, fontWeight: '600', textAlign: 'right' },
+  deleteButton: {
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+    marginTop: spacing.xl,
+  },
+  deleteButtonText: { color: colors.red, fontSize: 13, fontWeight: '700' },
 });

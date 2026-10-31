@@ -7,6 +7,7 @@ import TopBar from '../components/TopBar';
 import FeedbackCard from '../components/FeedbackCard';
 import FilterChip from '../components/FilterChip';
 import DestinationsMapView from '../components/DestinationsMapView';
+import AchievementsRow, { type Achievement } from '../components/AchievementsRow';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
@@ -98,6 +99,20 @@ export default function ProfileScreen() {
 
   const myTemplates = tripTemplates.filter((t) => t.isMine);
 
+  const achievements: Achievement[] = [
+    { id: 'explorer', icon: '🧭', label: 'مستكشف', unlocked: visitedDestinations.length >= 3 },
+    { id: 'flyer', icon: '✈️', label: 'مسافر جوي', unlocked: airlineReviews.length >= 1 },
+    { id: 'recommender', icon: '💛', label: 'موصي', unlocked: recommendedPlaces.length >= 1 },
+    { id: 'social', icon: '🤝', label: 'اجتماعي', unlocked: friends.length >= 3 },
+    { id: 'author', icon: '📝', label: 'كاتب رحلات', unlocked: myTemplates.length >= 1 },
+    {
+      id: 'complete',
+      icon: '⭐',
+      label: 'ملف مكتمل',
+      unlocked: Boolean(profile?.bio) && (profile?.interests.length ?? 0) >= 1,
+    },
+  ];
+
   return (
     <SafeAreaView style={styles.container}>
       <TopBar />
@@ -128,6 +143,7 @@ export default function ProfileScreen() {
           )}
           <Text style={styles.name}>{currentUser.name}</Text>
           <Text style={styles.username}>@{currentUser.username}</Text>
+          {profile?.bio ? <Text style={styles.bio}>{profile.bio}</Text> : null}
 
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
@@ -157,6 +173,15 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           </View>
         </View>
+
+        {profile ? (
+          <>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionTitle}>إنجازاتي</Text>
+            </View>
+            <AchievementsRow achievements={achievements} />
+          </>
+        ) : null}
 
         {!profile ? (
           <TouchableOpacity
@@ -580,6 +605,15 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   name: { color: colors.text, fontSize: 18, fontWeight: '800' },
   username: { color: colors.textMuted, fontSize: 12, marginTop: 2, marginBottom: spacing.lg },
+  bio: {
+    color: colors.textMuted,
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: -spacing.md,
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    lineHeight: 18,
+  },
   statsRow: { flexDirection: 'row-reverse', alignItems: 'center' },
   statItem: { alignItems: 'center', paddingHorizontal: spacing.lg },
   statValue: { color: colors.primary, fontSize: 18, fontWeight: '800' },

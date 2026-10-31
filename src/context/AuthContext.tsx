@@ -22,6 +22,7 @@ export type Profile = {
   nationality: string | null;
   countryOfResidence: string | null;
   maritalStatus: string | null;
+  bio: string | null;
 };
 
 export type ProfileUpdateFields = {
@@ -39,6 +40,7 @@ export type ProfileUpdateFields = {
   nationality?: string | null;
   country_of_residence?: string | null;
   marital_status?: string | null;
+  bio?: string | null;
 };
 
 const GUEST_MODE_KEY = 'yalla-nsafer:guest-mode';
@@ -85,6 +87,7 @@ function mapProfileRow(row: any, email: string | null): Profile {
     nationality: row.nationality ?? null,
     countryOfResidence: row.country_of_residence ?? null,
     maritalStatus: row.marital_status ?? null,
+    bio: row.bio ?? null,
   };
 }
 

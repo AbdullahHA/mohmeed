@@ -37,6 +37,7 @@ export default function EditProfileScreen() {
 
   const [name, setName] = useState(profile?.name ?? '');
   const [username, setUsername] = useState(profile?.username ?? '');
+  const [bio, setBio] = useState(profile?.bio ?? '');
   const [emoji, setEmoji] = useState(profile?.emoji ?? '🧳');
   const [color, setColor] = useState(profile?.color ?? AVATAR_COLORS[0]);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +73,8 @@ export default function EditProfileScreen() {
     username.trim() !== profile?.username ||
     emoji !== profile?.emoji ||
     color !== profile?.color ||
-    avatarUrl !== (profile?.avatarUrl ?? null);
+    avatarUrl !== (profile?.avatarUrl ?? null) ||
+    bio.trim() !== (profile?.bio ?? '');
 
   const handleSave = async () => {
     if (!name.trim() || !username.trim() || loading || !hasChanges) return;
@@ -88,6 +90,7 @@ export default function EditProfileScreen() {
       emoji,
       color,
       avatar_url: avatarUrl,
+      bio: bio.trim() || null,
     });
     setLoading(false);
     if (saveError) {
@@ -175,6 +178,18 @@ export default function EditProfileScreen() {
           textAlign="left"
         />
         <Text style={styles.usernameHint}>{USERNAME_RULE_MESSAGE}</Text>
+
+        <Text style={styles.label}>نبذة عني</Text>
+        <TextInput
+          style={[styles.input, styles.bioInput]}
+          placeholder="اكتب شي قصير عن نفسك..."
+          placeholderTextColor={colors.textFaint}
+          value={bio}
+          onChangeText={setBio}
+          textAlign="right"
+          multiline
+          maxLength={160}
+        />
 
         <Text style={styles.label}>الأيقونة</Text>
         <View style={styles.emojiGrid}>
@@ -336,6 +351,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.text,
   },
   usernameHint: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: spacing.xs, lineHeight: 16 },
+  bioInput: { minHeight: 70, textAlignVertical: 'top', paddingTop: spacing.md },
   error: { color: colors.red, fontSize: 12, textAlign: 'right', marginTop: spacing.lg },
   submitButton: {
     backgroundColor: colors.primary,
