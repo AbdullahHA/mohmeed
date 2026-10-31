@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 
 type Props = {
   label: string;
@@ -9,6 +10,8 @@ type Props = {
 };
 
 export default function FilterChip({ label, active, onPress }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <TouchableOpacity
       style={[styles.chip, active && styles.chipActive]}
@@ -20,7 +23,7 @@ export default function FilterChip({ label, active, onPress }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   chip: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
@@ -31,15 +34,16 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   chipActive: {
-    backgroundColor: colors.gold,
-    borderColor: colors.gold,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   label: {
     color: colors.text,
     fontSize: 12,
+    lineHeight: 18,
     fontWeight: '600',
   },
   labelActive: {
-    color: colors.background,
+    color: colors.textOnPrimary,
   },
 });

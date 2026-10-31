@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import type { Destination } from '../data/destinations';
 
 type Props = {
@@ -9,17 +10,19 @@ type Props = {
 };
 
 export default function DestinationCard({ destination, onPress }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={onPress}>
       <ImageBackground
-        source={{ uri: destination.image }}
+        source={destination.image}
         style={styles.image}
         imageStyle={styles.imageRadius}
       >
         <View style={styles.overlay} />
         {destination.trending ? (
           <View style={styles.badge}>
-            <Text style={styles.badgeText}>رائجة 🔥</Text>
+            <Text style={styles.badgeText}>الأكثر بحثاً</Text>
           </View>
         ) : null}
         <View style={styles.textWrap}>
@@ -35,7 +38,7 @@ export default function DestinationCard({ destination, onPress }: Props) {
 
 const CARD_WIDTH = 150;
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
     width: CARD_WIDTH,
     height: 190,
@@ -60,14 +63,14 @@ const styles = StyleSheet.create({
   },
   badge: {
     alignSelf: 'flex-end',
-    backgroundColor: colors.red,
+    backgroundColor: colors.accent,
     borderRadius: radius.sm,
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     margin: spacing.sm,
   },
   badgeText: {
-    color: colors.text,
+    color: colors.textOnPrimary,
     fontSize: 10,
     fontWeight: '700',
   },
@@ -75,13 +78,13 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
   },
   name: {
-    color: colors.text,
+    color: colors.textOnPrimary,
     fontSize: 16,
     fontWeight: '700',
     textAlign: 'right',
   },
   tagline: {
-    color: colors.textMuted,
+    color: 'rgba(255,255,255,0.85)',
     fontSize: 11,
     textAlign: 'right',
     marginTop: 2,

@@ -1,7 +1,16 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, radius, spacing } from '../theme/colors';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
+import { useAppState } from '../context/AppState';
+import { useRequireAccount } from '../hooks/useRequireAccount';
+import { getMapsUrl } from '../utils/place';
+import TripPickerModal from './TripPickerModal';
+import type { RootStackParamList } from '../navigation/types';
+import type { Trip } from '../types';
 import type { Place } from '../data/places';
 
 type Props = {
@@ -9,18 +18,59 @@ type Props = {
   onPress?: () => void;
 };
 
+type Nav = NativeStackNavigationProp<RootStackParamList>;
+
 export default function PlaceCard({ place, onPress }: Props) {
-  const priceLabel = '$'.repeat(place.priceLevel);
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${place.coordinate.latitude},${place.coordinate.longitude}`;
+  const navigation = useNavigation<Nav>();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const { trips, addItineraryItem, recommendedPlaceIds, toggleRecommended } = useAppState();
+  const { requireAccount } = useRequireAccount();
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const mapsUrl = getMapsUrl(place.coordinate);
+  const isRecommended = recommendedPlaceIds.includes(place.id);
+
+  const handleAddToTrip = () => {
+    requireAccount('trip', () => {
+      if (trips.length === 0) {
+        navigation.navigate('CreateTrip');
+        return;
+      }
+      setPickerVisible(true);
+    });
+  };
+
+  const handleSelectTrip = (trip: Trip) => {
+    addItineraryItem(trip.id, { day: 'غير محدد', time: '—', title: place.name });
+    setPickerVisible(false);
+    navigation.navigate('TripDetail', { tripId: trip.id });
+  };
 
   return (
     <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={onPress}>
-      <Image source={{ uri: place.image }} style={styles.image} />
+      <View style={styles.imageWrap}>
+        <Image source={place.image} style={styles.image} />
+        <TouchableOpacity
+          style={styles.favoriteButton}
+          onPress={() => requireAccount('recommend', () => toggleRecommended(place.id))}
+          activeOpacity={0.7}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Ionicons
+            name={isRecommended ? 'heart' : 'heart-outline'}
+            size={18}
+            color={isRecommended ? colors.accent : '#FFFFFF'}
+          />
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.body}>
-        <View style={styles.ratingRow}>
-          <Ionicons name="star" size={14} color={colors.gold} />
-          <Text style={styles.rating}>{place.rating.toFixed(1)}</Text>
+        <View style={styles.metaRow}>
+          <Text style={styles.category}>{place.category}</Text>
+          <View style={styles.ratingGroup}>
+            <Ionicons name="star" size={14} color={colors.accent} />
+            <Text style={styles.rating}>{place.rating.toFixed(1)}</Text>
+          </View>
         </View>
 
         <Text style={styles.name}>{place.name}</Text>
@@ -28,12 +78,10 @@ export default function PlaceCard({ place, onPress }: Props) {
           {place.description}
         </Text>
 
-        <Text style={styles.price}>{priceLabel}</Text>
-
         <View style={styles.actionsRow}>
-          <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
-            <Ionicons name="git-network-outline" size={14} color={colors.text} />
-            <Text style={styles.actionText}>مسارات</Text>
+          <TouchableOpacity style={styles.actionButton} activeOpacity={0.8} onPress={handleAddToTrip}>
+            <Ionicons name="add-circle-outline" size={14} color={colors.text} />
+            <Text style={styles.actionText}>أضف للرحلة</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionButton}
@@ -55,11 +103,19 @@ export default function PlaceCard({ place, onPress }: Props) {
           ) : null}
         </View>
       </View>
+
+      <TripPickerModal
+        visible={pickerVisible}
+        title={`أضف "${place.name}" لجدول أي رحلة؟`}
+        trips={trips}
+        onSelect={handleSelectTrip}
+        onClose={() => setPickerVisible(false)}
+      />
     </TouchableOpacity>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
     marginHorizontal: spacing.lg,
     marginBottom: spacing.lg,
@@ -69,21 +125,46 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     overflow: 'hidden',
   },
+  imageWrap: {
+    width: '100%',
+    height: 220,
+  },
   image: {
     width: '100%',
-    height: 190,
+    height: '100%',
+  },
+  favoriteButton: {
+    position: 'absolute',
+    top: spacing.md,
+    left: spacing.md,
+    width: 34,
+    height: 34,
+    borderRadius: radius.pill,
+    backgroundColor: colors.overlay,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   body: {
     padding: spacing.lg,
   },
-  ratingRow: {
+  metaRow: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.xs,
+  },
+  category: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  ratingGroup: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
     gap: spacing.xs,
-    marginBottom: spacing.xs,
   },
   rating: {
-    color: colors.gold,
+    color: colors.accentDark,
     fontWeight: '700',
     fontSize: 13,
   },
@@ -99,13 +180,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textAlign: 'right',
     lineHeight: 19,
-  },
-  price: {
-    color: colors.gold,
-    fontSize: 13,
-    fontWeight: '600',
-    textAlign: 'right',
-    marginTop: spacing.sm,
   },
   actionsRow: {
     flexDirection: 'row-reverse',

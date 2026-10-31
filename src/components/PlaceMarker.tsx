@@ -1,32 +1,35 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, radius } from '../theme/colors';
+import { radius, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 
 type Props = {
   selected?: boolean;
 };
 
 export default function PlaceMarker({ selected }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <View style={[styles.pin, selected && styles.pinSelected]}>
-      <Ionicons name="location" size={14} color={selected ? colors.background : colors.gold} />
+      <Ionicons name="location" size={14} color={selected ? colors.textOnPrimary : colors.primary} />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   pin: {
     width: 32,
     height: 32,
     borderRadius: radius.pill,
     backgroundColor: colors.surface,
     borderWidth: 2,
-    borderColor: colors.gold,
+    borderColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   pinSelected: {
-    backgroundColor: colors.gold,
+    backgroundColor: colors.primary,
   },
 });

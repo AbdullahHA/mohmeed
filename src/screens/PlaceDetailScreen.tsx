@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   SafeAreaView,
   View,
@@ -8,13 +8,18 @@ import {
   ScrollView,
   TouchableOpacity,
   Linking,
+  Share,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import PlaceMiniMap from '../components/PlaceMiniMap';
-import { places } from '../data/places';
+import { getMapsUrl } from '../utils/place';
+import { useAppState } from '../context/AppState';
+import { useContent } from '../context/ContentContext';
+import { useRequireAccount } from '../hooks/useRequireAccount';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'PlaceDetail'>;
@@ -23,6 +28,11 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 export default function PlaceDetailScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const { recommendedPlaceIds, toggleRecommended } = useAppState();
+  const { requireAccount } = useRequireAccount();
+  const { places, destinations } = useContent();
   const place = places.find((p) => p.id === route.params.placeId);
 
   if (!place) {
@@ -33,45 +43,75 @@ export default function PlaceDetailScreen() {
     );
   }
 
-  const priceLabel = '$'.repeat(place.priceLevel);
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${place.coordinate.latitude},${place.coordinate.longitude}`;
+  const mapsUrl = getMapsUrl(place.coordinate);
+  const isRecommended = recommendedPlaceIds.includes(place.id);
+  const destinationName = destinations.find((d) => d.id === place.destinationId)?.name;
+  const locationLabel = [destinationName, 'المملكة العربية السعودية'].filter(Boolean).join('، ');
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.imageWrap}>
-          <Image source={{ uri: place.image }} style={styles.image} />
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.85}
-          >
-            <Ionicons name="arrow-forward" size={20} color={colors.text} />
-          </TouchableOpacity>
+          <Image source={place.image} style={styles.image} />
+          <View style={styles.imageHeader}>
+            <TouchableOpacity
+              style={styles.headerButton}
+              onPress={() => navigation.goBack()}
+              activeOpacity={0.85}
+            >
+              <Ionicons name="chevron-forward" size={20} color={colors.textOnPrimary} />
+            </TouchableOpacity>
+            <Text style={styles.imageHeaderTitle} numberOfLines={1}>
+              {place.name}
+            </Text>
+            <View style={styles.headerButtonGroup}>
+              <TouchableOpacity
+                style={styles.headerButton}
+                activeOpacity={0.85}
+                onPress={() => Share.share({ message: `${place.name} — يلا نسافر` })}
+              >
+                <Ionicons name="share-outline" size={18} color={colors.textOnPrimary} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.headerButton}
+                onPress={() => requireAccount('recommend', () => toggleRecommended(place.id))}
+                activeOpacity={0.85}
+              >
+                <Ionicons
+                  name={isRecommended ? 'heart' : 'heart-outline'}
+                  size={18}
+                  color={isRecommended ? colors.accent : colors.textOnPrimary}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
 
         <View style={styles.body}>
           <View style={styles.ratingRow}>
-            <Ionicons name="star" size={16} color={colors.gold} />
-            <Text style={styles.rating}>{place.rating.toFixed(1)}</Text>
             <View style={styles.categoryBadge}>
               <Text style={styles.categoryText}>{place.category}</Text>
+            </View>
+            <View style={styles.ratingGroup}>
+              <Ionicons name="star" size={16} color={colors.accent} />
+              <Text style={styles.rating}>{place.rating.toFixed(1)}</Text>
             </View>
           </View>
 
           <Text style={styles.name}>{place.name}</Text>
-          <Text style={styles.price}>{priceLabel}</Text>
-          <Text style={styles.description}>{place.description}</Text>
 
           <View style={styles.mapWrap}>
             <PlaceMiniMap coordinate={place.coordinate} />
           </View>
-          <View style={styles.locationCard}>
-            <Ionicons name="location-outline" size={18} color={colors.gold} />
-            <Text style={styles.locationText}>
-              {place.coordinate.latitude.toFixed(4)}, {place.coordinate.longitude.toFixed(4)}
-            </Text>
-          </View>
+          {locationLabel ? (
+            <View style={styles.locationCard}>
+              <Ionicons name="location-outline" size={18} color={colors.primary} />
+              <Text style={styles.locationText}>{locationLabel}</Text>
+            </View>
+          ) : null}
+
+          <Text style={styles.sectionTitle}>لمحة عامة</Text>
+          <Text style={styles.description}>{place.description}</Text>
 
           <View style={styles.actionsRow}>
             <TouchableOpacity
@@ -79,7 +119,7 @@ export default function PlaceDetailScreen() {
               activeOpacity={0.85}
               onPress={() => Linking.openURL(mapsUrl)}
             >
-              <Ionicons name="navigate" size={16} color={colors.background} />
+              <Ionicons name="navigate" size={16} color={colors.textOnPrimary} />
               <Text style={styles.actionPrimaryText}>الاتجاهات</Text>
             </TouchableOpacity>
             {place.website ? (
@@ -99,7 +139,7 @@ export default function PlaceDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -117,10 +157,16 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  backButton: {
+  imageHeader: {
     position: 'absolute',
     top: spacing.xl,
+    left: spacing.lg,
     right: spacing.lg,
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerButton: {
     width: 38,
     height: 38,
     borderRadius: radius.pill,
@@ -128,17 +174,34 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  headerButtonGroup: {
+    flexDirection: 'row-reverse',
+    gap: spacing.sm,
+  },
+  imageHeaderTitle: {
+    flex: 1,
+    color: colors.textOnPrimary,
+    fontSize: 15,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginHorizontal: spacing.sm,
+  },
   body: {
     padding: spacing.xl,
   },
   ratingRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
-    gap: spacing.sm,
+    justifyContent: 'space-between',
     marginBottom: spacing.sm,
   },
+  ratingGroup: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
   rating: {
-    color: colors.gold,
+    color: colors.accentDark,
     fontWeight: '700',
     fontSize: 14,
   },
@@ -159,12 +222,12 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     marginBottom: spacing.xs,
   },
-  price: {
-    color: colors.gold,
-    fontSize: 14,
-    fontWeight: '600',
+  sectionTitle: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: '700',
     textAlign: 'right',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.sm,
   },
   description: {
     color: colors.textMuted,
@@ -209,13 +272,13 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   actionPrimary: {
-    backgroundColor: colors.gold,
-    borderColor: colors.gold,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
     flex: 1,
     justifyContent: 'center',
   },
   actionPrimaryText: {
-    color: colors.background,
+    color: colors.textOnPrimary,
     fontWeight: '700',
     fontSize: 13,
   },

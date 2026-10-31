@@ -1,62 +1,52 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../theme/colors';
+import CustomTabBar from './CustomTabBar';
 import HomeScreen from '../screens/HomeScreen';
 import DiscoverScreen from '../screens/DiscoverScreen';
 import TripsScreen from '../screens/TripsScreen';
 import ChatScreen from '../screens/ChatScreen';
-import BookingsScreen from '../screens/BookingsScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 import PlaceDetailScreen from '../screens/PlaceDetailScreen';
+import DestinationDetailScreen from '../screens/DestinationDetailScreen';
+import TripDetailScreen from '../screens/TripDetailScreen';
+import CreateTripScreen from '../screens/CreateTripScreen';
+import JoinTripScreen from '../screens/JoinTripScreen';
+import GroupChatScreen from '../screens/GroupChatScreen';
+import GuideChatScreen from '../screens/GuideChatScreen';
+import CommunityChatScreen from '../screens/CommunityChatScreen';
+import AddFriendScreen from '../screens/AddFriendScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
+import AddLoyaltyMembershipScreen from '../screens/AddLoyaltyMembershipScreen';
+import SettingsScreen from '../screens/SettingsScreen';
+import AboutScreen from '../screens/AboutScreen';
+import TermsScreen from '../screens/TermsScreen';
+import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
+import TripTemplatesScreen from '../screens/TripTemplatesScreen';
+import TripTemplateDetailScreen from '../screens/TripTemplateDetailScreen';
+import CreateTripTemplateScreen from '../screens/CreateTripTemplateScreen';
+import AddAirlineReviewScreen from '../screens/AddAirlineReviewScreen';
+import AdminDashboardScreen from '../screens/AdminDashboardScreen';
+import AdminEditDestinationScreen from '../screens/AdminEditDestinationScreen';
+import AdminEditPlaceScreen from '../screens/AdminEditPlaceScreen';
+import AdminNotificationsScreen from '../screens/AdminNotificationsScreen';
 import type { MainTabParamList, RootStackParamList } from './types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-const TAB_ICONS: Record<keyof MainTabParamList, keyof typeof Ionicons.glyphMap> = {
-  Discover: 'map-outline',
-  Trips: 'git-network-outline',
-  Home: 'home',
-  Chat: 'chatbubble-outline',
-  Bookings: 'calendar-outline',
-};
-
-const TAB_LABELS: Record<keyof MainTabParamList, string> = {
-  Discover: 'اكتشف',
-  Trips: 'رحلاتي',
-  Home: 'الرئيسية',
-  Chat: 'المحادثة',
-  Bookings: 'حجوزاتي',
-};
-
 function MainTabs() {
   return (
     <Tab.Navigator
       initialRouteName="Home"
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarActiveTintColor: colors.gold,
-        tabBarInactiveTintColor: colors.textMuted,
-        tabBarStyle: {
-          backgroundColor: colors.background,
-          borderTopColor: colors.border,
-          height: 64,
-          paddingBottom: 8,
-          paddingTop: 8,
-        },
-        tabBarLabel: TAB_LABELS[route.name as keyof MainTabParamList],
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
-        tabBarIcon: ({ color, size }) => (
-          <Ionicons name={TAB_ICONS[route.name as keyof MainTabParamList]} color={color} size={size} />
-        ),
-      })}
+      screenOptions={{ headerShown: false }}
+      tabBar={(props) => <CustomTabBar {...props} />}
     >
-      <Tab.Screen name="Discover" component={DiscoverScreen} />
-      <Tab.Screen name="Trips" component={TripsScreen} />
-      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
       <Tab.Screen name="Chat" component={ChatScreen} />
-      <Tab.Screen name="Bookings" component={BookingsScreen} />
+      <Tab.Screen name="Trips" component={TripsScreen} />
+      <Tab.Screen name="Discover" component={DiscoverScreen} />
+      <Tab.Screen name="Home" component={HomeScreen} />
     </Tab.Navigator>
   );
 }
@@ -66,6 +56,40 @@ export default function RootNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MainTabs" component={MainTabs} />
       <Stack.Screen name="PlaceDetail" component={PlaceDetailScreen} />
+      <Stack.Screen name="DestinationDetail" component={DestinationDetailScreen} />
+      <Stack.Screen name="TripDetail" component={TripDetailScreen} />
+      <Stack.Screen name="CreateTrip" component={CreateTripScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="JoinTrip" component={JoinTripScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="GroupChat" component={GroupChatScreen} />
+      <Stack.Screen name="GuideChat" component={GuideChatScreen} />
+      <Stack.Screen name="CommunityChat" component={CommunityChatScreen} />
+      <Stack.Screen name="AddFriend" component={AddFriendScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen
+        name="AddLoyaltyMembership"
+        component={AddLoyaltyMembershipScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen name="Settings" component={SettingsScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="About" component={AboutScreen} />
+      <Stack.Screen name="Terms" component={TermsScreen} />
+      <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+      <Stack.Screen name="TripTemplates" component={TripTemplatesScreen} />
+      <Stack.Screen name="TripTemplateDetail" component={TripTemplateDetailScreen} />
+      <Stack.Screen
+        name="CreateTripTemplate"
+        component={CreateTripTemplateScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen
+        name="AddAirlineReview"
+        component={AddAirlineReviewScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
+      <Stack.Screen name="AdminEditDestination" component={AdminEditDestinationScreen} />
+      <Stack.Screen name="AdminEditPlace" component={AdminEditPlaceScreen} />
+      <Stack.Screen name="AdminNotifications" component={AdminNotificationsScreen} />
     </Stack.Navigator>
   );
 }

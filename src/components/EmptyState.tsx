@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing } from '../theme/colors';
+import { spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 
 type Props = {
   icon: keyof typeof Ionicons.glyphMap;
@@ -10,10 +11,12 @@ type Props = {
 };
 
 export default function EmptyState({ icon, title, subtitle }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <View style={styles.container}>
       <View style={styles.iconWrap}>
-        <Ionicons name={icon} size={32} color={colors.gold} />
+        <Ionicons name={icon} size={32} color={colors.primary} />
       </View>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.subtitle}>{subtitle}</Text>
@@ -21,7 +24,7 @@ export default function EmptyState({ icon, title, subtitle }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
