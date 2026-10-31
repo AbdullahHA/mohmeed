@@ -86,10 +86,15 @@ type AppStateValue = {
   myCheckIn: string | null;
   friendsLoading: boolean;
   blockedUserIds: string[];
+  incomingRequests: Friend[];
+  outgoingRequests: Friend[];
   addFriend: (username: string) => Promise<{ error: string | null }>;
   removeFriend: (friendId: string) => Promise<{ error: string | null }>;
   blockUser: (friendId: string) => Promise<{ error: string | null }>;
   unblockUser: (userId: string) => Promise<{ error: string | null }>;
+  acceptFriendRequest: (requesterId: string) => Promise<{ error: string | null }>;
+  declineFriendRequest: (requesterId: string) => Promise<{ error: string | null }>;
+  cancelFriendRequest: (recipientId: string) => Promise<{ error: string | null }>;
   createTrip: (input: NewTripInput) => Trip;
   addMember: (tripId: string, friendId: string) => void;
   addBudgetItem: (tripId: string, item: Omit<BudgetItem, 'id'>) => void;
@@ -174,6 +179,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [friendsLoading, setFriendsLoading] = useState(true);
   const [blockedUserIds, setBlockedUserIds] = useState<string[]>([]);
+  const [incomingRequests, setIncomingRequests] = useState<Friend[]>([]);
+  const [outgoingRequests, setOutgoingRequests] = useState<Friend[]>([]);
   const [trips, setTrips] = useState<Trip[]>(seedTrips);
   const [guideMessages, setGuideMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
   const [guideThinking, setGuideThinking] = useState(false);
@@ -346,9 +353,35 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setBlockedUserIds((data ?? []).map((r: any) => r.blocked_id));
   };
 
+  const mapRequestRow = (row: any, key: 'sender' | 'recipient'): Friend => {
+    const r = row[key];
+    return { id: r.id, name: r.name, username: r.username, emoji: r.emoji, color: r.color, avatarUrl: r.avatar_url ?? null };
+  };
+
+  const loadFriendRequests = async () => {
+    if (!profile) {
+      setIncomingRequests([]);
+      setOutgoingRequests([]);
+      return;
+    }
+    const [incoming, outgoing] = await Promise.all([
+      supabase
+        .from('friend_requests')
+        .select('sender:profiles!friend_requests_sender_id_fkey(id,name,username,emoji,color,avatar_url)')
+        .eq('recipient_id', profile.id),
+      supabase
+        .from('friend_requests')
+        .select('recipient:profiles!friend_requests_recipient_id_fkey(id,name,username,emoji,color,avatar_url)')
+        .eq('sender_id', profile.id),
+    ]);
+    setIncomingRequests(((incoming.data ?? []) as any[]).map((r) => mapRequestRow(r, 'sender')));
+    setOutgoingRequests(((outgoing.data ?? []) as any[]).map((r) => mapRequestRow(r, 'recipient')));
+  };
+
   useEffect(() => {
     loadFriends();
     loadBlocked();
+    loadFriendRequests();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id]);
 
@@ -368,6 +401,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 
     const alreadyFriend = friends.some((f) => f.username === handle);
     if (alreadyFriend) return { error: 'هذا الشخص بالفعل في قائمة أصدقائك' };
+    if (outgoingRequests.some((f) => f.id === found.id)) return { error: 'سبق أرسلت له طلب صداقة' };
 
     const { data: blockRows } = await supabase
       .from('blocked_users')
@@ -377,12 +411,58 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       );
     if (blockRows && blockRows.length > 0) return { error: 'ما تقدر تضيف هذا المستخدم' };
 
+    // If they already sent me a request, accepting it is more natural than
+    // sending a second one that would just sit next to theirs.
+    const reverseRequest = incomingRequests.some((f) => f.id === found.id);
+    if (reverseRequest) {
+      return acceptFriendRequest(found.id);
+    }
+
+    const { error: insertError } = await supabase
+      .from('friend_requests')
+      .insert({ sender_id: profile.id, recipient_id: found.id });
+    if (insertError) return { error: 'تعذّر إرسال الطلب، حاول مرة ثانية' };
+
+    await loadFriendRequests();
+    return { error: null };
+  };
+
+  const acceptFriendRequest = async (requesterId: string): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'سجّل دخولك أولاً' };
     const { error: insertError } = await supabase
       .from('friendships')
-      .insert({ user_id: profile.id, friend_id: found.id });
-    if (insertError) return { error: 'تعذّرت الإضافة، حاول مرة ثانية' };
+      .insert({ user_id: requesterId, friend_id: profile.id });
+    if (insertError) return { error: 'تعذّر قبول الطلب، حاول مرة ثانية' };
+    await supabase
+      .from('friend_requests')
+      .delete()
+      .eq('sender_id', requesterId)
+      .eq('recipient_id', profile.id);
+    await Promise.all([loadFriends(), loadFriendRequests()]);
+    return { error: null };
+  };
 
-    await loadFriends();
+  const declineFriendRequest = async (requesterId: string): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'سجّل دخولك أولاً' };
+    const { error } = await supabase
+      .from('friend_requests')
+      .delete()
+      .eq('sender_id', requesterId)
+      .eq('recipient_id', profile.id);
+    if (error) return { error: 'تعذّر رفض الطلب، حاول مرة ثانية' };
+    setIncomingRequests((prev) => prev.filter((f) => f.id !== requesterId));
+    return { error: null };
+  };
+
+  const cancelFriendRequest = async (recipientId: string): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'سجّل دخولك أولاً' };
+    const { error } = await supabase
+      .from('friend_requests')
+      .delete()
+      .eq('sender_id', profile.id)
+      .eq('recipient_id', recipientId);
+    if (error) return { error: 'تعذّر إلغاء الطلب، حاول مرة ثانية' };
+    setOutgoingRequests((prev) => prev.filter((f) => f.id !== recipientId));
     return { error: null };
   };
 
@@ -663,6 +743,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       friends,
       friendsLoading,
       blockedUserIds,
+      incomingRequests,
+      outgoingRequests,
       trips,
       guideMessages,
       guideThinking,
@@ -680,6 +762,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       removeFriend,
       blockUser,
       unblockUser,
+      acceptFriendRequest,
+      declineFriendRequest,
+      cancelFriendRequest,
       createTrip,
       addMember,
       addBudgetItem,
@@ -712,6 +797,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       friends,
       friendsLoading,
       blockedUserIds,
+      incomingRequests,
+      outgoingRequests,
       trips,
       guideMessages,
       guideThinking,

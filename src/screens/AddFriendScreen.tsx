@@ -46,7 +46,7 @@ export default function AddFriendScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
           <Ionicons name="close" size={22} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>إضافة صديق</Text>
+        <Text style={styles.headerTitle}>طلب صداقة</Text>
         <View style={{ width: 22 }} />
       </View>
 
@@ -62,7 +62,9 @@ export default function AddFriendScreen() {
           textAlign="right"
           autoFocus
         />
-        <Text style={styles.hint}>لازم يكون صديقك مسجّل حساب في التطبيق مسبقاً</Text>
+        <Text style={styles.hint}>
+          لازم يكون صديقك مسجّل حساب في التطبيق مسبقاً — بيوصله طلب وبيصير صديقك لما يوافق
+        </Text>
         {error ? <Text style={styles.error}>{error}</Text> : null}
         <TouchableOpacity
           style={[styles.submitButton, (!username.trim() || loading) && styles.submitDisabled]}
@@ -70,7 +72,7 @@ export default function AddFriendScreen() {
           disabled={!username.trim() || loading}
           onPress={handleAdd}
         >
-          {loading ? <ActivityIndicator color={colors.textOnPrimary} /> : <Text style={styles.submitText}>إضافة</Text>}
+          {loading ? <ActivityIndicator color={colors.textOnPrimary} /> : <Text style={styles.submitText}>إرسال طلب الصداقة</Text>}
         </TouchableOpacity>
       </View>
     </SafeAreaView>

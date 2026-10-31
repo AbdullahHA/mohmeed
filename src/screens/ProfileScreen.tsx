@@ -37,6 +37,7 @@ export default function ProfileScreen() {
   const {
     currentUser,
     friends,
+    incomingRequests,
     trips,
     feedback,
     setFeedback,
@@ -139,10 +140,21 @@ export default function ProfileScreen() {
               <Text style={styles.statLabel}>أماكن زرتها</Text>
             </View>
             <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{friends.length}</Text>
+            <TouchableOpacity
+              style={styles.statItem}
+              activeOpacity={0.7}
+              onPress={() => requireAccount('friend', () => navigation.navigate('Friends'))}
+            >
+              <View style={styles.statValueRow}>
+                <Text style={styles.statValue}>{friends.length}</Text>
+                {incomingRequests.length > 0 ? (
+                  <View style={styles.statBadge}>
+                    <Text style={styles.statBadgeText}>{incomingRequests.length}</Text>
+                  </View>
+                ) : null}
+              </View>
               <Text style={styles.statLabel}>أصدقاء</Text>
-            </View>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -571,6 +583,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   statsRow: { flexDirection: 'row-reverse', alignItems: 'center' },
   statItem: { alignItems: 'center', paddingHorizontal: spacing.lg },
   statValue: { color: colors.primary, fontSize: 18, fontWeight: '800' },
+  statValueRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
+  statBadge: {
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    paddingHorizontal: 4,
+    backgroundColor: colors.red,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statBadgeText: { color: colors.textOnPrimary, fontSize: 9, fontWeight: '800' },
   statLabel: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
   statDivider: { width: 1, height: 28, backgroundColor: colors.border },
   interestsRow: {
