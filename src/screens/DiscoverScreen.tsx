@@ -37,14 +37,16 @@ export default function DiscoverScreen() {
   const [query, setQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<Place['category']>('الافتراضي');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
 
   const filteredPlaces = useMemo(() => {
     return places.filter((place) => {
       const matchesFilter = activeFilter === 'الافتراضي' || place.category === activeFilter;
       const matchesQuery = place.name.toLowerCase().includes(query.trim().toLowerCase());
-      return matchesFilter && matchesQuery;
+      const matchesDestination = !selectedDestinationId || place.destinationId === selectedDestinationId;
+      return matchesFilter && matchesQuery && matchesDestination;
     });
-  }, [query, activeFilter, places]);
+  }, [query, activeFilter, selectedDestinationId, places]);
 
   const featuredPlace = useMemo(
     () => [...places].sort((a, b) => b.rating - a.rating)[0],
@@ -136,6 +138,34 @@ export default function DiscoverScreen() {
                   );
                 })}
               </ScrollView>
+
+              {destinations.length > 0 ? (
+                <View style={styles.destinationsSection}>
+                  <Text style={styles.destinationsTitle}>الوجهات</Text>
+                  <View style={styles.destinationsGrid}>
+                    {destinations.map((destination) => {
+                      const selected = selectedDestinationId === destination.id;
+                      return (
+                        <TouchableOpacity
+                          key={destination.id}
+                          style={styles.destinationTile}
+                          activeOpacity={0.85}
+                          onPress={() =>
+                            setSelectedDestinationId((current) =>
+                              current === destination.id ? null : destination.id
+                            )
+                          }
+                        >
+                          <Image source={destination.image} style={styles.destinationImage} />
+                          <View style={styles.destinationOverlay} />
+                          {selected ? <View style={styles.destinationSelectedRing} /> : null}
+                          <Text style={styles.destinationName}>{destination.name}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </View>
+              ) : null}
             </>
           }
           renderItem={({ item }) => (
@@ -288,6 +318,63 @@ const styles = StyleSheet.create({
   filterLabelActive: {
     color: colors.primary,
     fontWeight: '700',
+  },
+  destinationsSection: {
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  destinationsTitle: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: '800',
+    textAlign: 'right',
+    marginBottom: spacing.md,
+  },
+  destinationsGrid: {
+    flexDirection: 'row-reverse',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  destinationTile: {
+    width: '31%',
+    aspectRatio: 1,
+    borderRadius: radius.md,
+    overflow: 'hidden',
+    justifyContent: 'flex-end',
+  },
+  destinationImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+  },
+  destinationOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: colors.overlay,
+  },
+  destinationSelectedRing: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderWidth: 3,
+    borderColor: colors.primary,
+    borderRadius: radius.md,
+  },
+  destinationName: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '800',
+    textAlign: 'center',
+    paddingVertical: spacing.sm,
   },
   list: {
     paddingBottom: 120,
