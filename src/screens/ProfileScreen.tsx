@@ -15,6 +15,16 @@ import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
+const STAMP_MONTH_NAMES = [
+  'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+  'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
+];
+
+function formatStampDate(timestamp: number) {
+  const date = new Date(timestamp);
+  return `${STAMP_MONTH_NAMES[date.getMonth()]} ${date.getFullYear()}`;
+}
+
 export default function ProfileScreen() {
   const navigation = useNavigation<Nav>();
   const {
@@ -34,8 +44,11 @@ export default function ProfileScreen() {
   const { requireAccount } = useRequireAccount();
 
   const visitedDestinations = visitedStamps
-    .map((stamp) => destinations.find((d) => d.id === stamp.destinationId))
-    .filter((d): d is NonNullable<typeof d> => Boolean(d));
+    .map((stamp) => {
+      const destination = destinations.find((d) => d.id === stamp.destinationId);
+      return destination ? { destination, visitedAt: stamp.visitedAt } : null;
+    })
+    .filter((entry): entry is { destination: (typeof destinations)[number]; visitedAt: number } => Boolean(entry));
 
   const recommendedPlaces = places.filter((p) => recommendedPlaceIds.includes(p.id));
   const recommendedByCity = destinations
@@ -98,17 +111,22 @@ export default function ProfileScreen() {
           </Text>
         ) : (
           <View style={styles.stampsGrid}>
-            {visitedDestinations.map((destination) => (
+            {visitedDestinations.map(({ destination, visitedAt }) => (
               <TouchableOpacity
                 key={destination.id}
-                style={styles.stamp}
+                style={styles.stampWrap}
                 activeOpacity={0.85}
                 onPress={() => navigation.navigate('DestinationDetail', { destinationId: destination.id })}
               >
-                <Image source={destination.image} style={styles.stampImage} />
-                <View style={styles.stampOverlay} />
-                <Ionicons name="ribbon" size={16} color={colors.textOnPrimary} style={styles.stampIcon} />
-                <Text style={styles.stampName}>{destination.name}</Text>
+                <View style={styles.stamp}>
+                  <Image source={destination.image} style={styles.stampImage} />
+                  <View style={styles.stampOverlay} />
+                  <View style={styles.stampSeal}>
+                    <Ionicons name="ribbon" size={14} color={colors.textOnPrimary} />
+                  </View>
+                  <Text style={styles.stampName}>{destination.name}</Text>
+                </View>
+                <Text style={styles.stampDate}>{formatStampDate(visitedAt)}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -378,10 +396,14 @@ const styles = StyleSheet.create({
     rowGap: spacing.sm,
     marginBottom: spacing.lg,
   },
-  stamp: {
+  stampWrap: {
     width: STAMP_SIZE,
+  },
+  stamp: {
     aspectRatio: 1,
     borderRadius: radius.md,
+    borderWidth: 2,
+    borderColor: colors.primary,
     overflow: 'hidden',
     justifyContent: 'flex-end',
     padding: spacing.xs,
@@ -395,8 +417,25 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: colors.overlay,
   },
-  stampIcon: { position: 'absolute', top: spacing.xs, right: spacing.xs },
+  stampSeal: {
+    position: 'absolute',
+    top: spacing.xs,
+    right: spacing.xs,
+    width: 24,
+    height: 24,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   stampName: { color: colors.textOnPrimary, fontSize: 11, fontWeight: '700', textAlign: 'right' },
+  stampDate: {
+    color: colors.textFaint,
+    fontSize: 10,
+    fontWeight: '600',
+    textAlign: 'right',
+    marginTop: spacing.xs,
+  },
   addFriendButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
