@@ -1,14 +1,20 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { ImageSourcePropType } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../lib/supabase';
 import { destinations as localDestinations, type Destination } from '../data/destinations';
 import { places as localPlaces, type Place } from '../data/places';
+
+const CACHE_KEY = 'yalla-nsafer:content-cache:v1';
+
+type ContentCache = { destinations: Destination[]; places: Place[] };
 
 type ContentState = {
   destinations: Destination[];
   places: Place[];
   loading: boolean;
   synced: boolean;
+  offline: boolean;
   refresh: () => Promise<void>;
 };
 
@@ -49,6 +55,9 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
   const [places, setPlaces] = useState<Place[]>(localPlaces);
   const [loading, setLoading] = useState(true);
   const [synced, setSynced] = useState(false);
+  const [offline, setOffline] = useState(false);
+  const latestRef = useRef({ destinations, places });
+  latestRef.current = { destinations, places };
 
   const refresh = useCallback(async () => {
     try {
@@ -58,26 +67,46 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
       ]);
       if (destRes.error) throw destRes.error;
       if (placeRes.error) throw placeRes.error;
+      let nextDestinations = latestRef.current.destinations;
+      let nextPlaces = latestRef.current.places;
       if (destRes.data && destRes.data.length > 0) {
-        setDestinations(destRes.data.map(mapDestinationRow));
+        nextDestinations = destRes.data.map(mapDestinationRow);
+        setDestinations(nextDestinations);
       }
       if (placeRes.data && placeRes.data.length > 0) {
-        setPlaces(placeRes.data.map(mapPlaceRow));
+        nextPlaces = placeRes.data.map(mapPlaceRow);
+        setPlaces(nextPlaces);
       }
       setSynced(true);
+      setOffline(false);
+      const cache: ContentCache = { destinations: nextDestinations, places: nextPlaces };
+      AsyncStorage.setItem(CACHE_KEY, JSON.stringify(cache)).catch(() => {});
     } catch {
-      // Network/Supabase unavailable — keep showing the bundled local content.
+      // Network/Supabase unavailable — fall back to the last cached sync (or bundled content).
+      setOffline(true);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    refresh();
+    (async () => {
+      try {
+        const raw = await AsyncStorage.getItem(CACHE_KEY);
+        if (raw) {
+          const cache: ContentCache = JSON.parse(raw);
+          if (cache.destinations?.length) setDestinations(cache.destinations);
+          if (cache.places?.length) setPlaces(cache.places);
+        }
+      } catch {
+        // Corrupt cache — ignore and keep the bundled fallback.
+      }
+      refresh();
+    })();
   }, [refresh]);
 
   return (
-    <ContentContext.Provider value={{ destinations, places, loading, synced, refresh }}>
+    <ContentContext.Provider value={{ destinations, places, loading, synced, offline, refresh }}>
       {children}
     </ContentContext.Provider>
   );

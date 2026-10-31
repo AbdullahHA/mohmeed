@@ -35,7 +35,7 @@ export default function HomeScreen() {
   const navigation = useNavigation<Nav>();
   const { trips, sendGuideMessage } = useAppState();
   const { requireAccount } = useRequireAccount();
-  const { destinations } = useContent();
+  const { destinations, offline } = useContent();
   const [query, setQuery] = useState('');
   const [activeInterest, setActiveInterest] = useState<string | null>(null);
 
@@ -63,6 +63,12 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <TopBar />
+      {offline ? (
+        <View style={styles.offlineBanner}>
+          <Ionicons name="cloud-offline-outline" size={14} color={colors.textMuted} />
+          <Text style={styles.offlineText}>وضع عدم الاتصال — تعرض آخر محتوى محفوظ</Text>
+        </View>
+      ) : null}
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <ImageBackground
           source={heroDestination.image}
@@ -256,6 +262,19 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 120,
+  },
+  offlineBanner: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.surfaceAlt,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.lg,
+  },
+  offlineText: {
+    color: colors.textMuted,
+    fontSize: 11,
+    fontWeight: '600',
   },
   hero: {
     height: 220,
