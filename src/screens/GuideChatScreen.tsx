@@ -96,7 +96,7 @@ export default function GuideChatScreen() {
                     <Ionicons name="sparkles" size={16} color={dark.textMuted} />
                   </Animated.View>
                 </View>
-              ) : null
+              ) : undefined
             }
             renderItem={({ item }) => (
               <View style={[styles.bubble, item.fromId === 'me' ? styles.bubbleMe : styles.bubbleGuide]}>
