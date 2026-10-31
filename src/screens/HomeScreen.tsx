@@ -84,19 +84,23 @@ export default function HomeScreen() {
 
         <View style={styles.quickActions}>
           <TouchableOpacity
-            style={[styles.quickAction, styles.quickActionActive]}
+            style={styles.quickAction}
             activeOpacity={0.85}
             onPress={() => requireAccount('trip', () => navigation.navigate('CreateTrip'))}
           >
-            <Ionicons name="add-circle-outline" size={18} color={colors.textOnPrimary} />
-            <Text style={[styles.quickActionText, styles.quickActionTextActive]}>خطط رحلة</Text>
+            <View style={styles.quickActionBadge}>
+              <Ionicons name="add-circle-outline" size={26} color={colors.primary} />
+            </View>
+            <Text style={styles.quickActionText}>خطط رحلة</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.quickAction}
             activeOpacity={0.85}
             onPress={() => navigation.navigate('MainTabs', { screen: 'Discover' })}
           >
-            <Ionicons name="search" size={18} color={colors.text} />
+            <View style={styles.quickActionBadge}>
+              <Ionicons name="search" size={26} color={colors.primary} />
+            </View>
             <Text style={styles.quickActionText}>استكشف</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -104,7 +108,9 @@ export default function HomeScreen() {
             activeOpacity={0.85}
             onPress={() => navigation.navigate('MainTabs', { screen: 'Chat' })}
           >
-            <Ionicons name="chatbubble-outline" size={18} color={colors.text} />
+            <View style={styles.quickActionBadge}>
+              <Ionicons name="chatbubble-outline" size={26} color={colors.primary} />
+            </View>
             <Text style={styles.quickActionText}>تحدث معنا</Text>
           </TouchableOpacity>
         </View>
@@ -318,27 +324,26 @@ const styles = StyleSheet.create({
   },
   quickAction: {
     flex: 1,
-    flexDirection: 'row-reverse',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingVertical: spacing.md,
+    borderRadius: radius.lg,
+    paddingVertical: spacing.lg,
+    gap: spacing.sm,
   },
-  quickActionActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+  quickActionBadge: {
+    width: 56,
+    height: 56,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   quickActionText: {
     color: colors.text,
     fontSize: 12,
     fontWeight: '700',
-  },
-  quickActionTextActive: {
-    color: colors.textOnPrimary,
   },
   aiSearchBar: {
     flexDirection: 'row-reverse',
