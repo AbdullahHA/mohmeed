@@ -25,6 +25,7 @@ type AuthState = {
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   updateInterests: (interests: string[]) => Promise<AuthResult>;
+  updateProfile: (fields: { name?: string; username?: string; emoji?: string; color?: string }) => Promise<AuthResult>;
   continueAsGuest: () => void;
   exitGuestMode: () => void;
   requestPasswordReset: (email: string) => Promise<AuthResult>;
@@ -131,6 +132,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateProfile: AuthState['updateProfile'] = async (fields) => {
+    if (!session) return { error: 'no session', errorKind: 'auth' };
+    try {
+      if (fields.username) {
+        const { data: isAvailable, error: lookupError } = await supabase.rpc('username_available', {
+          check_username: fields.username,
+        });
+        if (lookupError) return { error: lookupError.message, errorKind: 'network' };
+        if (isAvailable === false && fields.username !== profile?.username) {
+          return { error: 'username taken', errorKind: 'auth' };
+        }
+      }
+      const { error } = await supabase.from('profiles').update(fields).eq('id', session.user.id);
+      if (!error) await loadProfile(session.user.id);
+      return { error: error?.message ?? null, errorKind: 'network' };
+    } catch (e: any) {
+      return { error: e?.message ?? 'network error', errorKind: 'network' };
+    }
+  };
+
   const continueAsGuest = () => {
     setGuestMode(true);
     AsyncStorage.setItem(GUEST_MODE_KEY, '1').catch(() => {});
@@ -177,6 +198,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signOut,
         refreshProfile,
         updateInterests,
+        updateProfile,
         continueAsGuest,
         exitGuestMode,
         requestPasswordReset,

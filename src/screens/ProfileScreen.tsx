@@ -86,6 +86,15 @@ export default function ProfileScreen() {
       <TopBar />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <View style={styles.profileCard}>
+          {profile ? (
+            <TouchableOpacity
+              style={styles.editProfileButton}
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('EditProfile')}
+            >
+              <Ionicons name="pencil" size={14} color={colors.primary} />
+            </TouchableOpacity>
+          ) : null}
           <View style={[styles.avatar, { backgroundColor: currentUser.color }]}>
             <Text style={styles.avatarEmoji}>{currentUser.emoji}</Text>
           </View>
@@ -398,6 +407,18 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.lg,
     paddingVertical: spacing.xl,
     marginBottom: spacing.xl,
+    position: 'relative',
+  },
+  editProfileButton: {
+    position: 'absolute',
+    top: spacing.md,
+    left: spacing.md,
+    width: 30,
+    height: 30,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   avatar: {
     width: 72,
