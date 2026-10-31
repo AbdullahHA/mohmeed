@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
   ScrollView,
   Alert,
-  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -17,17 +16,12 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import PersonAvatar from '../components/PersonAvatar';
 import type { RootStackParamList } from '../navigation/types';
 import { sanitizeUsernameInput, isValidUsername, USERNAME_RULE_MESSAGE } from '../lib/username';
 import { pickAndUploadAvatar } from '../lib/avatar';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
-
-const AVATAR_EMOJIS = ['🧳', '✈️', '🌍', '🏖️', '🏔️', '🧭', '📷', '☕', '🚗', '⛺', '🗺️', '🌴'];
-const AVATAR_COLORS = [
-  '#1359D3', '#F98824', '#2E9E6B', '#CC701E',
-  '#7C5CFC', '#17A9A0', '#D6487C', '#5C6B7E',
-];
 
 export default function EditProfileScreen() {
   const navigation = useNavigation<Nav>();
@@ -38,8 +32,6 @@ export default function EditProfileScreen() {
   const [name, setName] = useState(profile?.name ?? '');
   const [username, setUsername] = useState(profile?.username ?? '');
   const [bio, setBio] = useState(profile?.bio ?? '');
-  const [emoji, setEmoji] = useState(profile?.emoji ?? '🧳');
-  const [color, setColor] = useState(profile?.color ?? AVATAR_COLORS[0]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -71,8 +63,6 @@ export default function EditProfileScreen() {
   const hasChanges =
     name.trim() !== profile?.name ||
     username.trim() !== profile?.username ||
-    emoji !== profile?.emoji ||
-    color !== profile?.color ||
     avatarUrl !== (profile?.avatarUrl ?? null) ||
     bio.trim() !== (profile?.bio ?? '');
 
@@ -87,8 +77,6 @@ export default function EditProfileScreen() {
     const { error: saveError } = await updateProfile({
       name: name.trim(),
       username: username.trim(),
-      emoji,
-      color,
       avatar_url: avatarUrl,
       bio: bio.trim() || null,
     });
@@ -134,13 +122,7 @@ export default function EditProfileScreen() {
 
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
         <TouchableOpacity activeOpacity={0.85} onPress={handlePickAvatar} disabled={avatarUploading}>
-          {avatarUrl ? (
-            <Image source={{ uri: avatarUrl }} style={styles.avatarPhoto} />
-          ) : (
-            <View style={[styles.avatarPreview, { backgroundColor: color }]}>
-              <Text style={styles.avatarPreviewEmoji}>{emoji}</Text>
-            </View>
-          )}
+          <PersonAvatar avatarUrl={avatarUrl} size={84} style={styles.avatarMargin} />
           <View style={styles.avatarCameraBadge}>
             {avatarUploading ? (
               <ActivityIndicator size="small" color={colors.textOnPrimary} />
@@ -152,7 +134,7 @@ export default function EditProfileScreen() {
         <Text style={styles.avatarHint}>اضغط على الصورة عشان ترفع صورة من الاستوديو</Text>
         {avatarUrl ? (
           <TouchableOpacity activeOpacity={0.7} onPress={handleRemoveAvatar} disabled={avatarUploading}>
-            <Text style={styles.avatarRemoveLink}>إزالة الصورة والرجوع للأيقونة</Text>
+            <Text style={styles.avatarRemoveLink}>إزالة الصورة</Text>
           </TouchableOpacity>
         ) : null}
         {avatarError ? <Text style={styles.error}>{avatarError}</Text> : null}
@@ -190,36 +172,6 @@ export default function EditProfileScreen() {
           multiline
           maxLength={160}
         />
-
-        <Text style={styles.label}>الأيقونة</Text>
-        <View style={styles.emojiGrid}>
-          {AVATAR_EMOJIS.map((option) => (
-            <TouchableOpacity
-              key={option}
-              style={[styles.emojiOption, emoji === option && styles.emojiOptionActive]}
-              activeOpacity={0.8}
-              onPress={() => setEmoji(option)}
-            >
-              <Text style={styles.emojiOptionText}>{option}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <Text style={styles.label}>اللون</Text>
-        <View style={styles.colorRow}>
-          {AVATAR_COLORS.map((option) => (
-            <TouchableOpacity
-              key={option}
-              style={[
-                styles.colorOption,
-                { backgroundColor: option },
-                color === option && styles.colorOptionActive,
-              ]}
-              activeOpacity={0.8}
-              onPress={() => setColor(option)}
-            />
-          ))}
-        </View>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -262,23 +214,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  avatarPreview: {
-    width: 84,
-    height: 84,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
-    marginBottom: spacing.xl,
-  },
-  avatarPreviewEmoji: { fontSize: 36 },
-  avatarPhoto: {
-    width: 84,
-    height: 84,
-    borderRadius: radius.pill,
-    alignSelf: 'center',
-    marginBottom: spacing.xl,
-  },
+  avatarMargin: { alignSelf: 'center', marginBottom: spacing.xl },
   avatarCameraBadge: {
     position: 'absolute',
     bottom: spacing.xl,
@@ -313,42 +249,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     color: colors.text,
     fontSize: 14,
     textAlign: 'right',
-  },
-  emojiGrid: {
-    flexDirection: 'row-reverse',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  emojiOption: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emojiOptionActive: {
-    borderColor: colors.primary,
-    borderWidth: 2,
-    backgroundColor: colors.primarySoft,
-  },
-  emojiOptionText: { fontSize: 20 },
-  colorRow: {
-    flexDirection: 'row-reverse',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  colorOption: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.pill,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  colorOptionActive: {
-    borderColor: colors.text,
   },
   usernameHint: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: spacing.xs, lineHeight: 16 },
   bioInput: { minHeight: 70, textAlignVertical: 'top', paddingTop: spacing.md },

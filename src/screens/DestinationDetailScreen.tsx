@@ -16,6 +16,7 @@ import { useTheme } from '../context/ThemeContext';
 import { checkInPeersByDestination } from '../data/checkInPeers';
 import { PLACE_TYPE_LABELS, type PlaceType } from '../data/places';
 import PlaceCard from '../components/PlaceCard';
+import PersonAvatar from '../components/PersonAvatar';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
@@ -182,17 +183,13 @@ export default function DestinationDetailScreen() {
               <View style={styles.checkInPeersRow}>
                 {isCheckedInHere ? (
                   <View style={styles.checkInPeer}>
-                    <View style={[styles.checkInAvatar, { backgroundColor: currentUser.color }]}>
-                      <Text style={styles.checkInEmoji}>{currentUser.emoji}</Text>
-                    </View>
+                    <PersonAvatar avatarUrl={currentUser.avatarUrl} size={40} style={styles.checkInAvatarMargin} />
                     <Text style={styles.checkInName}>أنت</Text>
                   </View>
                 ) : null}
                 {nearbyPeers.map((peer) => (
                   <View key={peer.id} style={styles.checkInPeer}>
-                    <View style={[styles.checkInAvatar, { backgroundColor: peer.color }]}>
-                      <Text style={styles.checkInEmoji}>{peer.emoji}</Text>
-                    </View>
+                    <PersonAvatar size={40} style={styles.checkInAvatarMargin} />
                     <Text style={styles.checkInName}>{peer.name}</Text>
                   </View>
                 ))}
@@ -366,15 +363,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.md,
   },
   checkInPeer: { alignItems: 'center', width: 52 },
-  checkInAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 2,
-  },
-  checkInEmoji: { fontSize: 17 },
+  checkInAvatarMargin: { marginBottom: 2 },
   checkInName: { color: colors.textMuted, fontSize: 10, fontWeight: '600', textAlign: 'center' },
   checkInButton: {
     flexDirection: 'row-reverse',

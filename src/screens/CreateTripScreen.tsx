@@ -17,6 +17,7 @@ import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
+import PersonAvatar from '../components/PersonAvatar';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -184,9 +185,7 @@ export default function CreateTripScreen() {
                 activeOpacity={0.8}
                 onPress={() => toggleFriend(friend.id)}
               >
-                <View style={[styles.friendAvatar, { backgroundColor: friend.color }]}>
-                  <Text style={styles.friendEmoji}>{friend.emoji}</Text>
-                </View>
+                <PersonAvatar avatarUrl={friend.avatarUrl} size={36} />
                 <Text style={styles.friendName}>{friend.name}</Text>
                 <Ionicons
                   name={selected ? 'checkmark-circle' : 'ellipse-outline'}
@@ -311,16 +310,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   friendRowActive: {
     borderColor: colors.primary,
     backgroundColor: colors.primarySoft,
-  },
-  friendAvatar: {
-    width: 34,
-    height: 34,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  friendEmoji: {
-    fontSize: 15,
   },
   friendName: {
     flex: 1,

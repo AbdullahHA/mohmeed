@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
+import PersonAvatar from './PersonAvatar';
 
 export default function TopBar() {
   const { colors } = useTheme();
@@ -18,13 +19,7 @@ export default function TopBar() {
 
       <View style={styles.welcomeRow}>
         <Text style={styles.welcomeText}>أهلاً {currentUser.name}</Text>
-        {currentUser.avatarUrl ? (
-          <Image source={{ uri: currentUser.avatarUrl }} style={styles.avatarPhoto} />
-        ) : (
-          <View style={[styles.avatar, { backgroundColor: currentUser.color }]}>
-            <Text style={styles.avatarEmoji}>{currentUser.emoji}</Text>
-          </View>
-        )}
+        <PersonAvatar avatarUrl={currentUser.avatarUrl} size={34} />
       </View>
     </View>
   );
@@ -63,20 +58,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     color: colors.text,
     fontSize: 13,
     fontWeight: '600',
-  },
-  avatar: {
-    width: 34,
-    height: 34,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarEmoji: {
-    fontSize: 16,
-  },
-  avatarPhoto: {
-    width: 34,
-    height: 34,
-    borderRadius: radius.md,
   },
 });

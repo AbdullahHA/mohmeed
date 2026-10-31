@@ -8,7 +8,8 @@ import FeedbackCard from '../components/FeedbackCard';
 import FilterChip from '../components/FilterChip';
 import DestinationsMapView from '../components/DestinationsMapView';
 import AchievementsRow, { type Achievement } from '../components/AchievementsRow';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import PersonAvatar from '../components/PersonAvatar';
+import { radius, spacing, cardShadow, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
@@ -134,13 +135,7 @@ export default function ProfileScreen() {
           >
             <Ionicons name="settings-outline" size={16} color={colors.primary} />
           </TouchableOpacity>
-          {currentUser.avatarUrl ? (
-            <Image source={{ uri: currentUser.avatarUrl }} style={styles.avatarPhoto} />
-          ) : (
-            <View style={[styles.avatar, { backgroundColor: currentUser.color }]}>
-              <Text style={styles.avatarEmoji}>{currentUser.emoji}</Text>
-            </View>
-          )}
+          <PersonAvatar avatarUrl={currentUser.avatarUrl} size={72} style={styles.avatarMargin} />
           <Text style={styles.name}>{currentUser.name}</Text>
           <Text style={styles.username}>@{currentUser.username}</Text>
           {profile?.bio ? <Text style={styles.bio}>{profile.bio}</Text> : null}
@@ -478,15 +473,9 @@ export default function ProfileScreen() {
             onPress={() => navigation.navigate('Friends')}
           >
             <View style={styles.friendsAvatarsRow}>
-              {friends.slice(0, 5).map((friend) =>
-                friend.avatarUrl ? (
-                  <Image key={friend.id} source={{ uri: friend.avatarUrl }} style={styles.friendsAvatarPhoto} />
-                ) : (
-                  <View key={friend.id} style={[styles.friendsAvatar, { backgroundColor: friend.color }]}>
-                    <Text style={styles.friendsAvatarEmoji}>{friend.emoji}</Text>
-                  </View>
-                )
-              )}
+              {friends.slice(0, 5).map((friend) => (
+                <PersonAvatar key={friend.id} avatarUrl={friend.avatarUrl} size={32} style={styles.friendsAvatarOverlap} />
+              ))}
             </View>
             <Text style={styles.friendsSummaryText}>
               {friends.length} {friends.length === 1 ? 'صديق' : 'أصدقاء'} — شوفهم وراسلهم
@@ -559,12 +548,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   profileCard: {
     alignItems: 'center',
     backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.lg,
     paddingVertical: spacing.xl,
     marginBottom: spacing.xl,
     position: 'relative',
+    ...cardShadow,
   },
   editProfileButton: {
     position: 'absolute',
@@ -588,21 +576,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.sm,
-  },
-  avatarEmoji: { fontSize: 30 },
-  avatarPhoto: {
-    width: 72,
-    height: 72,
-    borderRadius: radius.pill,
-    marginBottom: spacing.sm,
-  },
+  avatarMargin: { marginBottom: spacing.sm },
   name: { color: colors.text, fontSize: 18, fontWeight: '800' },
   username: { color: colors.textMuted, fontSize: 12, marginTop: 2, marginBottom: spacing.lg },
   bio: {
@@ -824,21 +798,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.lg,
   },
   friendsAvatarsRow: { flexDirection: 'row-reverse' },
-  friendsAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: -10,
-    borderWidth: 2,
-    borderColor: colors.surface,
-  },
-  friendsAvatarEmoji: { fontSize: 13 },
-  friendsAvatarPhoto: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.pill,
+  friendsAvatarOverlap: {
     marginRight: -10,
     borderWidth: 2,
     borderColor: colors.surface,

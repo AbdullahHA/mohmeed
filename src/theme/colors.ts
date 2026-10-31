@@ -62,3 +62,13 @@ export const radius = {
   xl: 28,
   pill: 999,
 };
+
+// A single soft shadow every card can share, instead of each screen
+// inventing its own shadow values — keeps elevation calm and consistent.
+export const cardShadow = {
+  shadowColor: '#0A1426',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.06,
+  shadowRadius: 12,
+  elevation: 2,
+};

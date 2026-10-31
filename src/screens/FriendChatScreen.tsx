@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Image,
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,6 +19,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import PersonAvatar from '../components/PersonAvatar';
 import type { DirectMessage } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -125,13 +125,7 @@ export default function FriendChatScreen() {
           <Text style={styles.headerTitle}>{friend.name}</Text>
           <Text style={styles.headerSubtitle}>@{friend.username}</Text>
         </View>
-        {friend.avatarUrl ? (
-          <Image source={{ uri: friend.avatarUrl }} style={styles.headerAvatarPhoto} />
-        ) : (
-          <View style={[styles.headerAvatar, { backgroundColor: friend.color }]}>
-            <Text style={styles.headerAvatarEmoji}>{friend.emoji}</Text>
-          </View>
-        )}
+        <PersonAvatar avatarUrl={friend.avatarUrl} size={36} />
       </View>
 
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -191,9 +185,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   headerTextWrap: { flex: 1, marginHorizontal: spacing.md, alignItems: 'flex-end' },
   headerTitle: { color: colors.text, fontSize: 15, fontWeight: '700' },
   headerSubtitle: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
-  headerAvatar: { width: 36, height: 36, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
-  headerAvatarEmoji: { fontSize: 15 },
-  headerAvatarPhoto: { width: 36, height: 36, borderRadius: radius.pill },
   list: { padding: spacing.lg, gap: spacing.md },
   emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xl },
   bubble: { maxWidth: '80%', padding: spacing.md, borderRadius: radius.md, marginBottom: spacing.sm },

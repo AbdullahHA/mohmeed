@@ -6,30 +6,20 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { radius, spacing, cardShadow, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
+import PersonAvatar from '../components/PersonAvatar';
 import type { Friend } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
-
-function Avatar({ friend, size = 44 }: { friend: Friend; size?: number }) {
-  const style = { width: size, height: size, borderRadius: size / 2 };
-  if (friend.avatarUrl) return <Image source={{ uri: friend.avatarUrl }} style={style} />;
-  return (
-    <View style={[style, { backgroundColor: friend.color, alignItems: 'center', justifyContent: 'center' }]}>
-      <Text style={{ fontSize: size * 0.4 }}>{friend.emoji}</Text>
-    </View>
-  );
-}
 
 export default function FriendsScreen() {
   const navigation = useNavigation<Nav>();
@@ -117,7 +107,7 @@ export default function FriendsScreen() {
               <Text style={styles.sectionTitle}>طلبات واردة</Text>
               {incomingRequests.map((req) => (
                 <View key={req.id} style={styles.row}>
-                  <Avatar friend={req} />
+                  <PersonAvatar avatarUrl={req.avatarUrl} />
                   <View style={styles.textWrap}>
                     <Text style={styles.name}>{req.name}</Text>
                     <Text style={styles.username}>@{req.username}</Text>
@@ -154,7 +144,7 @@ export default function FriendsScreen() {
               <Text style={styles.sectionTitle}>طلبات مرسلة</Text>
               {outgoingRequests.map((req) => (
                 <View key={req.id} style={styles.row}>
-                  <Avatar friend={req} />
+                  <PersonAvatar avatarUrl={req.avatarUrl} />
                   <View style={styles.textWrap}>
                     <Text style={styles.name}>{req.name}</Text>
                     <Text style={styles.username}>@{req.username}</Text>
@@ -181,7 +171,7 @@ export default function FriendsScreen() {
           ) : (
             friends.map((friend) => (
               <View key={friend.id} style={styles.row}>
-                <Avatar friend={friend} />
+                <PersonAvatar avatarUrl={friend.avatarUrl} />
                 <View style={styles.textWrap}>
                   <Text style={styles.name}>{friend.name}</Text>
                   <Text style={styles.username}>@{friend.username}</Text>
@@ -250,11 +240,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.md,
     padding: spacing.sm,
     marginBottom: spacing.sm,
+    ...cardShadow,
   },
   textWrap: { flex: 1 },
   name: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },

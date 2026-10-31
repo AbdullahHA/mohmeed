@@ -16,6 +16,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
+import PersonAvatar from '../components/PersonAvatar';
 import { BUDGET_CATEGORY_LABELS, type BudgetCategory } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -132,9 +133,7 @@ export default function TripDetailScreen() {
           <View style={styles.membersRow}>
             {members.map((member) => (
               <View key={member.id} style={styles.memberChip}>
-                <View style={[styles.memberAvatar, { backgroundColor: member.color }]}>
-                  <Text style={styles.memberEmoji}>{member.emoji}</Text>
-                </View>
+                <PersonAvatar avatarUrl={member.avatarUrl} size={40} />
                 <Text style={styles.memberName}>{member.name}</Text>
               </View>
             ))}
@@ -326,8 +325,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   sectionTitle: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right', marginBottom: spacing.sm, marginTop: spacing.lg },
   membersRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm, alignItems: 'center' },
   memberChip: { alignItems: 'center', width: 56 },
-  memberAvatar: { width: 40, height: 40, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
-  memberEmoji: { fontSize: 17 },
   memberName: { color: colors.textMuted, fontSize: 10, marginTop: 4, textAlign: 'center' },
   inviteButton: {
     flexDirection: 'row-reverse',
