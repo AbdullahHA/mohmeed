@@ -17,7 +17,7 @@ import { colors, radius, spacing } from '../theme/colors';
 import { useAuth } from '../context/AuthContext';
 import type { AuthResult } from '../context/AuthContext';
 
-type Mode = 'signIn' | 'signUp' | 'forgotPassword';
+type Mode = 'landing' | 'signIn' | 'signUp' | 'forgotPassword';
 type ResetStep = 'request' | 'confirm';
 
 function isRateLimitError(message: string) {
@@ -40,7 +40,7 @@ function friendlyAuthError(result: AuthResult, fallback: string) {
 
 export default function AuthGateScreen() {
   const { signIn, signUp, continueAsGuest, requestPasswordReset, confirmPasswordReset } = useAuth();
-  const [mode, setMode] = useState<Mode>('signIn');
+  const [mode, setMode] = useState<Mode>('landing');
   const [resetStep, setResetStep] = useState<ResetStep>('request');
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
@@ -50,6 +50,7 @@ export default function AuthGateScreen() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [resetCode, setResetCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -124,6 +125,89 @@ export default function AuthGateScreen() {
     setNewPassword('');
     setMode(next);
   };
+
+  const handlePhoneContinue = () => {
+    if (phone.trim().length < 5) return;
+    setError('تسجيل الدخول برقم الجوال غير متاح حاليًا — استخدم البريد الإلكتروني بالأسفل.');
+  };
+
+  if (mode === 'landing') {
+    return (
+      <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
+            <View style={styles.logoBadge}>
+              <Image source={require('../../assets/icon.png')} style={styles.logo} resizeMode="contain" />
+            </View>
+            <Text style={styles.title}>تسجيل الدخول أو إنشاء حساب</Text>
+
+            <Text style={styles.label}>رقم الجوال</Text>
+            <View style={styles.phoneRow}>
+              <TextInput
+                style={[styles.input, styles.phoneInput]}
+                placeholder="5xxxxxxxx"
+                placeholderTextColor={colors.textFaint}
+                value={phone}
+                onChangeText={(v) => {
+                  setPhone(v);
+                  resetFeedback();
+                }}
+                keyboardType="phone-pad"
+                textAlign="right"
+              />
+              <View style={styles.countryCode}>
+                <Text style={styles.countryCodeText}>+966</Text>
+              </View>
+            </View>
+
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+
+            <TouchableOpacity
+              style={[styles.submitButton, phone.trim().length < 5 && styles.submitDisabled]}
+              activeOpacity={0.85}
+              disabled={phone.trim().length < 5}
+              onPress={handlePhoneContinue}
+            >
+              <Text style={styles.submitText}>متابعة</Text>
+            </TouchableOpacity>
+
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>أو</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <TouchableOpacity
+              style={styles.altButton}
+              activeOpacity={0.7}
+              onPress={() => goToMode('signIn')}
+            >
+              <Ionicons name="mail-outline" size={18} color={colors.text} />
+              <Text style={styles.altButtonText}>المتابعة بالبريد الإلكتروني</Text>
+            </TouchableOpacity>
+
+            <View style={[styles.altButton, styles.altButtonDisabled]}>
+              <Ionicons name="logo-apple" size={18} color={colors.textFaint} />
+              <Text style={styles.altButtonTextDisabled}>المتابعة بحساب Apple — قريبًا</Text>
+            </View>
+
+            <View style={[styles.altButton, styles.altButtonDisabled]}>
+              <Ionicons name="logo-google" size={18} color={colors.textFaint} />
+              <Text style={styles.altButtonTextDisabled}>المتابعة بحساب Google — قريبًا</Text>
+            </View>
+
+            <TouchableOpacity style={styles.guestButton} activeOpacity={0.7} onPress={continueAsGuest}>
+              <Ionicons name="eye-outline" size={16} color={colors.textMuted} />
+              <Text style={styles.guestButtonText}>المتابعة كضيف بدون تسجيل</Text>
+            </TouchableOpacity>
+            <Text style={styles.guestHint}>
+              تقدر تتصفح الوجهات والأماكن، بس ميزات مثل الأصدقاء والمفضلة تحتاج حساب
+            </Text>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    );
+  }
 
   if (mode === 'forgotPassword') {
     return (
@@ -240,6 +324,9 @@ export default function AuthGateScreen() {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
+          <TouchableOpacity style={styles.backButton} activeOpacity={0.7} onPress={() => goToMode('landing')}>
+            <Ionicons name="chevron-forward" size={22} color={colors.text} />
+          </TouchableOpacity>
           <View style={styles.logoBadge}>
             <Image source={require('../../assets/icon.png')} style={styles.logo} resizeMode="contain" />
           </View>
@@ -366,6 +453,64 @@ export default function AuthGateScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   body: { padding: spacing.xl, paddingTop: spacing.xxl * 1.5 },
+  backButton: {
+    position: 'absolute',
+    top: spacing.lg,
+    right: spacing.lg,
+    width: 36,
+    height: 36,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  phoneRow: {
+    flexDirection: 'row-reverse',
+    gap: spacing.sm,
+  },
+  phoneInput: {
+    flex: 1,
+  },
+  countryCode: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+  },
+  countryCodeText: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  altButton: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.md,
+    marginTop: spacing.md,
+  },
+  altButtonText: {
+    color: colors.text,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  altButtonDisabled: {
+    opacity: 0.5,
+  },
+  altButtonTextDisabled: {
+    color: colors.textFaint,
+    fontSize: 13,
+    fontWeight: '600',
+  },
   badge: {
     alignSelf: 'center',
     width: 64,
