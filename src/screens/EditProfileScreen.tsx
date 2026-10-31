@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   ScrollView,
   Alert,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -17,6 +18,8 @@ import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import type { RootStackParamList } from '../navigation/types';
+import { sanitizeUsernameInput, isValidUsername, USERNAME_RULE_MESSAGE } from '../lib/username';
+import { pickAndUploadAvatar } from '../lib/avatar';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -39,6 +42,43 @@ export default function EditProfileScreen() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(profile?.avatarUrl ?? null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+
+  const handlePickAvatar = async () => {
+    if (!profile || avatarUploading) return;
+    setAvatarError(null);
+    setAvatarUploading(true);
+    try {
+      const url = await pickAndUploadAvatar(profile.id);
+      if (url) {
+        const { error: saveError } = await updateProfile({ avatar_url: url });
+        if (saveError) {
+          setAvatarError('تعذّر حفظ الصورة، حاول مرة ثانية');
+        } else {
+          setAvatarUrl(url);
+        }
+      }
+    } catch {
+      setAvatarError('تعذّر رفع الصورة، حاول مرة ثانية');
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (avatarUploading) return;
+    setAvatarError(null);
+    setAvatarUploading(true);
+    const { error: saveError } = await updateProfile({ avatar_url: null });
+    setAvatarUploading(false);
+    if (saveError) {
+      setAvatarError('تعذّر إزالة الصورة، حاول مرة ثانية');
+      return;
+    }
+    setAvatarUrl(null);
+  };
 
   const hasChanges =
     name.trim() !== profile?.name ||
@@ -48,6 +88,10 @@ export default function EditProfileScreen() {
 
   const handleSave = async () => {
     if (!name.trim() || !username.trim() || loading || !hasChanges) return;
+    if (!isValidUsername(username.trim())) {
+      setError(USERNAME_RULE_MESSAGE);
+      return;
+    }
     setError(null);
     setLoading(true);
     const { error: saveError } = await updateProfile({
@@ -97,9 +141,29 @@ export default function EditProfileScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
-        <View style={[styles.avatarPreview, { backgroundColor: color }]}>
-          <Text style={styles.avatarPreviewEmoji}>{emoji}</Text>
-        </View>
+        <TouchableOpacity activeOpacity={0.85} onPress={handlePickAvatar} disabled={avatarUploading}>
+          {avatarUrl ? (
+            <Image source={{ uri: avatarUrl }} style={styles.avatarPhoto} />
+          ) : (
+            <View style={[styles.avatarPreview, { backgroundColor: color }]}>
+              <Text style={styles.avatarPreviewEmoji}>{emoji}</Text>
+            </View>
+          )}
+          <View style={styles.avatarCameraBadge}>
+            {avatarUploading ? (
+              <ActivityIndicator size="small" color={colors.textOnPrimary} />
+            ) : (
+              <Ionicons name="camera" size={14} color={colors.textOnPrimary} />
+            )}
+          </View>
+        </TouchableOpacity>
+        <Text style={styles.avatarHint}>اضغط على الصورة عشان ترفع صورة من الاستوديو</Text>
+        {avatarUrl ? (
+          <TouchableOpacity activeOpacity={0.7} onPress={handleRemoveAvatar} disabled={avatarUploading}>
+            <Text style={styles.avatarRemoveLink}>إزالة الصورة والرجوع للأيقونة</Text>
+          </TouchableOpacity>
+        ) : null}
+        {avatarError ? <Text style={styles.error}>{avatarError}</Text> : null}
 
         <Text style={styles.label}>الاسم</Text>
         <TextInput
@@ -117,10 +181,11 @@ export default function EditProfileScreen() {
           placeholder="مثال: abdullah_s"
           placeholderTextColor={colors.textFaint}
           value={username}
-          onChangeText={setUsername}
+          onChangeText={(v) => setUsername(sanitizeUsernameInput(v))}
           autoCapitalize="none"
-          textAlign="right"
+          textAlign="left"
         />
+        <Text style={styles.usernameHint}>{USERNAME_RULE_MESSAGE}</Text>
 
         <Text style={styles.label}>الأيقونة</Text>
         <View style={styles.emojiGrid}>
@@ -203,6 +268,29 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.xl,
   },
   avatarPreviewEmoji: { fontSize: 36 },
+  avatarPhoto: {
+    width: 84,
+    height: 84,
+    borderRadius: radius.pill,
+    alignSelf: 'center',
+    marginBottom: spacing.xl,
+  },
+  avatarCameraBadge: {
+    position: 'absolute',
+    bottom: spacing.xl,
+    left: '50%',
+    marginLeft: 20,
+    width: 26,
+    height: 26,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primary,
+    borderWidth: 2,
+    borderColor: colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarHint: { color: colors.textFaint, fontSize: 11, textAlign: 'center', marginTop: -spacing.lg, marginBottom: spacing.sm },
+  avatarRemoveLink: { color: colors.red, fontSize: 12, fontWeight: '600', textAlign: 'center', marginBottom: spacing.sm },
   label: {
     color: colors.textMuted,
     fontSize: 13,
@@ -258,6 +346,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   colorOptionActive: {
     borderColor: colors.text,
   },
+  usernameHint: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: spacing.xs, lineHeight: 16 },
   error: { color: colors.red, fontSize: 12, textAlign: 'right', marginTop: spacing.lg },
   submitButton: {
     backgroundColor: colors.primary,

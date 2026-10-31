@@ -35,7 +35,13 @@
     "plugins": [
       "expo-status-bar",
       "@react-native-community/datetimepicker",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "يستخدم يلا نسافر بصمة الوجه عشان يحمي حسابك عند فتح التطبيق."
+        }
+      ]
     ]
   }
 }

@@ -18,9 +18,13 @@ export default function TopBar() {
 
       <View style={styles.welcomeRow}>
         <Text style={styles.welcomeText}>أهلاً {currentUser.name}</Text>
-        <View style={[styles.avatar, { backgroundColor: currentUser.color }]}>
-          <Text style={styles.avatarEmoji}>{currentUser.emoji}</Text>
-        </View>
+        {currentUser.avatarUrl ? (
+          <Image source={{ uri: currentUser.avatarUrl }} style={styles.avatarPhoto} />
+        ) : (
+          <View style={[styles.avatar, { backgroundColor: currentUser.color }]}>
+            <Text style={styles.avatarEmoji}>{currentUser.emoji}</Text>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -69,5 +73,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   avatarEmoji: {
     fontSize: 16,
+  },
+  avatarPhoto: {
+    width: 34,
+    height: 34,
+    borderRadius: radius.md,
   },
 });

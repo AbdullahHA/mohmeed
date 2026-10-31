@@ -149,7 +149,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     elevation: 10,
   },
   bar: {
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
     alignItems: 'center',
     borderRadius: radius.pill,
     overflow: 'hidden',

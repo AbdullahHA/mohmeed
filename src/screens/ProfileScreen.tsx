@@ -118,9 +118,13 @@ export default function ProfileScreen() {
           >
             <Ionicons name="settings-outline" size={16} color={colors.primary} />
           </TouchableOpacity>
-          <View style={[styles.avatar, { backgroundColor: currentUser.color }]}>
-            <Text style={styles.avatarEmoji}>{currentUser.emoji}</Text>
-          </View>
+          {currentUser.avatarUrl ? (
+            <Image source={{ uri: currentUser.avatarUrl }} style={styles.avatarPhoto} />
+          ) : (
+            <View style={[styles.avatar, { backgroundColor: currentUser.color }]}>
+              <Text style={styles.avatarEmoji}>{currentUser.emoji}</Text>
+            </View>
+          )}
           <Text style={styles.name}>{currentUser.name}</Text>
           <Text style={styles.username}>@{currentUser.username}</Text>
 
@@ -428,17 +432,31 @@ export default function ProfileScreen() {
             <Text style={styles.addFriendText}>إضافة صديق</Text>
           </TouchableOpacity>
         </View>
-        {friends.map((friend) => (
-          <View key={friend.id} style={styles.friendRow}>
-            <Text style={styles.friendUsername}>@{friend.username}</Text>
-            <View style={styles.friendTextWrap}>
-              <Text style={styles.friendName}>{friend.name}</Text>
+        {friends.length === 0 ? (
+          <Text style={styles.emptyMuted}>ما ضفت أصدقاء بعد</Text>
+        ) : (
+          <TouchableOpacity
+            style={styles.friendsSummaryRow}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('Friends')}
+          >
+            <View style={styles.friendsAvatarsRow}>
+              {friends.slice(0, 5).map((friend) =>
+                friend.avatarUrl ? (
+                  <Image key={friend.id} source={{ uri: friend.avatarUrl }} style={styles.friendsAvatarPhoto} />
+                ) : (
+                  <View key={friend.id} style={[styles.friendsAvatar, { backgroundColor: friend.color }]}>
+                    <Text style={styles.friendsAvatarEmoji}>{friend.emoji}</Text>
+                  </View>
+                )
+              )}
             </View>
-            <View style={[styles.friendAvatar, { backgroundColor: friend.color }]}>
-              <Text style={styles.friendEmoji}>{friend.emoji}</Text>
-            </View>
-          </View>
-        ))}
+            <Text style={styles.friendsSummaryText}>
+              {friends.length} {friends.length === 1 ? 'صديق' : 'أصدقاء'} — شوفهم وراسلهم
+            </Text>
+            <Ionicons name="chevron-back" size={16} color={colors.textMuted} />
+          </TouchableOpacity>
+        )}
 
         <FeedbackCard feedback={feedback} onSubmit={setFeedback} />
 
@@ -454,7 +472,8 @@ export default function ProfileScreen() {
         ) : null}
 
         {profile ? (
-          <TouchableOpacity style={styles.signOutButton} activeOpacity={0.85} onPress={() => signOut()}>
+          <TouchableOpacity style={styles.signOutButton} activeOpacity={0.8} onPress={() => signOut()}>
+            <Ionicons name="log-out-outline" size={16} color={colors.red} />
             <Text style={styles.signOutText}>تسجيل الخروج</Text>
           </TouchableOpacity>
         ) : null}
@@ -486,10 +505,15 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   adminLinkText: { color: colors.textFaint, fontSize: 12, fontWeight: '600' },
   signOutButton: {
-    backgroundColor: '#1C1C22',
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: radius.pill,
     paddingVertical: spacing.md,
-    alignItems: 'center',
     marginTop: spacing.lg,
   },
   signOutText: { color: colors.red, fontSize: 14, fontWeight: '700' },
@@ -536,6 +560,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.sm,
   },
   avatarEmoji: { fontSize: 30 },
+  avatarPhoto: {
+    width: 72,
+    height: 72,
+    borderRadius: radius.pill,
+    marginBottom: spacing.sm,
+  },
   name: { color: colors.text, fontSize: 18, fontWeight: '800' },
   username: { color: colors.textMuted, fontSize: 12, marginTop: 2, marginBottom: spacing.lg },
   statsRow: { flexDirection: 'row-reverse', alignItems: 'center' },
@@ -725,7 +755,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   loyaltyTextWrap: { flex: 1 },
   loyaltyAirline: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
   loyaltyNumber: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 1 },
-  friendRow: {
+  friendsSummaryRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
     gap: spacing.sm,
@@ -733,12 +763,28 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,
-    padding: spacing.sm,
-    marginBottom: spacing.sm,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
   },
-  friendAvatar: { width: 38, height: 38, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
-  friendEmoji: { fontSize: 16 },
-  friendTextWrap: { flex: 1 },
-  friendName: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
-  friendUsername: { color: colors.textFaint, fontSize: 11 },
+  friendsAvatarsRow: { flexDirection: 'row-reverse' },
+  friendsAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: -10,
+    borderWidth: 2,
+    borderColor: colors.surface,
+  },
+  friendsAvatarEmoji: { fontSize: 13 },
+  friendsAvatarPhoto: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.pill,
+    marginRight: -10,
+    borderWidth: 2,
+    borderColor: colors.surface,
+  },
+  friendsSummaryText: { flex: 1, color: colors.text, fontSize: 13, fontWeight: '600', textAlign: 'right' },
 });

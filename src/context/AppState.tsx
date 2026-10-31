@@ -85,7 +85,11 @@ type AppStateValue = {
   tripTemplates: TripTemplate[];
   myCheckIn: string | null;
   friendsLoading: boolean;
+  blockedUserIds: string[];
   addFriend: (username: string) => Promise<{ error: string | null }>;
+  removeFriend: (friendId: string) => Promise<{ error: string | null }>;
+  blockUser: (friendId: string) => Promise<{ error: string | null }>;
+  unblockUser: (userId: string) => Promise<{ error: string | null }>;
   createTrip: (input: NewTripInput) => Trip;
   addMember: (tripId: string, friendId: string) => void;
   addBudgetItem: (tripId: string, item: Omit<BudgetItem, 'id'>) => void;
@@ -156,12 +160,20 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const { destinations } = useContent();
   const { profile, loading: authLoading } = useAuth();
   const currentUser: Friend = profile
-    ? { id: 'me', name: profile.name, username: profile.username, emoji: profile.emoji, color: profile.color }
+    ? {
+        id: 'me',
+        name: profile.name,
+        username: profile.username,
+        emoji: profile.emoji,
+        color: profile.color,
+        avatarUrl: profile.avatarUrl,
+      }
     : authLoading
       ? { id: 'me', name: '...', username: '', emoji: '🧳', color: colors.primary }
       : { id: 'me', name: 'ضيف', username: 'guest', emoji: '🧳', color: colors.textFaint };
   const [friends, setFriends] = useState<Friend[]>([]);
   const [friendsLoading, setFriendsLoading] = useState(true);
+  const [blockedUserIds, setBlockedUserIds] = useState<string[]>([]);
   const [trips, setTrips] = useState<Trip[]>(seedTrips);
   const [guideMessages, setGuideMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
   const [guideThinking, setGuideThinking] = useState(false);
@@ -298,16 +310,24 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       const [outgoing, incoming] = await Promise.all([
         supabase
           .from('friendships')
-          .select('friend:profiles!friendships_friend_id_fkey(id,name,username,emoji,color)')
+          .select('friend:profiles!friendships_friend_id_fkey(id,name,username,emoji,color,avatar_url)')
           .eq('user_id', profile.id),
         supabase
           .from('friendships')
-          .select('user:profiles!friendships_user_id_fkey(id,name,username,emoji,color)')
+          .select('user:profiles!friendships_user_id_fkey(id,name,username,emoji,color,avatar_url)')
           .eq('friend_id', profile.id),
       ]);
+      const mapRow = (row: any): Friend => ({
+        id: row.id,
+        name: row.name,
+        username: row.username,
+        emoji: row.emoji,
+        color: row.color,
+        avatarUrl: row.avatar_url ?? null,
+      });
       const list: Friend[] = [
-        ...((outgoing.data ?? []).map((r: any) => r.friend).filter(Boolean) as Friend[]),
-        ...((incoming.data ?? []).map((r: any) => r.user).filter(Boolean) as Friend[]),
+        ...((outgoing.data ?? []).map((r: any) => r.friend).filter(Boolean).map(mapRow)),
+        ...((incoming.data ?? []).map((r: any) => r.user).filter(Boolean).map(mapRow)),
       ];
       setFriends(list);
     } catch {
@@ -317,8 +337,18 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const loadBlocked = async () => {
+    if (!profile) {
+      setBlockedUserIds([]);
+      return;
+    }
+    const { data } = await supabase.from('blocked_users').select('blocked_id').eq('blocker_id', profile.id);
+    setBlockedUserIds((data ?? []).map((r: any) => r.blocked_id));
+  };
+
   useEffect(() => {
     loadFriends();
+    loadBlocked();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id]);
 
@@ -339,12 +369,62 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     const alreadyFriend = friends.some((f) => f.username === handle);
     if (alreadyFriend) return { error: 'هذا الشخص بالفعل في قائمة أصدقائك' };
 
+    const { data: blockRows } = await supabase
+      .from('blocked_users')
+      .select('blocker_id,blocked_id')
+      .or(
+        `and(blocker_id.eq.${profile.id},blocked_id.eq.${found.id}),and(blocker_id.eq.${found.id},blocked_id.eq.${profile.id})`
+      );
+    if (blockRows && blockRows.length > 0) return { error: 'ما تقدر تضيف هذا المستخدم' };
+
     const { error: insertError } = await supabase
       .from('friendships')
       .insert({ user_id: profile.id, friend_id: found.id });
     if (insertError) return { error: 'تعذّرت الإضافة، حاول مرة ثانية' };
 
     await loadFriends();
+    return { error: null };
+  };
+
+  const removeFriend = async (friendId: string): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'سجّل دخولك أولاً' };
+    const { error } = await supabase
+      .from('friendships')
+      .delete()
+      .or(
+        `and(user_id.eq.${profile.id},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${profile.id})`
+      );
+    if (error) return { error: 'تعذّر الحذف، حاول مرة ثانية' };
+    setFriends((prev) => prev.filter((f) => f.id !== friendId));
+    return { error: null };
+  };
+
+  const blockUser = async (friendId: string): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'سجّل دخولك أولاً' };
+    const { error } = await supabase
+      .from('blocked_users')
+      .insert({ blocker_id: profile.id, blocked_id: friendId });
+    if (error) return { error: 'تعذّر الحظر، حاول مرة ثانية' };
+    await supabase
+      .from('friendships')
+      .delete()
+      .or(
+        `and(user_id.eq.${profile.id},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${profile.id})`
+      );
+    setFriends((prev) => prev.filter((f) => f.id !== friendId));
+    setBlockedUserIds((prev) => (prev.includes(friendId) ? prev : [...prev, friendId]));
+    return { error: null };
+  };
+
+  const unblockUser = async (userId: string): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'سجّل دخولك أولاً' };
+    const { error } = await supabase
+      .from('blocked_users')
+      .delete()
+      .eq('blocker_id', profile.id)
+      .eq('blocked_id', userId);
+    if (error) return { error: 'تعذّر إلغاء الحظر، حاول مرة ثانية' };
+    setBlockedUserIds((prev) => prev.filter((id) => id !== userId));
     return { error: null };
   };
 
@@ -582,6 +662,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       currentUser,
       friends,
       friendsLoading,
+      blockedUserIds,
       trips,
       guideMessages,
       guideThinking,
@@ -596,6 +677,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       tripTemplates,
       myCheckIn,
       addFriend,
+      removeFriend,
+      blockUser,
+      unblockUser,
       createTrip,
       addMember,
       addBudgetItem,
@@ -627,6 +711,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       currentUser,
       friends,
       friendsLoading,
+      blockedUserIds,
       trips,
       guideMessages,
       guideThinking,

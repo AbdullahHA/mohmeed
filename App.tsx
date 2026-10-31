@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import AuthGateScreen from './src/screens/AuthGateScreen';
 import AppIntro from './src/components/AppIntro';
+import BiometricLockGate from './src/components/BiometricLockGate';
 
 function Gate() {
   const { session, guestMode, loading } = useAuth();
@@ -57,7 +58,9 @@ function AppShell() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <Gate />
+        <BiometricLockGate>
+          <Gate />
+        </BiometricLockGate>
       </AuthProvider>
       {showIntro && <AppIntro onDone={() => setShowIntro(false)} />}
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />

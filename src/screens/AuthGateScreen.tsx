@@ -17,6 +17,7 @@ import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import type { AuthResult } from '../context/AuthContext';
+import { sanitizeUsernameInput, isValidUsername, USERNAME_RULE_MESSAGE } from '../lib/username';
 
 type Mode = 'landing' | 'signIn' | 'signUp' | 'forgotPassword';
 type ResetStep = 'request' | 'confirm';
@@ -61,7 +62,7 @@ export default function AuthGateScreen() {
   const canSubmit =
     email.trim().length > 3 &&
     password.length >= 6 &&
-    (mode === 'signIn' || (name.trim().length > 0 && username.trim().length >= 3));
+    (mode === 'signIn' || (name.trim().length > 0 && isValidUsername(username.trim())));
 
   const resetFeedback = () => {
     setError(null);
@@ -75,7 +76,7 @@ export default function AuthGateScreen() {
     const result =
       mode === 'signIn'
         ? await signIn(email.trim(), password)
-        : await signUp(email.trim(), password, name.trim(), username.trim().toLowerCase().replace(/\s+/g, '_'));
+        : await signUp(email.trim(), password, name.trim(), username.trim());
     setLoading(false);
     if (result.error) {
       setError(
@@ -356,10 +357,11 @@ export default function AuthGateScreen() {
                 placeholder="abdullah_s"
                 placeholderTextColor={colors.textFaint}
                 value={username}
-                onChangeText={setUsername}
+                onChangeText={(v) => setUsername(sanitizeUsernameInput(v))}
                 autoCapitalize="none"
-                textAlign="right"
+                textAlign="left"
               />
+              <Text style={styles.usernameHint}>{USERNAME_RULE_MESSAGE}</Text>
             </>
           ) : null}
 
@@ -574,6 +576,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     left: spacing.sm,
     padding: spacing.xs,
   },
+  usernameHint: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: spacing.xs, lineHeight: 16 },
   error: { color: colors.red, fontSize: 12, textAlign: 'right', marginTop: spacing.sm },
   info: { color: colors.success, fontSize: 12, textAlign: 'right', marginTop: spacing.sm },
   forgotLink: { alignItems: 'flex-end', marginTop: spacing.sm },

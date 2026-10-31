@@ -11,6 +11,34 @@ export type Profile = {
   color: string;
   isAdmin: boolean;
   interests: string[];
+  email: string | null;
+  avatarUrl: string | null;
+  phone: string | null;
+  title: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  gender: string | null;
+  birthDate: string | null;
+  nationality: string | null;
+  countryOfResidence: string | null;
+  maritalStatus: string | null;
+};
+
+export type ProfileUpdateFields = {
+  name?: string;
+  username?: string;
+  emoji?: string;
+  color?: string;
+  avatar_url?: string | null;
+  phone?: string | null;
+  title?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  gender?: string | null;
+  birth_date?: string | null;
+  nationality?: string | null;
+  country_of_residence?: string | null;
+  marital_status?: string | null;
 };
 
 const GUEST_MODE_KEY = 'yalla-nsafer:guest-mode';
@@ -25,7 +53,7 @@ type AuthState = {
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   updateInterests: (interests: string[]) => Promise<AuthResult>;
-  updateProfile: (fields: { name?: string; username?: string; emoji?: string; color?: string }) => Promise<AuthResult>;
+  updateProfile: (fields: ProfileUpdateFields) => Promise<AuthResult>;
   deleteAccount: () => Promise<AuthResult>;
   continueAsGuest: () => void;
   exitGuestMode: () => void;
@@ -37,7 +65,7 @@ export type AuthResult = { error: string | null; errorKind?: 'network' | 'auth' 
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
-function mapProfileRow(row: any): Profile {
+function mapProfileRow(row: any, email: string | null): Profile {
   return {
     id: row.id,
     name: row.name,
@@ -46,6 +74,17 @@ function mapProfileRow(row: any): Profile {
     color: row.color,
     isAdmin: row.is_admin,
     interests: row.interests ?? [],
+    email,
+    avatarUrl: row.avatar_url ?? null,
+    phone: row.phone ?? null,
+    title: row.title ?? null,
+    firstName: row.first_name ?? null,
+    lastName: row.last_name ?? null,
+    gender: row.gender ?? null,
+    birthDate: row.birth_date ?? null,
+    nationality: row.nationality ?? null,
+    countryOfResidence: row.country_of_residence ?? null,
+    maritalStatus: row.marital_status ?? null,
   };
 }
 
@@ -55,16 +94,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [guestMode, setGuestMode] = useState(false);
 
-  const loadProfile = async (userId: string) => {
+  const loadProfile = async (userId: string, email: string | null) => {
     const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
-    if (!error && data) setProfile(mapProfileRow(data));
+    if (!error && data) setProfile(mapProfileRow(data, email));
   };
 
   useEffect(() => {
     Promise.all([supabase.auth.getSession(), AsyncStorage.getItem(GUEST_MODE_KEY)]).then(
       ([{ data }, storedGuestMode]) => {
         setSession(data.session);
-        if (data.session) loadProfile(data.session.user.id);
+        if (data.session) loadProfile(data.session.user.id, data.session.user.email ?? null);
         else if (storedGuestMode === '1') setGuestMode(true);
         setLoading(false);
       }
@@ -75,7 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (newSession) {
         setGuestMode(false);
         AsyncStorage.removeItem(GUEST_MODE_KEY).catch(() => {});
-        loadProfile(newSession.user.id);
+        loadProfile(newSession.user.id, newSession.user.email ?? null);
       } else {
         setProfile(null);
       }
@@ -134,14 +173,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const refreshProfile = async () => {
-    if (session) await loadProfile(session.user.id);
+    if (session) await loadProfile(session.user.id, session.user.email ?? null);
   };
 
   const updateInterests: AuthState['updateInterests'] = async (interests) => {
     if (!session) return { error: 'no session', errorKind: 'auth' };
     try {
       const { error } = await supabase.from('profiles').update({ interests }).eq('id', session.user.id);
-      if (!error) await loadProfile(session.user.id);
+      if (!error) await loadProfile(session.user.id, session.user.email ?? null);
       return { error: error?.message ?? null, errorKind: 'network' };
     } catch (e: any) {
       return { error: e?.message ?? 'network error', errorKind: 'network' };
@@ -161,7 +200,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
       const { error } = await supabase.from('profiles').update(fields).eq('id', session.user.id);
-      if (!error) await loadProfile(session.user.id);
+      if (!error) await loadProfile(session.user.id, session.user.email ?? null);
       return { error: error?.message ?? null, errorKind: 'network' };
     } catch (e: any) {
       return { error: e?.message ?? 'network error', errorKind: 'network' };

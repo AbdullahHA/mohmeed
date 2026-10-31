@@ -19,6 +19,8 @@ export type RootStackParamList = {
   GuideChat: undefined;
   CommunityChat: { communityId: string };
   AddFriend: undefined;
+  Friends: undefined;
+  FriendChat: { friendId: string };
   EditProfile: undefined;
   AddLoyaltyMembership: undefined;
   AddWishlistItem: undefined;

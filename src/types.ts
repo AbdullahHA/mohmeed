@@ -6,6 +6,7 @@ export type Friend = {
   username: string;
   emoji: string;
   color: string;
+  avatarUrl?: string | null;
 };
 
 export type BudgetCategory = 'hotels' | 'food' | 'transport' | 'activities' | 'other';
@@ -119,6 +120,14 @@ export type LoyaltyMembership = {
 export type WishlistItem = {
   id: string;
   name: string;
+};
+
+export type DirectMessage = {
+  id: string;
+  senderId: string;
+  recipientId: string;
+  text: string;
+  at: number;
 };
 
 export type CheckInPeer = {

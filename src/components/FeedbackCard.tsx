@@ -50,6 +50,21 @@ export default function FeedbackCard({ feedback, onSubmit }: Props) {
     setSubmitted(true);
   };
 
+  if (submitted) {
+    return (
+      <View style={styles.card}>
+        <View style={styles.thankYouBadge}>
+          <Ionicons name="checkmark" size={22} color={colors.textOnPrimary} />
+        </View>
+        <Text style={styles.title}>شكرًا على تقييمك! 🎉</Text>
+        <Text style={styles.subtitle}>وصلنا رأيك وبيساعدنا نطوّر التطبيق</Text>
+        <TouchableOpacity onPress={() => setSubmitted(false)} activeOpacity={0.7}>
+          <Text style={styles.editLink}>عدّل تقييمك</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.card}>
       <Text style={styles.title}>قيّم تجربتك مع يلا نسافر</Text>
@@ -71,13 +86,6 @@ export default function FeedbackCard({ feedback, onSubmit }: Props) {
 
       {rating === 0 ? (
         <Text style={styles.subtitle}>يُحفظ على جهازك فقط حاليًا، ما يُرسل لأي مكان</Text>
-      ) : submitted ? (
-        <>
-          <Text style={styles.subtitle}>شكرًا على تقييمك! 🎉</Text>
-          <TouchableOpacity onPress={() => setSubmitted(false)} activeOpacity={0.7}>
-            <Text style={styles.editLink}>عدّل تقييمك</Text>
-          </TouchableOpacity>
-        </>
       ) : (
         <>
           {rating >= 4 ? <Text style={styles.subtitle}>أنت رائع! 🎉</Text> : null}
@@ -126,6 +134,15 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.lg,
   },
   title: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'center' },
+  thankYouBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.pill,
+    backgroundColor: colors.success,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.sm,
+  },
   starsRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginTop: spacing.md, marginBottom: spacing.sm },
   subtitle: {
     color: colors.textFaint,
