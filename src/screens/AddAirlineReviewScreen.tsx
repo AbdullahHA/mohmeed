@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -13,6 +14,8 @@ const RATINGS = [1, 2, 3, 4, 5];
 
 export default function AddAirlineReviewScreen() {
   const navigation = useNavigation<Nav>();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { addAirlineReview } = useAppState();
 
   const [fromCity, setFromCity] = useState('');
@@ -118,7 +121,7 @@ export default function AddAirlineReviewScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   header: {
     flexDirection: 'row-reverse',

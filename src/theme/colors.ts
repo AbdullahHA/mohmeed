@@ -21,6 +21,31 @@ export const colors = {
   warning: '#F2B900',
 };
 
+// Dark counterpart — same keys, so any screen can swap in this palette
+// via ThemeContext without changing how it reads `colors.xxx`.
+export const darkColors: typeof colors = {
+  background: '#0B0F17',
+  surface: '#141A24',
+  surfaceAlt: '#1C232F',
+  border: '#2A3340',
+  primary: '#4C8DFF',
+  primaryDark: '#86B2FF',
+  primarySoft: 'rgba(76,141,255,0.16)',
+  accent: '#FFA552',
+  accentDark: '#FFC08A',
+  accentSoft: 'rgba(255,165,82,0.16)',
+  red: '#FF6B6B',
+  text: '#F2F5F9',
+  textMuted: '#9AA7B8',
+  textFaint: '#6B7686',
+  textOnPrimary: '#FFFFFF',
+  overlay: 'rgba(0,0,0,0.55)',
+  success: '#3FBE85',
+  warning: '#F2B900',
+};
+
+export type ThemeColors = typeof colors;
+
 export const spacing = {
   xs: 4,
   sm: 8,

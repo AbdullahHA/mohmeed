@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import type { Feedback } from '../types';
 
 type Props = {
@@ -9,24 +10,26 @@ type Props = {
   onSubmit: (feedback: Feedback) => void;
 };
 
-const RATING_COLORS: Record<number, string> = {
+const getRatingColors = (colors: ThemeColors): Record<number, string> => ({
   1: colors.red,
   2: colors.accent,
   3: colors.warning,
   4: colors.success,
   5: colors.success,
-};
+});
 
 const POSITIVE_REASONS = ['سرعة تجاوب التطبيق', 'الأداء العام', 'تجربة المستخدم', 'المحتوى', 'التنقل بين الصفحات', 'أخرى'];
 const NEGATIVE_REASONS = ['واجهت أخطاء', 'ينقصه ميزات أحتاجها', 'مربك للاستخدام', 'تعطّل عندي', 'غير جذاب بصريًا', 'أخرى'];
 
 export default function FeedbackCard({ feedback, onSubmit }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [rating, setRating] = useState(feedback?.rating ?? 0);
   const [reasons, setReasons] = useState<string[]>(feedback?.reasons ?? []);
   const [note, setNote] = useState(feedback?.note ?? '');
   const [submitted, setSubmitted] = useState(Boolean(feedback));
 
-  const color = RATING_COLORS[rating] ?? colors.textFaint;
+  const color = getRatingColors(colors)[rating] ?? colors.textFaint;
   const isPositive = rating >= 3;
   const reasonOptions = isPositive ? POSITIVE_REASONS : NEGATIVE_REASONS;
 
@@ -112,7 +115,7 @@ export default function FeedbackCard({ feedback, onSubmit }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
     alignItems: 'center',
     backgroundColor: colors.surface,

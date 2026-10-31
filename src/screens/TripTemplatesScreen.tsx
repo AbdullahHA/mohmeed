@@ -11,7 +11,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { heroDestination } from '../data/destinations';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
@@ -22,6 +23,8 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export default function TripTemplatesScreen() {
   const navigation = useNavigation<Nav>();
+  const { colors } = useTheme();
+  const styles = React.useMemo(() => createStyles(colors), [colors]);
   const { tripTemplates } = useAppState();
   const { destinations } = useContent();
   const { requireAccount } = useRequireAccount();
@@ -84,7 +87,7 @@ export default function TripTemplatesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   header: {
     flexDirection: 'row-reverse',

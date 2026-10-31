@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
-import { colors } from '../theme/colors';
+import { type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 
 const LOGO_HEIGHT = 64;
 const LOGO_WIDTH = Math.round((LOGO_HEIGHT * 409) / 600);
@@ -9,6 +10,8 @@ const LOGO_WIDTH = Math.round((LOGO_HEIGHT * 409) / 600);
 // then the name wipes away toward the logo, which settles in the center
 // before the whole overlay fades into the app.
 export default function AppIntro({ onDone }: { onDone: () => void }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [textWidth, setTextWidth] = useState(0);
   const logoScale = useRef(new Animated.Value(0.6)).current;
   const logoOpacity = useRef(new Animated.Value(0)).current;
@@ -78,9 +81,9 @@ export default function AppIntro({ onDone }: { onDone: () => void }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 100,

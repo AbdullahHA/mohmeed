@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -11,6 +12,8 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export default function JoinTripScreen() {
   const navigation = useNavigation<Nav>();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { trips, currentUser, addMember } = useAppState();
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
@@ -75,7 +78,7 @@ export default function JoinTripScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   header: {
     flexDirection: 'row-reverse',

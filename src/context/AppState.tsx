@@ -9,6 +9,7 @@ import { useContent } from './ContentContext';
 import { useAuth } from './AuthContext';
 import { supabase } from '../lib/supabase';
 import { colors } from '../theme/colors';
+import { useTheme } from './ThemeContext';
 import type {
   AirlineReview,
   BudgetItem,
@@ -138,6 +139,7 @@ function buildGuideReply(question: string, destinations: Destination[]): string 
 const AppStateContext = createContext<AppStateValue | undefined>(undefined);
 
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
+  const { colors: themeColors } = useTheme();
   const { destinations } = useContent();
   const { profile, loading: authLoading } = useAuth();
   const currentUser: Friend = profile
@@ -549,8 +551,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 
   if (!hydrated) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
-        <ActivityIndicator color={colors.primary} />
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: themeColors.background }}>
+        <ActivityIndicator color={themeColors.primary} />
       </View>
     );
   }

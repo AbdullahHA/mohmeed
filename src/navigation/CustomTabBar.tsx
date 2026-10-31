@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, Platform, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import type { MainTabParamList } from './types';
 
 // iPhone-style frosted glass: a system blur material (UIVisualEffectView on
@@ -40,6 +41,8 @@ const TAB_LABELS: Record<keyof MainTabParamList, string> = {
 };
 
 export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
   const layoutsRef = useRef<Array<{ x: number; width: number } | undefined>>([]);
   const [pillReady, setPillReady] = useState(false);
@@ -127,7 +130,7 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   wrapper: {
     position: 'absolute',
     left: 0,

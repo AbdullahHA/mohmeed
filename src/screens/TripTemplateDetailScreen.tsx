@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   SafeAreaView,
   View,
@@ -11,7 +11,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { heroDestination } from '../data/destinations';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
@@ -33,6 +34,8 @@ const CATEGORY_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
 export default function TripTemplateDetailScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { tripTemplates, applyTripTemplate, removeTripTemplate } = useAppState();
   const { destinations } = useContent();
   const { requireAccount } = useRequireAccount();
@@ -125,7 +128,7 @@ export default function TripTemplateDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   notFound: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
   imageWrap: { width: '100%', height: 220 },

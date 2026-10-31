@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -13,17 +13,35 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import TopBar from '../components/TopBar';
 import EmptyState from '../components/EmptyState';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
+type TripTab = 'upcoming' | 'past';
+
+function isTripPast(endDate: string) {
+  if (!endDate || endDate === '—') return false;
+  const parsed = new Date(endDate);
+  if (Number.isNaN(parsed.getTime())) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return parsed < today;
+}
 
 export default function TripsScreen() {
   const navigation = useNavigation<Nav>();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { trips } = useAppState();
   const { requireAccount } = useRequireAccount();
+  const [activeTab, setActiveTab] = useState<TripTab>('upcoming');
+
+  const upcomingTrips = useMemo(() => trips.filter((t) => !isTripPast(t.endDate)), [trips]);
+  const pastTrips = useMemo(() => trips.filter((t) => isTripPast(t.endDate)), [trips]);
+  const visibleTrips = activeTab === 'upcoming' ? upcomingTrips : pastTrips;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -68,8 +86,41 @@ export default function TripsScreen() {
           subtitle="ابدأ بتخطيط رحلتك القادمة مع أصدقائك وستظهر هنا مع الميزانية والجدول."
         />
       ) : (
+        <>
+          <View style={styles.tabsRow}>
+            <TouchableOpacity
+              style={[styles.tabButton, activeTab === 'past' && styles.tabButtonActive]}
+              activeOpacity={0.85}
+              onPress={() => setActiveTab('past')}
+            >
+              <Text style={[styles.tabButtonText, activeTab === 'past' && styles.tabButtonTextActive]}>
+                السابقة
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tabButton, activeTab === 'upcoming' && styles.tabButtonActive]}
+              activeOpacity={0.85}
+              onPress={() => setActiveTab('upcoming')}
+            >
+              <Text style={[styles.tabButtonText, activeTab === 'upcoming' && styles.tabButtonTextActive]}>
+                القادمة
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {visibleTrips.length === 0 ? (
+            <EmptyState
+              icon={activeTab === 'upcoming' ? 'airplane-outline' : 'time-outline'}
+              title={activeTab === 'upcoming' ? 'لا توجد رحلات قادمة' : 'لا توجد رحلات سابقة'}
+              subtitle={
+                activeTab === 'upcoming'
+                  ? 'خطط رحلتك القادمة وستظهر هنا.'
+                  : 'رحلاتك المنتهية بتظهر هنا بعد ما ينتهي تاريخها.'
+              }
+            />
+          ) : (
         <FlatList
-          data={trips}
+          data={visibleTrips}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
@@ -104,12 +155,14 @@ export default function TripsScreen() {
             );
           }}
         />
+          )}
+        </>
       )}
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -143,6 +196,32 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   templatesBannerText: { color: colors.primaryDark, fontSize: 12, fontWeight: '600', flex: 1, textAlign: 'right' },
+  tabsRow: {
+    flexDirection: 'row-reverse',
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.pill,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    padding: 4,
+  },
+  tabButton: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+  },
+  tabButtonActive: {
+    backgroundColor: colors.surface,
+  },
+  tabButtonText: {
+    color: colors.textMuted,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  tabButtonTextActive: {
+    color: colors.text,
+    fontWeight: '700',
+  },
   joinButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

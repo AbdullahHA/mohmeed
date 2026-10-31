@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -13,7 +13,8 @@ import {
   Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import type { AuthResult } from '../context/AuthContext';
 
@@ -39,6 +40,8 @@ function friendlyAuthError(result: AuthResult, fallback: string) {
 }
 
 export default function AuthGateScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { signIn, signUp, continueAsGuest, requestPasswordReset, confirmPasswordReset } = useAuth();
   const [mode, setMode] = useState<Mode>('landing');
   const [resetStep, setResetStep] = useState<ResetStep>('request');
@@ -450,7 +453,7 @@ export default function AuthGateScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   body: { padding: spacing.xl, paddingTop: spacing.xxl * 1.5 },
   backButton: {

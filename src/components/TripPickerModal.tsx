@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Modal, Pressable, View, Text, StyleSheet, ScrollView } from 'react-native';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import type { Trip } from '../types';
 
 type Props = {
@@ -12,6 +13,8 @@ type Props = {
 };
 
 export default function TripPickerModal({ visible, title, trips, onSelect, onClose }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose}>
@@ -37,7 +40,7 @@ export default function TripPickerModal({ visible, title, trips, onSelect, onClo
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   backdrop: {
     flex: 1,
     backgroundColor: colors.overlay,

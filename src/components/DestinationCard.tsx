@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import type { Destination } from '../data/destinations';
 
 type Props = {
@@ -9,6 +10,8 @@ type Props = {
 };
 
 export default function DestinationCard({ destination, onPress }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={onPress}>
       <ImageBackground
@@ -35,7 +38,7 @@ export default function DestinationCard({ destination, onPress }: Props) {
 
 const CARD_WIDTH = 150;
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
     width: CARD_WIDTH,
     height: 190,

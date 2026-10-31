@@ -16,7 +16,8 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import PlaceCard from '../components/PlaceCard';
 import PlacesMapView from '../components/PlacesMapView';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import type { Place } from '../data/places';
 import { heroDestination } from '../data/destinations';
 import { useContent } from '../context/ContentContext';
@@ -33,6 +34,8 @@ const FILTERS: Array<{ value: Place['category']; icon: keyof typeof Ionicons.gly
 
 export default function DiscoverScreen() {
   const navigation = useNavigation<Nav>();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { places, destinations } = useContent();
   const [query, setQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<Place['category']>('الافتراضي');
@@ -178,7 +181,7 @@ export default function DiscoverScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

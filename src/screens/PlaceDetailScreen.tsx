@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   SafeAreaView,
   View,
@@ -13,7 +13,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import PlaceMiniMap from '../components/PlaceMiniMap';
 import { getMapsUrl } from '../utils/place';
 import { useAppState } from '../context/AppState';
@@ -27,6 +28,8 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 export default function PlaceDetailScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { recommendedPlaceIds, toggleRecommended } = useAppState();
   const { requireAccount } = useRequireAccount();
   const { places, destinations } = useContent();
@@ -136,7 +139,7 @@ export default function PlaceDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

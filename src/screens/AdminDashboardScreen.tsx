@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   SafeAreaView,
   View,
@@ -12,7 +12,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useContent } from '../context/ContentContext';
 import type { RootStackParamList } from '../navigation/types';
@@ -21,6 +22,8 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export default function AdminDashboardScreen() {
   const navigation = useNavigation<Nav>();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { profile, loading, signOut } = useAuth();
   const { destinations, places, refresh } = useContent();
 
@@ -119,7 +122,7 @@ export default function AdminDashboardScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   center: { alignItems: 'center', justifyContent: 'center', gap: spacing.md, padding: spacing.lg },
   header: {

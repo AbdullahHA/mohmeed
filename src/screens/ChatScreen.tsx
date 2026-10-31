@@ -12,7 +12,8 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import TopBar from '../components/TopBar';
 import SectionHeader from '../components/SectionHeader';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -20,6 +21,8 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export default function ChatScreen() {
   const navigation = useNavigation<Nav>();
+  const { colors } = useTheme();
+  const styles = React.useMemo(() => createStyles(colors), [colors]);
   const { guideMessages, trips, friends, currentUser, communities } = useAppState();
 
   const lastGuideMessage = guideMessages[guideMessages.length - 1];
@@ -132,7 +135,7 @@ export default function ChatScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scrollContent: { paddingBottom: 120 },
   guideCard: {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -13,7 +13,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { BUDGET_CATEGORY_LABELS, type BudgetCategory } from '../types';
 import type { RootStackParamList } from '../navigation/types';
@@ -26,6 +27,8 @@ const CATEGORIES: BudgetCategory[] = ['hotels', 'food', 'transport', 'activities
 export default function TripDetailScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {
     trips,
     friends,
@@ -287,7 +290,7 @@ export default function TripDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   notFound: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
   imageWrap: { width: '100%', height: 220 },

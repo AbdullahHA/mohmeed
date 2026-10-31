@@ -16,7 +16,8 @@ import TopBar from '../components/TopBar';
 import SectionHeader from '../components/SectionHeader';
 import DestinationCard from '../components/DestinationCard';
 import FilterChip from '../components/FilterChip';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { heroDestination, INTEREST_TAGS } from '../data/destinations';
 import { seasonalHighlights } from '../data/seasonalHighlights';
 import { useAppState } from '../context/AppState';
@@ -33,6 +34,8 @@ const MONTH_NAMES = [
 
 export default function HomeScreen() {
   const navigation = useNavigation<Nav>();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { trips, sendGuideMessage } = useAppState();
   const { requireAccount } = useRequireAccount();
   const { destinations, offline } = useContent();
@@ -261,7 +264,7 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

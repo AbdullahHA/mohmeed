@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -14,7 +14,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useContent } from '../context/ContentContext';
 import { supabase } from '../lib/supabase';
 import { pickAndUploadImage } from '../utils/adminImages';
@@ -26,6 +27,8 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 export default function AdminEditDestinationScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { destinations, refresh } = useContent();
   const destination = destinations.find((d) => d.id === route.params.destinationId);
 
@@ -141,7 +144,7 @@ export default function AdminEditDestinationScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   header: {
     flexDirection: 'row-reverse',

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import { getMapsUrl } from '../utils/place';
@@ -21,6 +22,8 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export default function PlaceCard({ place, onPress }: Props) {
   const navigation = useNavigation<Nav>();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { trips, addItineraryItem, recommendedPlaceIds, toggleRecommended } = useAppState();
   const { requireAccount } = useRequireAccount();
   const [pickerVisible, setPickerVisible] = useState(false);
@@ -112,7 +115,7 @@ export default function PlaceCard({ place, onPress }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
     marginHorizontal: spacing.lg,
     marginBottom: spacing.lg,

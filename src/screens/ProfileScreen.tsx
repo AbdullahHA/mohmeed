@@ -1,17 +1,24 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import TopBar from '../components/TopBar';
 import FeedbackCard from '../components/FeedbackCard';
-import { colors, radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme, type ThemeMode } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import { BUDGET_CATEGORY_LABELS } from '../types';
 import type { RootStackParamList } from '../navigation/types';
+
+const APPEARANCE_OPTIONS: Array<{ value: ThemeMode; label: string }> = [
+  { value: 'system', label: 'تلقائي' },
+  { value: 'light', label: 'فاتح' },
+  { value: 'dark', label: 'داكن' },
+];
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -27,6 +34,8 @@ function formatStampDate(timestamp: number) {
 
 export default function ProfileScreen() {
   const navigation = useNavigation<Nav>();
+  const { colors, mode, setMode } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {
     currentUser,
     friends,
@@ -279,6 +288,27 @@ export default function ProfileScreen() {
           </View>
         ))}
 
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionTitle}>المظهر</Text>
+        </View>
+        <View style={styles.appearanceRow}>
+          {APPEARANCE_OPTIONS.map((option) => {
+            const active = mode === option.value;
+            return (
+              <TouchableOpacity
+                key={option.value}
+                style={[styles.appearanceChip, active && styles.appearanceChipActive]}
+                activeOpacity={0.85}
+                onPress={() => setMode(option.value)}
+              >
+                <Text style={[styles.appearanceChipText, active && styles.appearanceChipTextActive]}>
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
         <FeedbackCard feedback={feedback} onSubmit={setFeedback} />
 
         {profile?.isAdmin ? (
@@ -304,7 +334,7 @@ export default function ProfileScreen() {
 
 const STAMP_SIZE = '31%';
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   guestBanner: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -507,4 +537,29 @@ const styles = StyleSheet.create({
   friendTextWrap: { flex: 1 },
   friendName: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
   friendUsername: { color: colors.textFaint, fontSize: 11 },
+  appearanceRow: {
+    flexDirection: 'row-reverse',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  appearanceChip: {
+    flex: 1,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.sm,
+  },
+  appearanceChipActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  appearanceChipText: {
+    color: colors.text,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  appearanceChipTextActive: {
+    color: colors.textOnPrimary,
+  },
 });
