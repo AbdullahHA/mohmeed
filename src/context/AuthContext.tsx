@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../lib/supabase';
+import { registerPushToken } from '../lib/pushNotifications';
 
 export type Profile = {
   id: string;
@@ -59,8 +60,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     Promise.all([supabase.auth.getSession(), AsyncStorage.getItem(GUEST_MODE_KEY)]).then(
       ([{ data }, storedGuestMode]) => {
         setSession(data.session);
-        if (data.session) loadProfile(data.session.user.id);
-        else if (storedGuestMode === '1') setGuestMode(true);
+        if (data.session) {
+          loadProfile(data.session.user.id);
+          registerPushToken(data.session.user.id);
+        } else if (storedGuestMode === '1') setGuestMode(true);
         setLoading(false);
       }
     );
@@ -71,6 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setGuestMode(false);
         AsyncStorage.removeItem(GUEST_MODE_KEY).catch(() => {});
         loadProfile(newSession.user.id);
+        registerPushToken(newSession.user.id);
       } else {
         setProfile(null);
       }
