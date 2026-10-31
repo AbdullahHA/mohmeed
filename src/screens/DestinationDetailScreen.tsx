@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -13,6 +13,8 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, radius, spacing } from '../theme/colors';
 import { checkInPeersByDestination } from '../data/checkInPeers';
+import { PLACE_TYPE_LABELS, type PlaceType } from '../data/places';
+import PlaceCard from '../components/PlaceCard';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
@@ -20,6 +22,9 @@ import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'DestinationDetail'>;
 type Nav = NativeStackNavigationProp<RootStackParamList>;
+type TypeFilter = 'all' | PlaceType;
+
+const TYPE_FILTERS: TypeFilter[] = ['all', 'hotel', 'restaurant', 'activity', 'landmark'];
 
 const MONTH_NAMES = [
   'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
@@ -30,9 +35,19 @@ export default function DestinationDetailScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { currentUser, visitedStamps, toggleVisited, myCheckIn, checkIn, checkOut, sendGuideMessage } = useAppState();
-  const { destinations } = useContent();
+  const { destinations, places } = useContent();
   const { requireAccount } = useRequireAccount();
   const destination = destinations.find((d) => d.id === route.params.destinationId);
+  const [activeType, setActiveType] = useState<TypeFilter>('all');
+
+  const destinationPlaces = useMemo(
+    () => places.filter((p) => p.destinationId === route.params.destinationId),
+    [places, route.params.destinationId]
+  );
+  const filteredPlaces = useMemo(
+    () => (activeType === 'all' ? destinationPlaces : destinationPlaces.filter((p) => p.type === activeType)),
+    [destinationPlaces, activeType]
+  );
 
   if (!destination) {
     return (
@@ -91,25 +106,44 @@ export default function DestinationDetailScreen() {
 
           <Text style={styles.whyVisit}>{destination.whyVisit}</Text>
 
-          <Text style={styles.sectionTitle}>فنادق مقترحة</Text>
-          <View style={styles.listCard}>
-            {destination.topHotels.map((hotel) => (
-              <View key={hotel} style={styles.listRow}>
-                <Ionicons name="bed-outline" size={16} color={colors.primary} />
-                <Text style={styles.listText}>{hotel}</Text>
-              </View>
-            ))}
-          </View>
+          <Text style={styles.sectionTitle}>الأماكن</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.typeFiltersScroll}
+            contentContainerStyle={styles.typeFiltersRow}
+          >
+            {TYPE_FILTERS.map((item) => {
+              const active = activeType === item;
+              const label = item === 'all' ? 'الكل' : PLACE_TYPE_LABELS[item];
+              return (
+                <TouchableOpacity
+                  key={item}
+                  style={[styles.typeFilterChip, active && styles.typeFilterChipActive]}
+                  activeOpacity={0.8}
+                  onPress={() => setActiveType(item)}
+                >
+                  <Text style={[styles.typeFilterText, active && styles.typeFilterTextActive]}>{label}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
 
-          <Text style={styles.sectionTitle}>مطاعم مقترحة</Text>
-          <View style={styles.listCard}>
-            {destination.topRestaurants.map((restaurant) => (
-              <View key={restaurant} style={styles.listRow}>
-                <Ionicons name="restaurant-outline" size={16} color={colors.primary} />
-                <Text style={styles.listText}>{restaurant}</Text>
-              </View>
-            ))}
-          </View>
+          {destinationPlaces.length === 0 ? (
+            <Text style={styles.emptyPlacesText}>لسا ما أضفنا أماكن لهذي الوجهة</Text>
+          ) : filteredPlaces.length === 0 ? (
+            <Text style={styles.emptyPlacesText}>لا توجد أماكن بهذا التصنيف هنا حاليًا</Text>
+          ) : (
+            <View style={styles.placesList}>
+              {filteredPlaces.map((place) => (
+                <PlaceCard
+                  key={place.id}
+                  place={place}
+                  onPress={() => navigation.navigate('PlaceDetail', { placeId: place.id })}
+                />
+              ))}
+            </View>
+          )}
 
           <View style={styles.checkInCard}>
             <View style={styles.checkInHeader}>
@@ -228,17 +262,46 @@ const styles = StyleSheet.create({
   monthsText: { color: colors.primaryDark, fontSize: 12.5, fontWeight: '700' },
   whyVisit: { color: colors.text, fontSize: 14, lineHeight: 22, textAlign: 'right', marginBottom: spacing.xl },
   sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right', marginBottom: spacing.sm },
-  listCard: {
+  typeFiltersScroll: {
+    flexGrow: 0,
+    flexShrink: 0,
+    marginBottom: spacing.md,
+  },
+  typeFiltersRow: {
+    flexDirection: 'row-reverse',
+    gap: spacing.sm,
+  },
+  typeFilterChip: {
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    marginBottom: spacing.lg,
-    gap: spacing.sm,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
   },
-  listRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
-  listText: { color: colors.text, fontSize: 13, textAlign: 'right', flex: 1 },
+  typeFilterChipActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  typeFilterText: {
+    color: colors.text,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  typeFilterTextActive: {
+    color: colors.textOnPrimary,
+  },
+  emptyPlacesText: {
+    color: colors.textMuted,
+    fontSize: 13,
+    textAlign: 'center',
+    marginBottom: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  placesList: {
+    marginHorizontal: -spacing.xl,
+    marginBottom: spacing.sm,
+  },
   actionsRow: { flexDirection: 'row-reverse', gap: spacing.md, marginTop: spacing.sm },
   actionButton: {
     flexDirection: 'row-reverse',

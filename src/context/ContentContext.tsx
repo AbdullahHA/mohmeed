@@ -44,6 +44,7 @@ function mapPlaceRow(row: any): Place {
     rating: Number(row.rating),
     priceLevel: row.price_level,
     category: row.category,
+    type: row.type ?? 'activity',
     coordinate: { latitude: row.latitude, longitude: row.longitude },
     website: row.website ?? undefined,
     destinationId: row.destination_id,

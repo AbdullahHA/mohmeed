@@ -1,5 +1,14 @@
 import type { ImageSourcePropType } from 'react-native';
 
+export type PlaceType = 'hotel' | 'restaurant' | 'activity' | 'landmark';
+
+export const PLACE_TYPE_LABELS: Record<PlaceType, string> = {
+  hotel: 'فنادق',
+  restaurant: 'مطاعم',
+  activity: 'أنشطة',
+  landmark: 'معالم',
+};
+
 export type Place = {
   id: string;
   name: string;
@@ -8,6 +17,7 @@ export type Place = {
   rating: number;
   priceLevel: 1 | 2 | 3;
   category: 'هادئ الآن' | 'Hot Spot' | 'الافتراضي';
+  type: PlaceType;
   coordinate: { latitude: number; longitude: number };
   website?: string;
   destinationId: string;
@@ -23,6 +33,7 @@ export const places: Place[] = [
     rating: 4.9,
     priceLevel: 3,
     category: 'Hot Spot',
+    type: 'hotel',
     coordinate: { latitude: 24.7743, longitude: 46.6389 },
     website: 'https://www.ihg.com',
     destinationId: 'riyadh',
@@ -36,6 +47,7 @@ export const places: Place[] = [
     rating: 4.6,
     priceLevel: 2,
     category: 'الافتراضي',
+    type: 'activity',
     coordinate: { latitude: 24.7690, longitude: 46.6560 },
     destinationId: 'riyadh',
   },
@@ -48,6 +60,7 @@ export const places: Place[] = [
     rating: 4.8,
     priceLevel: 1,
     category: 'هادئ الآن',
+    type: 'landmark',
     coordinate: { latitude: 24.9601, longitude: 45.9739 },
     destinationId: 'riyadh',
   },
@@ -60,6 +73,7 @@ export const places: Place[] = [
     rating: 4.9,
     priceLevel: 2,
     category: 'Hot Spot',
+    type: 'landmark',
     coordinate: { latitude: 24.7332, longitude: 46.5750 },
     destinationId: 'riyadh',
   },
@@ -72,7 +86,21 @@ export const places: Place[] = [
     rating: 4.9,
     priceLevel: 3,
     category: 'هادئ الآن',
+    type: 'hotel',
     coordinate: { latitude: 25.5000, longitude: 36.5000 },
     destinationId: 'redsea',
+  },
+  {
+    id: 'hegra-alula',
+    name: 'الحِجر (مدائن صالح)',
+    description:
+      'أول موقع سعودي مسجل في قائمة التراث العالمي لليونسكو — مدينة أثرية نبطية منحوتة في الصخر الرملي بقلب العلا.',
+    image: require('../assets/images/alula.png'),
+    rating: 4.9,
+    priceLevel: 2,
+    category: 'الافتراضي',
+    type: 'landmark',
+    coordinate: { latitude: 26.7917, longitude: 37.9544 },
+    destinationId: 'alula',
   },
 ];

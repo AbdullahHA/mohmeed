@@ -18,7 +18,10 @@ import { colors, radius, spacing } from '../theme/colors';
 import { useContent } from '../context/ContentContext';
 import { supabase } from '../lib/supabase';
 import { pickAndUploadImage } from '../utils/adminImages';
+import { PLACE_TYPE_LABELS, type PlaceType } from '../data/places';
 import type { RootStackParamList } from '../navigation/types';
+
+const PLACE_TYPES = Object.keys(PLACE_TYPE_LABELS) as PlaceType[];
 
 type Route = RouteProp<RootStackParamList, 'AdminEditPlace'>;
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -31,6 +34,7 @@ export default function AdminEditPlaceScreen() {
 
   const [name, setName] = useState(place?.name ?? '');
   const [description, setDescription] = useState(place?.description ?? '');
+  const [type, setType] = useState<PlaceType>(place?.type ?? 'activity');
   const [image, setImage] = useState(place?.image);
   const [newImageUrl, setNewImageUrl] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -64,6 +68,7 @@ export default function AdminEditPlaceScreen() {
     const payload: Record<string, unknown> = {
       name: name.trim(),
       description: description.trim(),
+      type,
     };
     if (newImageUrl) payload.image_url = newImageUrl;
 
@@ -118,6 +123,22 @@ export default function AdminEditPlaceScreen() {
           multiline
           textAlign="right"
         />
+
+        <Text style={styles.label}>نوع المكان</Text>
+        <View style={styles.typeRow}>
+          {PLACE_TYPES.map((item) => (
+            <TouchableOpacity
+              key={item}
+              style={[styles.typeChip, type === item && styles.typeChipActive]}
+              activeOpacity={0.8}
+              onPress={() => setType(item)}
+            >
+              <Text style={[styles.typeChipText, type === item && styles.typeChipTextActive]}>
+                {PLACE_TYPE_LABELS[item]}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
         <TouchableOpacity
           style={[styles.submitButton, saving && styles.submitDisabled]}
@@ -191,6 +212,31 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   multiline: { minHeight: 80, textAlignVertical: 'top' },
+  typeRow: {
+    flexDirection: 'row-reverse',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  typeChip: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
+  typeChipActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  typeChipText: {
+    color: colors.text,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  typeChipTextActive: {
+    color: colors.textOnPrimary,
+  },
   submitButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.pill,
