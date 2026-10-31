@@ -23,6 +23,7 @@ import {
   isBiometricAvailable,
   setBiometricLockEnabled,
 } from '../lib/biometric';
+import CountryPickerModal from '../components/CountryPickerModal';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -58,6 +59,7 @@ export default function SettingsScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [nationality, setNationality] = useState(profile?.nationality ?? '');
   const [countryOfResidence, setCountryOfResidence] = useState(profile?.countryOfResidence ?? '');
+  const [pickerOpen, setPickerOpen] = useState<'nationality' | 'residence' | null>(null);
   const [maritalStatus, setMaritalStatus] = useState(profile?.maritalStatus ?? '');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -208,22 +210,18 @@ export default function SettingsScreen() {
             ) : null}
 
             <Text style={styles.label}>الجنسية</Text>
-            <TextInput
-              style={styles.input}
-              placeholderTextColor={colors.textFaint}
-              value={nationality}
-              onChangeText={setNationality}
-              textAlign="right"
-            />
+            <TouchableOpacity style={styles.input} activeOpacity={0.8} onPress={() => setPickerOpen('nationality')}>
+              <Text style={nationality ? styles.dateValue : styles.datePlaceholder}>
+                {nationality || 'اختر الجنسية'}
+              </Text>
+            </TouchableOpacity>
 
             <Text style={styles.label}>بلد الإقامة</Text>
-            <TextInput
-              style={styles.input}
-              placeholderTextColor={colors.textFaint}
-              value={countryOfResidence}
-              onChangeText={setCountryOfResidence}
-              textAlign="right"
-            />
+            <TouchableOpacity style={styles.input} activeOpacity={0.8} onPress={() => setPickerOpen('residence')}>
+              <Text style={countryOfResidence ? styles.dateValue : styles.datePlaceholder}>
+                {countryOfResidence || 'اختر بلد الإقامة'}
+              </Text>
+            </TouchableOpacity>
 
             <Text style={styles.label}>الحالة الاجتماعية</Text>
             <View style={styles.chipsRow}>
@@ -321,6 +319,16 @@ export default function SettingsScreen() {
           <Ionicons name="lock-closed-outline" size={18} color={colors.textMuted} />
         </TouchableOpacity>
       </ScrollView>
+
+      <CountryPickerModal
+        visible={pickerOpen !== null}
+        title={pickerOpen === 'nationality' ? 'اختر الجنسية' : 'اختر بلد الإقامة'}
+        onSelect={(country) => {
+          if (pickerOpen === 'nationality') setNationality(country);
+          else if (pickerOpen === 'residence') setCountryOfResidence(country);
+        }}
+        onClose={() => setPickerOpen(null)}
+      />
     </SafeAreaView>
   );
 }
