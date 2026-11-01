@@ -25,6 +25,8 @@ import type {
   VisitedStamp,
   WishlistItem,
   ManualVisitedPlace,
+  PlaceSearchResult,
+  CheckInRecord,
 } from '../types';
 
 const STORAGE_KEY = 'yalla-nsafer:state:v1';
@@ -127,6 +129,11 @@ type AppStateValue = {
   applyTripTemplate: (templateId: string) => Trip | null;
   checkIn: (destinationId: string) => void;
   checkOut: () => void;
+  myCheckIns: CheckInRecord[];
+  myCheckInsLoading: boolean;
+  searchVenues: (query: string) => Promise<PlaceSearchResult[]>;
+  checkInToVenue: (venue: PlaceSearchResult) => Promise<{ error: string | null }>;
+  loadVenueCheckIns: (venueId: string) => Promise<CheckInRecord[]>;
 };
 
 function uid(prefix: string) {
@@ -184,6 +191,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       : { id: 'me', name: 'ضيف', username: 'guest', emoji: '🧳', color: colors.textFaint };
   const [friends, setFriends] = useState<Friend[]>([]);
   const [friendsLoading, setFriendsLoading] = useState(true);
+  const [myCheckIns, setMyCheckIns] = useState<CheckInRecord[]>([]);
+  const [myCheckInsLoading, setMyCheckInsLoading] = useState(true);
   const [blockedUserIds, setBlockedUserIds] = useState<string[]>([]);
   const [incomingRequests, setIncomingRequests] = useState<Friend[]>([]);
   const [outgoingRequests, setOutgoingRequests] = useState<Friend[]>([]);
@@ -357,6 +366,46 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const mapCheckInRow = (row: any): CheckInRecord => ({
+    id: row.id,
+    venueId: row.venue_id,
+    venueName: row.venue_name,
+    venueAddress: row.venue_address ?? '',
+    category: row.venue_category ?? 'other',
+    createdAt: new Date(row.created_at).getTime(),
+    user: row.user
+      ? {
+          id: row.user.id,
+          name: row.user.name,
+          emoji: row.user.emoji,
+          color: row.user.color,
+          avatarUrl: row.user.avatar_url ?? null,
+        }
+      : undefined,
+  });
+
+  const loadMyCheckIns = async () => {
+    if (!profile) {
+      setMyCheckIns([]);
+      setMyCheckInsLoading(false);
+      return;
+    }
+    setMyCheckInsLoading(true);
+    try {
+      const { data } = await supabase
+        .from('check_ins')
+        .select('id,venue_id,venue_name,venue_address,venue_category,created_at')
+        .eq('user_id', profile.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      setMyCheckIns((data ?? []).map(mapCheckInRow));
+    } catch {
+      // keep whatever we had — network/Supabase hiccup
+    } finally {
+      setMyCheckInsLoading(false);
+    }
+  };
+
   const loadBlocked = async () => {
     if (!profile) {
       setBlockedUserIds([]);
@@ -395,6 +444,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     loadFriends();
     loadBlocked();
     loadFriendRequests();
+    loadMyCheckIns();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id]);
 
@@ -769,6 +819,56 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setMyCheckIn(null);
   };
 
+  const searchVenues = async (query: string): Promise<PlaceSearchResult[]> => {
+    const trimmed = query.trim();
+    if (!trimmed) return [];
+    try {
+      const { data, error } = await supabase.functions.invoke('places-search', {
+        body: { query: trimmed },
+      });
+      if (error || !Array.isArray(data?.results)) return [];
+      return data.results as PlaceSearchResult[];
+    } catch {
+      return [];
+    }
+  };
+
+  const checkInToVenue = async (venue: PlaceSearchResult): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'يحتاج حساب حقيقي' };
+    const { data, error } = await supabase
+      .from('check_ins')
+      .insert({
+        user_id: profile.id,
+        venue_id: venue.id,
+        venue_name: venue.name,
+        venue_address: venue.address,
+        venue_category: venue.category,
+        lat: venue.lat,
+        lng: venue.lng,
+      })
+      .select('id,venue_id,venue_name,venue_address,venue_category,created_at')
+      .single();
+    if (error || !data) return { error: 'تعذّر تسجيل الوصول، حاول مرة ثانية' };
+    setMyCheckIns((prev) => [mapCheckInRow(data), ...prev]);
+    return { error: null };
+  };
+
+  const loadVenueCheckIns = async (venueId: string): Promise<CheckInRecord[]> => {
+    try {
+      const { data } = await supabase
+        .from('check_ins')
+        .select(
+          'id,venue_id,venue_name,venue_address,venue_category,created_at,user:profiles!check_ins_user_id_fkey(id,name,emoji,color,avatar_url)'
+        )
+        .eq('venue_id', venueId)
+        .order('created_at', { ascending: false })
+        .limit(30);
+      return (data ?? []).map(mapCheckInRow);
+    } catch {
+      return [];
+    }
+  };
+
   const value = useMemo<AppStateValue>(
     () => ({
       currentUser,
@@ -827,6 +927,11 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       applyTripTemplate,
       checkIn,
       checkOut,
+      myCheckIns,
+      myCheckInsLoading,
+      searchVenues,
+      checkInToVenue,
+      loadVenueCheckIns,
     }),
     [
       currentUser,
@@ -849,6 +954,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       manualVisitedPlaces,
       tripTemplates,
       myCheckIn,
+      myCheckIns,
+      myCheckInsLoading,
     ]
   );
 

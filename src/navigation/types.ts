@@ -1,4 +1,5 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
+import type { PlaceSearchResult } from '../types';
 
 export type MainTabParamList = {
   Discover: undefined;
@@ -26,6 +27,9 @@ export type RootStackParamList = {
   AddLoyaltyMembership: undefined;
   AddWishlistItem: undefined;
   AddVisitedPlace: undefined;
+  CheckInSearch: undefined;
+  CheckInVenue: { venue: PlaceSearchResult };
+  MyCheckIns: undefined;
   Settings: undefined;
   OnboardingQuiz: undefined;
   CountrySetting: undefined;

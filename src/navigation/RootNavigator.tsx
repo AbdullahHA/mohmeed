@@ -23,6 +23,9 @@ import PersonalInfoScreen from '../screens/PersonalInfoScreen';
 import AddLoyaltyMembershipScreen from '../screens/AddLoyaltyMembershipScreen';
 import AddWishlistItemScreen from '../screens/AddWishlistItemScreen';
 import AddVisitedPlaceScreen from '../screens/AddVisitedPlaceScreen';
+import CheckInSearchScreen from '../screens/CheckInSearchScreen';
+import CheckInVenueScreen from '../screens/CheckInVenueScreen';
+import MyCheckInsScreen from '../screens/MyCheckInsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import OnboardingQuizScreen from '../screens/OnboardingQuizScreen';
 import CountrySettingScreen from '../screens/CountrySettingScreen';
@@ -92,6 +95,13 @@ export default function RootNavigator() {
         component={AddVisitedPlaceScreen}
         options={{ presentation: 'modal' }}
       />
+      <Stack.Screen
+        name="CheckInSearch"
+        component={CheckInSearchScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen name="CheckInVenue" component={CheckInVenueScreen} />
+      <Stack.Screen name="MyCheckIns" component={MyCheckInsScreen} />
       <Stack.Screen name="Settings" component={SettingsScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="OnboardingQuiz" component={OnboardingQuizScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="CountrySetting" component={CountrySettingScreen} options={{ presentation: 'modal' }} />

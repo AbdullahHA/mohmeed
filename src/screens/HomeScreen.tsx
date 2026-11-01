@@ -131,6 +131,16 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.quickActionText}>تحدث معنا</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.quickAction}
+            activeOpacity={0.85}
+            onPress={() => requireAccount('checkIn', () => navigation.navigate('CheckInSearch'))}
+          >
+            <View style={styles.quickActionBadge}>
+              <Ionicons name="location-outline" size={26} color={colors.primary} />
+            </View>
+            <Text style={styles.quickActionText}>تسجيل وصول</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.aiSearchBar}>

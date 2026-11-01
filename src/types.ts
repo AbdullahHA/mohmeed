@@ -145,3 +145,32 @@ export type CheckInPeer = {
   emoji: string;
   color: string;
 };
+
+// Real venue search result from the places-search edge function (Google Places).
+export type VenueCategory = 'restaurant' | 'cafe' | 'hotel' | 'shopping' | 'attraction' | 'other';
+
+export type PlaceSearchResult = {
+  id: string;
+  name: string;
+  address: string;
+  category: VenueCategory;
+  lat: number | null;
+  lng: number | null;
+};
+
+// A real check-in at a searched venue, stored in Supabase (not the destination-only local demo).
+export type CheckInRecord = {
+  id: string;
+  venueId: string;
+  venueName: string;
+  venueAddress: string;
+  category: VenueCategory;
+  createdAt: number;
+  user?: {
+    id: string;
+    name: string;
+    emoji?: string | null;
+    color?: string | null;
+    avatarUrl?: string | null;
+  };
+};
