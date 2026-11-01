@@ -90,10 +90,10 @@ export default function SettingsScreen() {
 
   const MenuRow = ({ icon, label, onPress, danger, value }: MenuRowProps) => (
     <TouchableOpacity style={styles.menuRow} activeOpacity={0.7} onPress={onPress}>
-      <Ionicons name="chevron-back" size={16} color={colors.textFaint} />
-      {value ? <Text style={styles.menuRowValue}>{value}</Text> : null}
-      <Text style={[styles.menuRowText, danger && styles.menuRowTextDanger]}>{label}</Text>
       <Ionicons name={icon} size={18} color={danger ? colors.red : colors.textMuted} />
+      <Text style={[styles.menuRowText, danger && styles.menuRowTextDanger]}>{label}</Text>
+      {value ? <Text style={styles.menuRowValue}>{value}</Text> : null}
+      <Ionicons name="chevron-back" size={16} color={colors.textFaint} />
     </TouchableOpacity>
   );
 

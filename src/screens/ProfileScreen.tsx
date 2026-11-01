@@ -342,12 +342,12 @@ export default function ProfileScreen() {
               activeOpacity={0.8}
               onPress={() => navigation.navigate('TripDetail', { tripId: trip.id })}
             >
-              <Ionicons name="chevron-back" size={16} color={colors.textMuted} />
+              <Ionicons name="airplane-outline" size={18} color={colors.primary} />
               <View style={styles.tripTextWrap}>
                 <Text style={styles.tripTitle}>{trip.title}</Text>
                 <Text style={styles.tripSubtitle}>{trip.startDate} → {trip.endDate}</Text>
               </View>
-              <Ionicons name="airplane-outline" size={18} color={colors.primary} />
+              <Ionicons name="chevron-back" size={16} color={colors.textMuted} />
             </TouchableOpacity>
           ))
         )}
@@ -382,14 +382,14 @@ export default function ProfileScreen() {
                 activeOpacity={0.8}
                 onPress={() => navigation.navigate('TripTemplateDetail', { templateId: template.id })}
               >
-                <Ionicons name="chevron-back" size={16} color={colors.textMuted} />
+                <Ionicons name="document-text-outline" size={18} color={colors.primary} />
                 <View style={styles.tripTextWrap}>
                   <Text style={styles.tripTitle}>{template.title}</Text>
                   <Text style={styles.tripSubtitle}>
                     {destination?.name} · {template.price === 0 ? 'مجاني' : `${template.price} ر.س`}
                   </Text>
                 </View>
-                <Ionicons name="document-text-outline" size={18} color={colors.primary} />
+                <Ionicons name="chevron-back" size={16} color={colors.textMuted} />
               </TouchableOpacity>
             );
           })
