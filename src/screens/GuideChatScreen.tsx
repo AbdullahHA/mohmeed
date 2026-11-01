@@ -22,7 +22,12 @@ import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
-const SUGGESTIONS = ['أفضل وجهة في نوفمبر', 'فنادق في العلا', 'مطاعم في جدة', 'رحلة عائلية'];
+const SUGGESTIONS: Array<{ text: string; icon: keyof typeof Ionicons.glyphMap }> = [
+  { text: 'رتب لي خطة ليوم كامل في الرياض', icon: 'location-outline' },
+  { text: 'اقترح لي مطعم لعشاء الليلة', icon: 'restaurant-outline' },
+  { text: 'خطط لي رحلة عائلية', icon: 'airplane-outline' },
+  { text: 'وش أفضل وجهة أزورها بنوفمبر؟', icon: 'calendar-outline' },
+];
 
 // Dark theme local to this screen only, matching the AI-assistant look
 // elsewhere in the product — kept separate from the app's light palette.
@@ -113,15 +118,16 @@ export default function GuideChatScreen() {
             <Text style={styles.emptySubtitle}>
               اسأل بأسلوبك الخاص — بساعدك بالفعاليات، أخطط لرحلاتك، وأجاوبك على أسئلتك
             </Text>
-            <View style={styles.suggestionsWrap}>
+            <View style={styles.suggestionsGrid}>
               {SUGGESTIONS.map((s) => (
                 <TouchableOpacity
-                  key={s}
-                  style={styles.suggestionChip}
+                  key={s.text}
+                  style={styles.suggestionCard}
                   activeOpacity={0.8}
-                  onPress={() => sendGuideMessage(s)}
+                  onPress={() => sendGuideMessage(s.text)}
                 >
-                  <Text style={styles.suggestionText}>{s}</Text>
+                  <Text style={styles.suggestionText}>{s.text}</Text>
+                  <Ionicons name={s.icon} size={18} color={dark.accent} />
                 </TouchableOpacity>
               ))}
             </View>
@@ -188,19 +194,24 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     marginBottom: spacing.xl,
   },
-  suggestionsWrap: {
+  suggestionsGrid: {
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
-    justifyContent: 'center',
     gap: spacing.sm,
+    width: '100%',
   },
-  suggestionChip: {
+  suggestionCard: {
+    flexBasis: '47%',
+    flexGrow: 1,
     backgroundColor: dark.surfaceAlt,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    borderWidth: 1,
+    borderColor: dark.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    minHeight: 76,
+    justifyContent: 'space-between',
   },
-  suggestionText: { color: dark.text, fontSize: 13, fontWeight: '600' },
+  suggestionText: { color: dark.text, fontSize: 13, fontWeight: '600', textAlign: 'right', lineHeight: 18 },
   inputRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
