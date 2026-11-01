@@ -12,6 +12,12 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 const KNOWN_PROGRAMS = ['الفرسان', 'مكافأة', 'قطاف', 'شكرًا', 'حصاد'];
 
+// No official program logos — using a plain plane glyph in a distinct tint
+// per program instead, since the real logos are trademarked and we don't
+// have a license to bundle them.
+const getProgramColor = (colors: ThemeColors, index: number) =>
+  [colors.primary, colors.accent, colors.success, colors.warning, colors.red][index % 5];
+
 export default function AddLoyaltyMembershipScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
@@ -42,7 +48,7 @@ export default function AddLoyaltyMembershipScreen() {
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
         <Text style={styles.label}>اسم البرنامج</Text>
         <View style={styles.chipsRow}>
-          {KNOWN_PROGRAMS.map((program) => {
+          {KNOWN_PROGRAMS.map((program, index) => {
             const active = airline === program;
             return (
               <TouchableOpacity
@@ -51,6 +57,9 @@ export default function AddLoyaltyMembershipScreen() {
                 activeOpacity={0.8}
                 onPress={() => setAirline(program)}
               >
+                <View style={[styles.chipIcon, { backgroundColor: getProgramColor(colors, index) }]}>
+                  <Ionicons name="airplane" size={11} color={colors.textOnPrimary} />
+                </View>
                 <Text style={[styles.chipText, active && styles.chipTextActive]}>{program}</Text>
               </TouchableOpacity>
             );
@@ -117,6 +126,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.sm,
   },
   chip: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.xs,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
@@ -125,6 +137,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
   },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  chipIcon: {
+    width: 18,
+    height: 18,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   chipText: { color: colors.text, fontSize: 12, fontWeight: '600' },
   chipTextActive: { color: colors.textOnPrimary },
   input: {
