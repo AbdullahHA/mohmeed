@@ -10,14 +10,6 @@ type Props = {
   onSubmit: (feedback: Feedback) => void;
 };
 
-const getRatingColors = (colors: ThemeColors): Record<number, string> => ({
-  1: colors.red,
-  2: colors.accent,
-  3: colors.warning,
-  4: colors.success,
-  5: colors.success,
-});
-
 const POSITIVE_REASONS = ['سرعة تجاوب التطبيق', 'الأداء العام', 'تجربة المستخدم', 'المحتوى', 'التنقل بين الصفحات', 'أخرى'];
 const NEGATIVE_REASONS = ['واجهت أخطاء', 'ينقصه ميزات أحتاجها', 'مربك للاستخدام', 'تعطّل عندي', 'غير جذاب بصريًا', 'أخرى'];
 
@@ -29,7 +21,6 @@ export default function FeedbackCard({ feedback, onSubmit }: Props) {
   const [note, setNote] = useState(feedback?.note ?? '');
   const [submitted, setSubmitted] = useState(Boolean(feedback));
 
-  const color = getRatingColors(colors)[rating] ?? colors.textFaint;
   const isPositive = rating >= 3;
   const reasonOptions = isPositive ? POSITIVE_REASONS : NEGATIVE_REASONS;
 
@@ -77,7 +68,7 @@ export default function FeedbackCard({ feedback, onSubmit }: Props) {
               <Ionicons
                 name={filled ? 'star' : 'star-outline'}
                 size={30}
-                color={filled ? color : colors.border}
+                color={filled ? colors.accent : colors.border}
               />
             </TouchableOpacity>
           );
