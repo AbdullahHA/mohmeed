@@ -24,6 +24,7 @@ import type {
   TripTemplateItem,
   VisitedStamp,
   WishlistItem,
+  ManualVisitedPlace,
 } from '../types';
 
 const STORAGE_KEY = 'yalla-nsafer:state:v1';
@@ -46,6 +47,7 @@ type PersistedState = {
   airlineReviews: AirlineReview[];
   loyaltyMemberships: LoyaltyMembership[];
   wishlist: WishlistItem[];
+  manualVisitedPlaces: ManualVisitedPlace[];
   tripTemplates: TripTemplate[];
   myCheckIn: string | null;
 };
@@ -82,6 +84,7 @@ type AppStateValue = {
   airlineReviews: AirlineReview[];
   loyaltyMemberships: LoyaltyMembership[];
   wishlist: WishlistItem[];
+  manualVisitedPlaces: ManualVisitedPlace[];
   tripTemplates: TripTemplate[];
   myCheckIn: string | null;
   friendsLoading: boolean;
@@ -117,6 +120,8 @@ type AppStateValue = {
   removeLoyaltyMembership: (id: string) => void;
   addWishlistItem: (name: string) => void;
   removeWishlistItem: (id: string) => void;
+  addManualVisitedPlace: (name: string) => void;
+  removeManualVisitedPlace: (id: string) => void;
   addTripTemplate: (input: NewTripTemplateInput) => TripTemplate;
   removeTripTemplate: (id: string) => void;
   applyTripTemplate: (templateId: string) => Trip | null;
@@ -193,6 +198,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [airlineReviews, setAirlineReviews] = useState<AirlineReview[]>([]);
   const [loyaltyMemberships, setLoyaltyMemberships] = useState<LoyaltyMembership[]>([]);
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+  const [manualVisitedPlaces, setManualVisitedPlaces] = useState<ManualVisitedPlace[]>([]);
   const [tripTemplates, setTripTemplates] = useState<TripTemplate[]>(seedTripTemplates);
   const [myCheckIn, setMyCheckIn] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -252,6 +258,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
             setWishlist(parsed.wishlist);
             loadedFromStorage = true;
           }
+          if (Array.isArray(parsed.manualVisitedPlaces)) {
+            setManualVisitedPlaces(parsed.manualVisitedPlaces);
+            loadedFromStorage = true;
+          }
           if (Array.isArray(parsed.tripTemplates)) {
             setTripTemplates(parsed.tripTemplates);
             loadedFromStorage = true;
@@ -288,6 +298,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       airlineReviews,
       loyaltyMemberships,
       wishlist,
+      manualVisitedPlaces,
       tripTemplates,
       myCheckIn,
     };
@@ -303,6 +314,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     airlineReviews,
     loyaltyMemberships,
     wishlist,
+    manualVisitedPlaces,
     tripTemplates,
     myCheckIn,
   ]);
@@ -701,6 +713,16 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setWishlist((prev) => prev.filter((item) => item.id !== id));
   };
 
+  const addManualVisitedPlace = (name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    setManualVisitedPlaces((prev) => [{ id: uid('visited'), name: trimmed, visitedAt: Date.now() }, ...prev]);
+  };
+
+  const removeManualVisitedPlace = (id: string) => {
+    setManualVisitedPlaces((prev) => prev.filter((item) => item.id !== id));
+  };
+
   const addTripTemplate = (input: NewTripTemplateInput): TripTemplate => {
     const template: TripTemplate = {
       id: uid('tpl'),
@@ -766,6 +788,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       airlineReviews,
       loyaltyMemberships,
       wishlist,
+      manualVisitedPlaces,
       tripTemplates,
       myCheckIn,
       addFriend,
@@ -797,6 +820,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       removeLoyaltyMembership,
       addWishlistItem,
       removeWishlistItem,
+      addManualVisitedPlace,
+      removeManualVisitedPlace,
       addTripTemplate,
       removeTripTemplate,
       applyTripTemplate,
@@ -821,6 +846,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       airlineReviews,
       loyaltyMemberships,
       wishlist,
+      manualVisitedPlaces,
       tripTemplates,
       myCheckIn,
     ]

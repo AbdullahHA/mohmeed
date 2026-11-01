@@ -22,6 +22,7 @@ import EditProfileScreen from '../screens/EditProfileScreen';
 import PersonalInfoScreen from '../screens/PersonalInfoScreen';
 import AddLoyaltyMembershipScreen from '../screens/AddLoyaltyMembershipScreen';
 import AddWishlistItemScreen from '../screens/AddWishlistItemScreen';
+import AddVisitedPlaceScreen from '../screens/AddVisitedPlaceScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import OnboardingQuizScreen from '../screens/OnboardingQuizScreen';
 import CountrySettingScreen from '../screens/CountrySettingScreen';
@@ -84,6 +85,11 @@ export default function RootNavigator() {
       <Stack.Screen
         name="AddWishlistItem"
         component={AddWishlistItemScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen
+        name="AddVisitedPlace"
+        component={AddVisitedPlaceScreen}
         options={{ presentation: 'modal' }}
       />
       <Stack.Screen name="Settings" component={SettingsScreen} options={{ presentation: 'modal' }} />

@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -33,6 +33,10 @@ function formatStampDate(timestamp: number) {
   return `${STAMP_MONTH_NAMES[date.getMonth()]} ${date.getFullYear()}`;
 }
 
+// Cycled per stamp so each manually-added place reads as its own
+// little passport stamp, without needing a real flag/photo per place.
+const STAMP_BADGE_COLORS = ['#1359D3', '#1C9A6C', '#D9792C', '#B4479A', '#2E9BB0', '#C2454B'];
+
 export default function ProfileScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
@@ -63,6 +67,8 @@ export default function ProfileScreen() {
     removeLoyaltyMembership,
     wishlist,
     removeWishlistItem,
+    manualVisitedPlaces,
+    removeManualVisitedPlace,
     tripTemplates,
   } = useAppState();
   const { destinations, places } = useContent();
@@ -326,6 +332,46 @@ export default function ProfileScreen() {
                 <Text style={styles.stampDate}>{formatStampDate(visitedAt)}</Text>
               </TouchableOpacity>
             ))}
+          </View>
+        )}
+
+        <View style={styles.sectionHeaderRow}>
+          <TouchableOpacity
+            style={styles.linkButton}
+            activeOpacity={0.85}
+            onPress={() => requireAccount('visitedPlace', () => navigation.navigate('AddVisitedPlace'))}
+          >
+            <Ionicons name="add" size={14} color={colors.primary} />
+            <Text style={styles.linkButtonText}>أضف ختم</Text>
+          </TouchableOpacity>
+          <Text style={styles.sectionTitle}>أختامي</Text>
+        </View>
+        {manualVisitedPlaces.length === 0 ? (
+          <Text style={styles.emptyMuted}>سجّل أي دولة أو مدينة سبق وزرتها، حتى لو مو موجودة بكتالوجنا</Text>
+        ) : (
+          <View style={styles.stampBadgeGrid}>
+            {manualVisitedPlaces.map((place, index) => {
+              const color = STAMP_BADGE_COLORS[index % STAMP_BADGE_COLORS.length];
+              return (
+                <TouchableOpacity
+                  key={place.id}
+                  style={[styles.stampBadge, { borderColor: color }]}
+                  activeOpacity={0.8}
+                  onLongPress={() =>
+                    Alert.alert('حذف الختم؟', `بيُحذف "${place.name}" من أختامك.`, [
+                      { text: 'إلغاء', style: 'cancel' },
+                      { text: 'حذف', style: 'destructive', onPress: () => removeManualVisitedPlace(place.id) },
+                    ])
+                  }
+                >
+                  <Ionicons name="business-outline" size={22} color={color} />
+                  <Text style={[styles.stampBadgeName, { color }]} numberOfLines={1}>
+                    {place.name}
+                  </Text>
+                  <Text style={styles.stampBadgeDate}>{formatStampDate(place.visitedAt)}</Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         )}
 
@@ -737,6 +783,25 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     textAlign: 'right',
     marginTop: spacing.xs,
   },
+  stampBadgeGrid: {
+    flexDirection: 'row-reverse',
+    flexWrap: 'wrap',
+    columnGap: spacing.sm,
+    rowGap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  stampBadge: {
+    width: STAMP_SIZE,
+    aspectRatio: 1,
+    borderRadius: radius.lg,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.sm,
+    gap: 2,
+  },
+  stampBadgeName: { fontSize: 12, fontWeight: '800', textAlign: 'center' },
+  stampBadgeDate: { color: colors.textFaint, fontSize: 10, fontWeight: '600', textAlign: 'center' },
   addFriendButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

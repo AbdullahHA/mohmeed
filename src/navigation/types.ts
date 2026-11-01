@@ -25,6 +25,7 @@ export type RootStackParamList = {
   PersonalInfo: undefined;
   AddLoyaltyMembership: undefined;
   AddWishlistItem: undefined;
+  AddVisitedPlace: undefined;
   Settings: undefined;
   OnboardingQuiz: undefined;
   CountrySetting: undefined;

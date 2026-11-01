@@ -117,6 +117,15 @@ export type LoyaltyMembership = {
   memberNumber: string;
 };
 
+// A free-text "I've been here" stamp — unlike VisitedStamp (which only
+// covers destinations in our own catalog), this lets someone log any
+// country or city, matching how real travel-passport features work.
+export type ManualVisitedPlace = {
+  id: string;
+  name: string;
+  visitedAt: number;
+};
+
 export type WishlistItem = {
   id: string;
   name: string;
