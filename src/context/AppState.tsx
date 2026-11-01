@@ -421,7 +421,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     const { error: insertError } = await supabase
       .from('friend_requests')
       .insert({ sender_id: profile.id, recipient_id: found.id });
-    if (insertError) return { error: 'تعذّر إرسال الطلب، حاول مرة ثانية' };
+    if (insertError) {
+      if (insertError.code === '23505') return { error: 'سبق أرسلت له طلب صداقة' };
+      return { error: 'تعذّر إرسال الطلب، حاول مرة ثانية' };
+    }
 
     await loadFriendRequests();
     return { error: null };
