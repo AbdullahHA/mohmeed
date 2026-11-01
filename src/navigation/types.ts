@@ -22,6 +22,7 @@ export type RootStackParamList = {
   Friends: undefined;
   FriendChat: { friendId: string };
   EditProfile: undefined;
+  PersonalInfo: undefined;
   AddLoyaltyMembership: undefined;
   AddWishlistItem: undefined;
   Settings: undefined;

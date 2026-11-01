@@ -19,6 +19,7 @@ import AddFriendScreen from '../screens/AddFriendScreen';
 import FriendsScreen from '../screens/FriendsScreen';
 import FriendChatScreen from '../screens/FriendChatScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
+import PersonalInfoScreen from '../screens/PersonalInfoScreen';
 import AddLoyaltyMembershipScreen from '../screens/AddLoyaltyMembershipScreen';
 import AddWishlistItemScreen from '../screens/AddWishlistItemScreen';
 import SettingsScreen from '../screens/SettingsScreen';
@@ -70,6 +71,7 @@ export default function RootNavigator() {
       <Stack.Screen name="Friends" component={FriendsScreen} />
       <Stack.Screen name="FriendChat" component={FriendChatScreen} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
       <Stack.Screen
         name="AddLoyaltyMembership"
         component={AddLoyaltyMembershipScreen}
