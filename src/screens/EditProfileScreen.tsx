@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -27,14 +26,13 @@ export default function EditProfileScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { profile, updateProfile, deleteAccount } = useAuth();
+  const { profile, updateProfile } = useAuth();
 
   const [name, setName] = useState(profile?.name ?? '');
   const [username, setUsername] = useState(profile?.username ?? '');
   const [bio, setBio] = useState(profile?.bio ?? '');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatarUrl ?? null);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
@@ -86,28 +84,6 @@ export default function EditProfileScreen() {
       return;
     }
     navigation.goBack();
-  };
-
-  const handleDeleteAccount = () => {
-    Alert.alert(
-      'حذف الحساب نهائيًا؟',
-      'بيُحذف حسابك وكل بياناتك (رحلاتك، تقييماتك، اهتماماتك، صداقاتك، محادثاتك) بشكل نهائي ولا يمكن التراجع عنه.',
-      [
-        { text: 'إلغاء', style: 'cancel' },
-        {
-          text: 'حذف الحساب',
-          style: 'destructive',
-          onPress: async () => {
-            setDeleting(true);
-            const { error: deleteError } = await deleteAccount();
-            setDeleting(false);
-            if (deleteError) {
-              Alert.alert('صار خطأ', 'تعذّر حذف الحساب، حاول مرة ثانية لاحقًا.');
-            }
-          },
-        },
-      ]
-    );
   };
 
   return (
@@ -183,19 +159,6 @@ export default function EditProfileScreen() {
         >
           {loading ? <ActivityIndicator color={colors.textOnPrimary} /> : <Text style={styles.submitText}>حفظ</Text>}
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.deleteButton}
-          activeOpacity={0.8}
-          disabled={deleting}
-          onPress={handleDeleteAccount}
-        >
-          {deleting ? (
-            <ActivityIndicator color={colors.red} />
-          ) : (
-            <Text style={styles.deleteButtonText}>حذف الحساب نهائيًا</Text>
-          )}
-        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -262,10 +225,4 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   submitDisabled: { opacity: 0.5 },
   submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
-  deleteButton: {
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    marginTop: spacing.xl,
-  },
-  deleteButtonText: { color: colors.red, fontSize: 13, fontWeight: '700' },
 });
