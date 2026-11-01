@@ -15,6 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { radius, spacing, cardShadow, type ThemeColors } from '../theme/colors';
 import { useTheme, type ThemeMode } from '../context/ThemeContext';
+import { useRegion } from '../context/RegionContext';
 import { useAuth } from '../context/AuthContext';
 import {
   getBiometricLockEnabled,
@@ -36,6 +37,7 @@ type MenuRowProps = {
   label: string;
   onPress: () => void;
   danger?: boolean;
+  value?: string;
 };
 
 export default function SettingsScreen() {
@@ -43,6 +45,7 @@ export default function SettingsScreen() {
   const { colors, mode, setMode } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { profile, deleteAccount } = useAuth();
+  const { country, currency } = useRegion();
   const [deleting, setDeleting] = useState(false);
 
   const [biometricAvailable, setBiometricAvailable] = useState(false);
@@ -85,9 +88,10 @@ export default function SettingsScreen() {
     );
   };
 
-  const MenuRow = ({ icon, label, onPress, danger }: MenuRowProps) => (
+  const MenuRow = ({ icon, label, onPress, danger, value }: MenuRowProps) => (
     <TouchableOpacity style={styles.menuRow} activeOpacity={0.7} onPress={onPress}>
       <Ionicons name="chevron-back" size={16} color={colors.textFaint} />
+      {value ? <Text style={styles.menuRowValue}>{value}</Text> : null}
       <Text style={[styles.menuRowText, danger && styles.menuRowTextDanger]}>{label}</Text>
       <Ionicons name={icon} size={18} color={danger ? colors.red : colors.textMuted} />
     </TouchableOpacity>
@@ -144,24 +148,26 @@ export default function SettingsScreen() {
 
         <Text style={styles.sectionTitle}>التفضيلات</Text>
         <View style={styles.card}>
-          <View style={styles.preferenceBlock}>
-            <Text style={styles.preferenceLabel}>المظهر</Text>
-            <View style={styles.chipsRow}>
-              {APPEARANCE_OPTIONS.map((option) => {
-                const active = mode === option.value;
-                return (
-                  <TouchableOpacity
-                    key={option.value}
-                    style={[styles.chip, active && styles.chipActive]}
-                    activeOpacity={0.85}
-                    onPress={() => setMode(option.value)}
-                  >
-                    <Text style={[styles.chipText, active && styles.chipTextActive]}>{option.label}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
+          <MenuRow
+            icon="earth-outline"
+            label="البلد"
+            value={country.name}
+            onPress={() => navigation.navigate('CountrySetting')}
+          />
+          <Divider />
+          <MenuRow
+            icon="cash-outline"
+            label="عرض العملة"
+            value={`${currency.flag} ${currency.code}`}
+            onPress={() => navigation.navigate('CurrencySetting')}
+          />
+          <Divider />
+          <MenuRow
+            icon="contrast-outline"
+            label="المظهر"
+            value={APPEARANCE_OPTIONS.find((o) => o.value === mode)?.label}
+            onPress={() => navigation.navigate('AppearanceSetting')}
+          />
           <Divider />
           <View style={styles.preferenceBlock}>
             <Text style={styles.preferenceLabel}>لغة التطبيق</Text>
@@ -245,6 +251,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   menuRowText: { flex: 1, color: colors.text, fontSize: 14, fontWeight: '600', textAlign: 'right' },
   menuRowTextDanger: { color: colors.red },
+  menuRowValue: { color: colors.textFaint, fontSize: 12 },
   switchRow: {
     flexDirection: 'row-reverse',
     alignItems: 'flex-start',

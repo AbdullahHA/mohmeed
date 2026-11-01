@@ -23,6 +23,9 @@ import PersonalInfoScreen from '../screens/PersonalInfoScreen';
 import AddLoyaltyMembershipScreen from '../screens/AddLoyaltyMembershipScreen';
 import AddWishlistItemScreen from '../screens/AddWishlistItemScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import CountrySettingScreen from '../screens/CountrySettingScreen';
+import CurrencySettingScreen from '../screens/CurrencySettingScreen';
+import AppearanceSettingScreen from '../screens/AppearanceSettingScreen';
 import AboutScreen from '../screens/AboutScreen';
 import TermsScreen from '../screens/TermsScreen';
 import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
@@ -83,6 +86,9 @@ export default function RootNavigator() {
         options={{ presentation: 'modal' }}
       />
       <Stack.Screen name="Settings" component={SettingsScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="CountrySetting" component={CountrySettingScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="CurrencySetting" component={CurrencySettingScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="AppearanceSetting" component={AppearanceSettingScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="About" component={AboutScreen} />
       <Stack.Screen name="Terms" component={TermsScreen} />
       <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />

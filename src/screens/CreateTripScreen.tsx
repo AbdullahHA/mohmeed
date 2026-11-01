@@ -15,6 +15,7 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
+import { useRegion } from '../context/RegionContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import PersonAvatar from '../components/PersonAvatar';
@@ -31,6 +32,7 @@ export default function CreateTripScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { colors } = useTheme();
+  const { currency } = useRegion();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { friends, createTrip } = useAppState();
   const { destinations } = useContent();
@@ -163,7 +165,7 @@ export default function CreateTripScreen() {
           </TouchableOpacity>
         ) : null}
 
-        <Text style={styles.label}>الميزانية التقديرية (ريال)</Text>
+        <Text style={styles.label}>الميزانية التقديرية ({currency.symbol})</Text>
         <TextInput
           style={styles.input}
           placeholder="5000"

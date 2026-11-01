@@ -8,6 +8,7 @@ import { AppStateProvider } from './src/context/AppState';
 import { ContentProvider } from './src/context/ContentContext';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+import { RegionProvider } from './src/context/RegionContext';
 import AuthGateScreen from './src/screens/AuthGateScreen';
 import AppIntro from './src/components/AppIntro';
 import BiometricLockGate from './src/components/BiometricLockGate';
@@ -71,7 +72,9 @@ function AppShell() {
 export default function App() {
   return (
     <ThemeProvider>
-      <AppShell />
+      <RegionProvider>
+        <AppShell />
+      </RegionProvider>
     </ThemeProvider>
   );
 }

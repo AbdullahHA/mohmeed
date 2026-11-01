@@ -15,6 +15,7 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
+import { useRegion } from '../context/RegionContext';
 import { useAppState } from '../context/AppState';
 import PersonAvatar from '../components/PersonAvatar';
 import { BUDGET_CATEGORY_LABELS, type BudgetCategory } from '../types';
@@ -29,6 +30,7 @@ export default function TripDetailScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { colors } = useTheme();
+  const { currency } = useRegion();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const {
     trips,
@@ -171,9 +173,9 @@ export default function TripDetailScreen() {
           <View style={styles.budgetCard}>
             <View style={styles.budgetHeaderRow}>
               <Text style={styles.budgetSpent}>
-                {spent.toLocaleString()} من {trip.budgetTotal.toLocaleString()} ر.س
+                {spent.toLocaleString()} من {trip.budgetTotal.toLocaleString()} {currency.symbol}
               </Text>
-              <Text style={styles.budgetPerPerson}>نصيب الفرد: {perPerson.toLocaleString()} ر.س</Text>
+              <Text style={styles.budgetPerPerson}>نصيب الفرد: {perPerson.toLocaleString()} {currency.symbol}</Text>
             </View>
             <View style={styles.progressTrack}>
               <View style={[styles.progressFill, { width: `${spentRatio * 100}%` }]} />
@@ -184,7 +186,7 @@ export default function TripDetailScreen() {
                 <TouchableOpacity onPress={() => removeBudgetItem(trip.id, item.id)} activeOpacity={0.7}>
                   <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
                 </TouchableOpacity>
-                <Text style={styles.budgetItemAmount}>{item.amount.toLocaleString()} ر.س</Text>
+                <Text style={styles.budgetItemAmount}>{item.amount.toLocaleString()} {currency.symbol}</Text>
                 <View style={styles.budgetItemTextWrap}>
                   <Text style={styles.budgetItemLabel}>{item.label}</Text>
                   <Text style={styles.budgetItemCategory}>{BUDGET_CATEGORY_LABELS[item.category]}</Text>
