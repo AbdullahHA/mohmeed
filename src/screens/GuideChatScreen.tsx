@@ -11,8 +11,10 @@ import {
   Platform,
   Animated,
   Easing,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
@@ -40,15 +42,24 @@ const dark = {
   textMuted: '#9A9AA4',
   textFaint: '#6E6E78',
   accent: '#1359D3',
+  gradientEnd: '#2A0E22',
 };
 
 export default function GuideChatScreen() {
   const navigation = useNavigation<Nav>();
-  const { guideMessages, guideThinking, sendGuideMessage } = useAppState();
+  const { guideMessages, guideThinking, sendGuideMessage, resetGuideConversation } = useAppState();
   const [input, setInput] = useState('');
   const pulse = useRef(new Animated.Value(0.4)).current;
 
   const hasConversation = guideMessages.length > 1;
+
+  const handleResetConversation = () => {
+    if (!hasConversation) return;
+    Alert.alert('محادثة جديدة؟', 'بيُمسح سجل هذه المحادثة وتبدأ من جديد.', [
+      { text: 'إلغاء', style: 'cancel' },
+      { text: 'محادثة جديدة', style: 'destructive', onPress: resetGuideConversation },
+    ]);
+  };
 
   useEffect(() => {
     if (!guideThinking) {
@@ -72,15 +83,24 @@ export default function GuideChatScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar style="light" />
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} hitSlop={8}>
-          <Ionicons name="close" size={22} color={dark.text} />
-        </TouchableOpacity>
-      </View>
+    <LinearGradient colors={[dark.background, dark.background, dark.gradientEnd]} style={styles.flex}>
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="light" />
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} hitSlop={8}>
+            <Ionicons name="close" size={22} color={dark.text} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleResetConversation}
+            activeOpacity={0.8}
+            hitSlop={8}
+            disabled={!hasConversation}
+          >
+            <Ionicons name="refresh-outline" size={20} color={hasConversation ? dark.text : dark.textFaint} />
+          </TouchableOpacity>
+        </View>
 
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         {guideThinking && !hasConversation ? (
           <View style={styles.emptyState}>
             <Animated.View style={[styles.orb, { opacity: pulse }]}>
@@ -148,13 +168,14 @@ export default function GuideChatScreen() {
             textAlign="right"
           />
         </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: dark.background },
+  container: { flex: 1 },
   flex: { flex: 1 },
   header: {
     flexDirection: 'row-reverse',

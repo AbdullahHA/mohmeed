@@ -103,6 +103,7 @@ type AppStateValue = {
   removeItineraryItem: (tripId: string, itemId: string) => void;
   sendGroupMessage: (tripId: string, text: string) => void;
   sendGuideMessage: (text: string) => void;
+  resetGuideConversation: () => void;
   joinCommunity: (communityId: string) => void;
   leaveCommunity: (communityId: string) => void;
   sendCommunityMessage: (communityId: string, text: string) => void;
@@ -622,6 +623,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     })();
   };
 
+  const resetGuideConversation = () => {
+    setGuideMessages([WELCOME_MESSAGE]);
+  };
+
   const updateCommunity = (communityId: string, updater: (community: Community) => Community) => {
     setCommunities((prev) => prev.map((c) => (c.id === communityId ? updater(c) : c)));
   };
@@ -776,6 +781,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       removeItineraryItem,
       sendGroupMessage,
       sendGuideMessage,
+      resetGuideConversation,
       joinCommunity,
       leaveCommunity,
       sendCommunityMessage,
