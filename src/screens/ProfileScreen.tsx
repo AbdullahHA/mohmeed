@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -36,6 +36,8 @@ export default function ProfileScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+  const scrollRef = useRef<React.ElementRef<typeof ScrollView>>(null);
+  const [passportSectionY, setPassportSectionY] = useState(0);
   const {
     currentUser,
     friends,
@@ -117,7 +119,7 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <TopBar />
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <View style={styles.profileCard}>
           {profile ? (
             <TouchableOpacity
@@ -141,15 +143,23 @@ export default function ProfileScreen() {
           {profile?.bio ? <Text style={styles.bio}>{profile.bio}</Text> : null}
 
           <View style={styles.statsRow}>
-            <View style={styles.statItem}>
+            <TouchableOpacity
+              style={styles.statItem}
+              activeOpacity={0.7}
+              onPress={() => navigation.navigate('MainTabs', { screen: 'Trips' })}
+            >
               <Text style={styles.statValue}>{trips.length}</Text>
               <Text style={styles.statLabel}>رحلات</Text>
-            </View>
+            </TouchableOpacity>
             <View style={styles.statDivider} />
-            <View style={styles.statItem}>
+            <TouchableOpacity
+              style={styles.statItem}
+              activeOpacity={0.7}
+              onPress={() => scrollRef.current?.scrollTo({ y: passportSectionY, animated: true })}
+            >
               <Text style={styles.statValue}>{visitedDestinations.length}</Text>
               <Text style={styles.statLabel}>أماكن زرتها</Text>
-            </View>
+            </TouchableOpacity>
             <View style={styles.statDivider} />
             <TouchableOpacity
               style={styles.statItem}
@@ -256,7 +266,10 @@ export default function ProfileScreen() {
           </View>
         )}
 
-        <View style={styles.sectionHeaderRow}>
+        <View
+          style={styles.sectionHeaderRow}
+          onLayout={(e) => setPassportSectionY(e.nativeEvent.layout.y)}
+        >
           <Text style={styles.sectionTitle}>جواز رحلاتي</Text>
         </View>
         {visitedWithCoords.length > 0 ? (
