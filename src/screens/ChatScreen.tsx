@@ -68,7 +68,7 @@ export default function ChatScreen() {
                 onPress={() => navigation.navigate('GroupChat', { tripId: trip.id })}
               >
                 <View style={styles.rowIcon}>
-                  <Ionicons name="people" size={18} color={colors.primary} />
+                  <Ionicons name="people-outline" size={18} color={colors.primary} />
                 </View>
                 <View style={styles.rowTextWrap}>
                   <Text style={styles.rowTitle}>{trip.title}</Text>
