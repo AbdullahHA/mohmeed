@@ -1,5 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -38,6 +39,13 @@ export default function ProfileScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const scrollRef = useRef<React.ElementRef<typeof ScrollView>>(null);
   const [passportSectionY, setPassportSectionY] = useState(0);
+  const [usernameCopied, setUsernameCopied] = useState(false);
+
+  const handleCopyUsername = async () => {
+    await Clipboard.setStringAsync(currentUser.username);
+    setUsernameCopied(true);
+    setTimeout(() => setUsernameCopied(false), 1500);
+  };
   const {
     currentUser,
     friends,
@@ -139,7 +147,14 @@ export default function ProfileScreen() {
           </TouchableOpacity>
           <PersonAvatar avatarUrl={currentUser.avatarUrl} size={72} style={styles.avatarMargin} />
           <Text style={styles.name}>{currentUser.name}</Text>
-          <Text style={styles.username}>@{currentUser.username}</Text>
+          <TouchableOpacity activeOpacity={0.6} onPress={handleCopyUsername}>
+            <Text style={styles.username}>@{currentUser.username}</Text>
+          </TouchableOpacity>
+          {usernameCopied ? (
+            <View style={styles.copyToast}>
+              <Text style={styles.copyToastText}>تم نسخ اسم المستخدم</Text>
+            </View>
+          ) : null}
           {profile?.bio ? <Text style={styles.bio}>{profile.bio}</Text> : null}
 
           <View style={styles.statsRow}>
@@ -592,6 +607,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   avatarMargin: { marginBottom: spacing.sm },
   name: { color: colors.text, fontSize: 18, fontWeight: '800' },
   username: { color: colors.textMuted, fontSize: 12, marginTop: 2, marginBottom: spacing.lg },
+  copyToast: {
+    position: 'absolute',
+    top: -34,
+    alignSelf: 'center',
+    backgroundColor: colors.text,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.pill,
+  },
+  copyToastText: { color: colors.background, fontSize: 11, fontWeight: '600' },
   bio: {
     color: colors.textMuted,
     fontSize: 12,
