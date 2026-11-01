@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -10,6 +10,7 @@ import {
   TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import TopBar from '../components/TopBar';
@@ -22,8 +23,11 @@ import { heroDestination, INTEREST_TAGS } from '../data/destinations';
 import { seasonalHighlights } from '../data/seasonalHighlights';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
+import { useAuth } from '../context/AuthContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import type { RootStackParamList } from '../navigation/types';
+
+const ONBOARDING_QUIZ_SEEN_PREFIX = 'yalla-nsafer:onboarding-quiz-seen:';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -39,8 +43,19 @@ export default function HomeScreen() {
   const { trips, sendGuideMessage } = useAppState();
   const { requireAccount } = useRequireAccount();
   const { destinations, offline } = useContent();
+  const { profile } = useAuth();
   const [query, setQuery] = useState('');
   const [activeInterest, setActiveInterest] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!profile || profile.interests.length > 0) return;
+    const key = `${ONBOARDING_QUIZ_SEEN_PREFIX}${profile.id}`;
+    AsyncStorage.getItem(key).then((seen) => {
+      if (seen) return;
+      AsyncStorage.setItem(key, '1').catch(() => {});
+      navigation.navigate('OnboardingQuiz');
+    });
+  }, [profile?.id]);
 
   const currentMonth = new Date().getMonth() + 1;
   const monthlyDestinations = useMemo(() => {
