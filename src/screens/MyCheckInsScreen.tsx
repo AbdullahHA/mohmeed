@@ -43,6 +43,8 @@ export default function MyCheckInsScreen() {
           icon="location-outline"
           title="لا توجد عمليات تسجيل وصول"
           subtitle="سجّل وصولك لأول مكان عشان يبدأ سجلك يتكوّن هنا"
+          actionLabel="دوّر على مكان"
+          onAction={() => navigation.navigate('CheckInSearch')}
         />
       ) : (
         <FlatList
