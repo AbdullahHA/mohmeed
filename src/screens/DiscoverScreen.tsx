@@ -18,19 +18,22 @@ import PlaceCard from '../components/PlaceCard';
 import PlacesMapView from '../components/PlacesMapView';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
-import type { Place } from '../data/places';
+import { PLACE_TYPE_LABELS, type Place, type PlaceType } from '../data/places';
 import { heroDestination } from '../data/destinations';
 import { useContent } from '../context/ContentContext';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type ViewMode = 'list' | 'map';
+type TypeFilter = 'all' | PlaceType;
 
 const FILTERS: Array<{ value: Place['category']; icon: keyof typeof Ionicons.glyphMap }> = [
   { value: 'الافتراضي', icon: 'apps-outline' },
   { value: 'هادئ الآن', icon: 'leaf-outline' },
   { value: 'Hot Spot', icon: 'flame-outline' },
 ];
+
+const TYPE_FILTERS: TypeFilter[] = ['all', 'restaurant', 'hotel', 'activity', 'landmark'];
 
 export default function DiscoverScreen() {
   const navigation = useNavigation<Nav>();
@@ -39,15 +42,17 @@ export default function DiscoverScreen() {
   const { places, destinations } = useContent();
   const [query, setQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<Place['category']>('الافتراضي');
+  const [activeType, setActiveType] = useState<TypeFilter>('all');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
 
   const filteredPlaces = useMemo(() => {
     return places.filter((place) => {
       const matchesFilter = activeFilter === 'الافتراضي' || place.category === activeFilter;
+      const matchesType = activeType === 'all' || place.type === activeType;
       const matchesQuery = place.name.toLowerCase().includes(query.trim().toLowerCase());
-      return matchesFilter && matchesQuery;
+      return matchesFilter && matchesType && matchesQuery;
     });
-  }, [query, activeFilter, places]);
+  }, [query, activeFilter, activeType, places]);
 
   const featuredPlace = useMemo(
     () => [...places].sort((a, b) => b.rating - a.rating)[0],
@@ -107,6 +112,10 @@ export default function DiscoverScreen() {
                 >
                   <Image source={featuredPlace.image} style={styles.featuredImage} />
                   <View style={styles.featuredOverlay} />
+                  <View style={styles.featuredBadge}>
+                    <Ionicons name="sparkles" size={12} color={colors.textOnPrimary} />
+                    <Text style={styles.featuredBadgeText}>الأعلى تقييمًا</Text>
+                  </View>
                   <View style={styles.featuredTextWrap}>
                     <Text style={styles.featuredTitle}>{featuredPlace.name}</Text>
                     {featuredDestinationName ? (
@@ -135,6 +144,28 @@ export default function DiscoverScreen() {
                         <Ionicons name={item.icon} size={24} color={active ? colors.primary : colors.textMuted} />
                       </View>
                       <Text style={[styles.filterLabel, active && styles.filterLabelActive]}>{item.value}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.typeFiltersScroll}
+                contentContainerStyle={styles.typeFiltersRow}
+              >
+                {TYPE_FILTERS.map((item) => {
+                  const active = activeType === item;
+                  const label = item === 'all' ? 'الكل' : PLACE_TYPE_LABELS[item];
+                  return (
+                    <TouchableOpacity
+                      key={item}
+                      style={[styles.typeFilterChip, active && styles.typeFilterChipActive]}
+                      activeOpacity={0.8}
+                      onPress={() => setActiveType(item)}
+                    >
+                      <Text style={[styles.typeFilterText, active && styles.typeFilterTextActive]}>{label}</Text>
                     </TouchableOpacity>
                   );
                 })}
@@ -257,6 +288,23 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     bottom: 0,
     backgroundColor: colors.overlay,
   },
+  featuredBadge: {
+    position: 'absolute',
+    top: spacing.md,
+    right: spacing.md,
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.primary,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+  },
+  featuredBadgeText: {
+    color: colors.textOnPrimary,
+    fontSize: 11,
+    fontWeight: '700',
+  },
   featuredTextWrap: {
     position: 'absolute',
     bottom: spacing.md,
@@ -311,6 +359,36 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   filterLabelActive: {
     color: colors.primary,
     fontWeight: '700',
+  },
+  typeFiltersScroll: {
+    flexGrow: 0,
+    flexShrink: 0,
+    marginBottom: spacing.lg,
+  },
+  typeFiltersRow: {
+    flexDirection: 'row-reverse',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+  },
+  typeFilterChip: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
+  typeFilterChipActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  typeFilterText: {
+    color: colors.text,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  typeFilterTextActive: {
+    color: colors.textOnPrimary,
   },
   destinationsSection: {
     paddingHorizontal: spacing.lg,

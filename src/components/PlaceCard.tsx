@@ -11,7 +11,7 @@ import { getMapsUrl } from '../utils/place';
 import TripPickerModal from './TripPickerModal';
 import type { RootStackParamList } from '../navigation/types';
 import type { Trip } from '../types';
-import type { Place } from '../data/places';
+import { PLACE_TYPE_LABELS, type Place } from '../data/places';
 
 type Props = {
   place: Place;
@@ -50,6 +50,15 @@ export default function PlaceCard({ place, onPress }: Props) {
     <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={onPress}>
       <View style={styles.imageWrap}>
         <Image source={place.image} style={styles.image} />
+        <View style={styles.typeBadge}>
+          <Text style={styles.typeBadgeText}>{PLACE_TYPE_LABELS[place.type]}</Text>
+        </View>
+        <View style={styles.priceBadge}>
+          <Text style={styles.priceBadgeText}>
+            {'﷼'.repeat(place.priceLevel)}
+            <Text style={styles.priceBadgeMuted}>{'﷼'.repeat(3 - place.priceLevel)}</Text>
+          </Text>
+        </View>
         <TouchableOpacity
           style={styles.favoriteButton}
           onPress={() => requireAccount('recommend', () => toggleRecommended(place.id))}
@@ -143,6 +152,37 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.overlay,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  typeBadge: {
+    position: 'absolute',
+    top: spacing.md,
+    right: spacing.md,
+    backgroundColor: colors.overlay,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+  },
+  typeBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  priceBadge: {
+    position: 'absolute',
+    bottom: spacing.md,
+    left: spacing.md,
+    backgroundColor: colors.overlay,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+  },
+  priceBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  priceBadgeMuted: {
+    color: 'rgba(255,255,255,0.45)',
   },
   body: {
     padding: spacing.lg,

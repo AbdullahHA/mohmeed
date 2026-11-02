@@ -20,6 +20,7 @@ import { getMapsUrl } from '../utils/place';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
+import { PLACE_TYPE_LABELS } from '../data/places';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'PlaceDetail'>;
@@ -89,10 +90,19 @@ export default function PlaceDetailScreen() {
 
         <View style={styles.body}>
           <View style={styles.ratingRow}>
-            <View style={styles.categoryBadge}>
-              <Text style={styles.categoryText}>{place.category}</Text>
+            <View style={styles.badgesGroup}>
+              <View style={styles.typeBadge}>
+                <Text style={styles.typeBadgeText}>{PLACE_TYPE_LABELS[place.type]}</Text>
+              </View>
+              <View style={styles.categoryBadge}>
+                <Text style={styles.categoryText}>{place.category}</Text>
+              </View>
             </View>
             <View style={styles.ratingGroup}>
+              <Text style={styles.priceLevel}>
+                {'﷼'.repeat(place.priceLevel)}
+                <Text style={styles.priceLevelMuted}>{'﷼'.repeat(3 - place.priceLevel)}</Text>
+              </Text>
               <Ionicons name="star" size={16} color={colors.accent} />
               <Text style={styles.rating}>{place.rating.toFixed(1)}</Text>
             </View>
@@ -112,29 +122,31 @@ export default function PlaceDetailScreen() {
 
           <Text style={styles.sectionTitle}>لمحة عامة</Text>
           <Text style={styles.description}>{place.description}</Text>
-
-          <View style={styles.actionsRow}>
-            <TouchableOpacity
-              style={[styles.actionButton, styles.actionPrimary]}
-              activeOpacity={0.85}
-              onPress={() => Linking.openURL(mapsUrl)}
-            >
-              <Ionicons name="navigate" size={16} color={colors.textOnPrimary} />
-              <Text style={styles.actionPrimaryText}>الاتجاهات</Text>
-            </TouchableOpacity>
-            {place.website ? (
-              <TouchableOpacity
-                style={styles.actionButton}
-                activeOpacity={0.85}
-                onPress={() => Linking.openURL(place.website!)}
-              >
-                <Ionicons name="globe-outline" size={16} color={colors.text} />
-                <Text style={styles.actionText}>الموقع</Text>
-              </TouchableOpacity>
-            ) : null}
-          </View>
         </View>
       </ScrollView>
+
+      <View style={styles.footer}>
+        <View style={styles.actionsRow}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.actionPrimary]}
+            activeOpacity={0.85}
+            onPress={() => Linking.openURL(mapsUrl)}
+          >
+            <Ionicons name="navigate" size={16} color={colors.textOnPrimary} />
+            <Text style={styles.actionPrimaryText}>الاتجاهات</Text>
+          </TouchableOpacity>
+          {place.website ? (
+            <TouchableOpacity
+              style={styles.actionButton}
+              activeOpacity={0.85}
+              onPress={() => Linking.openURL(place.website!)}
+            >
+              <Ionicons name="globe-outline" size={16} color={colors.text} />
+              <Text style={styles.actionText}>الموقع</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -205,6 +217,30 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     fontWeight: '700',
     fontSize: 14,
   },
+  priceLevel: {
+    color: colors.text,
+    fontWeight: '700',
+    fontSize: 13,
+  },
+  priceLevelMuted: {
+    color: colors.textFaint,
+  },
+  badgesGroup: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  typeBadge: {
+    backgroundColor: colors.primarySoft,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: radius.sm,
+  },
+  typeBadgeText: {
+    color: colors.primary,
+    fontSize: 11,
+    fontWeight: '700',
+  },
   categoryBadge: {
     backgroundColor: colors.surfaceAlt,
     paddingHorizontal: spacing.sm,
@@ -256,6 +292,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   locationText: {
     color: colors.textMuted,
     fontSize: 13,
+  },
+  footer: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    backgroundColor: colors.background,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
   },
   actionsRow: {
     flexDirection: 'row-reverse',
