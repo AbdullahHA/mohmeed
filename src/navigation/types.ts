@@ -33,6 +33,7 @@ export type RootStackParamList = {
   UserProfile: { userId: string };
   FollowList: { userId: string; mode: 'followers' | 'following' };
   AddTravelPost: undefined;
+  Wallet: undefined;
   Settings: undefined;
   OnboardingQuiz: undefined;
   CountrySetting: undefined;

@@ -119,6 +119,8 @@ export default function SettingsScreen() {
               <MenuRow icon="pencil-outline" label="تعديل الملف الشخصي" onPress={() => navigation.navigate('EditProfile')} />
               <Divider />
               <MenuRow icon="people-outline" label="أصدقائي" onPress={() => navigation.navigate('Friends')} />
+              <Divider />
+              <MenuRow icon="wallet-outline" label="محفظتي" onPress={() => navigation.navigate('Wallet')} />
             </View>
 
             <Text style={styles.sectionTitle}>الأمان</Text>

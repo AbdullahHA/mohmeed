@@ -29,6 +29,7 @@ import MyCheckInsScreen from '../screens/MyCheckInsScreen';
 import UserProfileScreen from '../screens/UserProfileScreen';
 import FollowListScreen from '../screens/FollowListScreen';
 import AddTravelPostScreen from '../screens/AddTravelPostScreen';
+import WalletScreen from '../screens/WalletScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import OnboardingQuizScreen from '../screens/OnboardingQuizScreen';
 import CountrySettingScreen from '../screens/CountrySettingScreen';
@@ -112,6 +113,7 @@ export default function RootNavigator() {
         component={AddTravelPostScreen}
         options={{ presentation: 'modal' }}
       />
+      <Stack.Screen name="Wallet" component={WalletScreen} />
       <Stack.Screen name="Settings" component={SettingsScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="OnboardingQuiz" component={OnboardingQuizScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="CountrySetting" component={CountrySettingScreen} options={{ presentation: 'modal' }} />

@@ -19,6 +19,7 @@ import { useRequireAccount } from '../hooks/useRequireAccount';
 import { BUDGET_CATEGORY_LABELS } from '../types';
 import { INTEREST_TAGS } from '../data/destinations';
 import { haversineDistanceKm } from '../lib/geo';
+import { computeTravelerLevel } from '../utils/travelerStats';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -43,6 +44,7 @@ export default function ProfileScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const scrollRef = useRef<React.ElementRef<typeof ScrollView>>(null);
   const [passportSectionY, setPassportSectionY] = useState(0);
+  const [postsSectionY, setPostsSectionY] = useState(0);
   const [usernameCopied, setUsernameCopied] = useState(false);
 
   const handleCopyUsername = async () => {
@@ -63,13 +65,17 @@ export default function ProfileScreen() {
     toggleFavoriteDestination,
     airlineReviews,
     removeAirlineReview,
-    loyaltyMemberships,
-    removeLoyaltyMembership,
     wishlist,
     removeWishlistItem,
     manualVisitedPlaces,
     removeManualVisitedPlace,
     tripTemplates,
+    followersCount,
+    followingCount,
+    myPosts,
+    myPostsLoading,
+    removeTravelPost,
+    meetupMatches,
   } = useAppState();
   const { destinations, places } = useContent();
   const { profile, signOut, exitGuestMode, updateInterests } = useAuth();
@@ -116,12 +122,16 @@ export default function ProfileScreen() {
 
   const myTemplates = tripTemplates.filter((t) => t.isMine);
 
+  const stampCount = visitedDestinations.length + manualVisitedPlaces.length;
+  const travelerLevel = computeTravelerLevel(stampCount);
+
   const achievements: Achievement[] = [
     { id: 'explorer', icon: '🧭', label: 'مستكشف', unlocked: visitedDestinations.length >= 3 },
     { id: 'flyer', icon: '✈️', label: 'مسافر جوي', unlocked: airlineReviews.length >= 1 },
     { id: 'recommender', icon: '💛', label: 'موصي', unlocked: recommendedPlaces.length >= 1 },
     { id: 'social', icon: '🤝', label: 'اجتماعي', unlocked: friends.length >= 3 },
     { id: 'author', icon: '📝', label: 'كاتب رحلات', unlocked: myTemplates.length >= 1 },
+    { id: 'blogger', icon: '📸', label: 'مدوّن سفر', unlocked: myPosts.length >= 1 },
     {
       id: 'complete',
       icon: '⭐',
@@ -163,6 +173,13 @@ export default function ProfileScreen() {
           ) : null}
           {profile?.bio ? <Text style={styles.bio}>{profile.bio}</Text> : null}
 
+          {profile && stampCount > 0 ? (
+            <View style={styles.levelBadge}>
+              <Ionicons name="compass-outline" size={13} color={colors.primary} />
+              <Text style={styles.levelBadgeText}>{travelerLevel.label}</Text>
+            </View>
+          ) : null}
+
           <View style={styles.statsRow}>
             <TouchableOpacity
               style={styles.statItem}
@@ -198,7 +215,60 @@ export default function ProfileScreen() {
               <Text style={styles.statLabel}>أصدقاء</Text>
             </TouchableOpacity>
           </View>
+
+          {profile ? (
+            <View style={styles.statsRow}>
+              <TouchableOpacity
+                style={styles.statItem}
+                activeOpacity={0.7}
+                onPress={() => scrollRef.current?.scrollTo({ y: postsSectionY, animated: true })}
+              >
+                <Text style={styles.statValue}>{myPosts.length}</Text>
+                <Text style={styles.statLabel}>مدونات</Text>
+              </TouchableOpacity>
+              <View style={styles.statDivider} />
+              <TouchableOpacity
+                style={styles.statItem}
+                activeOpacity={0.7}
+                onPress={() => navigation.navigate('FollowList', { userId: profile.id, mode: 'followers' })}
+              >
+                <Text style={styles.statValue}>{followersCount}</Text>
+                <Text style={styles.statLabel}>متابعين</Text>
+              </TouchableOpacity>
+              <View style={styles.statDivider} />
+              <TouchableOpacity
+                style={styles.statItem}
+                activeOpacity={0.7}
+                onPress={() => navigation.navigate('FollowList', { userId: profile.id, mode: 'following' })}
+              >
+                <Text style={styles.statValue}>{followingCount}</Text>
+                <Text style={styles.statLabel}>يتابع</Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
         </View>
+
+        {meetupMatches.length > 0 ? (
+          <TouchableOpacity
+            style={styles.meetupCard}
+            activeOpacity={0.9}
+            onPress={() => navigation.navigate('UserProfile', { userId: meetupMatches[0].user.id })}
+          >
+            <View style={styles.meetupIcon}>
+              <Ionicons name="people" size={18} color={colors.textOnPrimary} />
+            </View>
+            <View style={styles.meetupTextWrap}>
+              <Text style={styles.meetupTitle}>
+                أنتم الاثنين رايحين {destinations.find((d) => d.id === meetupMatches[0].destinationId)?.name ?? 'نفس الوجهة'}!
+              </Text>
+              <Text style={styles.meetupSubtitle}>
+                {meetupMatches[0].user.name} بتواريخ قريبة من رحلتك — {meetupMatches[0].theirTrip.startDate} إلى{' '}
+                {meetupMatches[0].theirTrip.endDate}
+              </Text>
+            </View>
+            <Ionicons name="chevron-back" size={16} color={colors.textFaint} />
+          </TouchableOpacity>
+        ) : null}
 
         {profile ? (
           <>
@@ -375,6 +445,43 @@ export default function ProfileScreen() {
           </View>
         )}
 
+        {profile ? (
+          <>
+            <View style={styles.sectionHeaderRow} onLayout={(e) => setPostsSectionY(e.nativeEvent.layout.y)}>
+              <TouchableOpacity
+                style={styles.linkButton}
+                activeOpacity={0.85}
+                onPress={() => requireAccount('travelPost', () => navigation.navigate('AddTravelPost'))}
+              >
+                <Ionicons name="add" size={14} color={colors.primary} />
+                <Text style={styles.linkButtonText}>أضف مدونة</Text>
+              </TouchableOpacity>
+              <Text style={styles.sectionTitle}>مدوناتي</Text>
+            </View>
+            {myPostsLoading ? null : myPosts.length === 0 ? (
+              <Text style={styles.emptyMuted}>شارك صور رحلاتك مع متابعينك — أول مدونة توصلك هنا</Text>
+            ) : (
+              <View style={styles.postsGrid}>
+                {myPosts.map((post) => (
+                  <TouchableOpacity
+                    key={post.id}
+                    style={styles.postTile}
+                    activeOpacity={0.85}
+                    onLongPress={() =>
+                      Alert.alert('حذف المدونة؟', 'بتُحذف هذي الصورة من مدوناتك نهائيًا.', [
+                        { text: 'إلغاء', style: 'cancel' },
+                        { text: 'حذف', style: 'destructive', onPress: () => removeTravelPost(post.id) },
+                      ])
+                    }
+                  >
+                    <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </>
+        ) : null}
+
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>رحلاتي</Text>
         </View>
@@ -495,34 +602,6 @@ export default function ProfileScreen() {
                 <Ionicons name="star" size={13} color={colors.accent} />
                 <Text style={styles.airlineRatingText}>{review.rating}</Text>
               </View>
-            </View>
-          ))
-        )}
-
-        <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionTitle}>برامج الولاء</Text>
-          <TouchableOpacity
-            style={styles.linkButton}
-            activeOpacity={0.85}
-            onPress={() => requireAccount('loyalty', () => navigation.navigate('AddLoyaltyMembership'))}
-          >
-            <Ionicons name="add" size={14} color={colors.primary} />
-            <Text style={styles.linkButtonText}>أضف برنامج</Text>
-          </TouchableOpacity>
-        </View>
-        {loyaltyMemberships.length === 0 ? (
-          <Text style={styles.emptyMuted}>ما ضفت أي برنامج ولاء بعد</Text>
-        ) : (
-          loyaltyMemberships.map((membership) => (
-            <View key={membership.id} style={styles.loyaltyRow}>
-              <TouchableOpacity onPress={() => removeLoyaltyMembership(membership.id)} activeOpacity={0.7}>
-                <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
-              </TouchableOpacity>
-              <View style={styles.loyaltyTextWrap}>
-                <Text style={styles.loyaltyAirline}>{membership.airline}</Text>
-                <Text style={styles.loyaltyNumber}>{membership.memberNumber}</Text>
-              </View>
-              <Ionicons name="star-outline" size={16} color={colors.accent} />
             </View>
           ))
         )}
@@ -672,7 +751,48 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     lineHeight: 18,
   },
-  statsRow: { flexDirection: 'row-reverse', alignItems: 'center' },
+  statsRow: { flexDirection: 'row-reverse', alignItems: 'center', marginTop: spacing.sm },
+  levelBadge: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 4,
+    marginTop: spacing.sm,
+  },
+  levelBadgeText: { color: colors.primary, fontSize: 11, fontWeight: '700' },
+  meetupCard: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
+  },
+  meetupIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  meetupTextWrap: { flex: 1 },
+  meetupTitle: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
+  meetupSubtitle: { color: colors.textMuted, fontSize: 11, textAlign: 'right', marginTop: 2 },
+  postsGrid: {
+    flexDirection: 'row-reverse',
+    flexWrap: 'wrap',
+    gap: 2,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
+  },
+  postTile: { width: '32.5%', aspectRatio: 1 },
+  postImage: { width: '100%', height: '100%', borderRadius: radius.sm },
   statItem: { alignItems: 'center', paddingHorizontal: spacing.lg },
   statValue: { color: colors.primary, fontSize: 18, fontWeight: '800' },
   statValueRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
@@ -875,20 +995,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   airlineNote: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: 2 },
   airlineRating: { flexDirection: 'row-reverse', alignItems: 'center', gap: 2 },
   airlineRatingText: { color: colors.accentDark, fontSize: 12, fontWeight: '700' },
-  loyaltyRow: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  loyaltyTextWrap: { flex: 1 },
-  loyaltyAirline: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
-  loyaltyNumber: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 1 },
   friendsSummaryRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
