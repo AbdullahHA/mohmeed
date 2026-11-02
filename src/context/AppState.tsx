@@ -11,7 +11,6 @@ import { supabase } from '../lib/supabase';
 import { colors } from '../theme/colors';
 import { useTheme } from './ThemeContext';
 import type {
-  AirlineReview,
   BudgetItem,
   ChatMessage,
   Community,
@@ -50,7 +49,6 @@ type PersistedState = {
   visitedStamps: VisitedStamp[];
   recommendedPlaceIds: string[];
   favoriteDestinationIds: string[];
-  airlineReviews: AirlineReview[];
   loyaltyMemberships: LoyaltyMembership[];
   wishlist: WishlistItem[];
   manualVisitedPlaces: ManualVisitedPlace[];
@@ -87,7 +85,6 @@ type AppStateValue = {
   visitedStamps: VisitedStamp[];
   recommendedPlaceIds: string[];
   favoriteDestinationIds: string[];
-  airlineReviews: AirlineReview[];
   loyaltyMemberships: LoyaltyMembership[];
   wishlist: WishlistItem[];
   manualVisitedPlaces: ManualVisitedPlace[];
@@ -120,8 +117,6 @@ type AppStateValue = {
   toggleVisited: (destinationId: string) => void;
   toggleRecommended: (placeId: string) => void;
   toggleFavoriteDestination: (destinationId: string) => void;
-  addAirlineReview: (input: Omit<AirlineReview, 'id'>) => void;
-  removeAirlineReview: (id: string) => void;
   addLoyaltyMembership: (input: Omit<LoyaltyMembership, 'id'>) => void;
   removeLoyaltyMembership: (id: string) => void;
   addWishlistItem: (name: string) => void;
@@ -228,7 +223,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [visitedStamps, setVisitedStamps] = useState<VisitedStamp[]>([]);
   const [recommendedPlaceIds, setRecommendedPlaceIds] = useState<string[]>([]);
   const [favoriteDestinationIds, setFavoriteDestinationIds] = useState<string[]>([]);
-  const [airlineReviews, setAirlineReviews] = useState<AirlineReview[]>([]);
   const [loyaltyMemberships, setLoyaltyMemberships] = useState<LoyaltyMembership[]>([]);
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [manualVisitedPlaces, setManualVisitedPlaces] = useState<ManualVisitedPlace[]>([]);
@@ -279,10 +273,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
             setFavoriteDestinationIds(parsed.favoriteDestinationIds);
             loadedFromStorage = true;
           }
-          if (Array.isArray(parsed.airlineReviews)) {
-            setAirlineReviews(parsed.airlineReviews);
-            loadedFromStorage = true;
-          }
           if (Array.isArray(parsed.loyaltyMemberships)) {
             setLoyaltyMemberships(parsed.loyaltyMemberships);
             loadedFromStorage = true;
@@ -328,7 +318,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       visitedStamps,
       recommendedPlaceIds,
       favoriteDestinationIds,
-      airlineReviews,
       loyaltyMemberships,
       wishlist,
       manualVisitedPlaces,
@@ -344,7 +333,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     visitedStamps,
     recommendedPlaceIds,
     favoriteDestinationIds,
-    airlineReviews,
     loyaltyMemberships,
     wishlist,
     manualVisitedPlaces,
@@ -965,14 +953,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
-  const addAirlineReview = (input: Omit<AirlineReview, 'id'>) => {
-    setAirlineReviews((prev) => [{ ...input, id: uid('air') }, ...prev]);
-  };
-
-  const removeAirlineReview = (id: string) => {
-    setAirlineReviews((prev) => prev.filter((r) => r.id !== id));
-  };
-
   const addLoyaltyMembership = (input: Omit<LoyaltyMembership, 'id'>) => {
     setLoyaltyMemberships((prev) => [{ ...input, id: uid('loy') }, ...prev]);
   };
@@ -1113,7 +1093,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       visitedStamps,
       recommendedPlaceIds,
       favoriteDestinationIds,
-      airlineReviews,
       loyaltyMemberships,
       wishlist,
       manualVisitedPlaces,
@@ -1142,8 +1121,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       toggleVisited,
       toggleRecommended,
       toggleFavoriteDestination,
-      addAirlineReview,
-      removeAirlineReview,
       addLoyaltyMembership,
       removeLoyaltyMembership,
       addWishlistItem,
@@ -1190,7 +1167,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       visitedStamps,
       recommendedPlaceIds,
       favoriteDestinationIds,
-      airlineReviews,
       loyaltyMemberships,
       wishlist,
       manualVisitedPlaces,

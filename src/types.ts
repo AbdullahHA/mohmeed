@@ -85,15 +85,6 @@ export type VisitedStamp = {
   visitedAt: number;
 };
 
-export type AirlineReview = {
-  id: string;
-  fromCity: string;
-  toCity: string;
-  airline: string;
-  note: string;
-  rating: number;
-};
-
 export type TripTemplateItem = {
   id: string;
   category: BudgetCategory;

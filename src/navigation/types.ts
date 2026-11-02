@@ -45,7 +45,6 @@ export type RootStackParamList = {
   TripTemplates: undefined;
   TripTemplateDetail: { templateId: string };
   CreateTripTemplate: undefined;
-  AddAirlineReview: undefined;
   AdminDashboard: undefined;
   AdminEditDestination: { destinationId: string };
   AdminEditPlace: { placeId: string };
