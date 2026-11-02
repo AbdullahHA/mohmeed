@@ -42,7 +42,12 @@
           "faceIDPermission": "يستخدم يلا نسافر بصمة الوجه عشان يحمي حسابك عند فتح التطبيق."
         }
       ],
-      "@sentry/react-native"
+      [
+        "@sentry/react-native",
+        {
+          "disableAutoUpload": true
+        }
+      ]
     ]
   }
 }
