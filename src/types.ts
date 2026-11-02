@@ -174,3 +174,46 @@ export type CheckInRecord = {
     avatarUrl?: string | null;
   };
 };
+
+// A public photo post on someone's profile ("مدونات").
+export type TravelPost = {
+  id: string;
+  userId: string;
+  imageUrl: string;
+  caption: string;
+  destinationId: string | null;
+  createdAt: number;
+};
+
+// Minimal public profile info for the other-user ("كما يشوفه غيري") view.
+export type PublicProfile = {
+  id: string;
+  name: string;
+  username: string;
+  emoji: string;
+  color: string;
+  avatarUrl?: string | null;
+  bio?: string | null;
+  interests: string[];
+};
+
+// A lightweight mirror of a local trip's destination + dates, used only to
+// find genuine overlaps with people you follow ("نلتقي؟"). Full trip
+// content (budget, itinerary, chat) never leaves the device.
+export type TripWindow = {
+  id: string;
+  localTripId: string;
+  title: string;
+  destinationId: string | null;
+  startDate: string | null;
+  endDate: string | null;
+};
+
+// A detected overlap: someone you follow has a trip to the same destination
+// with dates that intersect one of your own trips.
+export type MeetupMatch = {
+  user: Friend;
+  destinationId: string;
+  myTrip: TripWindow;
+  theirTrip: TripWindow;
+};

@@ -27,6 +27,10 @@ import type {
   ManualVisitedPlace,
   PlaceSearchResult,
   CheckInRecord,
+  TravelPost,
+  TripWindow,
+  MeetupMatch,
+  PublicProfile,
 } from '../types';
 
 const STORAGE_KEY = 'yalla-nsafer:state:v1';
@@ -134,6 +138,20 @@ type AppStateValue = {
   searchVenues: (query: string) => Promise<PlaceSearchResult[]>;
   checkInToVenue: (venue: PlaceSearchResult) => Promise<{ error: string | null }>;
   loadVenueCheckIns: (venueId: string) => Promise<CheckInRecord[]>;
+  followersCount: number;
+  followingCount: number;
+  followingIds: string[];
+  followUser: (userId: string) => Promise<{ error: string | null }>;
+  unfollowUser: (userId: string) => Promise<{ error: string | null }>;
+  loadPublicProfile: (userId: string) => Promise<PublicProfile | null>;
+  loadFollowers: (userId: string) => Promise<Friend[]>;
+  loadFollowing: (userId: string) => Promise<Friend[]>;
+  myPosts: TravelPost[];
+  myPostsLoading: boolean;
+  addTravelPost: (imageUrl: string, caption: string, destinationId: string | null) => Promise<{ error: string | null }>;
+  removeTravelPost: (id: string) => void;
+  loadUserPosts: (userId: string) => Promise<TravelPost[]>;
+  meetupMatches: MeetupMatch[];
 };
 
 function uid(prefix: string) {
@@ -193,6 +211,12 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [friendsLoading, setFriendsLoading] = useState(true);
   const [myCheckIns, setMyCheckIns] = useState<CheckInRecord[]>([]);
   const [myCheckInsLoading, setMyCheckInsLoading] = useState(true);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [followingIds, setFollowingIds] = useState<string[]>([]);
+  const [myPosts, setMyPosts] = useState<TravelPost[]>([]);
+  const [myPostsLoading, setMyPostsLoading] = useState(true);
+  const [meetupMatches, setMeetupMatches] = useState<MeetupMatch[]>([]);
   const [blockedUserIds, setBlockedUserIds] = useState<string[]>([]);
   const [incomingRequests, setIncomingRequests] = useState<Friend[]>([]);
   const [outgoingRequests, setOutgoingRequests] = useState<Friend[]>([]);
@@ -440,11 +464,216 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setOutgoingRequests(((outgoing.data ?? []) as any[]).map((r) => mapRequestRow(r, 'recipient')));
   };
 
+  const mapProfileToFriend = (r: any): Friend => ({
+    id: r.id,
+    name: r.name,
+    username: r.username,
+    emoji: r.emoji,
+    color: r.color,
+    avatarUrl: r.avatar_url ?? null,
+  });
+
+  const loadFollowCounts = async () => {
+    if (!profile) {
+      setFollowersCount(0);
+      setFollowingCount(0);
+      setFollowingIds([]);
+      return;
+    }
+    const [followers, following] = await Promise.all([
+      supabase.from('follows').select('follower_id', { count: 'exact', head: true }).eq('following_id', profile.id),
+      supabase.from('follows').select('following_id').eq('follower_id', profile.id),
+    ]);
+    setFollowersCount(followers.count ?? 0);
+    const ids = (following.data ?? []).map((r: any) => r.following_id as string);
+    setFollowingCount(ids.length);
+    setFollowingIds(ids);
+  };
+
+  const followUser = async (userId: string): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'سجّل دخولك أولاً' };
+    const { error } = await supabase.from('follows').insert({ follower_id: profile.id, following_id: userId });
+    if (error) return { error: 'تعذّرت المتابعة، حاول مرة ثانية' };
+    setFollowingIds((prev) => [...prev, userId]);
+    setFollowingCount((prev) => prev + 1);
+    return { error: null };
+  };
+
+  const unfollowUser = async (userId: string): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'سجّل دخولك أولاً' };
+    const { error } = await supabase
+      .from('follows')
+      .delete()
+      .eq('follower_id', profile.id)
+      .eq('following_id', userId);
+    if (error) return { error: 'تعذّر إلغاء المتابعة' };
+    setFollowingIds((prev) => prev.filter((id) => id !== userId));
+    setFollowingCount((prev) => Math.max(0, prev - 1));
+    return { error: null };
+  };
+
+  const loadPublicProfile = async (userId: string) => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('id,name,username,emoji,color,avatar_url,bio,interests')
+      .eq('id', userId)
+      .single();
+    if (!data) return null;
+    return {
+      id: data.id,
+      name: data.name,
+      username: data.username,
+      emoji: data.emoji,
+      color: data.color,
+      avatarUrl: data.avatar_url ?? null,
+      bio: data.bio ?? null,
+      interests: data.interests ?? [],
+    };
+  };
+
+  const loadFollowers = async (userId: string) => {
+    const { data } = await supabase
+      .from('follows')
+      .select('follower:profiles!follows_follower_id_fkey(id,name,username,emoji,color,avatar_url)')
+      .eq('following_id', userId);
+    return ((data ?? []) as any[]).map((r) => mapProfileToFriend(r.follower)).filter(Boolean);
+  };
+
+  const loadFollowing = async (userId: string) => {
+    const { data } = await supabase
+      .from('follows')
+      .select('following:profiles!follows_following_id_fkey(id,name,username,emoji,color,avatar_url)')
+      .eq('follower_id', userId);
+    return ((data ?? []) as any[]).map((r) => mapProfileToFriend(r.following)).filter(Boolean);
+  };
+
+  const mapPostRow = (row: any): TravelPost => ({
+    id: row.id,
+    userId: row.user_id,
+    imageUrl: row.image_url,
+    caption: row.caption ?? '',
+    destinationId: row.destination_id,
+    createdAt: new Date(row.created_at).getTime(),
+  });
+
+  const loadMyPosts = async () => {
+    if (!profile) {
+      setMyPosts([]);
+      setMyPostsLoading(false);
+      return;
+    }
+    setMyPostsLoading(true);
+    try {
+      const { data } = await supabase
+        .from('travel_posts')
+        .select('id,user_id,image_url,caption,destination_id,created_at')
+        .eq('user_id', profile.id)
+        .order('created_at', { ascending: false });
+      setMyPosts((data ?? []).map(mapPostRow));
+    } catch {
+      // keep whatever we had
+    } finally {
+      setMyPostsLoading(false);
+    }
+  };
+
+  const addTravelPost = async (
+    imageUrl: string,
+    caption: string,
+    destinationId: string | null
+  ): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'سجّل دخولك أولاً' };
+    const { data, error } = await supabase
+      .from('travel_posts')
+      .insert({ user_id: profile.id, image_url: imageUrl, caption: caption.trim(), destination_id: destinationId })
+      .select('id,user_id,image_url,caption,destination_id,created_at')
+      .single();
+    if (error || !data) return { error: 'تعذّر نشر المدونة، حاول مرة ثانية' };
+    setMyPosts((prev) => [mapPostRow(data), ...prev]);
+    return { error: null };
+  };
+
+  const removeTravelPost = (id: string) => {
+    setMyPosts((prev) => prev.filter((p) => p.id !== id));
+    supabase.from('travel_posts').delete().eq('id', id).then(() => {});
+  };
+
+  const loadUserPosts = async (userId: string) => {
+    const { data } = await supabase
+      .from('travel_posts')
+      .select('id,user_id,image_url,caption,destination_id,created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    return (data ?? []).map(mapPostRow);
+  };
+
+  const mirrorTripWindow = (trip: Trip) => {
+    if (!profile) return;
+    const destination = destinations.find((d) => d.name === trip.destination);
+    const startDate = /^\d{4}-\d{2}-\d{2}$/.test(trip.startDate) ? trip.startDate : null;
+    const endDate = /^\d{4}-\d{2}-\d{2}$/.test(trip.endDate) ? trip.endDate : null;
+    supabase
+      .from('trip_windows')
+      .upsert(
+        {
+          user_id: profile.id,
+          local_trip_id: trip.id,
+          title: trip.title,
+          destination_id: destination?.id ?? null,
+          start_date: startDate,
+          end_date: endDate,
+        },
+        { onConflict: 'user_id,local_trip_id' }
+      )
+      .then(() => {});
+  };
+
+  const loadMeetupMatches = async () => {
+    if (!profile) {
+      setMeetupMatches([]);
+      return;
+    }
+    const { data } = await supabase
+      .from('trip_windows')
+      .select('id,local_trip_id,title,destination_id,start_date,end_date,user_id,user:profiles!trip_windows_user_id_fkey(id,name,username,emoji,color,avatar_url)');
+    const rows = (data ?? []) as any[];
+    const mine = rows.filter((r) => r.user_id === profile.id && r.destination_id && r.start_date && r.end_date);
+    const theirs = rows.filter((r) => r.user_id !== profile.id && r.destination_id && r.start_date && r.end_date);
+
+    const toWindow = (r: any): TripWindow => ({
+      id: r.id,
+      localTripId: r.local_trip_id,
+      title: r.title,
+      destinationId: r.destination_id,
+      startDate: r.start_date,
+      endDate: r.end_date,
+    });
+
+    const matches: MeetupMatch[] = [];
+    mine.forEach((myRow) => {
+      theirs.forEach((theirRow) => {
+        if (myRow.destination_id !== theirRow.destination_id) return;
+        const overlap = myRow.start_date <= theirRow.end_date && theirRow.start_date <= myRow.end_date;
+        if (!overlap) return;
+        matches.push({
+          user: mapProfileToFriend(theirRow.user),
+          destinationId: myRow.destination_id,
+          myTrip: toWindow(myRow),
+          theirTrip: toWindow(theirRow),
+        });
+      });
+    });
+    setMeetupMatches(matches);
+  };
+
   useEffect(() => {
     loadFriends();
     loadBlocked();
     loadFriendRequests();
     loadMyCheckIns();
+    loadFollowCounts();
+    loadMyPosts();
+    loadMeetupMatches();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id]);
 
@@ -590,6 +819,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       shareCode: uid('CODE').slice(-8).toUpperCase(),
     };
     setTrips((prev) => [trip, ...prev]);
+    mirrorTripWindow(trip);
     return trip;
   };
 
@@ -930,6 +1160,20 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       searchVenues,
       checkInToVenue,
       loadVenueCheckIns,
+      followersCount,
+      followingCount,
+      followingIds,
+      followUser,
+      unfollowUser,
+      loadPublicProfile,
+      loadFollowers,
+      loadFollowing,
+      myPosts,
+      myPostsLoading,
+      addTravelPost,
+      removeTravelPost,
+      loadUserPosts,
+      meetupMatches,
     }),
     [
       currentUser,
@@ -954,6 +1198,12 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       myCheckIn,
       myCheckIns,
       myCheckInsLoading,
+      followersCount,
+      followingCount,
+      followingIds,
+      myPosts,
+      myPostsLoading,
+      meetupMatches,
     ]
   );
 
