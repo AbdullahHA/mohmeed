@@ -486,9 +486,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       .insert({ sender_id: profile.id, recipient_id: found.id });
     if (insertError) {
       if (insertError.code === '23505') return { error: 'سبق أرسلت له طلب صداقة' };
-      // Temporary diagnostic: surface the raw error so we can see exactly
-      // why the insert failed instead of guessing blindly.
-      return { error: `تعذّر إرسال الطلب (${insertError.code ?? '—'}): ${insertError.message}` };
+      return { error: 'تعذّر إرسال الطلب، حاول مرة ثانية' };
     }
 
     await loadFriendRequests();
