@@ -30,6 +30,9 @@ export type RootStackParamList = {
   CheckInSearch: undefined;
   CheckInVenue: { venue: PlaceSearchResult };
   MyCheckIns: undefined;
+  UserProfile: { userId: string };
+  FollowList: { userId: string; mode: 'followers' | 'following' };
+  AddTravelPost: undefined;
   Settings: undefined;
   OnboardingQuiz: undefined;
   CountrySetting: undefined;

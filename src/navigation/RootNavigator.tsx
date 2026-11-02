@@ -26,6 +26,9 @@ import AddVisitedPlaceScreen from '../screens/AddVisitedPlaceScreen';
 import CheckInSearchScreen from '../screens/CheckInSearchScreen';
 import CheckInVenueScreen from '../screens/CheckInVenueScreen';
 import MyCheckInsScreen from '../screens/MyCheckInsScreen';
+import UserProfileScreen from '../screens/UserProfileScreen';
+import FollowListScreen from '../screens/FollowListScreen';
+import AddTravelPostScreen from '../screens/AddTravelPostScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import OnboardingQuizScreen from '../screens/OnboardingQuizScreen';
 import CountrySettingScreen from '../screens/CountrySettingScreen';
@@ -102,6 +105,13 @@ export default function RootNavigator() {
       />
       <Stack.Screen name="CheckInVenue" component={CheckInVenueScreen} />
       <Stack.Screen name="MyCheckIns" component={MyCheckInsScreen} />
+      <Stack.Screen name="UserProfile" component={UserProfileScreen} />
+      <Stack.Screen name="FollowList" component={FollowListScreen} />
+      <Stack.Screen
+        name="AddTravelPost"
+        component={AddTravelPostScreen}
+        options={{ presentation: 'modal' }}
+      />
       <Stack.Screen name="Settings" component={SettingsScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="OnboardingQuiz" component={OnboardingQuizScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="CountrySetting" component={CountrySettingScreen} options={{ presentation: 'modal' }} />

@@ -171,11 +171,17 @@ export default function FriendsScreen() {
           ) : (
             friends.map((friend) => (
               <View key={friend.id} style={styles.row}>
-                <PersonAvatar avatarUrl={friend.avatarUrl} />
-                <View style={styles.textWrap}>
-                  <Text style={styles.name}>{friend.name}</Text>
-                  <Text style={styles.username}>@{friend.username}</Text>
-                </View>
+                <TouchableOpacity
+                  style={styles.rowTapArea}
+                  activeOpacity={0.8}
+                  onPress={() => navigation.navigate('UserProfile', { userId: friend.id })}
+                >
+                  <PersonAvatar avatarUrl={friend.avatarUrl} />
+                  <View style={styles.textWrap}>
+                    <Text style={styles.name}>{friend.name}</Text>
+                    <Text style={styles.username}>@{friend.username}</Text>
+                  </View>
+                </TouchableOpacity>
                 <View style={styles.actions}>
                   <TouchableOpacity
                     style={styles.actionButton}
@@ -245,6 +251,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.sm,
     ...cardShadow,
   },
+  rowTapArea: { flex: 1, flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
   textWrap: { flex: 1 },
   name: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
   username: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: 1 },
