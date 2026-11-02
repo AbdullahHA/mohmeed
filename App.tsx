@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, View } from 'react-native';
+import * as Sentry from '@sentry/react-native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
@@ -12,6 +13,15 @@ import { RegionProvider } from './src/context/RegionContext';
 import AuthGateScreen from './src/screens/AuthGateScreen';
 import AppIntro from './src/components/AppIntro';
 import BiometricLockGate from './src/components/BiometricLockGate';
+
+const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
+if (sentryDsn) {
+  Sentry.init({
+    dsn: sentryDsn,
+    tracesSampleRate: 0.2,
+    enableAutoSessionTracking: true,
+  });
+}
 
 function Gate() {
   const { session, guestMode, loading } = useAuth();
@@ -69,7 +79,7 @@ function AppShell() {
   );
 }
 
-export default function App() {
+function App() {
   return (
     <ThemeProvider>
       <RegionProvider>
@@ -78,3 +88,5 @@ export default function App() {
     </ThemeProvider>
   );
 }
+
+export default sentryDsn ? Sentry.wrap(App) : App;
