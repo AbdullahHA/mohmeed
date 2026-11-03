@@ -9,6 +9,7 @@ import ChatScreen from '../screens/ChatScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import PlaceDetailScreen from '../screens/PlaceDetailScreen';
 import DestinationDetailScreen from '../screens/DestinationDetailScreen';
+import ResultsScreen from '../screens/ResultsScreen';
 import TripDetailScreen from '../screens/TripDetailScreen';
 import CreateTripScreen from '../screens/CreateTripScreen';
 import JoinTripScreen from '../screens/JoinTripScreen';
@@ -73,6 +74,7 @@ export default function RootNavigator() {
       <Stack.Screen name="MainTabs" component={MainTabs} />
       <Stack.Screen name="PlaceDetail" component={PlaceDetailScreen} />
       <Stack.Screen name="DestinationDetail" component={DestinationDetailScreen} />
+      <Stack.Screen name="Results" component={ResultsScreen} />
       <Stack.Screen name="TripDetail" component={TripDetailScreen} />
       <Stack.Screen name="CreateTrip" component={CreateTripScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="JoinTrip" component={JoinTripScreen} options={{ presentation: 'modal' }} />

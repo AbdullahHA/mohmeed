@@ -1,5 +1,6 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 import type { PlaceSearchResult } from '../types';
+import type { PlaceType } from '../data/places';
 
 export type MainTabParamList = {
   Discover: undefined;
@@ -13,6 +14,7 @@ export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   PlaceDetail: { placeId: string };
   DestinationDetail: { destinationId: string };
+  Results: { title: string; category?: PlaceType; query?: string; destinationId?: string };
   TripDetail: { tripId: string };
   CreateTrip: { destinationId?: string } | undefined;
   JoinTrip: undefined;

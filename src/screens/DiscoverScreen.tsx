@@ -90,6 +90,10 @@ export default function DiscoverScreen() {
               placeholderTextColor={colors.textFaint}
               value={query}
               onChangeText={setQuery}
+              onSubmitEditing={() => {
+                if (query.trim()) navigation.navigate('Results', { title: `بحث: ${query.trim()}`, query: query.trim() });
+              }}
+              returnKeyType="search"
               textAlign="right"
             />
           </View>
@@ -110,7 +114,12 @@ export default function DiscoverScreen() {
                     key={item.value}
                     style={styles.cat}
                     activeOpacity={0.8}
-                    onPress={() => setActiveType(active ? null : item.value)}
+                    onPress={() =>
+                      navigation.navigate('Results', {
+                        title: PLACE_TYPE_LABELS[item.value],
+                        category: item.value,
+                      })
+                    }
                   >
                     <View
                       style={[

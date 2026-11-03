@@ -43,6 +43,12 @@
         }
       ],
       [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "يستخدم يلا نسافر موقعك عشان يحسب المسافة للأماكن ويرتّبها بالأقرب، وعشان تسجيل الوصول."
+        }
+      ],
+      [
         "@sentry/react-native",
         {
           "disableAutoUpload": true
