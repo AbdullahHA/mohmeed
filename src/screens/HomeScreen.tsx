@@ -106,6 +106,8 @@ export default function HomeScreen() {
   }, [trips]);
   const daysUntilTrip = nextTrip ? Math.ceil((new Date(nextTrip.startDate).getTime() - Date.now()) / 86400000) : null;
   const tripBudgetSpent = nextTrip ? nextTrip.budgetItems.reduce((sum, i) => sum + i.amount, 0) : 0;
+  const checklistTotal = nextTrip?.checklist.length ?? 0;
+  const checklistDone = nextTrip?.checklist.filter((c) => c.done).length ?? 0;
 
   const recentlyEndedTrip = useMemo(() => {
     const now = Date.now();
@@ -182,6 +184,12 @@ export default function HomeScreen() {
                     <Ionicons name="calendar-outline" size={12} color="#fff" />
                     <Text style={styles.glassChipText}>{nextTrip.startDate} – {nextTrip.endDate}</Text>
                   </View>
+                  {checklistTotal > 0 ? (
+                    <View style={styles.glassChip}>
+                      <Ionicons name="checkbox-outline" size={12} color="#fff" />
+                      <Text style={styles.glassChipText}>التجهيز {checklistDone} من {checklistTotal}</Text>
+                    </View>
+                  ) : null}
                   {tripBudgetSpent > 0 ? (
                     <View style={styles.glassChip}>
                       <Ionicons name="wallet-outline" size={12} color="#fff" />
