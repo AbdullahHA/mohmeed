@@ -19,6 +19,7 @@ export type RootStackParamList = {
   CreateTrip: { destinationId?: string } | undefined;
   TripDatesVote: { tripId: string };
   TripSummary: { tripId: string };
+  DayMap: { tripId: string };
   JoinTrip: undefined;
   GroupChat: { tripId: string };
   GuideChat: undefined;

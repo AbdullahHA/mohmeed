@@ -330,7 +330,18 @@ export default function TripDetailScreen() {
           {activeTab === 'schedule' ? (
             <View>
               {hasRealDates ? (
-                <DayPicker days={tripDays} selected={selectedDay} onSelect={setSelectedDay} />
+                <View style={styles.scheduleHeaderRow}>
+                  <View style={styles.flex1}>
+                    <DayPicker days={tripDays} selected={selectedDay} onSelect={setSelectedDay} />
+                  </View>
+                  <TouchableOpacity
+                    style={styles.mapButton}
+                    activeOpacity={0.8}
+                    onPress={() => navigation.navigate('DayMap', { tripId: trip.id })}
+                  >
+                    <Ionicons name="map-outline" size={18} color={colors.primary} />
+                  </TouchableOpacity>
+                </View>
               ) : trip.datesMode === 'vote' ? (
                 <TouchableOpacity
                   style={styles.noDatesBanner}
@@ -601,6 +612,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignSelf: 'flex-end',
   },
   summaryBannerText: { color: colors.accentDark, fontSize: 12.5, fontWeight: '700' },
+  scheduleHeaderRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
+  mapButton: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   countdownText: { color: colors.accentDark, fontSize: 11, fontWeight: '700' },
   membersRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm, alignItems: 'center', marginBottom: spacing.md },
   memberChip: { alignItems: 'center', width: 52 },
