@@ -10,8 +10,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.yallansafer.app",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false,
-        "CFBundleDevelopmentRegion": "ar"
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, I18nManager, View } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import * as SystemUI from 'expo-system-ui';
@@ -31,6 +31,14 @@ if (sentryDsn) {
     enableAutoSessionTracking: true,
   });
 }
+
+// The whole app is laid out by hand for RTL (row-reverse + right-aligned
+// text in every screen), not by native RTL. React Native auto-flips to
+// native RTL on its own when the device's language is Arabic unless this
+// is locked out explicitly — when it does, every manual row-reverse gets
+// flipped back to LTR, which is exactly what "التطبيق صاير معكوس" was.
+I18nManager.allowRTL(false);
+I18nManager.forceRTL(false);
 
 void SplashScreen.preventAutoHideAsync();
 
