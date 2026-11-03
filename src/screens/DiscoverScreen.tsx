@@ -37,7 +37,8 @@ export default function DiscoverScreen() {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { places, destinations } = useContent();
-  const { recommendedPlaceIds, toggleRecommended } = useAppState();
+  const { recommendedPlaceIds, toggleRecommended, currentUser } = useAppState();
+  const firstName = currentUser.name.trim().split(/\s+/)[0];
   const { requireAccount } = useRequireAccount();
   const [query, setQuery] = useState('');
   const [activeType, setActiveType] = useState<PlaceType | null>(null);
@@ -128,7 +129,7 @@ export default function DiscoverScreen() {
 
             <View style={styles.sec}>
               <View style={styles.secTitle}>
-                <Text style={styles.secTitleText}>مختارة لك</Text>
+                <Text style={styles.secTitleText}>مختارة لك يا {firstName}</Text>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hscroll}>
                 {pickedForYou.map(({ place, why }) => {

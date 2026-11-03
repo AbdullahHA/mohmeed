@@ -16,6 +16,8 @@ import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import PersonAvatar from '../components/PersonAvatar';
+import FilterChip from '../components/FilterChip';
+import { INTEREST_TAGS } from '../data/destinations';
 import type { RootStackParamList } from '../navigation/types';
 import { sanitizeUsernameInput, isValidUsername, USERNAME_RULE_MESSAGE } from '../lib/username';
 import { pickAndUploadAvatar } from '../lib/avatar';
@@ -26,11 +28,12 @@ export default function EditProfileScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { profile, updateProfile } = useAuth();
+  const { profile, updateProfile, updateInterests } = useAuth();
 
   const [name, setName] = useState(profile?.name ?? '');
   const [username, setUsername] = useState(profile?.username ?? '');
   const [bio, setBio] = useState(profile?.bio ?? '');
+  const [interests, setInterests] = useState<string[]>(profile?.interests ?? []);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatarUrl ?? null);
@@ -58,11 +61,18 @@ export default function EditProfileScreen() {
     setAvatarUrl(null);
   };
 
+  const interestsChanged = JSON.stringify([...interests].sort()) !== JSON.stringify([...(profile?.interests ?? [])].sort());
+
   const hasChanges =
     name.trim() !== profile?.name ||
     username.trim() !== profile?.username ||
     avatarUrl !== (profile?.avatarUrl ?? null) ||
-    bio.trim() !== (profile?.bio ?? '');
+    bio.trim() !== (profile?.bio ?? '') ||
+    interestsChanged;
+
+  const toggleInterest = (tag: string) => {
+    setInterests((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
+  };
 
   const handleSave = async () => {
     if (!name.trim() || !username.trim() || loading || !hasChanges) return;
@@ -78,6 +88,9 @@ export default function EditProfileScreen() {
       avatar_url: avatarUrl,
       bio: bio.trim() || null,
     });
+    if (!saveError && interestsChanged) {
+      await updateInterests(interests);
+    }
     setLoading(false);
     if (saveError) {
       setError(saveError === 'username taken' ? 'اسم المستخدم هذا مستخدم بالفعل' : 'صار خطأ، حاول مرة ثانية');
@@ -149,6 +162,13 @@ export default function EditProfileScreen() {
           maxLength={160}
         />
 
+        <Text style={styles.label}>اهتماماتي</Text>
+        <View style={styles.interestsRow}>
+          {INTEREST_TAGS.map((tag) => (
+            <FilterChip key={tag} label={tag} active={interests.includes(tag)} onPress={() => toggleInterest(tag)} />
+          ))}
+        </View>
+
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <TouchableOpacity
@@ -215,6 +235,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   usernameHint: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: spacing.xs, lineHeight: 16 },
   bioInput: { minHeight: 70, textAlignVertical: 'top', paddingTop: spacing.md },
+  interestsRow: { flexDirection: 'row-reverse', flexWrap: 'wrap' },
   error: { color: colors.red, fontSize: 12, textAlign: 'right', marginTop: spacing.lg },
   submitButton: {
     backgroundColor: colors.primary,

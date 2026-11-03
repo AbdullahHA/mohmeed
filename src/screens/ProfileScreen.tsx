@@ -8,18 +8,14 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import DesertHero from '../components/DesertHero';
 import CircularProgress from '../components/CircularProgress';
 import FeedbackCard from '../components/FeedbackCard';
-import FilterChip from '../components/FilterChip';
-import DestinationsMapView from '../components/DestinationsMapView';
 import AchievementsRow, { type Achievement } from '../components/AchievementsRow';
 import PersonAvatar from '../components/PersonAvatar';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { radius, spacing, fixedColors, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
-import { INTEREST_TAGS } from '../data/destinations';
-import { haversineDistanceKm } from '../lib/geo';
 import { computeTravelerLevel, nextLevelThreshold } from '../utils/travelerStats';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -34,10 +30,6 @@ function formatStampDate(timestamp: number) {
   const date = new Date(timestamp);
   return `${STAMP_MONTH_NAMES[date.getMonth()]} ${date.getFullYear()}`;
 }
-
-// Cycled per stamp so each manually-added place reads as its own
-// little passport stamp, without needing a real flag/photo per place.
-const STAMP_BADGE_COLORS = ['#1359D3', '#1C9A6C', '#D9792C', '#B4479A', '#2E9BB0', '#C2454B'];
 
 const WORLD_COUNTRIES = 195;
 
@@ -87,18 +79,8 @@ export default function ProfileScreen() {
     meetupMatches,
   } = useAppState();
   const { destinations, places } = useContent();
-  const { profile, session, signOut, exitGuestMode, updateInterests } = useAuth();
+  const { profile, session, signOut, exitGuestMode } = useAuth();
   const { requireAccount } = useRequireAccount();
-
-  const toggleInterest = (tag: string) => {
-    requireAccount('interests', () => {
-      if (!profile) return;
-      const next = profile.interests.includes(tag)
-        ? profile.interests.filter((t) => t !== tag)
-        : [...profile.interests, tag];
-      updateInterests(next);
-    });
-  };
 
   const visitedDestinations = visitedStamps
     .map((stamp) => {
@@ -106,18 +88,6 @@ export default function ProfileScreen() {
       return destination ? { destination, visitedAt: stamp.visitedAt } : null;
     })
     .filter((entry): entry is { destination: (typeof destinations)[number]; visitedAt: number } => Boolean(entry));
-
-  const visitedWithCoords = visitedDestinations
-    .filter(
-      (entry): entry is { destination: typeof entry.destination & { latitude: number; longitude: number }; visitedAt: number } =>
-        typeof entry.destination.latitude === 'number' && typeof entry.destination.longitude === 'number'
-    )
-    .sort((a, b) => a.visitedAt - b.visitedAt);
-
-  const totalDistanceKm = visitedWithCoords.slice(1).reduce((sum, entry, i) => {
-    const prev = visitedWithCoords[i].destination;
-    return sum + haversineDistanceKm(prev, entry.destination);
-  }, 0);
 
   const favoriteDestinations = destinations.filter((d) => favoriteDestinationIds.includes(d.id));
 
@@ -182,14 +152,14 @@ export default function ProfileScreen() {
       name: entry.destination.name,
       dateLabel: formatStampDate(entry.visitedAt),
       image: entry.destination.image,
-      color: STAMP_BADGE_COLORS[index % STAMP_BADGE_COLORS.length],
+      color: fixedColors.stamps[index % fixedColors.stamps.length],
       onPress: () => navigation.navigate('DestinationDetail', { destinationId: entry.destination.id }),
     })),
     ...manualVisitedPlaces.map((place, index) => ({
       id: `m-${place.id}`,
       name: place.name,
       dateLabel: formatStampDate(place.visitedAt),
-      color: STAMP_BADGE_COLORS[(visitedDestinations.length + index) % STAMP_BADGE_COLORS.length],
+      color: fixedColors.stamps[(visitedDestinations.length + index) % fixedColors.stamps.length],
       onLongPress: () =>
         Alert.alert('حذف الختم؟', `بيُحذف "${place.name}" من أختامك.`, [
           { text: 'إلغاء', style: 'cancel' },
@@ -271,7 +241,7 @@ export default function ProfileScreen() {
             </View>
           )}
 
-          {profile?.bio ? <Text style={styles.bio}>{profile.bio}</Text> : null}
+          {profile?.bio ? <Text style={styles.bio} numberOfLines={2}>{profile.bio}</Text> : null}
 
           <View style={styles.metaRow}>
             {profile?.countryOfResidence ? (
@@ -390,7 +360,7 @@ export default function ProfileScreen() {
           </ScrollView>
         ) : null}
 
-        <View style={styles.passportCard}>
+        <TouchableOpacity style={styles.passportCard} activeOpacity={0.9} onPress={() => navigation.navigate('Passport')}>
           <CircularProgress size={66} strokeWidth={6} progress={worldPercent / 100} color={colors.accent} trackColor="rgba(255,255,255,0.18)">
             <Text style={styles.ringPercent}>{worldPercent}%</Text>
             <Text style={styles.ringCaption}>من العالم</Text>
@@ -407,32 +377,14 @@ export default function ProfileScreen() {
                 : 'وصلت لأعلى مستوى 🏆'}
             </Text>
           </View>
-        </View>
-
-        {visitedWithCoords.length > 0 ? (
-          <View style={styles.mapWrap}>
-            <DestinationsMapView
-              destinations={visitedWithCoords.map((entry) => entry.destination)}
-              onMarkerPress={(destination) => navigation.navigate('DestinationDetail', { destinationId: destination.id })}
-            />
-            {totalDistanceKm > 0 ? (
-              <Text style={styles.distanceCaption}>
-                قطعت تقريبًا {Math.round(totalDistanceKm).toLocaleString()} كم بين الوجهات اللي زرتها
-              </Text>
-            ) : null}
-          </View>
-        ) : null}
+          <Ionicons name="chevron-back" size={16} color="rgba(255,255,255,0.8)" style={styles.passportGo} />
+        </TouchableOpacity>
 
         <View style={styles.sectionHeaderRow}>
-          <TouchableOpacity
-            style={styles.linkButton}
-            activeOpacity={0.85}
-            onPress={() => requireAccount('visitedPlace', () => navigation.navigate('AddVisitedPlace'))}
-          >
-            <Ionicons name="add" size={14} color={colors.primary} />
-            <Text style={styles.linkButtonText}>أضف ختم</Text>
+          <TouchableOpacity style={styles.linkButton} activeOpacity={0.85} onPress={() => navigation.navigate('Passport')}>
+            <Text style={styles.linkButtonText}>الكل ({combinedStamps.length})</Text>
           </TouchableOpacity>
-          <Text style={styles.sectionTitle}>أختامي ({combinedStamps.length})</Text>
+          <Text style={styles.sectionTitle}>أختامي</Text>
         </View>
         {combinedStamps.length === 0 ? (
           <Text style={styles.emptyMuted}>
@@ -440,7 +392,7 @@ export default function ProfileScreen() {
           </Text>
         ) : (
           <View style={styles.stampGrid}>
-            {combinedStamps.map((stamp) => (
+            {combinedStamps.slice(0, 3).map((stamp) => (
               <TouchableOpacity
                 key={stamp.id}
                 style={styles.stampCell}
@@ -459,6 +411,16 @@ export default function ProfileScreen() {
                 <Text style={styles.stampDate}>{stamp.dateLabel}</Text>
               </TouchableOpacity>
             ))}
+            <TouchableOpacity
+              style={styles.stampCell}
+              activeOpacity={0.85}
+              onPress={() => requireAccount('visitedPlace', () => navigation.navigate('AddVisitedPlace'))}
+            >
+              <View style={[styles.stampRing, styles.stampRingAdd]}>
+                <Ionicons name="add" size={20} color={colors.textMuted} />
+              </View>
+              <Text style={styles.stampName} numberOfLines={1}>ختم جديد</Text>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -497,20 +459,6 @@ export default function ProfileScreen() {
             <AchievementsRow achievements={achievements} />
           </>
         ) : null}
-
-        <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionTitle}>اهتماماتي</Text>
-        </View>
-        <View style={styles.interestsRow}>
-          {INTEREST_TAGS.map((tag) => (
-            <FilterChip
-              key={tag}
-              label={tag}
-              active={Boolean(profile?.interests.includes(tag))}
-              onPress={() => toggleInterest(tag)}
-            />
-          ))}
-        </View>
 
         <View style={styles.ltabs} onLayout={(e) => setTabsSectionY(e.nativeEvent.layout.y)}>
           {PROFILE_TABS.map((tab) => {
@@ -908,6 +856,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.lg,
     marginHorizontal: spacing.lg,
   },
+  passportGo: { transform: [{ rotate: '180deg' }] },
   ringPercent: { color: '#fff', fontSize: 16, fontWeight: '800' },
   ringCaption: { color: 'rgba(255,255,255,0.75)', fontSize: 9 },
   passportTextWrap: { flex: 1, gap: 4 },
@@ -916,8 +865,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   xpTrack: { height: 6, borderRadius: radius.pill, backgroundColor: 'rgba(255,255,255,0.18)', overflow: 'hidden', marginTop: 2 },
   xpFill: { height: '100%', borderRadius: radius.pill, backgroundColor: colors.accent },
   passportCaption: { color: 'rgba(255,255,255,0.75)', fontSize: 11, fontWeight: '600', textAlign: 'right' },
-  mapWrap: { height: 150, borderRadius: radius.md, overflow: 'hidden', marginHorizontal: spacing.lg, marginTop: spacing.md },
-  distanceCaption: { color: colors.textMuted, fontSize: 11, fontWeight: '600', textAlign: 'right', marginTop: spacing.xs },
   sectionHeaderRow: {
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
@@ -954,6 +901,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: colors.surfaceAlt,
   },
+  stampRingAdd: { borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.border },
   stampImage: { width: '100%', height: '100%' },
   stampName: { color: colors.text, fontSize: 10.5, fontWeight: '700', textAlign: 'center', marginTop: spacing.xs },
   stampDate: { color: colors.textFaint, fontSize: 9, fontWeight: '600', textAlign: 'center' },
@@ -982,7 +930,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   postsGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 2, paddingHorizontal: spacing.lg },
   postTile: { width: '32.5%', aspectRatio: 1 },
   postImage: { width: '100%', height: '100%', borderRadius: radius.sm },
-  interestsRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', paddingHorizontal: spacing.lg, gap: spacing.xs },
   ctaCard: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
