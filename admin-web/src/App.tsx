@@ -5,6 +5,7 @@ import Layout from './components/Layout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Destinations from './pages/Destinations';
+import CountryInfo from './pages/CountryInfo';
 import DestinationEdit from './pages/DestinationEdit';
 import Places from './pages/Places';
 import PlaceEdit from './pages/PlaceEdit';
@@ -53,6 +54,7 @@ function Router() {
         <Route index element={<Dashboard />} />
         <Route path="destinations" element={<Destinations />} />
         <Route path="destinations/:id" element={<DestinationEdit />} />
+        <Route path="country-info" element={<CountryInfo />} />
         <Route path="places" element={<Places />} />
         <Route path="places/:id" element={<PlaceEdit />} />
         <Route path="communities" element={<Communities />} />

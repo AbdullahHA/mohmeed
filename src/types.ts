@@ -275,6 +275,28 @@ export type MeetupMatch = {
   theirTrip: TripWindow;
 };
 
+export type VisaStatus = 'required' | 'on_arrival' | 'e_visa' | 'none';
+export const VISA_STATUS_LABELS: Record<VisaStatus, string> = {
+  required: 'تأشيرة مسبقة مطلوبة',
+  on_arrival: 'تأشيرة عند الوصول',
+  e_visa: 'تأشيرة إلكترونية',
+  none: 'بدون تأشيرة',
+};
+
+export type CountryInfo = {
+  country: string;
+  visaStatus: VisaStatus | null;
+  passportValidityMonths: number | null;
+  currency: string | null;
+  plugTypes: string[];
+  esimAvailable: boolean;
+  emergencyNumber: string | null;
+  embassyAddress: string | null;
+  embassyPhone: string | null;
+  sourceUrl: string | null;
+  updatedAt: number;
+};
+
 export type QuickRateTag = 'يستاهل' | 'زحمة' | 'غالي' | 'للعوائل';
 export const QUICK_RATE_TAGS: QuickRateTag[] = ['يستاهل', 'زحمة', 'غالي', 'للعوائل'];
 

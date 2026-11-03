@@ -24,6 +24,8 @@ import DayPicker, { tripDateRange, formatIsoDate } from '../components/DayPicker
 import SlotPicker, { SLOT_LABELS } from '../components/SlotPicker';
 import { formatHijriDate } from '../lib/hijri';
 import { getHijriDateEnabled } from '../lib/hijriSetting';
+import CountryInfoCard from '../components/CountryInfoCard';
+import { useContent } from '../context/ContentContext';
 import { BUDGET_CATEGORY_LABELS, type BudgetCategory, type ChecklistGroup, type ItinerarySlot } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -46,6 +48,7 @@ export default function TripDetailScreen() {
   const { currency } = useRegion();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { profile } = useAuth();
+  const { destinations } = useContent();
   const {
     trips,
     friends,
@@ -479,7 +482,19 @@ export default function TripDetailScreen() {
           ) : null}
 
           {activeTab === 'checklist' ? (
-            <View style={styles.checklistCard}>
+            <View>
+              <CountryInfoCard
+                country={destinations.find((d) => d.name === trip.destination)?.country ?? ''}
+                onInfoLoaded={(info) => {
+                  if (
+                    info.visaStatus === 'required' &&
+                    !trip.checklist.some((c) => c.title.includes('تأشيرة'))
+                  ) {
+                    addChecklistItem(trip.id, { group: 'الأوراق', title: 'تقديم التأشيرة قبل 14 يوم', assigneeId: null, dueDate: null });
+                  }
+                }}
+              />
+              <View style={styles.checklistCard}>
               {CHECKLIST_GROUPS.map((group) => {
                 const items = trip.checklist.filter((c) => c.group === group);
                 if (items.length === 0) return null;
@@ -537,6 +552,7 @@ export default function TripDetailScreen() {
                   />
                 </View>
               ) : null}
+              </View>
             </View>
           ) : null}
         </View>

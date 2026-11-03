@@ -5,6 +5,7 @@ import { useTheme } from '../context/ThemeContext';
 const NAV_ITEMS = [
   { to: '/', label: 'نظرة عامة', end: true },
   { to: '/destinations', label: 'الوجهات' },
+  { to: '/country-info', label: 'معلومات الدول' },
   { to: '/places', label: 'الأماكن' },
   { to: '/communities', label: 'المجتمعات' },
   { to: '/users', label: 'المستخدمون' },
