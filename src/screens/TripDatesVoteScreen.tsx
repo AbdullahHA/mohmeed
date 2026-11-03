@@ -1,5 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -260,7 +267,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
   hint: { color: colors.textMuted, fontSize: 12.5, textAlign: 'right', marginBottom: spacing.md, lineHeight: 18 },
   monthRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.sm },
-  monthLabel: { color: colors.text, fontSize: 14, fontWeight: '800' },
+  monthLabel: { color: colors.text, fontSize: 14, fontWeight: '700' },
   weekdayRow: { flexDirection: 'row-reverse', marginBottom: spacing.xs },
   weekdayText: { flex: 1, textAlign: 'center', color: colors.textFaint, fontSize: 10, fontWeight: '700' },
   grid: { flexDirection: 'row-reverse', flexWrap: 'wrap' },
@@ -285,7 +292,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.lg,
   },
   bestTextWrap: { flex: 1 },
-  bestTitle: { color: colors.accentDark, fontSize: 13, fontWeight: '800', textAlign: 'right' },
+  bestTitle: { color: colors.accentDark, fontSize: 13, fontWeight: '700', textAlign: 'right' },
   bestMeta: { color: colors.accentDark, fontSize: 11, textAlign: 'right', marginTop: 2 },
   adoptButton: { backgroundColor: colors.accentDark, borderRadius: radius.pill, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
   adoptButtonText: { color: '#fff', fontSize: 11.5, fontWeight: '700' },

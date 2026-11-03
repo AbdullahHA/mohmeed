@@ -1,5 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { Modal, Pressable, View, Text, StyleSheet, TextInput } from 'react-native';
+import {
+  Modal,
+  Pressable,
+  View,
+  StyleSheet,
+  TextInput,
+} from 'react-native';
+import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
@@ -87,7 +94,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.xl,
     alignItems: 'center',
   },
-  title: { color: colors.text, fontSize: 15, fontWeight: '800', textAlign: 'center', marginBottom: spacing.lg },
+  title: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'center', marginBottom: spacing.lg },
   starsRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginBottom: spacing.lg },
   tagsRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm, justifyContent: 'center', marginBottom: spacing.md },
   chip: {

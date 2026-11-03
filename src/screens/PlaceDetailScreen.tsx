@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   Image,
   StyleSheet,
   ScrollView,
@@ -10,6 +9,7 @@ import {
   Linking,
   Share,
 } from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -411,7 +411,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   chipText: { color: colors.textMuted, fontSize: 11, fontWeight: '600' },
   chipGold: { backgroundColor: colors.accentSoft },
   chipGoldText: { color: colors.accentDark, fontSize: 11, fontWeight: '700' },
-  name: { color: colors.text, fontSize: 22, fontWeight: '800', textAlign: 'right' },
+  name: { color: colors.text, fontSize: 22, fontWeight: '700', textAlign: 'right' },
   subRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.xs },
   subRate: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
   subRateText: { color: colors.accentDark, fontWeight: '700', fontSize: 13 },

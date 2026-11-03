@@ -1,5 +1,15 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert, Share } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Alert,
+  Share,
+} from 'react-native';
+import Text from '../components/Text';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
@@ -776,7 +786,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.sm,
   },
   levelPillText: { color: colors.accentDark, fontSize: 11.5, fontWeight: '700' },
-  name: { color: colors.text, fontSize: 20, fontWeight: '800', textAlign: 'right', marginTop: spacing.sm },
+  name: { color: colors.text, fontSize: 20, fontWeight: '700', textAlign: 'right', marginTop: spacing.sm },
   username: { color: colors.textMuted, fontSize: 13, textAlign: 'right', marginTop: 2 },
   copyToast: {
     alignSelf: 'flex-end',
@@ -815,7 +825,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   statCell: { flex: 1, alignItems: 'center', gap: 2 },
   statDivider: { width: 1, backgroundColor: colors.border, marginVertical: spacing.xs },
-  statValue: { color: colors.text, fontSize: 17, fontWeight: '800' },
+  statValue: { color: colors.text, fontSize: 17, fontWeight: '700' },
   statLabel: { color: colors.textMuted, fontSize: 11 },
   actionsRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginTop: spacing.md },
   btn: {
@@ -866,11 +876,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginHorizontal: spacing.lg,
   },
   passportGo: { transform: [{ rotate: '180deg' }] },
-  ringPercent: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  ringPercent: { color: '#fff', fontSize: 16, fontWeight: '700' },
   ringCaption: { color: 'rgba(255,255,255,0.75)', fontSize: 9 },
   passportTextWrap: { flex: 1, gap: 4 },
   passportKicker: { color: 'rgba(255,255,255,0.6)', fontSize: 9.5, letterSpacing: 1, textAlign: 'right' },
-  passportTitle: { color: '#fff', fontSize: 16, fontWeight: '800', textAlign: 'right' },
+  passportTitle: { color: '#fff', fontSize: 16, fontWeight: '700', textAlign: 'right' },
   xpTrack: { height: 6, borderRadius: radius.pill, backgroundColor: 'rgba(255,255,255,0.18)', overflow: 'hidden', marginTop: 2 },
   xpFill: { height: '100%', borderRadius: radius.pill, backgroundColor: colors.accent },
   passportCaption: { color: 'rgba(255,255,255,0.75)', fontSize: 11, fontWeight: '600', textAlign: 'right' },

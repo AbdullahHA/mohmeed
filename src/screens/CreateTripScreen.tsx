@@ -2,13 +2,13 @@ import React, { useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   StyleSheet,
   ScrollView,
   TextInput,
   TouchableOpacity,
   Platform,
 } from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
@@ -503,7 +503,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.lg,
   },
   questionHeader: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.sm },
-  questionTitle: { color: colors.text, fontSize: 15, fontWeight: '800', textAlign: 'right' },
+  questionTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right' },
   summaryChip: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -583,7 +583,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepperValue: { color: colors.text, fontSize: 16, fontWeight: '800', minWidth: 28, textAlign: 'center' },
+  stepperValue: { color: colors.text, fontSize: 16, fontWeight: '700', minWidth: 28, textAlign: 'center' },
   confirmStepButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.pill,

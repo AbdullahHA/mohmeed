@@ -1,5 +1,9 @@
 import React, { useMemo } from 'react';
-import { Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
+import Text from './Text';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 

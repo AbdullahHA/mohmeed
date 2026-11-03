@@ -1,5 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Modal, Pressable, View, Text, StyleSheet, ScrollView, Switch } from 'react-native';
+import {
+  Modal,
+  Pressable,
+  View,
+  StyleSheet,
+  ScrollView,
+  Switch,
+} from 'react-native';
+import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
@@ -189,7 +197,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   headerRow: { flexDirection: 'row-reverse', alignItems: 'flex-start', gap: spacing.sm, marginBottom: spacing.md },
   headerTextWrap: { flex: 1 },
-  title: { color: colors.text, fontSize: 16, fontWeight: '800', textAlign: 'right' },
+  title: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right' },
   subtitle: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
   scroll: { marginBottom: spacing.sm },
   sectionLabel: { color: colors.textMuted, fontSize: 12, fontWeight: '700', textAlign: 'right', marginTop: spacing.md, marginBottom: spacing.sm },

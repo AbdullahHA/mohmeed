@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -12,6 +11,7 @@ import {
   Platform,
   Image,
 } from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import DesertHero from '../components/DesertHero';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
@@ -476,7 +476,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.xs,
   },
   heroLogo: { width: '72%', height: '72%' },
-  heroTitle: { color: '#fff', fontSize: 28, fontWeight: '800', lineHeight: 38 },
+  heroTitle: { color: '#fff', fontSize: 28, fontWeight: '700', lineHeight: 38 },
   heroSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: 14, lineHeight: 22 },
   heroBottom: { paddingHorizontal: spacing.lg, gap: spacing.sm },
   heroError: { color: '#fff', backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: radius.sm, padding: spacing.sm, fontSize: 12, textAlign: 'center', marginBottom: spacing.xs },
@@ -521,7 +521,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  title: { color: colors.text, fontSize: 24, fontWeight: '800', textAlign: 'center' },
+  title: { color: colors.text, fontSize: 24, fontWeight: '700', textAlign: 'center' },
   subtitle: {
     color: colors.textMuted,
     fontSize: 13,

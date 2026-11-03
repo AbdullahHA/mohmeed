@@ -1,5 +1,10 @@
 import React, { useMemo } from 'react';
-import { ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import {
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
+import Text from './Text';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 
@@ -88,6 +93,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   chipTextActive: { color: colors.textOnPrimary },
   dayWeekday: { color: colors.textMuted, fontSize: 10, fontWeight: '600' },
-  dayNumber: { color: colors.text, fontSize: 16, fontWeight: '800' },
+  dayNumber: { color: colors.text, fontSize: 16, fontWeight: '700' },
   dayMonth: { color: colors.textFaint, fontSize: 10 },
 });

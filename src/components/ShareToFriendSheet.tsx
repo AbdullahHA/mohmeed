@@ -1,5 +1,12 @@
 import React, { useMemo } from 'react';
-import { Modal, Pressable, View, Text, StyleSheet, ScrollView } from 'react-native';
+import {
+  Modal,
+  Pressable,
+  View,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
+import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
@@ -57,7 +64,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     maxHeight: '70%',
   },
   headerRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
-  title: { color: colors.text, fontSize: 16, fontWeight: '800', textAlign: 'right', flex: 1 },
+  title: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right', flex: 1 },
   emptyText: { color: colors.textMuted, textAlign: 'center', paddingVertical: spacing.xl },
   scroll: { gap: spacing.sm },
   friendRow: {

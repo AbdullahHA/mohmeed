@@ -1,5 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Linking,
+} from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -98,7 +105,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
   body: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl, gap: spacing.sm },
-  title: { color: colors.text, fontSize: 16, fontWeight: '800', textAlign: 'center' },
+  title: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'center' },
   subtitle: { color: colors.textMuted, fontSize: 12.5, textAlign: 'center' },
   openMapsButton: {
     flexDirection: 'row-reverse',

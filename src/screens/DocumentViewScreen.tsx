@@ -1,5 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+} from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -110,7 +118,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   headerTitle: { color: '#fff', fontSize: 16, fontWeight: '700' },
   body: { flex: 1, padding: spacing.lg, alignItems: 'center' },
-  title: { color: '#fff', fontSize: 16, fontWeight: '800', textAlign: 'center', marginBottom: spacing.md },
+  title: { color: '#fff', fontSize: 16, fontWeight: '700', textAlign: 'center', marginBottom: spacing.md },
   detailsCard: {
     width: '100%',
     backgroundColor: 'rgba(255,255,255,0.08)',

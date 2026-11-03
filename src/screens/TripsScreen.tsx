@@ -1,5 +1,14 @@
 import React, { useMemo, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+} from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -211,7 +220,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingTop: spacing.sm,
     marginBottom: spacing.md,
   },
-  headerTitle: { color: colors.text, fontSize: 22, fontWeight: '800' },
+  headerTitle: { color: colors.text, fontSize: 22, fontWeight: '700' },
   headerActions: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
   iconButton: {
     width: 38,
@@ -235,7 +244,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   segItem: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6, paddingBottom: spacing.sm, borderBottomWidth: 2, borderBottomColor: 'transparent' },
   segItemActive: { borderBottomColor: colors.primary },
   segText: { color: colors.textMuted, fontSize: 14, fontWeight: '600' },
-  segTextActive: { color: colors.text, fontWeight: '800' },
+  segTextActive: { color: colors.text, fontWeight: '700' },
   segN: { minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 4, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
   segNActive: { backgroundColor: colors.primarySoft },
   segNText: { color: colors.textMuted, fontSize: 10, fontWeight: '700' },
@@ -263,7 +272,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   badge2Text: { color: '#141a2b', fontSize: 10.5, fontWeight: '700' },
   cardTextWrap: { padding: spacing.md },
-  cardTitle: { color: '#fff', fontSize: 16, fontWeight: '800', textAlign: 'right' },
+  cardTitle: { color: '#fff', fontSize: 16, fontWeight: '700', textAlign: 'right' },
   cardSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: 11.5, textAlign: 'right', marginTop: 2 },
   cardBody: { padding: spacing.md, gap: spacing.sm },
   facesRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },

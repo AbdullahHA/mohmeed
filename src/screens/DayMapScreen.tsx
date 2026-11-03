@@ -1,5 +1,13 @@
 import React, { useMemo, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Linking,
+} from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -163,7 +171,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stopNumberText: { color: colors.textOnPrimary, fontSize: 12, fontWeight: '800' },
+  stopNumberText: { color: colors.textOnPrimary, fontSize: 12, fontWeight: '700' },
   stopTextWrap: { flex: 1 },
   stopTitle: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
   stopMeta: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right', marginTop: 2 },

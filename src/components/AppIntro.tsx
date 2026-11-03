@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import {
+  Animated,
+  Easing,
+  StyleSheet,
+  View,
+} from 'react-native';
+import Text from './Text';
 import { type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 

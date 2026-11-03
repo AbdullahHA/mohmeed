@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   StyleSheet,
   FlatList,
   TextInput,
@@ -12,6 +11,7 @@ import {
   Modal,
   Pressable,
 } from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -360,7 +360,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.xl,
     maxHeight: '60%',
   },
-  menuTitle: { color: colors.text, fontSize: 15, fontWeight: '800', textAlign: 'center', marginBottom: spacing.lg },
+  menuTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'center', marginBottom: spacing.lg },
   memberRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

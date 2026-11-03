@@ -1,5 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AppState as RNAppState, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  AppState as RNAppState,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
@@ -72,7 +79,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   logoBadge: { width: 64, height: 64, borderRadius: radius.lg, overflow: 'hidden', marginBottom: spacing.lg },
   logo: { width: '100%', height: '100%' },
   lockIcon: { marginBottom: spacing.sm },
-  title: { color: colors.text, fontSize: 18, fontWeight: '800' },
+  title: { color: colors.text, fontSize: 18, fontWeight: '700' },
   subtitle: { color: colors.textMuted, fontSize: 13, marginTop: spacing.xs, marginBottom: spacing.xl },
   unlockButton: {
     flexDirection: 'row-reverse',

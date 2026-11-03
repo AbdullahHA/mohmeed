@@ -1,5 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { Modal, Pressable, View, Text, StyleSheet, TextInput } from 'react-native';
+import {
+  Modal,
+  Pressable,
+  View,
+  StyleSheet,
+  TextInput,
+} from 'react-native';
+import Text from './Text';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { BUDGET_CATEGORY_LABELS, type BudgetCategory } from '../types';
@@ -87,7 +94,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderTopRightRadius: radius.lg,
     padding: spacing.xl,
   },
-  title: { color: colors.text, fontSize: 16, fontWeight: '800', textAlign: 'right' },
+  title: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right' },
   subtitle: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2, marginBottom: spacing.lg },
   chipsRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.md },
   chip: {

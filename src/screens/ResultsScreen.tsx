@@ -2,12 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   Image,
   StyleSheet,
   FlatList,
   TouchableOpacity,
 } from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -261,7 +261,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   headerTextWrap: { flex: 1, alignItems: 'flex-end' },
-  headerTitle: { color: colors.text, fontSize: 17, fontWeight: '800' },
+  headerTitle: { color: colors.text, fontSize: 17, fontWeight: '700' },
   headerCount: { color: colors.textMuted, fontSize: 12, marginTop: 2 },
   filterBar: {
     flexDirection: 'row-reverse',
@@ -300,7 +300,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   cardBody: { padding: spacing.md, gap: 3 },
   cardMetaRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center' },
   ratingRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 3 },
-  ratingText: { color: colors.accentDark, fontSize: 12.5, fontWeight: '800' },
+  ratingText: { color: colors.accentDark, fontSize: 12.5, fontWeight: '700' },
   cardMetaText: { color: colors.textMuted, fontSize: 11.5 },
   cardName: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right' },
   cardDestination: { color: colors.textFaint, fontSize: 11.5, textAlign: 'right' },

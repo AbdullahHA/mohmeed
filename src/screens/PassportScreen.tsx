@@ -1,5 +1,14 @@
 import React, { useMemo } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -214,16 +223,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     gap: spacing.sm,
   },
-  ringPercent: { color: '#fff', fontSize: 18, fontWeight: '800' },
+  ringPercent: { color: '#fff', fontSize: 18, fontWeight: '700' },
   ringCaption: { color: 'rgba(255,255,255,0.75)', fontSize: 10 },
-  levelText: { color: colors.accent, fontSize: 15, fontWeight: '800', marginTop: spacing.xs },
+  levelText: { color: colors.accent, fontSize: 15, fontWeight: '700', marginTop: spacing.xs },
   xpTrack: { width: '70%', height: 6, borderRadius: radius.pill, backgroundColor: 'rgba(255,255,255,0.18)', overflow: 'hidden' },
   xpFill: { height: '100%', borderRadius: radius.pill, backgroundColor: colors.accent },
   caption: { color: 'rgba(255,255,255,0.75)', fontSize: 11, fontWeight: '600' },
   statsRow: { flexDirection: 'row-reverse', gap: spacing.xxl, marginTop: spacing.md },
   statCell: { alignItems: 'center' },
   statDivider: { width: 1, backgroundColor: 'rgba(255,255,255,0.25)' },
-  statValue: { color: '#fff', fontSize: 20, fontWeight: '800' },
+  statValue: { color: '#fff', fontSize: 20, fontWeight: '700' },
   statLabel: { color: 'rgba(255,255,255,0.75)', fontSize: 11 },
   mapWrap: { height: 180, margin: spacing.lg, borderRadius: radius.md, overflow: 'hidden' },
   sectionHeaderRow: {

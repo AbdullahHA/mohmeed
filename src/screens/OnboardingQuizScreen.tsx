@@ -1,5 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -160,7 +167,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   progressBar: { flex: 1, height: 3, borderRadius: 2, backgroundColor: colors.border },
   progressBarActive: { backgroundColor: colors.accent },
   body: { flex: 1, padding: spacing.lg, paddingTop: spacing.xl },
-  title: { color: colors.text, fontSize: 20, fontWeight: '800', textAlign: 'right' },
+  title: { color: colors.text, fontSize: 20, fontWeight: '700', textAlign: 'right' },
   subtitle: { color: colors.textMuted, fontSize: 13, textAlign: 'right', marginTop: spacing.xs, marginBottom: spacing.xl },
   chipsWrap: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm },
   chip: {

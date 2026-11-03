@@ -1,5 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, Linking, TouchableOpacity } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Linking,
+  TouchableOpacity,
+} from 'react-native';
+import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
@@ -103,12 +109,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.lg,
   },
   headerRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.sm },
-  headerTitle: { color: colors.text, fontSize: 13, fontWeight: '800' },
+  headerTitle: { color: colors.text, fontSize: 13, fontWeight: '700' },
   row: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.xs, paddingVertical: 4 },
   rowLabel: { color: colors.textMuted, fontSize: 12, flex: 1, textAlign: 'right' },
   rowValue: { color: colors.text, fontSize: 12, fontWeight: '700' },
   embassyBox: { backgroundColor: colors.surfaceAlt, borderRadius: radius.sm, padding: spacing.sm, marginTop: spacing.sm },
-  embassyTitle: { color: colors.text, fontSize: 12, fontWeight: '800', textAlign: 'right' },
+  embassyTitle: { color: colors.text, fontSize: 12, fontWeight: '700', textAlign: 'right' },
   embassyText: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right', marginTop: 2 },
   embassyPhone: { color: colors.primary, fontSize: 12, fontWeight: '700', textAlign: 'right', marginTop: 4 },
   sourceLink: { color: colors.textFaint, fontSize: 10.5, textAlign: 'right', marginTop: spacing.sm, textDecorationLine: 'underline' },

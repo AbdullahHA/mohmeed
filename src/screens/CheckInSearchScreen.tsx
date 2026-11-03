@@ -2,13 +2,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   StyleSheet,
   TextInput,
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
 } from 'react-native';
+import Text from '../components/Text';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';

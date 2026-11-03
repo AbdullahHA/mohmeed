@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -241,7 +241,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   guideTextWrap: { flex: 1 },
-  guideTitle: { color: colors.text, fontSize: 15, fontWeight: '800', textAlign: 'right' },
+  guideTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right' },
   guideSubtitle: { color: colors.primaryDark, fontSize: 12, textAlign: 'right', marginTop: 2 },
   emptyText: {
     color: colors.textMuted,

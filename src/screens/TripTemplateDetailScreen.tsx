@@ -2,12 +2,12 @@ import React, { useMemo } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   Image,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -128,7 +128,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   body: { padding: spacing.xl },
-  title: { color: colors.text, fontSize: 22, fontWeight: '800', textAlign: 'right' },
+  title: { color: colors.text, fontSize: 22, fontWeight: '700', textAlign: 'right' },
   subtitle: { color: colors.textMuted, fontSize: 13, textAlign: 'right', marginTop: 4 },
   sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right', marginBottom: spacing.sm },
   itemsCard: {

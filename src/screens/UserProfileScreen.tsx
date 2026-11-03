@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
@@ -10,6 +9,7 @@ import {
   ActivityIndicator,
   FlatList,
 } from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -254,7 +254,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   headerTitle: { flex: 1, color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'center' },
   profileCard: { alignItems: 'center', padding: spacing.xl },
   avatarMargin: { marginBottom: spacing.sm },
-  name: { color: colors.text, fontSize: 18, fontWeight: '800' },
+  name: { color: colors.text, fontSize: 18, fontWeight: '700' },
   username: { color: colors.textFaint, fontSize: 13, marginTop: 2 },
   bio: { color: colors.textMuted, fontSize: 13, textAlign: 'center', marginTop: spacing.sm, lineHeight: 20 },
   interestsRow: {
@@ -279,7 +279,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.lg,
   },
   statItem: { alignItems: 'center', minWidth: 56 },
-  statValue: { color: colors.text, fontSize: 17, fontWeight: '800' },
+  statValue: { color: colors.text, fontSize: 17, fontWeight: '700' },
   statLabel: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
   statDivider: { width: 1, height: 28, backgroundColor: colors.border },
   actionsRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginTop: spacing.lg, width: '100%' },

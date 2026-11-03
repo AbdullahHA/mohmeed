@@ -2,13 +2,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
   TextInput,
   Image,
 } from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -420,7 +420,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   hi: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
   hiGreeting: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right' },
-  hiName: { color: colors.text, fontSize: 16, fontWeight: '800', textAlign: 'right' },
+  hiName: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right' },
   nextTripWrap: { marginHorizontal: spacing.lg, marginBottom: spacing.lg },
   nextTripBg: { height: 190, borderRadius: radius.xl },
   countBadge: {
@@ -433,11 +433,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.xs,
     alignItems: 'center',
   },
-  countBadgeNum: { color: '#141a2b', fontSize: 20, fontWeight: '800' },
+  countBadgeNum: { color: '#141a2b', fontSize: 20, fontWeight: '700' },
   countBadgeLabel: { color: '#6b7389', fontSize: 10 },
   nextTripIn: { position: 'absolute', bottom: spacing.md, right: spacing.lg, left: spacing.lg, gap: spacing.xs },
   nextTripLbl: { color: 'rgba(255,255,255,0.9)', fontSize: 11, fontWeight: '600', textAlign: 'right' },
-  nextTripTitle: { color: '#fff', fontSize: 19, fontWeight: '800', textAlign: 'right' },
+  nextTripTitle: { color: '#fff', fontSize: 19, fontWeight: '700', textAlign: 'right' },
   glassRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 6 },
   glassChip: {
     flexDirection: 'row-reverse',
@@ -480,7 +480,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  askTitle: { color: colors.text, fontSize: 14, fontWeight: '800', textAlign: 'right' },
+  askTitle: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
   askSubtitle: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right' },
   askIn: {
     flexDirection: 'row-reverse',

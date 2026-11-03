@@ -1,5 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+import Text from '../components/Text';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -199,11 +209,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   headerTitle: { color: colors.text, fontSize: 14, fontWeight: '700' },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
   cover: { width: '100%', height: 160, borderRadius: radius.md, marginBottom: spacing.md },
-  title: { color: colors.text, fontSize: 18, fontWeight: '800', textAlign: 'right' },
+  title: { color: colors.text, fontSize: 18, fontWeight: '700', textAlign: 'right' },
   subtitle: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: spacing.xs, marginBottom: spacing.lg },
   emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xl },
   daySection: { marginBottom: spacing.lg },
-  dayLabel: { color: colors.primary, fontSize: 13, fontWeight: '800', textAlign: 'right', marginBottom: spacing.sm },
+  dayLabel: { color: colors.primary, fontSize: 13, fontWeight: '700', textAlign: 'right', marginBottom: spacing.sm },
   itemRow: {
     flexDirection: 'row-reverse',
     gap: spacing.md,
@@ -227,7 +237,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  budgetPercent: { color: colors.primary, fontSize: 13, fontWeight: '800', minWidth: 44 },
+  budgetPercent: { color: colors.primary, fontSize: 13, fontWeight: '700', minWidth: 44 },
   budgetLabel: { color: colors.text, fontSize: 13 },
   footer: { padding: spacing.lg, borderTopWidth: 1, borderTopColor: colors.border },
   copyButton: { backgroundColor: colors.primary, borderRadius: radius.pill, paddingVertical: spacing.md, alignItems: 'center' },

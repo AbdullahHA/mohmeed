@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   StyleSheet,
   ScrollView,
   TextInput,
@@ -10,6 +9,7 @@ import {
   Image,
   Alert,
 } from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -323,7 +323,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.md,
   },
   kindHeaderRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.xs },
-  kindTitle: { color: colors.text, fontSize: 14, fontWeight: '800' },
+  kindTitle: { color: colors.text, fontSize: 14, fontWeight: '700' },
   emptyMuted: { color: colors.textFaint, fontSize: 12, textAlign: 'center', paddingVertical: spacing.sm },
   docCard: {
     flexDirection: 'row-reverse',

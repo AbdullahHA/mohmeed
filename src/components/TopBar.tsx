@@ -1,5 +1,10 @@
 import React, { useMemo } from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import {
+  View,
+  Image,
+  StyleSheet,
+} from 'react-native';
+import Text from './Text';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
@@ -47,7 +52,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   brandText: {
     color: colors.primary,
     fontSize: 17,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   welcomeRow: {
     flexDirection: 'row-reverse',

@@ -2,13 +2,13 @@ import React, { useMemo } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -227,7 +227,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomColor: colors.border,
   },
   statItem: { alignItems: 'center', paddingHorizontal: spacing.lg },
-  statValue: { color: colors.primary, fontSize: 18, fontWeight: '800' },
+  statValue: { color: colors.primary, fontSize: 18, fontWeight: '700' },
   statLabel: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
   statDivider: { width: 1, height: 28, backgroundColor: colors.border },
   loading: { marginTop: spacing.xxl },

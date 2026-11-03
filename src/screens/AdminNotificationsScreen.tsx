@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   StyleSheet,
   ScrollView,
   TextInput,
@@ -10,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -175,7 +175,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.md,
   },
   noticeText: { flex: 1, color: colors.text, fontSize: 12, textAlign: 'right', lineHeight: 18 },
-  noticeCount: { fontWeight: '800', color: colors.primary },
+  noticeCount: { fontWeight: '700', color: colors.primary },
   label: {
     color: colors.textMuted,
     fontSize: 13,

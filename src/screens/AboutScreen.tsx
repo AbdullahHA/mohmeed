@@ -1,5 +1,13 @@
 import React, { useMemo } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
@@ -62,7 +70,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.md,
   },
   icon: { width: '100%', height: '100%' },
-  appName: { color: colors.text, fontSize: 18, fontWeight: '800' },
+  appName: { color: colors.text, fontSize: 18, fontWeight: '700' },
   version: { color: colors.textFaint, fontSize: 12, marginTop: 2, marginBottom: spacing.xl },
   paragraph: {
     color: colors.textMuted,

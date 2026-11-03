@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   StyleSheet,
   FlatList,
   TextInput,
@@ -13,6 +12,7 @@ import {
   Easing,
   Alert,
 } from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';

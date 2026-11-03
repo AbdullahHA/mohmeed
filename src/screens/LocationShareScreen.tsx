@@ -1,5 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
@@ -188,7 +194,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
   body: { flex: 1, alignItems: 'center', padding: spacing.xl, paddingTop: spacing.xxl, gap: spacing.sm },
-  title: { color: colors.text, fontSize: 17, fontWeight: '800', textAlign: 'center' },
+  title: { color: colors.text, fontSize: 17, fontWeight: '700', textAlign: 'center' },
   subtitle: { color: colors.textMuted, fontSize: 12.5, textAlign: 'center', marginBottom: spacing.lg },
   durationsRow: { flexDirection: 'row-reverse', gap: spacing.md },
   durationButton: {

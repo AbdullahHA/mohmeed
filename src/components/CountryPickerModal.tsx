@@ -1,5 +1,13 @@
 import React, { useMemo, useState } from 'react';
-import { Modal, Pressable, View, Text, TextInput, StyleSheet, FlatList } from 'react-native';
+import {
+  Modal,
+  Pressable,
+  View,
+  TextInput,
+  StyleSheet,
+  FlatList,
+} from 'react-native';
+import Text from './Text';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { COUNTRIES } from '../data/countries';

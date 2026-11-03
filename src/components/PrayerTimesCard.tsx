@@ -1,5 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import {
+  View,
+  StyleSheet,
+} from 'react-native';
+import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
@@ -69,7 +73,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.lg,
   },
   headerRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.sm },
-  headerTitle: { color: colors.text, fontSize: 13, fontWeight: '800', flex: 1, textAlign: 'right' },
+  headerTitle: { color: colors.text, fontSize: 13, fontWeight: '700', flex: 1, textAlign: 'right' },
   nextLabel: { color: colors.primary, fontSize: 11.5, fontWeight: '700' },
   timesRow: { flexDirection: 'row-reverse', justifyContent: 'space-between' },
   timeCell: { alignItems: 'center', flex: 1 },

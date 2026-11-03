@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -10,6 +9,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -144,7 +144,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  headerTitle: { color: colors.text, fontSize: 15, fontWeight: '800' },
+  headerTitle: { color: colors.text, fontSize: 15, fontWeight: '700' },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
   intro: { color: colors.textMuted, fontSize: 12, textAlign: 'right', lineHeight: 18, marginBottom: spacing.lg },
   input: {

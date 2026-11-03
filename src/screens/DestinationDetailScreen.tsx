@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   Image,
   StyleSheet,
   ScrollView,
@@ -11,6 +10,7 @@ import {
   ActivityIndicator,
   Share,
 } from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -524,7 +524,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   stampButtonText: { color: colors.primaryDark, fontSize: 11, fontWeight: '700' },
   stampButtonTextActive: { color: colors.textOnPrimary },
   body: { padding: spacing.xl },
-  name: { color: colors.text, fontSize: 24, fontWeight: '800', textAlign: 'right' },
+  name: { color: colors.text, fontSize: 24, fontWeight: '700', textAlign: 'right' },
   tagline: { color: colors.textMuted, fontSize: 14, textAlign: 'right', marginTop: 4 },
   whyVisit: { color: colors.text, fontSize: 14, lineHeight: 22, textAlign: 'right', marginTop: spacing.lg, marginBottom: spacing.xl },
   sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right', marginBottom: spacing.sm },

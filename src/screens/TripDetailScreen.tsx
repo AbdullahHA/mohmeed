@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   StyleSheet,
   ScrollView,
   Image,
@@ -10,6 +9,7 @@ import {
   TouchableOpacity,
   Share,
 } from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -639,7 +639,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   glassGroup: { flexDirection: 'row-reverse', gap: spacing.sm },
   body: { padding: spacing.xl },
-  title: { color: colors.text, fontSize: 22, fontWeight: '800', textAlign: 'right' },
+  title: { color: colors.text, fontSize: 22, fontWeight: '700', textAlign: 'right' },
   offlineBadge: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

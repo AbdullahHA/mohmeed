@@ -1,5 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, Share } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Share,
+} from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -181,7 +189,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
   body: { padding: spacing.xl, paddingBottom: spacing.xxl },
-  heroTitle: { color: colors.text, fontSize: 22, fontWeight: '800', textAlign: 'center' },
+  heroTitle: { color: colors.text, fontSize: 22, fontWeight: '700', textAlign: 'center' },
   heroSubtitle: { color: colors.textMuted, fontSize: 13, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl },
   statsGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm },
   statCard: {
@@ -193,7 +201,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.lg,
     alignItems: 'center',
   },
-  statValue: { color: colors.primary, fontSize: 24, fontWeight: '800' },
+  statValue: { color: colors.primary, fontSize: 24, fontWeight: '700' },
   statLabel: { color: colors.textMuted, fontSize: 12, marginTop: 4 },
   budgetCard: {
     flexDirection: 'row-reverse',

@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
-  Text,
   StyleSheet,
   ScrollView,
   FlatList,
@@ -10,6 +9,7 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
+import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -278,7 +278,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.md,
   },
   topRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' },
-  topTitle: { color: colors.text, fontSize: 20, fontWeight: '800' },
+  topTitle: { color: colors.text, fontSize: 20, fontWeight: '700' },
   iconBtn: {
     width: 36,
     height: 36,
@@ -363,6 +363,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   dtile: { width: '31.5%', aspectRatio: 0.75, borderRadius: radius.md, overflow: 'hidden', justifyContent: 'flex-end' },
   dtileImage: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' },
   dtileOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: colors.overlay },
-  dtileName: { color: '#fff', fontSize: 12.5, fontWeight: '800', textAlign: 'center', paddingVertical: spacing.sm },
+  dtileName: { color: '#fff', fontSize: 12.5, fontWeight: '700', textAlign: 'center', paddingVertical: spacing.sm },
   emptyText: { color: colors.textMuted, textAlign: 'center', paddingVertical: spacing.lg },
 });
