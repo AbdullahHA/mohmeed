@@ -10,9 +10,21 @@ type FormState = {
   image_url: string;
   why_visit: string;
   trending: boolean;
+  latitude: string;
+  longitude: string;
 };
 
-const EMPTY: FormState = { id: '', name: '', country: '', tagline: '', image_url: '', why_visit: '', trending: false };
+const EMPTY: FormState = {
+  id: '',
+  name: '',
+  country: '',
+  tagline: '',
+  image_url: '',
+  why_visit: '',
+  trending: false,
+  latitude: '',
+  longitude: '',
+};
 
 export default function DestinationEdit() {
   const { id } = useParams();
@@ -28,10 +40,16 @@ export default function DestinationEdit() {
     (async () => {
       const { data } = await supabase
         .from('destinations')
-        .select('id,name,country,tagline,image_url,why_visit,trending')
+        .select('id,name,country,tagline,image_url,why_visit,trending,latitude,longitude')
         .eq('id', id)
         .single();
-      if (data) setForm(data as FormState);
+      if (data) {
+        setForm({
+          ...(data as any),
+          latitude: data.latitude != null ? String(data.latitude) : '',
+          longitude: data.longitude != null ? String(data.longitude) : '',
+        });
+      }
       setLoading(false);
     })();
   }, [id, isNew]);
@@ -47,6 +65,8 @@ export default function DestinationEdit() {
       image_url: form.image_url.trim(),
       why_visit: form.why_visit.trim(),
       trending: form.trending,
+      latitude: form.latitude.trim() ? Number(form.latitude) : null,
+      longitude: form.longitude.trim() ? Number(form.longitude) : null,
     };
     const { error: saveError } = isNew
       ? await supabase.from('destinations').insert({ id: form.id.trim(), ...payload })
@@ -101,6 +121,31 @@ export default function DestinationEdit() {
             className="input"
           />
         </Field>
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="خط العرض (latitude)">
+            <input
+              value={form.latitude}
+              onChange={(e) => setForm({ ...form, latitude: e.target.value })}
+              dir="ltr"
+              inputMode="decimal"
+              placeholder="مثال: 24.7136"
+              className="input"
+            />
+          </Field>
+          <Field label="خط الطول (longitude)">
+            <input
+              value={form.longitude}
+              onChange={(e) => setForm({ ...form, longitude: e.target.value })}
+              dir="ltr"
+              inputMode="decimal"
+              placeholder="مثال: 46.6753"
+              className="input"
+            />
+          </Field>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          تحديد الإحداثيات يفعّل بطاقة مواقيت الصلاة واتجاه القبلة في صفحة المدينة بالتطبيق.
+        </p>
         <label className="flex items-center gap-2 text-sm font-semibold text-foreground">
           <input type="checkbox" checked={form.trending} onChange={(e) => setForm({ ...form, trending: e.target.checked })} />
           رائجة الآن

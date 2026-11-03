@@ -1,4 +1,4 @@
-type Coordinate = { latitude: number; longitude: number };
+export type Coordinate = { latitude: number; longitude: number };
 
 const EARTH_RADIUS_KM = 6371;
 

@@ -22,6 +22,7 @@ import {
   isBiometricAvailable,
   setBiometricLockEnabled,
 } from '../lib/biometric';
+import { getHijriDateEnabled, setHijriDateEnabled } from '../lib/hijriSetting';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -51,6 +52,7 @@ export default function SettingsScreen() {
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [biometricLoading, setBiometricLoading] = useState(true);
+  const [hijriEnabled, setHijriEnabledState] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -59,11 +61,17 @@ export default function SettingsScreen() {
       setBiometricEnabled(available && enabled);
       setBiometricLoading(false);
     })();
+    getHijriDateEnabled().then(setHijriEnabledState);
   }, []);
 
   const handleToggleBiometric = async (value: boolean) => {
     setBiometricEnabled(value);
     await setBiometricLockEnabled(value);
+  };
+
+  const handleToggleHijri = async (value: boolean) => {
+    setHijriEnabledState(value);
+    await setHijriDateEnabled(value);
   };
 
   const handleDeleteAccount = () => {
@@ -170,6 +178,19 @@ export default function SettingsScreen() {
             value={APPEARANCE_OPTIONS.find((o) => o.value === mode)?.label}
             onPress={() => navigation.navigate('AppearanceSetting')}
           />
+          <Divider />
+          <View style={styles.switchRow}>
+            <Switch
+              value={hijriEnabled}
+              onValueChange={handleToggleHijri}
+              trackColor={{ false: colors.border, true: colors.primary }}
+            />
+            <View style={styles.switchTextWrap}>
+              <Text style={styles.switchLabel}>التاريخ الهجري</Text>
+              <Text style={styles.switchHint}>يظهر جنب التاريخ الميلادي في تفاصيل الرحلة</Text>
+            </View>
+            <Ionicons name="moon-outline" size={18} color={colors.textMuted} />
+          </View>
           <Divider />
           <View style={styles.preferenceBlock}>
             <Text style={styles.preferenceLabel}>لغة التطبيق</Text>

@@ -18,6 +18,7 @@ import { checkInPeersByDestination } from '../data/checkInPeers';
 import { PLACE_TYPE_LABELS, type PlaceType } from '../data/places';
 import PlaceCard from '../components/PlaceCard';
 import PersonAvatar from '../components/PersonAvatar';
+import PrayerTimesCard from '../components/PrayerTimesCard';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
@@ -219,6 +220,10 @@ export default function DestinationDetailScreen() {
           </View>
           {destination.bestMonths.includes(currentMonth) ? (
             <Text style={styles.monthsVerdict}>{MONTH_NAMES[currentMonth - 1]} وقت ممتاز للزيارة</Text>
+          ) : null}
+
+          {destination.latitude && destination.longitude ? (
+            <PrayerTimesCard coordinate={{ latitude: destination.latitude, longitude: destination.longitude }} />
           ) : null}
 
           <View style={styles.tabsRow}>

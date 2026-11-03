@@ -22,6 +22,8 @@ import { supabase } from '../lib/supabase';
 import PersonAvatar from '../components/PersonAvatar';
 import DayPicker, { tripDateRange, formatIsoDate } from '../components/DayPicker';
 import SlotPicker, { SLOT_LABELS } from '../components/SlotPicker';
+import { formatHijriDate } from '../lib/hijri';
+import { getHijriDateEnabled } from '../lib/hijriSetting';
 import { BUDGET_CATEGORY_LABELS, type BudgetCategory, type ChecklistGroup, type ItinerarySlot } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -63,6 +65,11 @@ export default function TripDetailScreen() {
   const [showInvite, setShowInvite] = useState(false);
   const [members, setMembers] = useState<MemberProfile[]>([]);
   const [memberRoles, setMemberRoles] = useState<Record<string, TripMemberRole>>({});
+  const [hijriEnabled, setHijriEnabled] = useState(false);
+
+  useEffect(() => {
+    getHijriDateEnabled().then(setHijriEnabled);
+  }, []);
 
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [itinTitle, setItinTitle] = useState('');
@@ -226,6 +233,15 @@ export default function TripDetailScreen() {
               </View>
             ) : null}
           </View>
+
+          {hijriEnabled && hasRealDates
+            ? (() => {
+                const hijriStart = formatHijriDate(tripDays[0]);
+                const hijriEnd = formatHijriDate(tripDays[tripDays.length - 1]);
+                if (!hijriStart || !hijriEnd) return null;
+                return <Text style={styles.hijriSubtitle}>{hijriStart} → {hijriEnd}</Text>;
+              })()
+            : null}
 
           {countdownLabel === 'انتهت' ? (
             <TouchableOpacity
@@ -555,6 +571,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   body: { padding: spacing.xl },
   title: { color: colors.text, fontSize: 22, fontWeight: '800', textAlign: 'right' },
   subtitleRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, marginTop: 4, marginBottom: spacing.md },
+  hijriSubtitle: { color: colors.textFaint, fontSize: 11.5, textAlign: 'right', marginTop: -4, marginBottom: spacing.sm },
   subtitle: { color: colors.textMuted, fontSize: 13 },
   countdownBadge: { backgroundColor: colors.accentSoft, borderRadius: radius.pill, paddingHorizontal: spacing.sm, paddingVertical: 2 },
   summaryBanner: {
