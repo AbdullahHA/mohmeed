@@ -4,12 +4,16 @@
 -- Existing rows are remapped to their closest new value first so the new
 -- check constraint never rejects live data.
 
+-- Drop the old constraint *before* remapping — otherwise the UPDATEs below
+-- try to write a new value (e.g. 'food') while the old constraint (which
+-- only allows 'restaurant') is still active, and fail.
+alter table public.places drop constraint if exists places_type_check;
+
 update public.places set type = 'food' where type = 'restaurant';
 update public.places set type = 'hotels' where type = 'hotel';
 update public.places set type = 'landmarks' where type = 'landmark';
 update public.places set type = 'experiences' where type = 'activity';
 
-alter table public.places drop constraint if exists places_type_check;
 alter table public.places add constraint places_type_check
   check (type in ('food', 'cafe', 'events', 'experiences', 'shopping', 'nature', 'landmarks', 'hotels'));
 
