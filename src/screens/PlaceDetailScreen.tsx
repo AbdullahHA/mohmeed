@@ -72,7 +72,15 @@ export default function PlaceDetailScreen() {
   };
 
   const handleSelectTrip = (trip: Trip) => {
-    addItineraryItem(trip.id, { day: 'غير محدد', time: '—', title: place.name });
+    addItineraryItem(trip.id, {
+      day: 'غير محدد',
+      time: '—',
+      title: place.name,
+      itemDate: null,
+      slot: null,
+      placeId: place.id,
+      kind: 'place',
+    });
     setPickerVisible(false);
     navigation.navigate('TripDetail', { tripId: trip.id });
   };

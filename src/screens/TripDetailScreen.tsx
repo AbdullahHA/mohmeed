@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -17,12 +17,15 @@ import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useRegion } from '../context/RegionContext';
 import { useAppState } from '../context/AppState';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 import PersonAvatar from '../components/PersonAvatar';
 import { BUDGET_CATEGORY_LABELS, type BudgetCategory } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'TripDetail'>;
 type Nav = NativeStackNavigationProp<RootStackParamList>;
+type MemberProfile = { id: string; name: string; avatarUrl: string | null };
 
 const CATEGORIES: BudgetCategory[] = ['hotels', 'food', 'transport', 'activities', 'other'];
 
@@ -32,10 +35,10 @@ export default function TripDetailScreen() {
   const { colors } = useTheme();
   const { currency } = useRegion();
   const styles = useMemo(() => createStyles(colors), [colors]);
+  const { profile } = useAuth();
   const {
     trips,
     friends,
-    currentUser,
     addMember,
     addBudgetItem,
     removeBudgetItem,
@@ -52,6 +55,23 @@ export default function TripDetailScreen() {
   const [itinDay, setItinDay] = useState('');
   const [itinTime, setItinTime] = useState('');
   const [itinTitle, setItinTitle] = useState('');
+  const [members, setMembers] = useState<MemberProfile[]>([]);
+
+  useEffect(() => {
+    if (!trip) return;
+    let cancelled = false;
+    supabase
+      .from('profiles')
+      .select('id,name,avatar_url')
+      .in('id', trip.memberIds)
+      .then(({ data }) => {
+        if (cancelled) return;
+        setMembers((data ?? []).map((r: any) => ({ id: r.id, name: r.name, avatarUrl: r.avatar_url ?? null })));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [trip?.memberIds.join(',')]);
 
   if (!trip) {
     return (
@@ -60,10 +80,6 @@ export default function TripDetailScreen() {
       </SafeAreaView>
     );
   }
-
-  const members = trip.memberIds.map((id) =>
-    id === 'me' ? currentUser : friends.find((f) => f.id === id)
-  ).filter((f): f is NonNullable<typeof f> => Boolean(f));
 
   const invitableFriends = friends.filter((f) => !trip.memberIds.includes(f.id));
 
@@ -74,14 +90,28 @@ export default function TripDetailScreen() {
   const handleAddBudgetItem = () => {
     const amount = Number(budgetAmount);
     if (!budgetLabel.trim() || !Number.isFinite(amount) || amount <= 0) return;
-    addBudgetItem(trip.id, { category: budgetCategory, label: budgetLabel.trim(), amount });
+    addBudgetItem(trip.id, {
+      category: budgetCategory,
+      label: budgetLabel.trim(),
+      amount,
+      paidBy: profile?.id ?? null,
+      splitBetween: trip.memberIds,
+    });
     setBudgetLabel('');
     setBudgetAmount('');
   };
 
   const handleAddItinerary = () => {
     if (!itinDay.trim() || !itinTitle.trim()) return;
-    addItineraryItem(trip.id, { day: itinDay.trim(), time: itinTime.trim() || '—', title: itinTitle.trim() });
+    addItineraryItem(trip.id, {
+      day: itinDay.trim(),
+      time: itinTime.trim() || '—',
+      title: itinTitle.trim(),
+      itemDate: null,
+      slot: null,
+      placeId: null,
+      kind: 'place',
+    });
     setItinDay('');
     setItinTime('');
     setItinTitle('');

@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, View, type ImageSourcePropType } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { seedTrips } from '../data/trips';
 import { seedCommunities } from '../data/communities';
 import { seedTripTemplates } from '../data/tripTemplates';
 import { heroDestination, type Destination } from '../data/destinations';
@@ -13,6 +12,7 @@ import { useTheme } from './ThemeContext';
 import type {
   BudgetItem,
   ChatMessage,
+  ChecklistItem,
   Community,
   Feedback,
   Friend,
@@ -43,7 +43,6 @@ const WELCOME_MESSAGE: ChatMessage = {
 };
 
 type PersistedState = {
-  trips: Trip[];
   guideMessages: ChatMessage[];
   communities: Community[];
   feedback: Feedback | null;
@@ -79,6 +78,7 @@ type AppStateValue = {
   currentUser: Friend;
   friends: Friend[];
   trips: Trip[];
+  tripsLoading: boolean;
   guideMessages: ChatMessage[];
   guideThinking: boolean;
   communities: Community[];
@@ -102,13 +102,16 @@ type AppStateValue = {
   acceptFriendRequest: (requesterId: string) => Promise<{ error: string | null }>;
   declineFriendRequest: (requesterId: string) => Promise<{ error: string | null }>;
   cancelFriendRequest: (recipientId: string) => Promise<{ error: string | null }>;
-  createTrip: (input: NewTripInput) => Trip;
-  addMember: (tripId: string, friendId: string) => void;
-  addBudgetItem: (tripId: string, item: Omit<BudgetItem, 'id'>) => void;
-  removeBudgetItem: (tripId: string, itemId: string) => void;
-  addItineraryItem: (tripId: string, item: Omit<ItineraryItem, 'id'>) => void;
-  removeItineraryItem: (tripId: string, itemId: string) => void;
-  sendGroupMessage: (tripId: string, text: string) => void;
+  createTrip: (input: NewTripInput) => Promise<Trip | null>;
+  joinTripByCode: (code: string) => Promise<{ tripId: string | null; error: string | null }>;
+  addMember: (tripId: string, friendId: string) => Promise<void>;
+  addBudgetItem: (tripId: string, item: Omit<BudgetItem, 'id'>) => Promise<void>;
+  removeBudgetItem: (tripId: string, itemId: string) => Promise<void>;
+  addItineraryItem: (tripId: string, item: Omit<ItineraryItem, 'id' | 'addedBy'>) => Promise<void>;
+  removeItineraryItem: (tripId: string, itemId: string) => Promise<void>;
+  addChecklistItem: (tripId: string, item: Omit<ChecklistItem, 'id' | 'done'>) => Promise<void>;
+  toggleChecklistItem: (tripId: string, itemId: string) => Promise<void>;
+  removeChecklistItem: (tripId: string, itemId: string) => Promise<void>;
   sendGuideMessage: (text: string) => void;
   resetGuideConversation: () => void;
   joinCommunity: (communityId: string) => void;
@@ -126,7 +129,7 @@ type AppStateValue = {
   removeManualVisitedPlace: (id: string) => void;
   addTripTemplate: (input: NewTripTemplateInput) => TripTemplate;
   removeTripTemplate: (id: string) => void;
-  applyTripTemplate: (templateId: string) => Trip | null;
+  applyTripTemplate: (templateId: string) => Promise<Trip | null>;
   checkIn: (destinationId: string) => void;
   checkOut: () => void;
   myCheckIns: CheckInRecord[];
@@ -217,7 +220,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [blockedUserIds, setBlockedUserIds] = useState<string[]>([]);
   const [incomingRequests, setIncomingRequests] = useState<Friend[]>([]);
   const [outgoingRequests, setOutgoingRequests] = useState<Friend[]>([]);
-  const [trips, setTrips] = useState<Trip[]>(seedTrips);
+  const [trips, setTrips] = useState<Trip[]>([]);
+  const [tripsLoading, setTripsLoading] = useState(true);
   const [guideMessages, setGuideMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
   const [guideThinking, setGuideThinking] = useState(false);
   const [communities, setCommunities] = useState<Community[]>(seedCommunities);
@@ -243,10 +247,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         const raw = await AsyncStorage.getItem(STORAGE_KEY);
         if (raw) {
           const parsed: Partial<PersistedState> = JSON.parse(raw);
-          if (Array.isArray(parsed.trips)) {
-            setTrips(parsed.trips);
-            loadedFromStorage = true;
-          }
           if (Array.isArray(parsed.guideMessages) && parsed.guideMessages.length > 0) {
             setGuideMessages(parsed.guideMessages);
             loadedFromStorage = true;
@@ -313,7 +313,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     const payload: PersistedState = {
-      trips,
       guideMessages,
       communities,
       feedback,
@@ -328,7 +327,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     };
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload)).catch(() => {});
   }, [
-    trips,
     guideMessages,
     communities,
     feedback,
@@ -621,6 +619,77 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       }));
   };
 
+  const mapBudgetRow = (row: any): BudgetItem => ({
+    id: row.id,
+    category: row.category,
+    label: row.label,
+    amount: Number(row.amount) || 0,
+    paidBy: row.paid_by ?? null,
+    splitBetween: row.split_between ?? [],
+  });
+
+  const mapItineraryRow = (row: any): ItineraryItem => ({
+    id: row.id,
+    day: row.day,
+    time: row.time,
+    title: row.title,
+    note: row.note ?? undefined,
+    itemDate: row.item_date ?? null,
+    slot: row.slot ?? null,
+    addedBy: row.added_by ?? null,
+    placeId: row.place_id ?? null,
+    kind: row.kind ?? 'place',
+  });
+
+  const mapChecklistRow = (row: any): ChecklistItem => ({
+    id: row.id,
+    group: row.group_name,
+    title: row.title,
+    assigneeId: row.assignee_id ?? null,
+    dueDate: row.due_date ?? null,
+    done: row.done,
+  });
+
+  const mapTripRow = (row: any): Trip => {
+    const memberIds = Array.from(
+      new Set<string>([row.owner_id, ...((row.trip_members ?? []) as any[]).map((m) => m.profile_id)])
+    );
+    return {
+      id: row.id,
+      ownerId: row.owner_id,
+      title: row.title,
+      destination: row.destination,
+      coverImage: row.cover_image_url ? { uri: row.cover_image_url } : heroDestination.image,
+      startDate: row.start_date,
+      endDate: row.end_date,
+      memberIds,
+      budgetTotal: Number(row.budget_total) || 0,
+      budgetItems: ((row.budget_items ?? []) as any[]).map(mapBudgetRow),
+      itinerary: ((row.itinerary_items ?? []) as any[]).map(mapItineraryRow),
+      checklist: ((row.trip_checklist ?? []) as any[]).map(mapChecklistRow),
+      shareCode: row.share_code,
+    };
+  };
+
+  const TRIP_SELECT =
+    'id,owner_id,title,destination,cover_image_url,start_date,end_date,budget_total,share_code,' +
+    'trip_members(profile_id),' +
+    'budget_items(id,category,label,amount,paid_by,split_between),' +
+    'itinerary_items(id,day,time,title,note,item_date,slot,added_by,place_id,kind),' +
+    'trip_checklist(id,group_name,title,assignee_id,due_date,done)';
+
+  const loadTrips = async () => {
+    if (!profile) {
+      setTrips([]);
+      setTripsLoading(false);
+      return;
+    }
+    setTripsLoading(true);
+    const { data } = await supabase.from('trips').select(TRIP_SELECT).order('created_at', { ascending: false });
+    setTrips(((data ?? []) as any[]).map(mapTripRow));
+    setTripsLoading(false);
+  };
+
   const mirrorTripWindow = (trip: Trip) => {
     if (!profile) return;
     const destination = destinations.find((d) => d.name === trip.destination);
@@ -688,6 +757,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     loadFollowCounts();
     loadMyPosts();
     loadMeetupMatches();
+    loadTrips();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id]);
 
@@ -817,73 +887,147 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     return { error: null };
   };
 
-  const createTrip = (input: NewTripInput): Trip => {
-    const trip: Trip = {
-      id: uid('trip'),
-      title: input.title,
-      destination: input.destination,
-      coverImage: input.coverImage,
-      startDate: input.startDate,
-      endDate: input.endDate,
-      memberIds: Array.from(new Set(['me', ...input.memberIds])),
-      budgetTotal: input.budgetTotal,
-      budgetItems: [],
-      itinerary: [],
-      messages: [],
-      shareCode: uid('CODE').slice(-8).toUpperCase(),
-    };
+  const updateTripLocal = (tripId: string, updater: (trip: Trip) => Trip) => {
+    setTrips((prev) => prev.map((trip) => (trip.id === tripId ? updater(trip) : trip)));
+  };
+
+  const createTrip = async (input: NewTripInput): Promise<Trip | null> => {
+    if (!profile) return null;
+    const coverUri = (input.coverImage as { uri?: string } | undefined)?.uri ?? null;
+    const { data, error } = await supabase
+      .from('trips')
+      .insert({
+        owner_id: profile.id,
+        title: input.title,
+        destination: input.destination,
+        cover_image_url: coverUri,
+        start_date: input.startDate,
+        end_date: input.endDate,
+        budget_total: input.budgetTotal,
+      })
+      .select('id,owner_id,title,destination,cover_image_url,start_date,end_date,budget_total,share_code')
+      .single();
+    if (error || !data) return null;
+
+    const memberIds = input.memberIds.filter((id) => id !== profile.id);
+    if (memberIds.length > 0) {
+      await supabase.from('trip_members').insert(memberIds.map((id) => ({ trip_id: data.id, profile_id: id })));
+    }
+
+    const trip = mapTripRow({
+      ...data,
+      trip_members: memberIds.map((id) => ({ profile_id: id })),
+      budget_items: [],
+      itinerary_items: [],
+      trip_checklist: [],
+    });
     setTrips((prev) => [trip, ...prev]);
     mirrorTripWindow(trip);
     return trip;
   };
 
-  const updateTrip = (tripId: string, updater: (trip: Trip) => Trip) => {
-    setTrips((prev) => prev.map((trip) => (trip.id === tripId ? updater(trip) : trip)));
+  const joinTripByCode = async (code: string): Promise<{ tripId: string | null; error: string | null }> => {
+    if (!profile) return { tripId: null, error: 'سجّل دخولك أولاً' };
+    const trimmed = code.trim();
+    if (!trimmed) return { tripId: null, error: 'اكتب رمز الدعوة' };
+    const { data, error } = await supabase.rpc('join_trip_by_code', { _code: trimmed });
+    if (error) return { tripId: null, error: 'تعذّر الانضمام، حاول مرة ثانية' };
+    if (!data) return { tripId: null, error: 'ما لقينا رحلة بهذا الرمز. تأكد منه مع اللي أرسل لك الدعوة.' };
+    await loadTrips();
+    return { tripId: data as string, error: null };
   };
 
-  const addMember = (tripId: string, friendId: string) => {
-    updateTrip(tripId, (trip) =>
-      trip.memberIds.includes(friendId)
-        ? trip
-        : { ...trip, memberIds: [...trip.memberIds, friendId] }
-    );
-  };
-
-  const addBudgetItem = (tripId: string, item: Omit<BudgetItem, 'id'>) => {
-    updateTrip(tripId, (trip) => ({
-      ...trip,
-      budgetItems: [...trip.budgetItems, { ...item, id: uid('budget') }],
+  const addMember = async (tripId: string, friendId: string) => {
+    const trip = trips.find((t) => t.id === tripId);
+    if (trip?.memberIds.includes(friendId)) return;
+    const { error } = await supabase.from('trip_members').insert({ trip_id: tripId, profile_id: friendId });
+    if (error) return;
+    updateTripLocal(tripId, (t) => ({
+      ...t,
+      memberIds: Array.from(new Set([...t.memberIds, friendId])),
     }));
   };
 
-  const removeBudgetItem = (tripId: string, itemId: string) => {
-    updateTrip(tripId, (trip) => ({
-      ...trip,
-      budgetItems: trip.budgetItems.filter((item) => item.id !== itemId),
-    }));
+  const addBudgetItem = async (tripId: string, item: Omit<BudgetItem, 'id'>) => {
+    const { data, error } = await supabase
+      .from('budget_items')
+      .insert({
+        trip_id: tripId,
+        category: item.category,
+        label: item.label,
+        amount: item.amount,
+        paid_by: item.paidBy,
+        split_between: item.splitBetween,
+      })
+      .select()
+      .single();
+    if (error || !data) return;
+    updateTripLocal(tripId, (t) => ({ ...t, budgetItems: [...t.budgetItems, mapBudgetRow(data)] }));
   };
 
-  const addItineraryItem = (tripId: string, item: Omit<ItineraryItem, 'id'>) => {
-    updateTrip(tripId, (trip) => ({
-      ...trip,
-      itinerary: [...trip.itinerary, { ...item, id: uid('itin') }],
-    }));
+  const removeBudgetItem = async (tripId: string, itemId: string) => {
+    updateTripLocal(tripId, (t) => ({ ...t, budgetItems: t.budgetItems.filter((b) => b.id !== itemId) }));
+    await supabase.from('budget_items').delete().eq('id', itemId);
   };
 
-  const removeItineraryItem = (tripId: string, itemId: string) => {
-    updateTrip(tripId, (trip) => ({
-      ...trip,
-      itinerary: trip.itinerary.filter((item) => item.id !== itemId),
-    }));
+  const addItineraryItem = async (tripId: string, item: Omit<ItineraryItem, 'id' | 'addedBy'>) => {
+    if (!profile) return;
+    const { data, error } = await supabase
+      .from('itinerary_items')
+      .insert({
+        trip_id: tripId,
+        day: item.day,
+        time: item.time,
+        title: item.title,
+        note: item.note ?? null,
+        item_date: item.itemDate,
+        slot: item.slot,
+        added_by: profile.id,
+        place_id: item.placeId,
+        kind: item.kind,
+      })
+      .select()
+      .single();
+    if (error || !data) return;
+    updateTripLocal(tripId, (t) => ({ ...t, itinerary: [...t.itinerary, mapItineraryRow(data)] }));
   };
 
-  const sendGroupMessage = (tripId: string, text: string) => {
-    const trimmed = text.trim();
-    if (!trimmed) return;
-    updateTrip(tripId, (trip) => ({
-      ...trip,
-      messages: [...trip.messages, { id: uid('msg'), fromId: 'me', text: trimmed, at: Date.now() }],
+  const removeItineraryItem = async (tripId: string, itemId: string) => {
+    updateTripLocal(tripId, (t) => ({ ...t, itinerary: t.itinerary.filter((i) => i.id !== itemId) }));
+    await supabase.from('itinerary_items').delete().eq('id', itemId);
+  };
+
+  const addChecklistItem = async (tripId: string, item: Omit<ChecklistItem, 'id' | 'done'>) => {
+    const { data, error } = await supabase
+      .from('trip_checklist')
+      .insert({
+        trip_id: tripId,
+        group_name: item.group,
+        title: item.title,
+        assignee_id: item.assigneeId,
+        due_date: item.dueDate,
+      })
+      .select()
+      .single();
+    if (error || !data) return;
+    updateTripLocal(tripId, (t) => ({ ...t, checklist: [...t.checklist, mapChecklistRow(data)] }));
+  };
+
+  const toggleChecklistItem = async (tripId: string, itemId: string) => {
+    const trip = trips.find((t) => t.id === tripId);
+    const item = trip?.checklist.find((c) => c.id === itemId);
+    if (!item) return;
+    const done = !item.done;
+    updateTripLocal(tripId, (t) => ({
+      ...t,
+      checklist: t.checklist.map((c) => (c.id === itemId ? { ...c, done } : c)),
     }));
+    await supabase.from('trip_checklist').update({ done }).eq('id', itemId);
+  };
+
+  const removeChecklistItem = async (tripId: string, itemId: string) => {
+    updateTripLocal(tripId, (t) => ({ ...t, checklist: t.checklist.filter((c) => c.id !== itemId) }));
+    await supabase.from('trip_checklist').delete().eq('id', itemId);
   };
 
   const sendGuideMessage = (text: string) => {
@@ -1026,11 +1170,11 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setTripTemplates((prev) => prev.filter((t) => t.id !== id));
   };
 
-  const applyTripTemplate = (templateId: string): Trip | null => {
+  const applyTripTemplate = async (templateId: string): Promise<Trip | null> => {
     const template = tripTemplates.find((t) => t.id === templateId);
     if (!template) return null;
     const destination = destinations.find((d) => d.id === template.destinationId);
-    const trip = createTrip({
+    const trip = await createTrip({
       title: template.title,
       destination: destination?.name ?? template.destinationId,
       coverImage: destination?.image ?? heroDestination.image,
@@ -1039,9 +1183,18 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       memberIds: [],
       budgetTotal: 0,
     });
-    template.items.forEach((item) => {
-      addItineraryItem(trip.id, { day: 'غير محدد', time: '—', title: item.label });
-    });
+    if (!trip) return null;
+    for (const item of template.items) {
+      await addItineraryItem(trip.id, {
+        day: 'غير محدد',
+        time: '—',
+        title: item.label,
+        itemDate: null,
+        slot: null,
+        placeId: null,
+        kind: 'place',
+      });
+    }
     return trip;
   };
 
@@ -1112,6 +1265,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       incomingRequests,
       outgoingRequests,
       trips,
+      tripsLoading,
       guideMessages,
       guideThinking,
       communities,
@@ -1132,12 +1286,15 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       declineFriendRequest,
       cancelFriendRequest,
       createTrip,
+      joinTripByCode,
       addMember,
       addBudgetItem,
       removeBudgetItem,
       addItineraryItem,
       removeItineraryItem,
-      sendGroupMessage,
+      addChecklistItem,
+      toggleChecklistItem,
+      removeChecklistItem,
       sendGuideMessage,
       resetGuideConversation,
       joinCommunity,
@@ -1187,6 +1344,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       incomingRequests,
       outgoingRequests,
       trips,
+      tripsLoading,
       guideMessages,
       guideThinking,
       communities,

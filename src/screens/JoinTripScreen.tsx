@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -14,22 +14,23 @@ export default function JoinTripScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { trips, currentUser, addMember } = useAppState();
+  const { joinTripByCode } = useAppState();
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
+  const [joining, setJoining] = useState(false);
 
-  const handleJoin = () => {
-    const trimmed = code.trim().toUpperCase();
-    if (!trimmed) return;
-    const trip = trips.find((t) => t.shareCode.toUpperCase() === trimmed);
-    if (!trip) {
-      setError('ما لقينا رحلة بهذا الرمز. تأكد منه مع اللي أرسل لك الدعوة.');
+  const handleJoin = async () => {
+    const trimmed = code.trim();
+    if (!trimmed || joining) return;
+    setJoining(true);
+    setError('');
+    const { tripId, error: joinError } = await joinTripByCode(trimmed);
+    setJoining(false);
+    if (joinError || !tripId) {
+      setError(joinError ?? 'ما لقينا رحلة بهذا الرمز. تأكد منه مع اللي أرسل لك الدعوة.');
       return;
     }
-    if (!trip.memberIds.includes(currentUser.id)) {
-      addMember(trip.id, currentUser.id);
-    }
-    navigation.replace('TripDetail', { tripId: trip.id });
+    navigation.replace('TripDetail', { tripId });
   };
 
   return (
@@ -59,19 +60,19 @@ export default function JoinTripScreen() {
         />
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        <Text style={styles.note}>
-          هذا الرمز تحصله من صديقك اللي شاركه معك من تفاصيل الرحلة. حاليًا البحث يشمل الرحلات
-          المخزّنة على جهازك فقط — لما يصير عندنا حساب مشترك بين الأجهزة بيشتغل مباشرة بين أي
-          شخصين.
-        </Text>
+        <Text style={styles.note}>هذا الرمز تحصله من صديقك اللي شاركه معك من تفاصيل الرحلة.</Text>
 
         <TouchableOpacity
-          style={[styles.submitButton, !code.trim() && styles.submitDisabled]}
+          style={[styles.submitButton, (!code.trim() || joining) && styles.submitDisabled]}
           activeOpacity={0.85}
-          disabled={!code.trim()}
+          disabled={!code.trim() || joining}
           onPress={handleJoin}
         >
-          <Text style={styles.submitText}>انضم للرحلة</Text>
+          {joining ? (
+            <ActivityIndicator color={colors.textOnPrimary} />
+          ) : (
+            <Text style={styles.submitText}>انضم للرحلة</Text>
+          )}
         </TouchableOpacity>
       </View>
     </SafeAreaView>

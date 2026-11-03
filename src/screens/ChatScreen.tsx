@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -15,6 +15,7 @@ import SectionHeader from '../components/SectionHeader';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
+import { supabase } from '../lib/supabase';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -23,11 +24,39 @@ export default function ChatScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const styles = React.useMemo(() => createStyles(colors), [colors]);
-  const { guideMessages, trips, friends, currentUser, communities } = useAppState();
+  const { guideMessages, trips, communities } = useAppState();
+  const [lastTripMessages, setLastTripMessages] = useState<Record<string, string>>({});
 
   const lastGuideMessage = guideMessages[guideMessages.length - 1];
   const joinedCommunities = communities.filter((c) => c.joined);
   const discoverCommunities = communities.filter((c) => !c.joined);
+
+  useEffect(() => {
+    if (trips.length === 0) {
+      setLastTripMessages({});
+      return;
+    }
+    let cancelled = false;
+    supabase
+      .from('trip_messages')
+      .select('trip_id,text,at')
+      .in(
+        'trip_id',
+        trips.map((t) => t.id)
+      )
+      .order('at', { ascending: false })
+      .then(({ data }) => {
+        if (cancelled || !data) return;
+        const latest: Record<string, string> = {};
+        for (const row of data as any[]) {
+          if (!latest[row.trip_id]) latest[row.trip_id] = row.text;
+        }
+        setLastTripMessages(latest);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [trips.map((t) => t.id).join(',')]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -55,11 +84,8 @@ export default function ChatScreen() {
           <Text style={styles.emptyText}>ابدأ رحلة مع أصدقائك عشان تظهر محادثتها هنا</Text>
         ) : (
           trips.map((trip) => {
-            const lastMessage = trip.messages[trip.messages.length - 1];
-            const memberNames = trip.memberIds
-              .filter((id) => id !== 'me')
-              .map((id) => friends.find((f) => f.id === id)?.name ?? currentUser.name)
-              .join('، ');
+            const otherMembers = trip.memberIds.length - 1;
+            const lastMessage = lastTripMessages[trip.id];
             return (
               <TouchableOpacity
                 key={trip.id}
@@ -73,7 +99,7 @@ export default function ChatScreen() {
                 <View style={styles.rowTextWrap}>
                   <Text style={styles.rowTitle}>{trip.title}</Text>
                   <Text style={styles.rowSubtitle} numberOfLines={1}>
-                    {lastMessage ? lastMessage.text : `مع ${memberNames || 'لا أحد بعد'}`}
+                    {lastMessage ?? (otherMembers > 0 ? `مع ${otherMembers} أعضاء` : 'لسا محد انضم')}
                   </Text>
                 </View>
               </TouchableOpacity>

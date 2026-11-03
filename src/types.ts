@@ -16,7 +16,12 @@ export type BudgetItem = {
   category: BudgetCategory;
   label: string;
   amount: number;
+  paidBy: string | null;
+  splitBetween: string[];
 };
+
+export type ItinerarySlot = 'breakfast' | 'lunch' | 'dinner' | 'morning' | 'afternoon' | 'evening';
+export type ItineraryKind = 'place' | 'note' | 'flight' | 'stay';
 
 export type ItineraryItem = {
   id: string;
@@ -24,6 +29,22 @@ export type ItineraryItem = {
   time: string;
   title: string;
   note?: string;
+  itemDate: string | null;
+  slot: ItinerarySlot | null;
+  addedBy: string | null;
+  placeId: string | null;
+  kind: ItineraryKind;
+};
+
+export type ChecklistGroup = 'الحجوزات' | 'الشنطة' | 'الأوراق' | 'أخرى';
+
+export type ChecklistItem = {
+  id: string;
+  group: ChecklistGroup;
+  title: string;
+  assigneeId: string | null;
+  dueDate: string | null;
+  done: boolean;
 };
 
 export type ChatMessage = {
@@ -35,6 +56,7 @@ export type ChatMessage = {
 
 export type Trip = {
   id: string;
+  ownerId: string;
   title: string;
   destination: string;
   coverImage: ImageSourcePropType;
@@ -44,7 +66,7 @@ export type Trip = {
   budgetTotal: number;
   budgetItems: BudgetItem[];
   itinerary: ItineraryItem[];
-  messages: ChatMessage[];
+  checklist: ChecklistItem[];
   shareCode: string;
 };
 
@@ -126,6 +148,14 @@ export type DirectMessage = {
   id: string;
   senderId: string;
   recipientId: string;
+  text: string;
+  at: number;
+};
+
+export type TripMessage = {
+  id: string;
+  tripId: string;
+  fromId: string;
   text: string;
   at: number;
 };

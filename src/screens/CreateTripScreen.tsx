@@ -61,9 +61,12 @@ export default function CreateTripScreen() {
 
   const canSubmit = title.trim().length > 0;
 
-  const handleCreate = () => {
-    if (!canSubmit) return;
-    const trip = createTrip({
+  const [creating, setCreating] = useState(false);
+
+  const handleCreate = async () => {
+    if (!canSubmit || creating) return;
+    setCreating(true);
+    const trip = await createTrip({
       title: title.trim(),
       destination: selectedDestination.name,
       coverImage: selectedDestination.image,
@@ -72,6 +75,8 @@ export default function CreateTripScreen() {
       memberIds: selectedFriendIds,
       budgetTotal: Math.max(0, Number(budgetTotal) || 0),
     });
+    setCreating(false);
+    if (!trip) return;
     navigation.replace('TripDetail', { tripId: trip.id });
   };
 
@@ -200,12 +205,12 @@ export default function CreateTripScreen() {
         </View>
 
         <TouchableOpacity
-          style={[styles.submitButton, !canSubmit && styles.submitDisabled]}
+          style={[styles.submitButton, (!canSubmit || creating) && styles.submitDisabled]}
           activeOpacity={0.85}
-          disabled={!canSubmit}
+          disabled={!canSubmit || creating}
           onPress={handleCreate}
         >
-          <Text style={styles.submitText}>إنشاء الرحلة</Text>
+          <Text style={styles.submitText}>{creating ? 'جاري الإنشاء...' : 'إنشاء الرحلة'}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

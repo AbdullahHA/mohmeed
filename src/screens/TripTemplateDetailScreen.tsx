@@ -53,8 +53,8 @@ export default function TripTemplateDetailScreen() {
   const isFree = template.price === 0;
 
   const handleUse = () => {
-    requireAccount('trip', () => {
-      const trip = applyTripTemplate(template.id);
+    requireAccount('trip', async () => {
+      const trip = await applyTripTemplate(template.id);
       if (trip) navigation.replace('TripDetail', { tripId: trip.id });
     });
   };
