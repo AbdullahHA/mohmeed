@@ -22,6 +22,8 @@ import CommunityChatScreen from '../screens/CommunityChatScreen';
 import AddFriendScreen from '../screens/AddFriendScreen';
 import FriendsScreen from '../screens/FriendsScreen';
 import FriendChatScreen from '../screens/FriendChatScreen';
+import LocationShareScreen from '../screens/LocationShareScreen';
+import LocationViewScreen from '../screens/LocationViewScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import PassportScreen from '../screens/PassportScreen';
 import PersonalInfoScreen from '../screens/PersonalInfoScreen';
@@ -90,6 +92,8 @@ export default function RootNavigator() {
       <Stack.Screen name="AddFriend" component={AddFriendScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="Friends" component={FriendsScreen} />
       <Stack.Screen name="FriendChat" component={FriendChatScreen} />
+      <Stack.Screen name="LocationShare" component={LocationShareScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="LocationView" component={LocationViewScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="Passport" component={PassportScreen} />
       <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />

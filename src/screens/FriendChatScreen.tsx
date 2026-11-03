@@ -20,6 +20,7 @@ import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import PersonAvatar from '../components/PersonAvatar';
+import { parseLocationShareMessage } from '../lib/locationShare';
 import type { DirectMessage } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -125,6 +126,13 @@ export default function FriendChatScreen() {
           <Text style={styles.headerTitle}>{friend.name}</Text>
           <Text style={styles.headerSubtitle}>@{friend.username}</Text>
         </View>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('LocationShare', { friendId })}
+          activeOpacity={0.8}
+          hitSlop={8}
+        >
+          <Ionicons name="location-outline" size={20} color={colors.textMuted} />
+        </TouchableOpacity>
         <PersonAvatar avatarUrl={friend.avatarUrl} size={36} />
       </View>
 
@@ -141,11 +149,36 @@ export default function FriendChatScreen() {
             ListEmptyComponent={
               <Text style={styles.emptyText}>ابدأ المحادثة مع {friend.name}</Text>
             }
-            renderItem={({ item }) => (
-              <View style={[styles.bubble, item.senderId === meId ? styles.bubbleMe : styles.bubbleOther]}>
-                <Text style={[styles.bubbleText, item.senderId === meId && styles.bubbleTextMe]}>{item.text}</Text>
-              </View>
-            )}
+            renderItem={({ item }) => {
+              const share = parseLocationShareMessage(item.text);
+              if (share) {
+                const expired = Date.now() >= share.expiresAtMs;
+                return (
+                  <TouchableOpacity
+                    style={[styles.shareBubble, item.senderId === meId ? styles.bubbleMe : styles.bubbleOther]}
+                    activeOpacity={0.85}
+                    disabled={expired}
+                    onPress={() =>
+                      navigation.navigate('LocationView', {
+                        channel: share.channel,
+                        friendId,
+                        expiresAtMs: share.expiresAtMs,
+                      })
+                    }
+                  >
+                    <Ionicons name="location" size={16} color={item.senderId === meId ? colors.textOnPrimary : colors.primary} />
+                    <Text style={[styles.bubbleText, item.senderId === meId && styles.bubbleTextMe]}>
+                      {expired ? 'انتهت مشاركة الموقع' : item.senderId === meId ? 'تشارك موقعك' : 'شارك موقعه معك — اضغط للتتبع'}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              }
+              return (
+                <View style={[styles.bubble, item.senderId === meId ? styles.bubbleMe : styles.bubbleOther]}>
+                  <Text style={[styles.bubbleText, item.senderId === meId && styles.bubbleTextMe]}>{item.text}</Text>
+                </View>
+              );
+            }}
           />
         )}
 
@@ -188,6 +221,15 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   list: { padding: spacing.lg, gap: spacing.md },
   emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xl },
   bubble: { maxWidth: '80%', padding: spacing.md, borderRadius: radius.md, marginBottom: spacing.sm },
+  shareBubble: {
+    maxWidth: '80%',
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.xs,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    marginBottom: spacing.sm,
+  },
   bubbleOther: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, alignSelf: 'flex-end' },
   bubbleMe: { backgroundColor: colors.primary, alignSelf: 'flex-start' },
   bubbleText: { color: colors.text, fontSize: 14, textAlign: 'right', lineHeight: 20 },
