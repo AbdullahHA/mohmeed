@@ -15,6 +15,7 @@ import SectionHeader from '../components/SectionHeader';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
+import { useRequireAccount } from '../hooks/useRequireAccount';
 import { supabase } from '../lib/supabase';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -24,12 +25,15 @@ export default function ChatScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const styles = React.useMemo(() => createStyles(colors), [colors]);
-  const { guideMessages, trips, communities } = useAppState();
+  const { guideMessages, trips, communities, communityRequests } = useAppState();
   const [lastTripMessages, setLastTripMessages] = useState<Record<string, string>>({});
+  const [lastCommunityMessages, setLastCommunityMessages] = useState<Record<string, string>>({});
 
   const lastGuideMessage = guideMessages[guideMessages.length - 1];
   const joinedCommunities = communities.filter((c) => c.joined);
   const discoverCommunities = communities.filter((c) => !c.joined);
+  const pendingRequest = communityRequests.find((r) => r.status === 'pending');
+  const { requireAccount } = useRequireAccount();
 
   useEffect(() => {
     if (trips.length === 0) {
@@ -57,6 +61,33 @@ export default function ChatScreen() {
       cancelled = true;
     };
   }, [trips.map((t) => t.id).join(',')]);
+
+  useEffect(() => {
+    if (joinedCommunities.length === 0) {
+      setLastCommunityMessages({});
+      return;
+    }
+    let cancelled = false;
+    supabase
+      .from('community_messages')
+      .select('community_id,text,from_id,at')
+      .in(
+        'community_id',
+        joinedCommunities.map((c) => c.id)
+      )
+      .order('at', { ascending: false })
+      .then(({ data }) => {
+        if (cancelled || !data) return;
+        const latest: Record<string, string> = {};
+        for (const row of data as any[]) {
+          if (!latest[row.community_id]) latest[row.community_id] = row.text;
+        }
+        setLastCommunityMessages(latest);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [joinedCommunities.map((c) => c.id).join(',')]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -111,7 +142,7 @@ export default function ChatScreen() {
           <>
             <SectionHeader title="مجتمعاتي" />
             {joinedCommunities.map((community) => {
-              const lastMessage = community.messages[community.messages.length - 1];
+              const lastMessage = lastCommunityMessages[community.id];
               return (
                 <TouchableOpacity
                   key={community.id}
@@ -125,13 +156,26 @@ export default function ChatScreen() {
                   <View style={styles.rowTextWrap}>
                     <Text style={styles.rowTitle}>{community.name}</Text>
                     <Text style={styles.rowSubtitle} numberOfLines={1}>
-                      {lastMessage ? `${lastMessage.fromName}: ${lastMessage.text}` : community.tagline}
+                      {lastMessage ?? community.tagline}
                     </Text>
                   </View>
                 </TouchableOpacity>
               );
             })}
           </>
+        ) : null}
+
+        {pendingRequest ? (
+          <TouchableOpacity
+            style={styles.pendingBanner}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('CommunityRequest')}
+          >
+            <Ionicons name="time-outline" size={18} color={colors.accentDark} />
+            <Text style={styles.pendingBannerText}>
+              طلبك لإنشاء مجتمع «{pendingRequest.name}» قيد المراجعة من الإدارة
+            </Text>
+          </TouchableOpacity>
         ) : null}
 
         <SectionHeader title="استكشف مجتمعات سفر" />
@@ -155,6 +199,18 @@ export default function ChatScreen() {
               </Text>
             </TouchableOpacity>
           ))}
+          <TouchableOpacity
+            style={styles.discoverItem}
+            activeOpacity={0.85}
+            onPress={() => requireAccount('chat', () => navigation.navigate('CommunityRequest'))}
+          >
+            <View style={[styles.discoverAvatar, styles.addAvatar]}>
+              <Ionicons name="add" size={26} color={colors.primary} />
+            </View>
+            <Text style={styles.discoverLabel} numberOfLines={2}>
+              اطلب إنشاء مجتمع
+            </Text>
+          </TouchableOpacity>
         </ScrollView>
       </ScrollView>
     </SafeAreaView>
@@ -234,6 +290,20 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
     marginBottom: spacing.xs,
   },
+  addAvatar: { borderColor: colors.primary, borderStyle: 'dashed' },
   discoverEmoji: { fontSize: 26 },
   discoverLabel: { color: colors.text, fontSize: 11, fontWeight: '600', textAlign: 'center' },
+  pendingBanner: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.accentSoft,
+    borderWidth: 1,
+    borderColor: colors.accent,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  pendingBannerText: { flex: 1, color: colors.accentDark, fontSize: 12, fontWeight: '600', textAlign: 'right' },
 });

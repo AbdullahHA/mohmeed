@@ -10,6 +10,8 @@ import DestinationEdit from './pages/DestinationEdit';
 import Places from './pages/Places';
 import PlaceEdit from './pages/PlaceEdit';
 import Communities from './pages/Communities';
+import CommunityRequests from './pages/CommunityRequests';
+import CommunityReports from './pages/CommunityReports';
 import Users from './pages/Users';
 import Notifications from './pages/Notifications';
 import FeatureFlags from './pages/FeatureFlags';
@@ -58,6 +60,8 @@ function Router() {
         <Route path="places" element={<Places />} />
         <Route path="places/:id" element={<PlaceEdit />} />
         <Route path="communities" element={<Communities />} />
+        <Route path="community-requests" element={<CommunityRequests />} />
+        <Route path="community-reports" element={<CommunityReports />} />
         <Route path="users" element={<Users />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="flags" element={<FeatureFlags />} />

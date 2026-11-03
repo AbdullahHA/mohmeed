@@ -8,6 +8,8 @@ const NAV_ITEMS = [
   { to: '/country-info', label: 'معلومات الدول' },
   { to: '/places', label: 'الأماكن' },
   { to: '/communities', label: 'المجتمعات' },
+  { to: '/community-requests', label: 'طلبات إنشاء مجتمعات' },
+  { to: '/community-reports', label: 'بلاغات المجتمعات' },
   { to: '/users', label: 'المستخدمون' },
   { to: '/notifications', label: 'الإشعارات' },
   { to: '/flags', label: 'مفاتيح الدخل' },

@@ -109,10 +109,14 @@ export const BUDGET_CATEGORY_LABELS: Record<BudgetCategory, string> = {
 
 export type CommunityMessage = {
   id: string;
+  communityId: string;
+  fromId: string;
   fromName: string;
   text: string;
   at: number;
 };
+
+export type CommunityRole = 'moderator' | 'member';
 
 export type Community = {
   id: string;
@@ -120,9 +124,21 @@ export type Community = {
   tagline: string;
   emoji: string;
   color: string;
-  baseMemberCount: number;
+  memberCount: number;
   joined: boolean;
-  messages: CommunityMessage[];
+  myRole: CommunityRole | null;
+};
+
+export type CommunityRequestStatus = 'pending' | 'approved' | 'rejected';
+
+export type CommunityRequest = {
+  id: string;
+  name: string;
+  tagline: string;
+  emoji: string;
+  reason: string;
+  status: CommunityRequestStatus;
+  createdAt: number;
 };
 
 export type Feedback = {

@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, View, type ImageSourcePropType } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { seedCommunities } from '../data/communities';
 import { seedTripTemplates } from '../data/tripTemplates';
 import { heroDestination, type Destination } from '../data/destinations';
 import { useContent } from './ContentContext';
@@ -14,6 +13,7 @@ import type {
   ChatMessage,
   ChecklistItem,
   Community,
+  CommunityRequest,
   Feedback,
   Friend,
   ItineraryItem,
@@ -48,7 +48,6 @@ const WELCOME_MESSAGE: ChatMessage = {
 
 type PersistedState = {
   guideMessages: ChatMessage[];
-  communities: Community[];
   feedback: Feedback | null;
   visitedStamps: VisitedStamp[];
   recommendedPlaceIds: string[];
@@ -75,6 +74,13 @@ type NewTripInput = {
   flexibleDays: number | null;
 };
 
+type NewCommunityRequestInput = {
+  name: string;
+  tagline: string;
+  emoji: string;
+  reason: string;
+};
+
 type NewTripTemplateInput = {
   title: string;
   destinationId: string;
@@ -91,6 +97,8 @@ type AppStateValue = {
   guideMessages: ChatMessage[];
   guideThinking: boolean;
   communities: Community[];
+  communitiesLoading: boolean;
+  communityRequests: CommunityRequest[];
   feedback: Feedback | null;
   visitedStamps: VisitedStamp[];
   recommendedPlaceIds: string[];
@@ -124,9 +132,11 @@ type AppStateValue = {
   removeChecklistItem: (tripId: string, itemId: string) => Promise<void>;
   sendGuideMessage: (text: string) => void;
   resetGuideConversation: () => void;
-  joinCommunity: (communityId: string) => void;
-  leaveCommunity: (communityId: string) => void;
-  sendCommunityMessage: (communityId: string, text: string) => void;
+  joinCommunity: (communityId: string) => Promise<{ error: string | null }>;
+  leaveCommunity: (communityId: string) => Promise<{ error: string | null }>;
+  submitCommunityRequest: (input: NewCommunityRequestInput) => Promise<{ error: string | null }>;
+  reportCommunityMessage: (communityId: string, messageId: string, reason: string) => Promise<{ error: string | null }>;
+  reportCommunityMember: (communityId: string, memberId: string, reason: string) => Promise<{ error: string | null }>;
   setFeedback: (value: Feedback | null) => void;
   toggleVisited: (destinationId: string) => void;
   toggleRecommended: (placeId: string) => void;
@@ -234,7 +244,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [tripsLoading, setTripsLoading] = useState(true);
   const [guideMessages, setGuideMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
   const [guideThinking, setGuideThinking] = useState(false);
-  const [communities, setCommunities] = useState<Community[]>(seedCommunities);
+  const [communities, setCommunities] = useState<Community[]>([]);
+  const [communitiesLoading, setCommunitiesLoading] = useState(true);
+  const [communityRequests, setCommunityRequests] = useState<CommunityRequest[]>([]);
   const [feedback, setFeedbackState] = useState<Feedback | null>(null);
   const [visitedStamps, setVisitedStamps] = useState<VisitedStamp[]>([]);
   const [recommendedPlaceIds, setRecommendedPlaceIds] = useState<string[]>([]);
@@ -259,10 +271,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
           const parsed: Partial<PersistedState> = JSON.parse(raw);
           if (Array.isArray(parsed.guideMessages) && parsed.guideMessages.length > 0) {
             setGuideMessages(parsed.guideMessages);
-            loadedFromStorage = true;
-          }
-          if (Array.isArray(parsed.communities)) {
-            setCommunities(parsed.communities);
             loadedFromStorage = true;
           }
           if (
@@ -324,7 +332,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     }
     const payload: PersistedState = {
       guideMessages,
-      communities,
       feedback,
       visitedStamps,
       recommendedPlaceIds,
@@ -338,7 +345,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload)).catch(() => {});
   }, [
     guideMessages,
-    communities,
     feedback,
     visitedStamps,
     recommendedPlaceIds,
@@ -774,6 +780,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     loadMyPosts();
     loadMeetupMatches();
     loadTrips();
+    loadCommunities();
+    loadCommunityRequests();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id]);
 
@@ -1113,26 +1121,123 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setGuideMessages([WELCOME_MESSAGE]);
   };
 
-  const updateCommunity = (communityId: string, updater: (community: Community) => Community) => {
-    setCommunities((prev) => prev.map((c) => (c.id === communityId ? updater(c) : c)));
-  };
-
-  const joinCommunity = (communityId: string) => {
-    updateCommunity(communityId, (c) => (c.joined ? c : { ...c, joined: true }));
-  };
-
-  const leaveCommunity = (communityId: string) => {
-    updateCommunity(communityId, (c) => (c.joined ? { ...c, joined: false } : c));
-  };
-
-  const sendCommunityMessage = (communityId: string, text: string) => {
-    const trimmed = text.trim();
-    if (!trimmed) return;
-    updateCommunity(communityId, (c) => ({
-      ...c,
-      joined: true,
-      messages: [...c.messages, { id: uid('cmsg'), fromName: currentUser.name, text: trimmed, at: Date.now() }],
+  const loadCommunities = async () => {
+    setCommunitiesLoading(true);
+    const [{ data: communityRows }, { data: memberRows }] = await Promise.all([
+      supabase.from('communities').select('id,name,tagline,emoji,color,base_member_count'),
+      supabase.from('community_members').select('community_id,profile_id,role'),
+    ]);
+    const memberCounts: Record<string, number> = {};
+    const myMemberships: Record<string, Community['myRole']> = {};
+    (memberRows ?? []).forEach((m: any) => {
+      memberCounts[m.community_id] = (memberCounts[m.community_id] ?? 0) + 1;
+      if (profile && m.profile_id === profile.id) {
+        myMemberships[m.community_id] = m.role;
+      }
+    });
+    const mapped: Community[] = (communityRows ?? []).map((c: any) => ({
+      id: c.id,
+      name: c.name,
+      tagline: c.tagline,
+      emoji: c.emoji,
+      color: c.color,
+      memberCount: (c.base_member_count ?? 0) + (memberCounts[c.id] ?? 0),
+      joined: Boolean(myMemberships[c.id]),
+      myRole: myMemberships[c.id] ?? null,
     }));
+    setCommunities(mapped);
+    setCommunitiesLoading(false);
+  };
+
+  const loadCommunityRequests = async () => {
+    if (!profile) {
+      setCommunityRequests([]);
+      return;
+    }
+    const { data } = await supabase
+      .from('community_requests')
+      .select('id,name,tagline,emoji,reason,status,created_at')
+      .eq('requester_id', profile.id)
+      .order('created_at', { ascending: false });
+    setCommunityRequests(
+      (data ?? []).map((r: any) => ({
+        id: r.id,
+        name: r.name,
+        tagline: r.tagline,
+        emoji: r.emoji,
+        reason: r.reason,
+        status: r.status,
+        createdAt: new Date(r.created_at).getTime(),
+      }))
+    );
+  };
+
+  const joinCommunity = async (communityId: string): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'سجّل دخولك أولاً' };
+    const { error } = await supabase
+      .from('community_members')
+      .insert({ community_id: communityId, profile_id: profile.id });
+    if (error && error.code !== '23505') return { error: 'تعذّر الانضمام، حاول مرة ثانية' };
+    await loadCommunities();
+    return { error: null };
+  };
+
+  const leaveCommunity = async (communityId: string): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'سجّل دخولك أولاً' };
+    const { error } = await supabase
+      .from('community_members')
+      .delete()
+      .eq('community_id', communityId)
+      .eq('profile_id', profile.id);
+    if (error) return { error: 'تعذّر مغادرة المجتمع' };
+    await loadCommunities();
+    return { error: null };
+  };
+
+  const submitCommunityRequest = async (input: NewCommunityRequestInput): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'سجّل دخولك أولاً' };
+    const { error } = await supabase.from('community_requests').insert({
+      requester_id: profile.id,
+      name: input.name.trim(),
+      tagline: input.tagline.trim(),
+      emoji: input.emoji.trim() || '🧭',
+      reason: input.reason.trim(),
+    });
+    if (error) return { error: 'تعذّر إرسال الطلب، حاول مرة ثانية' };
+    await loadCommunityRequests();
+    return { error: null };
+  };
+
+  const reportCommunityMessage = async (
+    communityId: string,
+    messageId: string,
+    reason: string
+  ): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'سجّل دخولك أولاً' };
+    const { error } = await supabase.from('community_reports').insert({
+      community_id: communityId,
+      reporter_id: profile.id,
+      reported_message_id: messageId,
+      reason: reason.trim() || 'غير محدد',
+    });
+    if (error) return { error: 'تعذّر إرسال البلاغ' };
+    return { error: null };
+  };
+
+  const reportCommunityMember = async (
+    communityId: string,
+    memberId: string,
+    reason: string
+  ): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'سجّل دخولك أولاً' };
+    const { error } = await supabase.from('community_reports').insert({
+      community_id: communityId,
+      reporter_id: profile.id,
+      reported_user_id: memberId,
+      reason: reason.trim() || 'غير محدد',
+    });
+    if (error) return { error: 'تعذّر إرسال البلاغ' };
+    return { error: null };
   };
 
   const setFeedback = (value: Feedback | null) => {
@@ -1310,6 +1415,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       guideMessages,
       guideThinking,
       communities,
+      communitiesLoading,
+      communityRequests,
       feedback,
       visitedStamps,
       recommendedPlaceIds,
@@ -1341,7 +1448,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       resetGuideConversation,
       joinCommunity,
       leaveCommunity,
-      sendCommunityMessage,
+      submitCommunityRequest,
+      reportCommunityMessage,
+      reportCommunityMember,
       setFeedback,
       toggleVisited,
       toggleRecommended,
@@ -1390,6 +1499,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       guideMessages,
       guideThinking,
       communities,
+      communitiesLoading,
+      communityRequests,
       feedback,
       visitedStamps,
       recommendedPlaceIds,
