@@ -64,9 +64,6 @@ export default function TripTemplatesScreen() {
                 imageStyle={styles.cardImageRadius}
               >
                 <View style={styles.cardOverlay} />
-                <View style={styles.priceBadge}>
-                  <Text style={styles.priceBadgeText}>{item.price === 0 ? 'مجاني' : `${item.price} ر.س`}</Text>
-                </View>
                 {item.isMine ? (
                   <View style={styles.mineBadge}>
                     <Text style={styles.mineBadgeText}>من إنشائك</Text>
@@ -126,16 +123,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     bottom: 0,
     backgroundColor: colors.overlay,
   },
-  priceBadge: {
-    position: 'absolute',
-    top: spacing.sm,
-    left: spacing.sm,
-    backgroundColor: colors.accent,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-  },
-  priceBadgeText: { color: colors.textOnPrimary, fontSize: 11, fontWeight: '700' },
   mineBadge: {
     position: 'absolute',
     top: spacing.sm,

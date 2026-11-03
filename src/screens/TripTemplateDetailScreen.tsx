@@ -50,7 +50,6 @@ export default function TripTemplateDetailScreen() {
   }
 
   const destination = destinations.find((d) => d.id === template.destinationId);
-  const isFree = template.price === 0;
 
   const handleUse = () => {
     requireAccount('trip', async () => {
@@ -84,10 +83,6 @@ export default function TripTemplateDetailScreen() {
             {destination?.name} · {template.days} أيام · بواسطة {template.authorName}
           </Text>
 
-          <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>{isFree ? 'مجاني' : `${template.price} ر.س`}</Text>
-          </View>
-
           <Text style={styles.sectionTitle}>محتوى الخطة</Text>
           <View style={styles.itemsCard}>
             {template.items.map((item) => (
@@ -99,22 +94,10 @@ export default function TripTemplateDetailScreen() {
             ))}
           </View>
 
-          {isFree ? (
-            <TouchableOpacity style={styles.useButton} activeOpacity={0.85} onPress={handleUse}>
-              <Ionicons name="add-circle-outline" size={16} color={colors.textOnPrimary} />
-              <Text style={styles.useButtonText}>استخدم القالب لرحلتي</Text>
-            </TouchableOpacity>
-          ) : (
-            <View style={styles.paidBlock}>
-              <View style={styles.paidButton}>
-                <Ionicons name="lock-closed-outline" size={16} color={colors.textFaint} />
-                <Text style={styles.paidButtonText}>شراء القالب ({template.price} ر.س)</Text>
-              </View>
-              <Text style={styles.paidNote}>
-                ميزة الدفع تجريبية بهذا الإصدار وغير مفعّلة فعليًا — هذا عرض لفكرة القوالب المدفوعة فقط.
-              </Text>
-            </View>
-          )}
+          <TouchableOpacity style={styles.useButton} activeOpacity={0.85} onPress={handleUse}>
+            <Ionicons name="add-circle-outline" size={16} color={colors.textOnPrimary} />
+            <Text style={styles.useButtonText}>استخدم القالب لرحلتي</Text>
+          </TouchableOpacity>
 
           {template.isMine ? (
             <TouchableOpacity style={styles.deleteButton} activeOpacity={0.8} onPress={handleDelete}>
@@ -147,8 +130,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   body: { padding: spacing.xl },
   title: { color: colors.text, fontSize: 22, fontWeight: '800', textAlign: 'right' },
   subtitle: { color: colors.textMuted, fontSize: 13, textAlign: 'right', marginTop: 4 },
-  priceRow: { alignSelf: 'flex-end', marginTop: spacing.md, marginBottom: spacing.lg },
-  priceLabel: { color: colors.accentDark, fontSize: 18, fontWeight: '800' },
   sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right', marginBottom: spacing.sm },
   itemsCard: {
     backgroundColor: colors.surface,
@@ -172,21 +153,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
   },
   useButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
-  paidBlock: { alignItems: 'center' },
-  paidButton: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    backgroundColor: colors.surfaceAlt,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.pill,
-    paddingVertical: spacing.md,
-    width: '100%',
-  },
-  paidButtonText: { color: colors.textFaint, fontWeight: '700', fontSize: 14 },
-  paidNote: { color: colors.textFaint, fontSize: 11, textAlign: 'center', marginTop: spacing.sm, lineHeight: 17 },
   deleteButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

@@ -34,7 +34,6 @@ export default function CreateTripTemplateScreen() {
   const [title, setTitle] = useState('');
   const [destinationId, setDestinationId] = useState(destinations[0].id);
   const [days, setDays] = useState('3');
-  const [price, setPrice] = useState('0');
   const [itemCategory, setItemCategory] = useState<BudgetCategory>('hotels');
   const [itemLabel, setItemLabel] = useState('');
   const [items, setItems] = useState<DraftItem[]>([]);
@@ -57,7 +56,6 @@ export default function CreateTripTemplateScreen() {
       title: title.trim(),
       destinationId,
       days: Math.max(1, Number(days) || 1),
-      price: Math.max(0, Number(price) || 0),
       items: items.map(({ category, label }) => ({ category, label })),
     });
     navigation.replace('TripTemplateDetail', { templateId: template.id });
@@ -98,28 +96,14 @@ export default function CreateTripTemplateScreen() {
           ))}
         </ScrollView>
 
-        <View style={styles.row}>
-          <View style={styles.rowField}>
-            <Text style={styles.label}>عدد الأيام</Text>
-            <TextInput
-              style={styles.input}
-              value={days}
-              onChangeText={setDays}
-              keyboardType="numeric"
-              textAlign="right"
-            />
-          </View>
-          <View style={styles.rowField}>
-            <Text style={styles.label}>السعر (0 = مجاني)</Text>
-            <TextInput
-              style={styles.input}
-              value={price}
-              onChangeText={setPrice}
-              keyboardType="numeric"
-              textAlign="right"
-            />
-          </View>
-        </View>
+        <Text style={styles.label}>عدد الأيام</Text>
+        <TextInput
+          style={styles.input}
+          value={days}
+          onChangeText={setDays}
+          keyboardType="numeric"
+          textAlign="right"
+        />
 
         <Text style={styles.label}>محتوى الخطة</Text>
         {items.map((item) => (

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -35,7 +35,7 @@ export default function TripsScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { trips } = useAppState();
+  const { trips, tripsLoading } = useAppState();
   const { requireAccount } = useRequireAccount();
   const [activeTab, setActiveTab] = useState<TripTab>('upcoming');
 
@@ -124,7 +124,11 @@ export default function TripsScreen() {
         </View>
       </View>
 
-      {trips.length === 0 ? (
+      {tripsLoading ? (
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      ) : trips.length === 0 ? (
         <EmptyState
           icon="airplane-outline"
           title="لا توجد رحلات مخططة بعد"
@@ -198,6 +202,7 @@ export default function TripsScreen() {
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  loadingWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   headerRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

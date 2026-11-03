@@ -85,7 +85,6 @@ type NewTripTemplateInput = {
   title: string;
   destinationId: string;
   days: number;
-  price: number;
   items: Omit<TripTemplateItem, 'id'>[];
 };
 
@@ -1406,7 +1405,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       authorName: currentUser.name,
       isMine: true,
       days: input.days,
-      price: input.price,
       items: input.items.map((item) => ({ ...item, id: uid('tplitem') })),
     };
     setTripTemplates((prev) => [template, ...prev]);

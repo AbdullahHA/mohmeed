@@ -8,7 +8,6 @@ export const seedTripTemplates: TripTemplate[] = [
     authorName: 'عبدالعزيز الشهري',
     isMine: false,
     days: 3,
-    price: 0,
     items: [
       { id: 'i1', category: 'hotels', label: 'Shaden Resort – ليلتين' },
       { id: 'i2', category: 'activities', label: 'جولة حرة عويرض عند الشروق' },
@@ -23,7 +22,6 @@ export const seedTripTemplates: TripTemplate[] = [
     authorName: 'هيا القحطاني',
     isMine: false,
     days: 4,
-    price: 450,
     items: [
       { id: 'i5', category: 'hotels', label: 'St. Regis Red Sea Resort – 3 ليالي' },
       { id: 'i6', category: 'activities', label: 'رحلتين غوص بمرافقة مدرب معتمد' },
@@ -38,7 +36,6 @@ export const seedTripTemplates: TripTemplate[] = [
     authorName: 'أم فهد',
     isMine: false,
     days: 2,
-    price: 0,
     items: [
       { id: 'i9', category: 'hotels', label: 'Kimpton KAFD Riyadh – ليلة' },
       { id: 'i10', category: 'activities', label: 'يوم كامل في بوليفارد رياض سيتي' },
@@ -52,7 +49,6 @@ export const seedTripTemplates: TripTemplate[] = [
     authorName: 'نواف القرني',
     isMine: false,
     days: 2,
-    price: 180,
     items: [
       { id: 'i12', category: 'food', label: 'غداء في Al Nakheel Seafood' },
       { id: 'i13', category: 'activities', label: 'تمشية مسائية بالبلد التاريخية' },

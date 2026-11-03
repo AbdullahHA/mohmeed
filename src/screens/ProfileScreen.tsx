@@ -561,7 +561,7 @@ export default function ProfileScreen() {
                     <View style={styles.tripTextWrap}>
                       <Text style={styles.tripTitle}>{template.title}</Text>
                       <Text style={styles.tripSubtitle}>
-                        {destination?.name} · {template.price === 0 ? 'مجاني' : `${template.price} ر.س`}
+                        {destination?.name} · {template.days} أيام
                       </Text>
                     </View>
                     <Ionicons name="chevron-back" size={16} color={colors.textMuted} />

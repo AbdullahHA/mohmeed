@@ -85,7 +85,25 @@ export default function HomeScreen() {
     return matches.length > 0 ? matches : destinations;
   }, [currentMonth, destinations]);
 
-  const nextTrip = trips[0];
+  const nextTrip = useMemo(() => {
+    const now = Date.now();
+    const datedTrips = trips.filter(
+      (t) => /^\d{4}-\d{2}-\d{2}$/.test(t.startDate) && /^\d{4}-\d{2}-\d{2}$/.test(t.endDate)
+    );
+    const ongoing = datedTrips.find((t) => {
+      const start = new Date(`${t.startDate}T00:00:00`).getTime();
+      const end = new Date(`${t.endDate}T23:59:59`).getTime();
+      return now >= start && now <= end;
+    });
+    if (ongoing) return ongoing;
+    const upcoming = [...datedTrips]
+      .filter((t) => new Date(`${t.startDate}T00:00:00`).getTime() > now)
+      .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())[0];
+    if (upcoming) return upcoming;
+    // No trip has real dates yet (still flexible/vote mode) — fall back to the
+    // most recently created one so a trip genuinely being planned isn't hidden.
+    return trips[0] ?? null;
+  }, [trips]);
   const daysUntilTrip = nextTrip ? Math.ceil((new Date(nextTrip.startDate).getTime() - Date.now()) / 86400000) : null;
   const tripBudgetSpent = nextTrip ? nextTrip.budgetItems.reduce((sum, i) => sum + i.amount, 0) : 0;
 

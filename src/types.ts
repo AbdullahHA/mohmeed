@@ -189,7 +189,6 @@ export type TripTemplate = {
   authorName: string;
   isMine: boolean;
   days: number;
-  price: number;
   items: TripTemplateItem[];
 };
 
