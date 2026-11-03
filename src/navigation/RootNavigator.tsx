@@ -25,6 +25,8 @@ import CommunityRequestScreen from '../screens/CommunityRequestScreen';
 import PublishedTripScreen from '../screens/PublishedTripScreen';
 import AddFriendScreen from '../screens/AddFriendScreen';
 import FriendsScreen from '../screens/FriendsScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
+import SavedPlacesScreen from '../screens/SavedPlacesScreen';
 import FriendChatScreen from '../screens/FriendChatScreen';
 import LocationShareScreen from '../screens/LocationShareScreen';
 import LocationViewScreen from '../screens/LocationViewScreen';
@@ -99,6 +101,8 @@ export default function RootNavigator() {
       <Stack.Screen name="PublishedTrip" component={PublishedTripScreen} />
       <Stack.Screen name="AddFriend" component={AddFriendScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="Friends" component={FriendsScreen} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} />
+      <Stack.Screen name="SavedPlaces" component={SavedPlacesScreen} />
       <Stack.Screen name="FriendChat" component={FriendChatScreen} />
       <Stack.Screen name="LocationShare" component={LocationShareScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="LocationView" component={LocationViewScreen} options={{ presentation: 'modal' }} />

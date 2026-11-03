@@ -53,7 +53,7 @@ export default function HomeScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { trips, sendGuideMessage, currentUser, loadFollowingFeed, followingIds } = useAppState();
+  const { trips, sendGuideMessage, currentUser, loadFollowingFeed, followingIds, notifications } = useAppState();
   const { requireAccount } = useRequireAccount();
   const { destinations, offline } = useContent();
   const { profile } = useAuth();
@@ -78,6 +78,8 @@ export default function HomeScreen() {
     }
     loadFollowingFeed(4).then(setFeed);
   }, [profile?.id, followingIds.length]);
+
+  const unreadNotifications = notifications.filter((n) => !n.read).length;
 
   const currentMonth = new Date().getMonth() + 1;
   const monthlyDestinations = useMemo(() => {
@@ -149,6 +151,16 @@ export default function HomeScreen() {
               <Text style={styles.hiName}>{currentUser.name}</Text>
             </View>
           </View>
+          {profile ? (
+            <TouchableOpacity
+              style={styles.bellButton}
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('Notifications')}
+            >
+              <Ionicons name="notifications-outline" size={19} color={colors.text} />
+              {unreadNotifications > 0 ? <View style={styles.bellDot} /> : null}
+            </TouchableOpacity>
+          ) : null}
         </View>
 
         {recentlyEndedTrip ? (
@@ -427,6 +439,27 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingBottom: spacing.md,
   },
   hi: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
+  bellButton: {
+    width: 38,
+    height: 38,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bellDot: {
+    position: 'absolute',
+    top: 8,
+    left: 9,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.red,
+    borderWidth: 1.5,
+    borderColor: colors.surface,
+  },
   hiGreeting: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right' },
   hiName: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right' },
   nextTripWrap: { marginHorizontal: spacing.lg, marginBottom: spacing.lg },

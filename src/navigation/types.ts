@@ -30,6 +30,8 @@ export type RootStackParamList = {
   PublishedTrip: { tripId: string };
   AddFriend: undefined;
   Friends: undefined;
+  Notifications: undefined;
+  SavedPlaces: undefined;
   FriendChat: { friendId: string };
   LocationShare: { friendId: string };
   LocationView: { channel: string; friendId: string; expiresAtMs: number };

@@ -35,6 +35,7 @@ import type {
   TripNeed,
   TripDatesMode,
   TripDateVote,
+  AppNotification,
 } from '../types';
 
 const STORAGE_KEY = 'yalla-nsafer:state:v1';
@@ -112,6 +113,9 @@ type AppStateValue = {
   blockedUserIds: string[];
   incomingRequests: Friend[];
   outgoingRequests: Friend[];
+  notifications: AppNotification[];
+  markNotificationRead: (id: string) => Promise<void>;
+  markAllNotificationsRead: () => Promise<void>;
   addFriend: (username: string) => Promise<{ error: string | null }>;
   removeFriend: (friendId: string) => Promise<{ error: string | null }>;
   blockUser: (friendId: string) => Promise<{ error: string | null }>;
@@ -242,6 +246,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [blockedUserIds, setBlockedUserIds] = useState<string[]>([]);
   const [incomingRequests, setIncomingRequests] = useState<Friend[]>([]);
   const [outgoingRequests, setOutgoingRequests] = useState<Friend[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [tripsLoading, setTripsLoading] = useState(true);
   const [tripsOffline, setTripsOffline] = useState(false);
@@ -469,6 +474,41 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     ]);
     setIncomingRequests(((incoming.data ?? []) as any[]).map((r) => mapRequestRow(r, 'sender')));
     setOutgoingRequests(((outgoing.data ?? []) as any[]).map((r) => mapRequestRow(r, 'recipient')));
+  };
+
+  const mapNotificationRow = (row: any): AppNotification => ({
+    id: row.id,
+    type: row.type,
+    title: row.title,
+    body: row.body,
+    data: row.data,
+    read: row.read,
+    createdAt: new Date(row.created_at).getTime(),
+  });
+
+  const loadNotifications = async () => {
+    if (!profile) {
+      setNotifications([]);
+      return;
+    }
+    const { data } = await supabase
+      .from('notifications')
+      .select('id,type,title,body,data,read,created_at')
+      .eq('user_id', profile.id)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    setNotifications(((data ?? []) as any[]).map(mapNotificationRow));
+  };
+
+  const markNotificationRead = async (id: string) => {
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+    await supabase.from('notifications').update({ read: true }).eq('id', id);
+  };
+
+  const markAllNotificationsRead = async () => {
+    if (!profile) return;
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    await supabase.from('notifications').update({ read: true }).eq('user_id', profile.id).eq('read', false);
   };
 
   const mapProfileToFriend = (r: any): Friend => ({
@@ -821,6 +861,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     loadFriends();
     loadBlocked();
     loadFriendRequests();
+    loadNotifications();
     loadMyCheckIns();
     loadFollowCounts();
     loadMyPosts();
@@ -828,6 +869,25 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     loadTrips();
     loadCommunities();
     loadCommunityRequests();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id]);
+
+  useEffect(() => {
+    if (!profile) return;
+    const channel = supabase
+      .channel(`notifications-${profile.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${profile.id}` },
+        (payload) => {
+          const row = mapNotificationRow(payload.new);
+          setNotifications((prev) => (prev.some((n) => n.id === row.id) ? prev : [row, ...prev]));
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id]);
 
@@ -1514,6 +1574,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       blockedUserIds,
       incomingRequests,
       outgoingRequests,
+      notifications,
+      markNotificationRead,
+      markAllNotificationsRead,
       trips,
       tripsLoading,
       tripsOffline,
@@ -1601,6 +1664,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       blockedUserIds,
       incomingRequests,
       outgoingRequests,
+      notifications,
       trips,
       tripsLoading,
       tripsOffline,

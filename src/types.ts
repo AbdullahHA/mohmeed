@@ -389,3 +389,15 @@ export type PlaceQuickRating = {
   createdAt: number;
   user: { name: string; avatarUrl: string | null } | null;
 };
+
+export type NotificationType = 'friend_request' | 'friend_request_accepted' | 'trip_joined' | 'trip_added';
+
+export type AppNotification = {
+  id: string;
+  type: NotificationType;
+  title: string;
+  body: string | null;
+  data: Record<string, unknown> | null;
+  read: boolean;
+  createdAt: number;
+};
