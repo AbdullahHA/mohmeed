@@ -20,14 +20,19 @@ import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import PersonAvatar from '../components/PersonAvatar';
-import { BUDGET_CATEGORY_LABELS, type BudgetCategory } from '../types';
+import DayPicker, { tripDateRange, formatIsoDate } from '../components/DayPicker';
+import SlotPicker, { SLOT_LABELS } from '../components/SlotPicker';
+import { BUDGET_CATEGORY_LABELS, type BudgetCategory, type ChecklistGroup, type ItinerarySlot } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'TripDetail'>;
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type MemberProfile = { id: string; name: string; avatarUrl: string | null };
+type Tab = 'schedule' | 'budget' | 'checklist';
 
 const CATEGORIES: BudgetCategory[] = ['hotels', 'food', 'transport', 'activities', 'other'];
+const CHECKLIST_GROUPS: ChecklistGroup[] = ['الحجوزات', 'الشنطة', 'الأوراق', 'أخرى'];
+const SLOT_ORDER: ItinerarySlot[] = ['morning', 'afternoon', 'evening'];
 
 export default function TripDetailScreen() {
   const navigation = useNavigation<Nav>();
@@ -44,18 +49,27 @@ export default function TripDetailScreen() {
     removeBudgetItem,
     addItineraryItem,
     removeItineraryItem,
+    addChecklistItem,
+    toggleChecklistItem,
+    removeChecklistItem,
   } = useAppState();
 
   const trip = trips.find((t) => t.id === route.params.tripId);
 
+  const [activeTab, setActiveTab] = useState<Tab>('schedule');
   const [showInvite, setShowInvite] = useState(false);
+  const [members, setMembers] = useState<MemberProfile[]>([]);
+
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [itinTitle, setItinTitle] = useState('');
+  const [itinSlot, setItinSlot] = useState<ItinerarySlot | null>(null);
+
   const [budgetCategory, setBudgetCategory] = useState<BudgetCategory>('hotels');
   const [budgetLabel, setBudgetLabel] = useState('');
   const [budgetAmount, setBudgetAmount] = useState('');
-  const [itinDay, setItinDay] = useState('');
-  const [itinTime, setItinTime] = useState('');
-  const [itinTitle, setItinTitle] = useState('');
-  const [members, setMembers] = useState<MemberProfile[]>([]);
+
+  const [checklistGroup, setChecklistGroup] = useState<ChecklistGroup>('أخرى');
+  const [checklistTitle, setChecklistTitle] = useState('');
 
   useEffect(() => {
     if (!trip) return;
@@ -81,11 +95,34 @@ export default function TripDetailScreen() {
     );
   }
 
+  const tripDays = tripDateRange(trip.startDate, trip.endDate);
+  const hasRealDates = tripDays.length > 0;
+
+  const today = formatIsoDate(new Date());
+  const daysUntil = hasRealDates ? Math.ceil((tripDays[0].getTime() - new Date(today).getTime()) / 86400000) : null;
+  const countdownLabel =
+    daysUntil === null
+      ? null
+      : daysUntil > 0
+        ? `بعد ${daysUntil} يوم`
+        : daysUntil === 0
+          ? 'تبدأ اليوم'
+          : today > formatIsoDate(tripDays[tripDays.length - 1])
+            ? 'انتهت'
+            : 'جارية الآن';
+
   const invitableFriends = friends.filter((f) => !trip.memberIds.includes(f.id));
+
+  const memberName = (id: string) => (id === profile?.id ? 'أنت' : members.find((m) => m.id === id)?.name ?? 'عضو');
 
   const spent = trip.budgetItems.reduce((sum, item) => sum + item.amount, 0);
   const perPerson = members.length > 0 ? Math.ceil(spent / members.length) : spent;
   const spentRatio = trip.budgetTotal > 0 ? Math.max(0, Math.min(spent / trip.budgetTotal, 1)) : 0;
+
+  const visibleItinerary = selectedDay
+    ? trip.itinerary.filter((i) => i.itemDate === selectedDay)
+    : trip.itinerary;
+  const undated = trip.itinerary.filter((i) => !i.itemDate);
 
   const handleAddBudgetItem = () => {
     const amount = Number(budgetAmount);
@@ -102,27 +139,29 @@ export default function TripDetailScreen() {
   };
 
   const handleAddItinerary = () => {
-    if (!itinDay.trim() || !itinTitle.trim()) return;
+    if (!itinTitle.trim()) return;
     addItineraryItem(trip.id, {
-      day: itinDay.trim(),
-      time: itinTime.trim() || '—',
+      day: selectedDay ?? 'غير محدد',
+      time: itinSlot ? SLOT_LABELS[itinSlot] : '—',
       title: itinTitle.trim(),
-      itemDate: null,
-      slot: null,
+      itemDate: selectedDay,
+      slot: itinSlot,
       placeId: null,
       kind: 'place',
     });
-    setItinDay('');
-    setItinTime('');
     setItinTitle('');
+    setItinSlot(null);
+  };
+
+  const handleAddChecklist = () => {
+    if (!checklistTitle.trim()) return;
+    addChecklistItem(trip.id, { group: checklistGroup, title: checklistTitle.trim(), assigneeId: null, dueDate: null });
+    setChecklistTitle('');
   };
 
   const handleShare = () => {
-    const itineraryText = trip.itinerary
-      .map((i) => `• ${i.day} - ${i.time}: ${i.title}`)
-      .join('\n');
     Share.share({
-      message: `رحلة ${trip.title} إلى ${trip.destination}\n${trip.startDate} → ${trip.endDate}\n\nالجدول:\n${itineraryText || 'لم تتم إضافة جدول بعد'}\n\nرمز الانضمام: ${trip.shareCode}`,
+      message: `رحلة ${trip.title} إلى ${trip.destination}\n${trip.startDate} → ${trip.endDate}\n\nرمز دعوة الرحلة: ${trip.shareCode}`,
     });
   };
 
@@ -131,52 +170,41 @@ export default function TripDetailScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.imageWrap}>
           <Image source={trip.coverImage} style={styles.image} />
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.85}
-          >
-            <Ionicons name="arrow-forward" size={20} color={colors.textOnPrimary} />
-          </TouchableOpacity>
+          <View style={styles.headerRow}>
+            <TouchableOpacity style={styles.glassButton} onPress={() => navigation.goBack()} activeOpacity={0.85}>
+              <Ionicons name="arrow-forward" size={20} color={colors.textOnPrimary} />
+            </TouchableOpacity>
+            <View style={styles.glassGroup}>
+              <TouchableOpacity style={styles.glassButton} activeOpacity={0.85} onPress={() => setShowInvite((v) => !v)}>
+                <Ionicons name="person-add-outline" size={17} color={colors.textOnPrimary} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.glassButton} activeOpacity={0.85} onPress={handleShare}>
+                <Ionicons name="share-social-outline" size={17} color={colors.textOnPrimary} />
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
 
         <View style={styles.body}>
           <Text style={styles.title}>{trip.title}</Text>
-          <Text style={styles.subtitle}>
-            {trip.destination} · {trip.startDate} → {trip.endDate}
-          </Text>
-
-          <View style={styles.actionsRow}>
-            <TouchableOpacity
-              style={[styles.actionButton, styles.actionPrimary]}
-              activeOpacity={0.85}
-              onPress={() => navigation.navigate('GroupChat', { tripId: trip.id })}
-            >
-              <Ionicons name="chatbubbles-outline" size={16} color={colors.textOnPrimary} />
-              <Text style={styles.actionPrimaryText}>محادثة المجموعة</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton} activeOpacity={0.85} onPress={handleShare}>
-              <Ionicons name="share-social-outline" size={16} color={colors.text} />
-              <Text style={styles.actionText}>مشاركة</Text>
-            </TouchableOpacity>
+          <View style={styles.subtitleRow}>
+            <Text style={styles.subtitle}>
+              {trip.destination} · {trip.startDate} → {trip.endDate}
+            </Text>
+            {countdownLabel ? (
+              <View style={styles.countdownBadge}>
+                <Text style={styles.countdownText}>{countdownLabel}</Text>
+              </View>
+            ) : null}
           </View>
 
-          <Text style={styles.sectionTitle}>الأعضاء</Text>
           <View style={styles.membersRow}>
             {members.map((member) => (
               <View key={member.id} style={styles.memberChip}>
-                <PersonAvatar avatarUrl={member.avatarUrl} size={40} />
-                <Text style={styles.memberName}>{member.name}</Text>
+                <PersonAvatar avatarUrl={member.avatarUrl} size={36} />
+                <Text style={styles.memberName} numberOfLines={1}>{member.id === profile?.id ? 'أنت' : member.name}</Text>
               </View>
             ))}
-            <TouchableOpacity
-              style={styles.inviteButton}
-              activeOpacity={0.85}
-              onPress={() => setShowInvite((v) => !v)}
-            >
-              <Ionicons name="person-add-outline" size={16} color={colors.primary} />
-              <Text style={styles.inviteButtonText}>دعوة</Text>
-            </TouchableOpacity>
           </View>
 
           {showInvite ? (
@@ -196,125 +224,239 @@ export default function TripDetailScreen() {
                   </TouchableOpacity>
                 ))
               )}
+              <View style={styles.shareCodeCard}>
+                <Ionicons name="key-outline" size={16} color={colors.primary} />
+                <Text style={styles.shareCodeText}>رمز دعوة الرحلة: {trip.shareCode}</Text>
+              </View>
             </View>
           ) : null}
 
-          <Text style={styles.sectionTitle}>الميزانية</Text>
-          <View style={styles.budgetCard}>
-            <View style={styles.budgetHeaderRow}>
-              <Text style={styles.budgetSpent}>
-                {spent.toLocaleString()} من {trip.budgetTotal.toLocaleString()} {currency.symbol}
-              </Text>
-              <Text style={styles.budgetPerPerson}>نصيب الفرد: {perPerson.toLocaleString()} {currency.symbol}</Text>
-            </View>
-            <View style={styles.progressTrack}>
-              <View style={[styles.progressFill, { width: `${spentRatio * 100}%` }]} />
-            </View>
+          <TouchableOpacity
+            style={styles.chatButton}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('GroupChat', { tripId: trip.id })}
+          >
+            <Ionicons name="chatbubbles-outline" size={16} color={colors.textOnPrimary} />
+            <Text style={styles.chatButtonText}>الشلة · محادثة المجموعة</Text>
+          </TouchableOpacity>
 
-            {trip.budgetItems.map((item) => (
-              <View key={item.id} style={styles.budgetItemRow}>
-                <TouchableOpacity onPress={() => removeBudgetItem(trip.id, item.id)} activeOpacity={0.7}>
-                  <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
-                </TouchableOpacity>
-                <Text style={styles.budgetItemAmount}>{item.amount.toLocaleString()} {currency.symbol}</Text>
-                <View style={styles.budgetItemTextWrap}>
-                  <Text style={styles.budgetItemLabel}>{item.label}</Text>
-                  <Text style={styles.budgetItemCategory}>{BUDGET_CATEGORY_LABELS[item.category]}</Text>
-                </View>
-              </View>
-            ))}
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
-              {CATEGORIES.map((cat) => (
-                <TouchableOpacity
-                  key={cat}
-                  style={[styles.chip, budgetCategory === cat && styles.chipActive]}
-                  activeOpacity={0.8}
-                  onPress={() => setBudgetCategory(cat)}
-                >
-                  <Text style={[styles.chipText, budgetCategory === cat && styles.chipTextActive]}>
-                    {BUDGET_CATEGORY_LABELS[cat]}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            <View style={styles.addRow}>
-              <TouchableOpacity style={styles.addButton} activeOpacity={0.85} onPress={handleAddBudgetItem}>
-                <Ionicons name="add" size={18} color={colors.textOnPrimary} />
+          <View style={styles.tabsRow}>
+            {([
+              ['schedule', 'الجدول'],
+              ['budget', 'الميزانية'],
+              ['checklist', 'التجهيز'],
+            ] as const).map(([tab, label]) => (
+              <TouchableOpacity
+                key={tab}
+                style={[styles.tabButton, activeTab === tab && styles.tabButtonActive]}
+                activeOpacity={0.8}
+                onPress={() => setActiveTab(tab)}
+              >
+                <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>{label}</Text>
               </TouchableOpacity>
-              <TextInput
-                style={[styles.miniInput, styles.amountInput]}
-                placeholder="المبلغ"
-                placeholderTextColor={colors.textFaint}
-                value={budgetAmount}
-                onChangeText={setBudgetAmount}
-                keyboardType="numeric"
-                textAlign="right"
-              />
-              <TextInput
-                style={[styles.miniInput, styles.flex1]}
-                placeholder="مثال: فندق الليلة الأولى"
-                placeholderTextColor={colors.textFaint}
-                value={budgetLabel}
-                onChangeText={setBudgetLabel}
-                textAlign="right"
-              />
-            </View>
+            ))}
           </View>
 
-          <Text style={styles.sectionTitle}>جدول الرحلة</Text>
-          <View style={styles.itineraryCard}>
-            {trip.itinerary.length === 0 ? (
-              <Text style={styles.emptyMuted}>لم تتم إضافة أي نشاط بعد</Text>
-            ) : (
-              trip.itinerary.map((item) => (
-                <View key={item.id} style={styles.itineraryRow}>
-                  <TouchableOpacity onPress={() => removeItineraryItem(trip.id, item.id)} activeOpacity={0.7}>
-                    <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
-                  </TouchableOpacity>
-                  <View style={styles.itineraryTextWrap}>
-                    <Text style={styles.itineraryTitle}>{item.title}</Text>
-                    <Text style={styles.itineraryMeta}>{item.day} · {item.time}</Text>
+          {activeTab === 'schedule' ? (
+            <View>
+              {hasRealDates ? (
+                <DayPicker days={tripDays} selected={selectedDay} onSelect={setSelectedDay} />
+              ) : (
+                <View style={styles.noDatesBanner}>
+                  <Ionicons name="calendar-outline" size={16} color={colors.primaryDark} />
+                  <Text style={styles.noDatesText}>حدد تواريخ الرحلة عشان نرتب لك الجدول بالأيام</Text>
+                </View>
+              )}
+
+              <View style={styles.itineraryCard}>
+                {visibleItinerary.length === 0 ? (
+                  <Text style={styles.emptyMuted}>ما فيه شي بالجدول لهذا اليوم بعد</Text>
+                ) : (
+                  SLOT_ORDER.map((slot) => {
+                    const items = visibleItinerary.filter((i) => i.slot === slot);
+                    if (items.length === 0) return null;
+                    return (
+                      <View key={slot}>
+                        <Text style={styles.slotHeading}>{SLOT_LABELS[slot]}</Text>
+                        {items.map((item) => (
+                          <View key={item.id} style={styles.itineraryRow}>
+                            <TouchableOpacity onPress={() => removeItineraryItem(trip.id, item.id)} activeOpacity={0.7}>
+                              <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
+                            </TouchableOpacity>
+                            <View style={styles.itineraryTextWrap}>
+                              <Text style={styles.itineraryTitle}>{item.title}</Text>
+                              <Text style={styles.itineraryMeta}>
+                                {item.addedBy ? `أضافه ${memberName(item.addedBy)}` : ''}
+                              </Text>
+                            </View>
+                          </View>
+                        ))}
+                      </View>
+                    );
+                  })
+                )}
+                {visibleItinerary.filter((i) => !i.slot).map((item) => (
+                  <View key={item.id} style={styles.itineraryRow}>
+                    <TouchableOpacity onPress={() => removeItineraryItem(trip.id, item.id)} activeOpacity={0.7}>
+                      <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
+                    </TouchableOpacity>
+                    <View style={styles.itineraryTextWrap}>
+                      <Text style={styles.itineraryTitle}>{item.title}</Text>
+                      <Text style={styles.itineraryMeta}>{item.addedBy ? `أضافه ${memberName(item.addedBy)}` : ''}</Text>
+                    </View>
+                  </View>
+                ))}
+
+                {!selectedDay && undated.length > 0 ? (
+                  <Text style={styles.emptyMuted}>{undated.length} عنصر بدون يوم محدد (ظاهر أعلاه)</Text>
+                ) : null}
+
+                <View style={styles.addItinerarySection}>
+                  <SlotPicker value={itinSlot} onChange={setItinSlot} />
+                  <View style={styles.addRow}>
+                    <TouchableOpacity style={styles.addButton} activeOpacity={0.85} onPress={handleAddItinerary}>
+                      <Ionicons name="add" size={18} color={colors.textOnPrimary} />
+                    </TouchableOpacity>
+                    <TextInput
+                      style={[styles.miniInput, styles.flex1]}
+                      placeholder="مثال: غداء بمطعم محلي"
+                      placeholderTextColor={colors.textFaint}
+                      value={itinTitle}
+                      onChangeText={setItinTitle}
+                      textAlign="right"
+                    />
                   </View>
                 </View>
-              ))
-            )}
-
-            <View style={styles.addRow}>
-              <TouchableOpacity style={styles.addButton} activeOpacity={0.85} onPress={handleAddItinerary}>
-                <Ionicons name="add" size={18} color={colors.textOnPrimary} />
-              </TouchableOpacity>
-              <TextInput
-                style={[styles.miniInput, styles.timeInput]}
-                placeholder="الوقت"
-                placeholderTextColor={colors.textFaint}
-                value={itinTime}
-                onChangeText={setItinTime}
-                textAlign="right"
-              />
-              <TextInput
-                style={[styles.miniInput, styles.timeInput]}
-                placeholder="اليوم"
-                placeholderTextColor={colors.textFaint}
-                value={itinDay}
-                onChangeText={setItinDay}
-                textAlign="right"
-              />
-              <TextInput
-                style={[styles.miniInput, styles.flex1]}
-                placeholder="النشاط"
-                placeholderTextColor={colors.textFaint}
-                value={itinTitle}
-                onChangeText={setItinTitle}
-                textAlign="right"
-              />
+              </View>
             </View>
-          </View>
+          ) : null}
 
-          <View style={styles.shareCodeCard}>
-            <Ionicons name="key-outline" size={16} color={colors.primary} />
-            <Text style={styles.shareCodeText}>رمز دعوة الرحلة: {trip.shareCode}</Text>
-          </View>
+          {activeTab === 'budget' ? (
+            <View style={styles.budgetCard}>
+              <View style={styles.budgetHeaderRow}>
+                <Text style={styles.budgetSpent}>
+                  {spent.toLocaleString()} من {trip.budgetTotal.toLocaleString()} {currency.symbol}
+                </Text>
+                <Text style={styles.budgetPerPerson}>نصيب الفرد: {perPerson.toLocaleString()} {currency.symbol}</Text>
+              </View>
+              <View style={styles.progressTrack}>
+                <View style={[styles.progressFill, { width: `${spentRatio * 100}%` }]} />
+              </View>
+
+              {trip.budgetItems.map((item) => (
+                <View key={item.id} style={styles.budgetItemRow}>
+                  <TouchableOpacity onPress={() => removeBudgetItem(trip.id, item.id)} activeOpacity={0.7}>
+                    <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
+                  </TouchableOpacity>
+                  <Text style={styles.budgetItemAmount}>{item.amount.toLocaleString()} {currency.symbol}</Text>
+                  <View style={styles.budgetItemTextWrap}>
+                    <Text style={styles.budgetItemLabel}>{item.label}</Text>
+                    <Text style={styles.budgetItemCategory}>
+                      {BUDGET_CATEGORY_LABELS[item.category]}
+                      {item.paidBy ? ` · دفعه ${memberName(item.paidBy)}` : ''}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
+                {CATEGORIES.map((cat) => (
+                  <TouchableOpacity
+                    key={cat}
+                    style={[styles.chip, budgetCategory === cat && styles.chipActive]}
+                    activeOpacity={0.8}
+                    onPress={() => setBudgetCategory(cat)}
+                  >
+                    <Text style={[styles.chipText, budgetCategory === cat && styles.chipTextActive]}>
+                      {BUDGET_CATEGORY_LABELS[cat]}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+              <View style={styles.addRow}>
+                <TouchableOpacity style={styles.addButton} activeOpacity={0.85} onPress={handleAddBudgetItem}>
+                  <Ionicons name="add" size={18} color={colors.textOnPrimary} />
+                </TouchableOpacity>
+                <TextInput
+                  style={[styles.miniInput, styles.amountInput]}
+                  placeholder="المبلغ"
+                  placeholderTextColor={colors.textFaint}
+                  value={budgetAmount}
+                  onChangeText={setBudgetAmount}
+                  keyboardType="numeric"
+                  textAlign="right"
+                />
+                <TextInput
+                  style={[styles.miniInput, styles.flex1]}
+                  placeholder="مثال: فندق الليلة الأولى"
+                  placeholderTextColor={colors.textFaint}
+                  value={budgetLabel}
+                  onChangeText={setBudgetLabel}
+                  textAlign="right"
+                />
+              </View>
+            </View>
+          ) : null}
+
+          {activeTab === 'checklist' ? (
+            <View style={styles.checklistCard}>
+              {CHECKLIST_GROUPS.map((group) => {
+                const items = trip.checklist.filter((c) => c.group === group);
+                if (items.length === 0) return null;
+                const done = items.filter((i) => i.done).length;
+                return (
+                  <View key={group} style={styles.checklistGroupWrap}>
+                    <Text style={styles.slotHeading}>{group} · {done}/{items.length}</Text>
+                    {items.map((item) => (
+                      <TouchableOpacity
+                        key={item.id}
+                        style={styles.checklistRow}
+                        activeOpacity={0.7}
+                        onPress={() => toggleChecklistItem(trip.id, item.id)}
+                      >
+                        <Ionicons
+                          name={item.done ? 'checkbox' : 'square-outline'}
+                          size={20}
+                          color={item.done ? colors.success : colors.textFaint}
+                        />
+                        <Text style={[styles.checklistTitle, item.done && styles.checklistTitleDone]}>{item.title}</Text>
+                        <TouchableOpacity onPress={() => removeChecklistItem(trip.id, item.id)} activeOpacity={0.7}>
+                          <Ionicons name="close" size={16} color={colors.textFaint} />
+                        </TouchableOpacity>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                );
+              })}
+              {trip.checklist.length === 0 ? <Text style={styles.emptyMuted}>ما فيه مهام تجهيز بعد</Text> : null}
+
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
+                {CHECKLIST_GROUPS.map((g) => (
+                  <TouchableOpacity
+                    key={g}
+                    style={[styles.chip, checklistGroup === g && styles.chipActive]}
+                    activeOpacity={0.8}
+                    onPress={() => setChecklistGroup(g)}
+                  >
+                    <Text style={[styles.chipText, checklistGroup === g && styles.chipTextActive]}>{g}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+              <View style={styles.addRow}>
+                <TouchableOpacity style={styles.addButton} activeOpacity={0.85} onPress={handleAddChecklist}>
+                  <Ionicons name="add" size={18} color={colors.textOnPrimary} />
+                </TouchableOpacity>
+                <TextInput
+                  style={[styles.miniInput, styles.flex1]}
+                  placeholder="مثال: احجز الفندق"
+                  placeholderTextColor={colors.textFaint}
+                  value={checklistTitle}
+                  onChangeText={setChecklistTitle}
+                  textAlign="right"
+                />
+              </View>
+            </View>
+          ) : null}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -324,12 +466,18 @@ export default function TripDetailScreen() {
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   notFound: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
-  imageWrap: { width: '100%', height: 220 },
+  imageWrap: { width: '100%', height: 190 },
   image: { width: '100%', height: '100%' },
-  backButton: {
+  headerRow: {
     position: 'absolute',
     top: spacing.xl,
+    left: spacing.lg,
     right: spacing.lg,
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  glassButton: {
     width: 38,
     height: 38,
     borderRadius: radius.pill,
@@ -337,40 +485,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  glassGroup: { flexDirection: 'row-reverse', gap: spacing.sm },
   body: { padding: spacing.xl },
   title: { color: colors.text, fontSize: 22, fontWeight: '800', textAlign: 'right' },
-  subtitle: { color: colors.textMuted, fontSize: 13, textAlign: 'right', marginTop: 4, marginBottom: spacing.lg },
-  actionsRow: { flexDirection: 'row-reverse', gap: spacing.md, marginBottom: spacing.xl },
-  actionButton: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-  actionPrimary: { backgroundColor: colors.primary, borderColor: colors.primary, flex: 1, justifyContent: 'center' },
-  actionPrimaryText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 13 },
-  actionText: { color: colors.text, fontWeight: '600', fontSize: 13 },
-  sectionTitle: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right', marginBottom: spacing.sm, marginTop: spacing.lg },
-  membersRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm, alignItems: 'center' },
-  memberChip: { alignItems: 'center', width: 56 },
+  subtitleRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, marginTop: 4, marginBottom: spacing.md },
+  subtitle: { color: colors.textMuted, fontSize: 13 },
+  countdownBadge: { backgroundColor: colors.accentSoft, borderRadius: radius.pill, paddingHorizontal: spacing.sm, paddingVertical: 2 },
+  countdownText: { color: colors.accentDark, fontSize: 11, fontWeight: '700' },
+  membersRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm, alignItems: 'center', marginBottom: spacing.md },
+  memberChip: { alignItems: 'center', width: 52 },
   memberName: { color: colors.textMuted, fontSize: 10, marginTop: 4, textAlign: 'center' },
-  inviteButton: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: 4,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.primarySoft,
-  },
-  inviteButtonText: { color: colors.primaryDark, fontSize: 12, fontWeight: '700' },
-  inviteList: { marginTop: spacing.sm, gap: spacing.xs },
+  inviteList: { marginBottom: spacing.md, gap: spacing.xs },
   inviteRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -383,6 +508,39 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   inviteRowName: { color: colors.text, fontSize: 13, fontWeight: '600' },
   emptyMuted: { color: colors.textFaint, fontSize: 12, textAlign: 'center', paddingVertical: spacing.sm },
+  chatButton: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.primary,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  chatButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 13 },
+  tabsRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginBottom: spacing.md },
+  tabButton: {
+    flex: 1,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceAlt,
+    alignItems: 'center',
+  },
+  tabButtonActive: { backgroundColor: colors.text },
+  tabText: { color: colors.text, fontSize: 12.5, fontWeight: '700' },
+  tabTextActive: { color: colors.background },
+  noDatesBanner: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+  },
+  noDatesText: { color: colors.primaryDark, fontSize: 12, fontWeight: '600', flex: 1, textAlign: 'right' },
+  slotHeading: { color: colors.text, fontSize: 12.5, fontWeight: '700', textAlign: 'right', marginTop: spacing.sm, marginBottom: 4 },
   budgetCard: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -446,19 +604,29 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   flex1: { flex: 1 },
   amountInput: { width: 90 },
-  timeInput: { width: 70 },
   itineraryCard: {
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,
     padding: spacing.md,
-    gap: spacing.sm,
   },
-  itineraryRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
+  itineraryRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, paddingVertical: 4 },
   itineraryTextWrap: { flex: 1 },
   itineraryTitle: { color: colors.text, fontSize: 13, fontWeight: '600', textAlign: 'right' },
   itineraryMeta: { color: colors.textFaint, fontSize: 11, textAlign: 'right' },
+  addItinerarySection: { gap: spacing.sm, marginTop: spacing.sm },
+  checklistCard: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+  },
+  checklistGroupWrap: { marginBottom: spacing.sm },
+  checklistRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, paddingVertical: 6 },
+  checklistTitle: { color: colors.text, fontSize: 13, textAlign: 'right', flex: 1 },
+  checklistTitleDone: { color: colors.textFaint, textDecorationLine: 'line-through' },
   shareCodeCard: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -466,7 +634,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.primarySoft,
     borderRadius: radius.md,
     padding: spacing.md,
-    marginTop: spacing.lg,
   },
   shareCodeText: { color: colors.primaryDark, fontSize: 12, fontWeight: '700' },
 });
