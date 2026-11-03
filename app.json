@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "يلا نسافر",
-    "slug": "mohmeed",
+    "slug": "yalla-nsafer",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -92,7 +92,7 @@
       "supportsRTL": true,
       "forcesRTL": true,
       "eas": {
-        "projectId": "5597a6a3-0fc9-4d3a-83ca-1ec3cdebb952"
+        "projectId": "44a23fa1-c44c-42b0-8320-92967af2907e"
       }
     },
     "owner": "abdullbmo"
