@@ -6,7 +6,9 @@ import {
   Image,
   StyleSheet,
   ScrollView,
+  TextInput,
   TouchableOpacity,
+  ActivityIndicator,
   Share,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,6 +25,7 @@ import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import { supabase } from '../lib/supabase';
+import { searchGooglePlaces, cacheGooglePlace, getPlacePhotoUrl, type GooglePlaceResult } from '../lib/googlePlaces';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'DestinationDetail'>;
@@ -63,7 +66,7 @@ export default function DestinationDetailScreen() {
     sendGuideMessage,
     addWishlistItem,
   } = useAppState();
-  const { destinations, places } = useContent();
+  const { destinations, places, refresh } = useContent();
   const { requireAccount } = useRequireAccount();
   const destination = destinations.find((d) => d.id === route.params.destinationId);
   const [activeType, setActiveType] = useState<TypeFilter>('all');
@@ -71,6 +74,10 @@ export default function DestinationDetailScreen() {
   const [posts, setPosts] = useState<CityPost[]>([]);
   const [postsLoading, setPostsLoading] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
+  const [googleQuery, setGoogleQuery] = useState('');
+  const [googleResults, setGoogleResults] = useState<GooglePlaceResult[] | null>(null);
+  const [googleSearching, setGoogleSearching] = useState(false);
+  const [openingResultId, setOpeningResultId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!destination || activeTab !== 'posts') return;
@@ -125,6 +132,31 @@ export default function DestinationDetailScreen() {
   const askGuide = () => {
     sendGuideMessage(`وش أفضل وقت وأماكن أزورها في ${destination.name}؟`);
     navigation.navigate('GuideChat');
+  };
+
+  const hasCoordinate = destination.latitude != null && destination.longitude != null;
+
+  const handleGoogleSearch = async () => {
+    if (!googleQuery.trim() || !hasCoordinate || googleSearching) return;
+    setGoogleSearching(true);
+    const results = await searchGooglePlaces(googleQuery, {
+      latitude: destination.latitude!,
+      longitude: destination.longitude!,
+    });
+    setGoogleResults(results);
+    setGoogleSearching(false);
+  };
+
+  const handleOpenGoogleResult = (result: GooglePlaceResult) => {
+    requireAccount('trip', async () => {
+      setOpeningResultId(result.id);
+      const placeId = await cacheGooglePlace(result, destination.id);
+      if (placeId) {
+        await refresh();
+        navigation.navigate('PlaceDetail', { placeId });
+      }
+      setOpeningResultId(null);
+    });
   };
 
   const currentMonth = new Date().getMonth() + 1;
@@ -266,6 +298,74 @@ export default function DestinationDetailScreen() {
                   );
                 })}
               </ScrollView>
+
+              {hasCoordinate ? (
+                <View style={styles.googleSearchWrap}>
+                  <View style={styles.googleSearchBar}>
+                    <TouchableOpacity activeOpacity={0.8} onPress={handleGoogleSearch} disabled={googleSearching}>
+                      {googleSearching ? (
+                        <ActivityIndicator size="small" color={colors.primary} />
+                      ) : (
+                        <Ionicons name="search" size={16} color={colors.textMuted} />
+                      )}
+                    </TouchableOpacity>
+                    <TextInput
+                      style={styles.googleSearchInput}
+                      placeholder={`دور على أي مكان في ${destination.name}…`}
+                      placeholderTextColor={colors.textFaint}
+                      value={googleQuery}
+                      onChangeText={setGoogleQuery}
+                      onSubmitEditing={handleGoogleSearch}
+                      returnKeyType="search"
+                      textAlign="right"
+                    />
+                  </View>
+
+                  {googleResults !== null ? (
+                    googleResults.length === 0 ? (
+                      <Text style={styles.emptyPlacesText}>ما لقينا نتائج بجوجل لهذا البحث</Text>
+                    ) : (
+                      <View style={styles.googleResultsList}>
+                        {googleResults.map((result) => (
+                          <TouchableOpacity
+                            key={result.id}
+                            style={styles.googleResultCard}
+                            activeOpacity={0.85}
+                            disabled={openingResultId === result.id}
+                            onPress={() => handleOpenGoogleResult(result)}
+                          >
+                            {result.photoName ? (
+                              <Image
+                                source={{ uri: getPlacePhotoUrl(result.photoName, 200) ?? undefined }}
+                                style={styles.googleResultImage}
+                              />
+                            ) : (
+                              <View style={[styles.googleResultImage, styles.googleResultImagePlaceholder]}>
+                                <Ionicons name="location-outline" size={20} color={colors.textFaint} />
+                              </View>
+                            )}
+                            <View style={styles.googleResultTextWrap}>
+                              <Text style={styles.googleResultName} numberOfLines={1}>{result.name}</Text>
+                              <Text style={styles.googleResultAddress} numberOfLines={1}>{result.address}</Text>
+                              {result.rating ? (
+                                <View style={styles.googleResultRatingRow}>
+                                  <Ionicons name="star" size={11} color={colors.accentDark} />
+                                  <Text style={styles.googleResultRatingText}>{result.rating.toFixed(1)}</Text>
+                                </View>
+                              ) : null}
+                            </View>
+                            {openingResultId === result.id ? (
+                              <ActivityIndicator size="small" color={colors.primary} />
+                            ) : (
+                              <Ionicons name="add-circle-outline" size={22} color={colors.primary} />
+                            )}
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )
+                  ) : null}
+                </View>
+              ) : null}
 
               {destinationPlaces.length === 0 ? (
                 <Text style={styles.emptyPlacesText}>لسا ما أضفنا أماكن لهذي الوجهة</Text>
@@ -497,6 +597,38 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginHorizontal: -spacing.xl,
     marginBottom: spacing.sm,
   },
+  googleSearchWrap: { marginBottom: spacing.lg },
+  googleSearchBar: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  googleSearchInput: { flex: 1, color: colors.text, fontSize: 13 },
+  googleResultsList: { gap: spacing.sm },
+  googleResultCard: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+  },
+  googleResultImage: { width: 48, height: 48, borderRadius: radius.sm },
+  googleResultImagePlaceholder: { backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
+  googleResultTextWrap: { flex: 1 },
+  googleResultName: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
+  googleResultAddress: { color: colors.textMuted, fontSize: 11, textAlign: 'right', marginTop: 1 },
+  googleResultRatingRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 3, marginTop: 2 },
+  googleResultRatingText: { color: colors.accentDark, fontSize: 11, fontWeight: '700' },
   postsGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 2, marginBottom: spacing.lg },
   postTile: { width: '32.5%', aspectRatio: 4 / 5 },
   postImage: { width: '100%', height: '100%', borderRadius: radius.sm },
