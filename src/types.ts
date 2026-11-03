@@ -297,6 +297,46 @@ export type CountryInfo = {
   updatedAt: number;
 };
 
+export type TripDocumentKind = 'flight' | 'stay' | 'ticket' | 'personal';
+export type TripDocumentVisibility = 'shared' | 'private';
+
+export const TRIP_DOCUMENT_KIND_LABELS: Record<TripDocumentKind, string> = {
+  flight: 'طيران',
+  stay: 'سكن',
+  ticket: 'تذاكر',
+  personal: 'خاص فيك',
+};
+
+export type FlightDocumentData = {
+  airportFrom: string;
+  airportTo: string;
+  flightNumber: string;
+  gate: string;
+  seat: string;
+  bookingRef: string;
+};
+
+export type StayDocumentData = {
+  address: string;
+  checkInTime: string;
+  bookingRef: string;
+  phone: string;
+};
+
+export type TripDocument = {
+  id: string;
+  tripId: string;
+  ownerId: string;
+  kind: TripDocumentKind;
+  visibility: TripDocumentVisibility;
+  title: string;
+  data: Record<string, string>;
+  fileUrl: string | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  createdAt: number;
+};
+
 export type QuickRateTag = 'يستاهل' | 'زحمة' | 'غالي' | 'للعوائل';
 export const QUICK_RATE_TAGS: QuickRateTag[] = ['يستاهل', 'زحمة', 'غالي', 'للعوائل'];
 

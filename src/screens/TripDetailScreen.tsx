@@ -214,6 +214,13 @@ export default function TripDetailScreen() {
               <Ionicons name="arrow-forward" size={20} color={colors.textOnPrimary} />
             </TouchableOpacity>
             <View style={styles.glassGroup}>
+              <TouchableOpacity
+                style={styles.glassButton}
+                activeOpacity={0.85}
+                onPress={() => navigation.navigate('Documents', { tripId: trip.id })}
+              >
+                <Ionicons name="document-text-outline" size={17} color={colors.textOnPrimary} />
+              </TouchableOpacity>
               <TouchableOpacity style={styles.glassButton} activeOpacity={0.85} onPress={() => setShowInvite((v) => !v)}>
                 <Ionicons name="person-add-outline" size={17} color={colors.textOnPrimary} />
               </TouchableOpacity>
