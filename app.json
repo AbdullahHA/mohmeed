@@ -15,7 +15,11 @@
         "NSLocationWhenInUseUsageDescription": "نستخدم موقعك عشان نقترح أماكن قريبة، ونحسب وقت المشوار وأوقات الصلاة.",
         "NSFaceIDUsageDescription": "نستخدم Face ID عشان نحمي مستنداتك الخاصة.",
         "NSPhotoLibraryUsageDescription": "عشان تضيف صور لمنشوراتك ومستنداتك.",
-        "NSCameraUsageDescription": "عشان تصوّر تذاكرك وحجوزاتك."
+        "NSCameraUsageDescription": "عشان تصوّر تذاكرك وحجوزاتك.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "config": {
+        "usesNonExemptEncryption": false
       }
     },
     "android": {
