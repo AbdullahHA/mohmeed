@@ -21,12 +21,13 @@ export default function TripSummaryScreen() {
   const route = useRoute<Route>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { trips } = useAppState();
+  const { trips, publishTrip } = useAppState();
   const { profile } = useAuth();
   const { places, destinations } = useContent();
 
   const trip = trips.find((t) => t.id === route.params.tripId);
   const [newStamps, setNewStamps] = useState<number | null>(null);
+  const [publishing, setPublishing] = useState(false);
 
   useEffect(() => {
     if (!trip || !profile) return;
@@ -81,6 +82,15 @@ export default function TripSummaryScreen() {
 
   const handleShare = () => {
     Share.share({ message: summaryLine });
+  };
+
+  const isOwner = profile?.id === trip.ownerId;
+
+  const handleTogglePublish = async () => {
+    if (!isOwner || publishing) return;
+    setPublishing(true);
+    await publishTrip(trip.id, !trip.isPublished);
+    setPublishing(false);
   };
 
   const handleWriteBlog = () => {
@@ -139,6 +149,19 @@ export default function TripSummaryScreen() {
           <Ionicons name="share-social-outline" size={16} color={colors.text} />
           <Text style={styles.secondaryButtonText}>شارك الملخص</Text>
         </TouchableOpacity>
+
+        {isOwner ? (
+          <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={handleTogglePublish} disabled={publishing}>
+            <Ionicons
+              name={trip.isPublished ? 'checkmark-circle' : 'megaphone-outline'}
+              size={16}
+              color={trip.isPublished ? colors.success : colors.text}
+            />
+            <Text style={[styles.secondaryButtonText, trip.isPublished && { color: colors.success }]}>
+              {trip.isPublished ? 'الجدول منشور — غيّر إلى خاص' : 'انشر الجدول عشان الناس تنسخ خطتك'}
+            </Text>
+          </TouchableOpacity>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );

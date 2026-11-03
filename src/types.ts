@@ -97,6 +97,30 @@ export type Trip = {
   datesMode: TripDatesMode;
   flexibleMonth: string | null;
   flexibleDays: number | null;
+  isPublished: boolean;
+};
+
+export type PublishedTripItineraryItem = {
+  day: string;
+  time: string;
+  title: string;
+  note?: string;
+  slot: ItinerarySlot | null;
+  placeId: string | null;
+  kind: ItineraryKind;
+};
+
+export type PublishedTrip = {
+  id: string;
+  ownerId: string;
+  ownerName: string;
+  title: string;
+  destination: string;
+  coverImage: ImageSourcePropType;
+  startDate: string;
+  endDate: string;
+  itinerary: PublishedTripItineraryItem[];
+  budgetShares: { category: string; percent: number }[];
 };
 
 export const BUDGET_CATEGORY_LABELS: Record<BudgetCategory, string> = {

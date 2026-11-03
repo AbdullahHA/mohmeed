@@ -17,6 +17,7 @@ import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useRequireAccount } from '../hooks/useRequireAccount';
+import { supabase } from '../lib/supabase';
 import PersonAvatar from '../components/PersonAvatar';
 import EmptyState from '../components/EmptyState';
 import type { PublicProfile, TravelPost } from '../types';
@@ -44,6 +45,7 @@ export default function UserProfileScreen() {
 
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [posts, setPosts] = useState<TravelPost[]>([]);
+  const [publishedTrips, setPublishedTrips] = useState<{ id: string; title: string; destination: string }[]>([]);
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -60,12 +62,18 @@ export default function UserProfileScreen() {
       loadUserPosts(params.userId),
       loadFollowers(params.userId),
       loadFollowing(params.userId),
-    ]).then(([p, userPosts, followers, following]) => {
+      supabase
+        .from('trips')
+        .select('id,title,destination')
+        .eq('owner_id', params.userId)
+        .eq('is_published', true),
+    ]).then(([p, userPosts, followers, following, publishedTripsResult]) => {
       if (!active) return;
       setProfile(p);
       setPosts(userPosts);
       setFollowersCount(followers.length);
       setFollowingCount(following.length);
+      setPublishedTrips((publishedTripsResult.data ?? []) as { id: string; title: string; destination: string }[]);
       setLoading(false);
     });
     return () => {
@@ -190,6 +198,25 @@ export default function UserProfileScreen() {
           </View>
         </View>
 
+        {publishedTrips.length > 0 ? (
+          <>
+            <Text style={styles.sectionTitle}>رحلات منشورة</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.publishedRow}>
+              {publishedTrips.map((t) => (
+                <TouchableOpacity
+                  key={t.id}
+                  style={styles.publishedCard}
+                  activeOpacity={0.85}
+                  onPress={() => navigation.navigate('PublishedTrip', { tripId: t.id })}
+                >
+                  <Text style={styles.publishedTitle} numberOfLines={1}>{t.title}</Text>
+                  <Text style={styles.publishedDestination} numberOfLines={1}>{t.destination}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </>
+        ) : null}
+
         <Text style={styles.sectionTitle}>المدونات</Text>
         {posts.length === 0 ? (
           <Text style={styles.emptyMuted}>ما نشر أي مدونة سفر بعد</Text>
@@ -296,6 +323,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     textAlign: 'center',
     paddingVertical: spacing.xl,
   },
+  publishedRow: { flexDirection: 'row-reverse', paddingHorizontal: spacing.lg, gap: spacing.sm, marginBottom: spacing.xl },
+  publishedCard: {
+    width: 160,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+  },
+  publishedTitle: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
+  publishedDestination: { color: colors.textMuted, fontSize: 11, textAlign: 'right', marginTop: 2 },
   grid: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl, gap: 2 },
   gridItem: { width: '33.33%', aspectRatio: 1, padding: 1 },
   gridImage: { width: '100%', height: '100%', borderRadius: radius.sm },

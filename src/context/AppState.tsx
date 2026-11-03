@@ -121,6 +121,8 @@ type AppStateValue = {
   cancelFriendRequest: (recipientId: string) => Promise<{ error: string | null }>;
   createTrip: (input: NewTripInput) => Promise<Trip | null>;
   confirmTripDates: (tripId: string, startDate: string, endDate: string) => Promise<void>;
+  publishTrip: (tripId: string, published: boolean) => Promise<{ error: string | null }>;
+  copyPublishedTrip: (tripId: string) => Promise<{ tripId: string | null; error: string | null }>;
   joinTripByCode: (code: string) => Promise<{ tripId: string | null; error: string | null }>;
   addMember: (tripId: string, friendId: string) => Promise<void>;
   addBudgetItem: (tripId: string, item: Omit<BudgetItem, 'id'>) => Promise<void>;
@@ -689,11 +691,12 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       datesMode: (row.dates_mode as TripDatesMode) ?? 'exact',
       flexibleMonth: row.flexible_month ?? null,
       flexibleDays: row.flexible_days ?? null,
+      isPublished: Boolean(row.is_published),
     };
   };
 
   const TRIP_SELECT =
-    'id,owner_id,title,destination,cover_image_url,start_date,end_date,budget_total,share_code,' +
+    'id,owner_id,title,destination,cover_image_url,start_date,end_date,budget_total,share_code,is_published,' +
     'traveler_type,needs,dates_mode,flexible_month,flexible_days,' +
     'trip_members(profile_id),' +
     'budget_items(id,category,label,amount,paid_by,split_between),' +
@@ -966,6 +969,65 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     updateTripLocal(tripId, (t) => ({ ...t, startDate, endDate, datesMode: 'exact' }));
     const trip = trips.find((t) => t.id === tripId);
     if (trip) mirrorTripWindow({ ...trip, startDate, endDate });
+  };
+
+  const publishTrip = async (tripId: string, published: boolean): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'سجّل دخولك أولاً' };
+    const { error } = await supabase
+      .from('trips')
+      .update({ is_published: published })
+      .eq('id', tripId)
+      .eq('owner_id', profile.id);
+    if (error) return { error: 'تعذّر تحديث حالة النشر' };
+    updateTripLocal(tripId, (t) => ({ ...t, isPublished: published }));
+    return { error: null };
+  };
+
+  const copyPublishedTrip = async (tripId: string): Promise<{ tripId: string | null; error: string | null }> => {
+    if (!profile) return { tripId: null, error: 'سجّل دخولك أولاً' };
+    const { data: tripRow, error: tripError } = await supabase
+      .from('trips')
+      .select('title,destination,cover_image_url')
+      .eq('id', tripId)
+      .eq('is_published', true)
+      .single();
+    if (tripError || !tripRow) return { tripId: null, error: 'تعذّر العثور على الرحلة' };
+
+    const { data: itemRows } = await supabase
+      .from('itinerary_items')
+      .select('day,time,title,note,item_date,slot,place_id,kind')
+      .eq('trip_id', tripId);
+
+    const newTrip = await createTrip({
+      title: `نسخة من ${tripRow.title}`,
+      destination: tripRow.destination,
+      coverImage: tripRow.cover_image_url ? { uri: tripRow.cover_image_url } : heroDestination.image,
+      startDate: '—',
+      endDate: '—',
+      memberIds: [],
+      budgetTotal: 0,
+      travelerType: null,
+      needs: [],
+      datesMode: 'vote',
+      flexibleMonth: null,
+      flexibleDays: null,
+    });
+    if (!newTrip) return { tripId: null, error: 'تعذّر إنشاء مسودة الرحلة' };
+
+    for (const row of (itemRows ?? []) as any[]) {
+      await addItineraryItem(newTrip.id, {
+        day: row.day,
+        time: row.time,
+        title: row.title,
+        note: row.note ?? undefined,
+        itemDate: null,
+        slot: row.slot,
+        placeId: row.place_id,
+        kind: row.kind,
+      });
+    }
+
+    return { tripId: newTrip.id, error: null };
   };
 
   const joinTripByCode = async (code: string): Promise<{ tripId: string | null; error: string | null }> => {
@@ -1435,6 +1497,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       cancelFriendRequest,
       createTrip,
       confirmTripDates,
+      publishTrip,
+      copyPublishedTrip,
       joinTripByCode,
       addMember,
       addBudgetItem,

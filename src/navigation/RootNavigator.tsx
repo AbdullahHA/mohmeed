@@ -22,6 +22,7 @@ import GroupChatScreen from '../screens/GroupChatScreen';
 import GuideChatScreen from '../screens/GuideChatScreen';
 import CommunityChatScreen from '../screens/CommunityChatScreen';
 import CommunityRequestScreen from '../screens/CommunityRequestScreen';
+import PublishedTripScreen from '../screens/PublishedTripScreen';
 import AddFriendScreen from '../screens/AddFriendScreen';
 import FriendsScreen from '../screens/FriendsScreen';
 import FriendChatScreen from '../screens/FriendChatScreen';
@@ -95,6 +96,7 @@ export default function RootNavigator() {
       <Stack.Screen name="GuideChat" component={GuideChatScreen} />
       <Stack.Screen name="CommunityChat" component={CommunityChatScreen} />
       <Stack.Screen name="CommunityRequest" component={CommunityRequestScreen} />
+      <Stack.Screen name="PublishedTrip" component={PublishedTripScreen} />
       <Stack.Screen name="AddFriend" component={AddFriendScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="Friends" component={FriendsScreen} />
       <Stack.Screen name="FriendChat" component={FriendChatScreen} />
