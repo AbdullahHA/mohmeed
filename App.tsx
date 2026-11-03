@@ -1,7 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, View } from 'react-native';
 import * as Sentry from '@sentry/react-native';
+import * as SplashScreen from 'expo-splash-screen';
+import * as SystemUI from 'expo-system-ui';
+import {
+  IBMPlexSansArabic_400Regular,
+  IBMPlexSansArabic_500Medium,
+  IBMPlexSansArabic_600SemiBold,
+  IBMPlexSansArabic_700Bold,
+  useFonts,
+} from '@expo-google-fonts/ibm-plex-sans-arabic';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
@@ -22,6 +31,8 @@ if (sentryDsn) {
     enableAutoSessionTracking: true,
   });
 }
+
+void SplashScreen.preventAutoHideAsync();
 
 function Gate() {
   const { session, guestMode, loading } = useAuth();
@@ -64,7 +75,13 @@ function Gate() {
 
 function AppShell() {
   const [showIntro, setShowIntro] = useState(true);
-  const { scheme } = useTheme();
+  const { scheme, colors } = useTheme();
+
+  useEffect(() => {
+    // Matches the native background to the current theme so there's no
+    // white flash on launch or screen transitions (Android especially).
+    void SystemUI.setBackgroundColorAsync(colors.background);
+  }, [colors.background]);
 
   return (
     <SafeAreaProvider>
@@ -80,6 +97,19 @@ function AppShell() {
 }
 
 function App() {
+  const [fontsLoaded] = useFonts({
+    IBMPlexSansArabic_400Regular,
+    IBMPlexSansArabic_500Medium,
+    IBMPlexSansArabic_600SemiBold,
+    IBMPlexSansArabic_700Bold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) void SplashScreen.hideAsync();
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
+
   return (
     <ThemeProvider>
       <RegionProvider>
