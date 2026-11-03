@@ -31,6 +31,10 @@ import type {
   TripWindow,
   MeetupMatch,
   PublicProfile,
+  TravelerType,
+  TripNeed,
+  TripDatesMode,
+  TripDateVote,
 } from '../types';
 
 const STORAGE_KEY = 'yalla-nsafer:state:v1';
@@ -64,6 +68,11 @@ type NewTripInput = {
   endDate: string;
   memberIds: string[];
   budgetTotal: number;
+  travelerType: TravelerType | null;
+  needs: TripNeed[];
+  datesMode: TripDatesMode;
+  flexibleMonth: string | null;
+  flexibleDays: number | null;
 };
 
 type NewTripTemplateInput = {
@@ -103,6 +112,7 @@ type AppStateValue = {
   declineFriendRequest: (requesterId: string) => Promise<{ error: string | null }>;
   cancelFriendRequest: (recipientId: string) => Promise<{ error: string | null }>;
   createTrip: (input: NewTripInput) => Promise<Trip | null>;
+  confirmTripDates: (tripId: string, startDate: string, endDate: string) => Promise<void>;
   joinTripByCode: (code: string) => Promise<{ tripId: string | null; error: string | null }>;
   addMember: (tripId: string, friendId: string) => Promise<void>;
   addBudgetItem: (tripId: string, item: Omit<BudgetItem, 'id'>) => Promise<void>;
@@ -668,11 +678,17 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       itinerary: ((row.itinerary_items ?? []) as any[]).map(mapItineraryRow),
       checklist: ((row.trip_checklist ?? []) as any[]).map(mapChecklistRow),
       shareCode: row.share_code,
+      travelerType: (row.traveler_type as TravelerType | null) ?? null,
+      needs: ((row.needs ?? []) as TripNeed[]),
+      datesMode: (row.dates_mode as TripDatesMode) ?? 'exact',
+      flexibleMonth: row.flexible_month ?? null,
+      flexibleDays: row.flexible_days ?? null,
     };
   };
 
   const TRIP_SELECT =
     'id,owner_id,title,destination,cover_image_url,start_date,end_date,budget_total,share_code,' +
+    'traveler_type,needs,dates_mode,flexible_month,flexible_days,' +
     'trip_members(profile_id),' +
     'budget_items(id,category,label,amount,paid_by,split_between),' +
     'itinerary_items(id,day,time,title,note,item_date,slot,added_by,place_id,kind),' +
@@ -904,8 +920,15 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         start_date: input.startDate,
         end_date: input.endDate,
         budget_total: input.budgetTotal,
+        traveler_type: input.travelerType,
+        needs: input.needs,
+        dates_mode: input.datesMode,
+        flexible_month: input.flexibleMonth,
+        flexible_days: input.flexibleDays,
       })
-      .select('id,owner_id,title,destination,cover_image_url,start_date,end_date,budget_total,share_code')
+      .select(
+        'id,owner_id,title,destination,cover_image_url,start_date,end_date,budget_total,share_code,traveler_type,needs,dates_mode,flexible_month,flexible_days'
+      )
       .single();
     if (error || !data) return null;
 
@@ -924,6 +947,17 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setTrips((prev) => [trip, ...prev]);
     mirrorTripWindow(trip);
     return trip;
+  };
+
+  const confirmTripDates = async (tripId: string, startDate: string, endDate: string) => {
+    const { error } = await supabase
+      .from('trips')
+      .update({ start_date: startDate, end_date: endDate, dates_mode: 'exact' })
+      .eq('id', tripId);
+    if (error) return;
+    updateTripLocal(tripId, (t) => ({ ...t, startDate, endDate, datesMode: 'exact' }));
+    const trip = trips.find((t) => t.id === tripId);
+    if (trip) mirrorTripWindow({ ...trip, startDate, endDate });
   };
 
   const joinTripByCode = async (code: string): Promise<{ tripId: string | null; error: string | null }> => {
@@ -1184,6 +1218,11 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       endDate: '—',
       memberIds: [],
       budgetTotal: 0,
+      travelerType: null,
+      needs: [],
+      datesMode: 'exact',
+      flexibleMonth: null,
+      flexibleDays: null,
     });
     if (!trip) return null;
     for (const item of template.items) {
@@ -1288,6 +1327,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       declineFriendRequest,
       cancelFriendRequest,
       createTrip,
+      confirmTripDates,
       joinTripByCode,
       addMember,
       addBudgetItem,

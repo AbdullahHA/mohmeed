@@ -54,6 +54,30 @@ export type ChatMessage = {
   at: number;
 };
 
+export type TravelerType = 'solo' | 'couple' | 'family' | 'group';
+export type TripNeed = 'kids_under_5' | 'elderly' | 'wheelchair';
+export type TripDatesMode = 'exact' | 'flexible' | 'vote';
+
+export const TRAVELER_TYPE_LABELS: Record<TravelerType, string> = {
+  solo: 'لحالي',
+  couple: 'مع شريكي',
+  family: 'مع العائلة',
+  group: 'مع الشلة',
+};
+
+export const TRIP_NEED_LABELS: Record<TripNeed, string> = {
+  kids_under_5: 'أطفال تحت 5',
+  elderly: 'كبار سن',
+  wheelchair: 'كرسي متحرك',
+};
+
+export type TripDateVote = {
+  id: string;
+  tripId: string;
+  userId: string;
+  date: string;
+};
+
 export type Trip = {
   id: string;
   ownerId: string;
@@ -68,6 +92,11 @@ export type Trip = {
   itinerary: ItineraryItem[];
   checklist: ChecklistItem[];
   shareCode: string;
+  travelerType: TravelerType | null;
+  needs: TripNeed[];
+  datesMode: TripDatesMode;
+  flexibleMonth: string | null;
+  flexibleDays: number | null;
 };
 
 export const BUDGET_CATEGORY_LABELS: Record<BudgetCategory, string> = {

@@ -12,6 +12,7 @@ import DestinationDetailScreen from '../screens/DestinationDetailScreen';
 import ResultsScreen from '../screens/ResultsScreen';
 import TripDetailScreen from '../screens/TripDetailScreen';
 import CreateTripScreen from '../screens/CreateTripScreen';
+import TripDatesVoteScreen from '../screens/TripDatesVoteScreen';
 import JoinTripScreen from '../screens/JoinTripScreen';
 import GroupChatScreen from '../screens/GroupChatScreen';
 import GuideChatScreen from '../screens/GuideChatScreen';
@@ -77,6 +78,7 @@ export default function RootNavigator() {
       <Stack.Screen name="Results" component={ResultsScreen} />
       <Stack.Screen name="TripDetail" component={TripDetailScreen} />
       <Stack.Screen name="CreateTrip" component={CreateTripScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="TripDatesVote" component={TripDatesVoteScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="JoinTrip" component={JoinTripScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="GroupChat" component={GroupChatScreen} />
       <Stack.Screen name="GuideChat" component={GuideChatScreen} />

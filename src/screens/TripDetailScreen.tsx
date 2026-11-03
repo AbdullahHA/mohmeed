@@ -28,6 +28,9 @@ import type { RootStackParamList } from '../navigation/types';
 type Route = RouteProp<RootStackParamList, 'TripDetail'>;
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type MemberProfile = { id: string; name: string; avatarUrl: string | null };
+type TripMemberRole = 'organizer' | 'member' | 'viewer';
+const ROLE_LABELS: Record<TripMemberRole, string> = { organizer: 'منظّم', member: 'عضو', viewer: 'مشاهد' };
+const ROLE_CYCLE: Record<TripMemberRole, TripMemberRole> = { organizer: 'member', member: 'viewer', viewer: 'organizer' };
 type Tab = 'schedule' | 'budget' | 'checklist';
 
 const CATEGORIES: BudgetCategory[] = ['hotels', 'food', 'transport', 'activities', 'other'];
@@ -59,6 +62,7 @@ export default function TripDetailScreen() {
   const [activeTab, setActiveTab] = useState<Tab>('schedule');
   const [showInvite, setShowInvite] = useState(false);
   const [members, setMembers] = useState<MemberProfile[]>([]);
+  const [memberRoles, setMemberRoles] = useState<Record<string, TripMemberRole>>({});
 
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [itinTitle, setItinTitle] = useState('');
@@ -82,10 +86,35 @@ export default function TripDetailScreen() {
         if (cancelled) return;
         setMembers((data ?? []).map((r: any) => ({ id: r.id, name: r.name, avatarUrl: r.avatar_url ?? null })));
       });
+    supabase
+      .from('trip_members')
+      .select('profile_id,role')
+      .eq('trip_id', trip.id)
+      .then(({ data }) => {
+        if (cancelled) return;
+        const roles: Record<string, TripMemberRole> = { [trip.ownerId]: 'organizer' };
+        for (const r of (data ?? []) as any[]) roles[r.profile_id] = r.role;
+        setMemberRoles(roles);
+      });
     return () => {
       cancelled = true;
     };
   }, [trip?.memberIds.join(',')]);
+
+  const isOrganizer = memberRoles[profile?.id ?? ''] === 'organizer' || trip?.ownerId === profile?.id;
+  const isViewer = memberRoles[profile?.id ?? ''] === 'viewer';
+
+  const cycleMemberRole = async (memberId: string) => {
+    if (!trip || memberId === trip.ownerId) return;
+    const current = memberRoles[memberId] ?? 'member';
+    const next = ROLE_CYCLE[current];
+    const { error } = await supabase
+      .from('trip_members')
+      .update({ role: next })
+      .eq('trip_id', trip.id)
+      .eq('profile_id', memberId);
+    if (!error) setMemberRoles((prev) => ({ ...prev, [memberId]: next }));
+  };
 
   if (!trip) {
     return (
@@ -199,12 +228,23 @@ export default function TripDetailScreen() {
           </View>
 
           <View style={styles.membersRow}>
-            {members.map((member) => (
-              <View key={member.id} style={styles.memberChip}>
-                <PersonAvatar avatarUrl={member.avatarUrl} size={36} />
-                <Text style={styles.memberName} numberOfLines={1}>{member.id === profile?.id ? 'أنت' : member.name}</Text>
-              </View>
-            ))}
+            {members.map((member) => {
+              const role = memberRoles[member.id] ?? 'member';
+              const canCycle = isOrganizer && member.id !== trip.ownerId;
+              return (
+                <TouchableOpacity
+                  key={member.id}
+                  style={styles.memberChip}
+                  activeOpacity={canCycle ? 0.7 : 1}
+                  disabled={!canCycle}
+                  onPress={() => cycleMemberRole(member.id)}
+                >
+                  <PersonAvatar avatarUrl={member.avatarUrl} size={36} />
+                  <Text style={styles.memberName} numberOfLines={1}>{member.id === profile?.id ? 'أنت' : member.name}</Text>
+                  <Text style={styles.memberRoleText}>{ROLE_LABELS[role]}</Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
 
           {showInvite ? (
@@ -261,6 +301,15 @@ export default function TripDetailScreen() {
             <View>
               {hasRealDates ? (
                 <DayPicker days={tripDays} selected={selectedDay} onSelect={setSelectedDay} />
+              ) : trip.datesMode === 'vote' ? (
+                <TouchableOpacity
+                  style={styles.noDatesBanner}
+                  activeOpacity={0.8}
+                  onPress={() => navigation.navigate('TripDatesVote', { tripId: trip.id })}
+                >
+                  <Ionicons name="calendar-outline" size={16} color={colors.primaryDark} />
+                  <Text style={styles.noDatesText}>الشلة لسا تصوّت على التواريخ — اضغط هنا للمشاركة</Text>
+                </TouchableOpacity>
               ) : (
                 <View style={styles.noDatesBanner}>
                   <Ionicons name="calendar-outline" size={16} color={colors.primaryDark} />
@@ -311,22 +360,24 @@ export default function TripDetailScreen() {
                   <Text style={styles.emptyMuted}>{undated.length} عنصر بدون يوم محدد (ظاهر أعلاه)</Text>
                 ) : null}
 
-                <View style={styles.addItinerarySection}>
-                  <SlotPicker value={itinSlot} onChange={setItinSlot} />
-                  <View style={styles.addRow}>
-                    <TouchableOpacity style={styles.addButton} activeOpacity={0.85} onPress={handleAddItinerary}>
-                      <Ionicons name="add" size={18} color={colors.textOnPrimary} />
-                    </TouchableOpacity>
-                    <TextInput
-                      style={[styles.miniInput, styles.flex1]}
-                      placeholder="مثال: غداء بمطعم محلي"
-                      placeholderTextColor={colors.textFaint}
-                      value={itinTitle}
-                      onChangeText={setItinTitle}
-                      textAlign="right"
-                    />
+                {!isViewer ? (
+                  <View style={styles.addItinerarySection}>
+                    <SlotPicker value={itinSlot} onChange={setItinSlot} />
+                    <View style={styles.addRow}>
+                      <TouchableOpacity style={styles.addButton} activeOpacity={0.85} onPress={handleAddItinerary}>
+                        <Ionicons name="add" size={18} color={colors.textOnPrimary} />
+                      </TouchableOpacity>
+                      <TextInput
+                        style={[styles.miniInput, styles.flex1]}
+                        placeholder="مثال: غداء بمطعم محلي"
+                        placeholderTextColor={colors.textFaint}
+                        value={itinTitle}
+                        onChangeText={setItinTitle}
+                        textAlign="right"
+                      />
+                    </View>
                   </View>
-                </View>
+                ) : null}
               </View>
             </View>
           ) : null}
@@ -373,28 +424,30 @@ export default function TripDetailScreen() {
                   </TouchableOpacity>
                 ))}
               </ScrollView>
-              <View style={styles.addRow}>
-                <TouchableOpacity style={styles.addButton} activeOpacity={0.85} onPress={handleAddBudgetItem}>
-                  <Ionicons name="add" size={18} color={colors.textOnPrimary} />
-                </TouchableOpacity>
-                <TextInput
-                  style={[styles.miniInput, styles.amountInput]}
-                  placeholder="المبلغ"
-                  placeholderTextColor={colors.textFaint}
-                  value={budgetAmount}
-                  onChangeText={setBudgetAmount}
-                  keyboardType="numeric"
-                  textAlign="right"
-                />
-                <TextInput
-                  style={[styles.miniInput, styles.flex1]}
-                  placeholder="مثال: فندق الليلة الأولى"
-                  placeholderTextColor={colors.textFaint}
-                  value={budgetLabel}
-                  onChangeText={setBudgetLabel}
-                  textAlign="right"
-                />
-              </View>
+              {!isViewer ? (
+                <View style={styles.addRow}>
+                  <TouchableOpacity style={styles.addButton} activeOpacity={0.85} onPress={handleAddBudgetItem}>
+                    <Ionicons name="add" size={18} color={colors.textOnPrimary} />
+                  </TouchableOpacity>
+                  <TextInput
+                    style={[styles.miniInput, styles.amountInput]}
+                    placeholder="المبلغ"
+                    placeholderTextColor={colors.textFaint}
+                    value={budgetAmount}
+                    onChangeText={setBudgetAmount}
+                    keyboardType="numeric"
+                    textAlign="right"
+                  />
+                  <TextInput
+                    style={[styles.miniInput, styles.flex1]}
+                    placeholder="مثال: فندق الليلة الأولى"
+                    placeholderTextColor={colors.textFaint}
+                    value={budgetLabel}
+                    onChangeText={setBudgetLabel}
+                    textAlign="right"
+                  />
+                </View>
+              ) : null}
             </View>
           ) : null}
 
@@ -442,19 +495,21 @@ export default function TripDetailScreen() {
                   </TouchableOpacity>
                 ))}
               </ScrollView>
-              <View style={styles.addRow}>
-                <TouchableOpacity style={styles.addButton} activeOpacity={0.85} onPress={handleAddChecklist}>
-                  <Ionicons name="add" size={18} color={colors.textOnPrimary} />
-                </TouchableOpacity>
-                <TextInput
-                  style={[styles.miniInput, styles.flex1]}
-                  placeholder="مثال: احجز الفندق"
-                  placeholderTextColor={colors.textFaint}
-                  value={checklistTitle}
-                  onChangeText={setChecklistTitle}
-                  textAlign="right"
-                />
-              </View>
+              {!isViewer ? (
+                <View style={styles.addRow}>
+                  <TouchableOpacity style={styles.addButton} activeOpacity={0.85} onPress={handleAddChecklist}>
+                    <Ionicons name="add" size={18} color={colors.textOnPrimary} />
+                  </TouchableOpacity>
+                  <TextInput
+                    style={[styles.miniInput, styles.flex1]}
+                    placeholder="مثال: احجز الفندق"
+                    placeholderTextColor={colors.textFaint}
+                    value={checklistTitle}
+                    onChangeText={setChecklistTitle}
+                    textAlign="right"
+                  />
+                </View>
+              ) : null}
             </View>
           ) : null}
         </View>
@@ -495,6 +550,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   membersRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm, alignItems: 'center', marginBottom: spacing.md },
   memberChip: { alignItems: 'center', width: 52 },
   memberName: { color: colors.textMuted, fontSize: 10, marginTop: 4, textAlign: 'center' },
+  memberRoleText: { color: colors.textFaint, fontSize: 9, textAlign: 'center' },
   inviteList: { marginBottom: spacing.md, gap: spacing.xs },
   inviteRow: {
     flexDirection: 'row-reverse',
