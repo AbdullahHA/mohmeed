@@ -8,247 +8,274 @@ import {
   FlatList,
   TextInput,
   TouchableOpacity,
-  ImageBackground,
   Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import PlaceCard from '../components/PlaceCard';
 import PlacesMapView from '../components/PlacesMapView';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { radius, spacing, fixedColors, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
+import { useAppState } from '../context/AppState';
+import { useRequireAccount } from '../hooks/useRequireAccount';
 import { PLACE_TYPE_LABELS, type Place, type PlaceType } from '../data/places';
-import { heroDestination } from '../data/destinations';
 import { useContent } from '../context/ContentContext';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type ViewMode = 'list' | 'map';
-type TypeFilter = 'all' | PlaceType;
 
-const FILTERS: Array<{ value: Place['category']; icon: keyof typeof Ionicons.glyphMap }> = [
-  { value: 'الافتراضي', icon: 'apps-outline' },
-  { value: 'هادئ الآن', icon: 'leaf-outline' },
-  { value: 'Hot Spot', icon: 'flame-outline' },
+const TYPE_FILTERS: Array<{ value: PlaceType; icon: keyof typeof Ionicons.glyphMap; color: string }> = [
+  { value: 'restaurant', icon: 'restaurant-outline', color: fixedColors.category.food },
+  { value: 'hotel', icon: 'bed-outline', color: fixedColors.category.hotels },
+  { value: 'activity', icon: 'sparkles-outline', color: fixedColors.category.experiences },
+  { value: 'landmark', icon: 'flag-outline', color: fixedColors.category.landmarks },
 ];
-
-const TYPE_FILTERS: TypeFilter[] = ['all', 'restaurant', 'hotel', 'activity', 'landmark'];
 
 export default function DiscoverScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { places, destinations } = useContent();
+  const { recommendedPlaceIds, toggleRecommended } = useAppState();
+  const { requireAccount } = useRequireAccount();
   const [query, setQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState<Place['category']>('الافتراضي');
-  const [activeType, setActiveType] = useState<TypeFilter>('all');
+  const [activeType, setActiveType] = useState<PlaceType | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
 
   const filteredPlaces = useMemo(() => {
     return places.filter((place) => {
-      const matchesFilter = activeFilter === 'الافتراضي' || place.category === activeFilter;
-      const matchesType = activeType === 'all' || place.type === activeType;
+      const matchesType = !activeType || place.type === activeType;
       const matchesQuery = place.name.toLowerCase().includes(query.trim().toLowerCase());
-      return matchesFilter && matchesType && matchesQuery;
+      return matchesType && matchesQuery;
     });
-  }, [query, activeFilter, activeType, places]);
+  }, [query, activeType, places]);
 
-  const featuredPlace = useMemo(
-    () => [...places].sort((a, b) => b.rating - a.rating)[0],
-    [places]
-  );
-  const featuredDestinationName = useMemo(
-    () => destinations.find((d) => d.id === featuredPlace?.destinationId)?.name,
-    [destinations, featuredPlace]
-  );
+  const pickedForYou = useMemo(() => {
+    const scored = [...places].sort((a, b) => b.rating - a.rating).slice(0, 6);
+    return scored.map((place) => ({
+      place,
+      why: recommendedPlaceIds.includes(place.id) ? 'من مفضلاتك' : 'الأعلى تقييمًا',
+    }));
+  }, [places, recommendedPlaceIds]);
 
-  const listWithoutFeatured = useMemo(
-    () => filteredPlaces.filter((p) => p.id !== featuredPlace?.id),
-    [filteredPlaces, featuredPlace]
-  );
+  const experiences = useMemo(() => places.filter((p) => p.type === 'activity').slice(0, 4), [places]);
+
+  const destinationName = (id: string) => destinations.find((d) => d.id === id)?.name;
 
   return (
     <SafeAreaView style={styles.container}>
-      <ImageBackground source={heroDestination.image} style={styles.hero} imageStyle={styles.heroImage}>
-        <View style={styles.heroOverlay} />
-        <View style={styles.heroHeader}>
-          <TouchableOpacity
-            style={styles.toggleButton}
-            activeOpacity={0.8}
-            onPress={() => setViewMode((mode) => (mode === 'list' ? 'map' : 'list'))}
-          >
-            <Ionicons name={viewMode === 'list' ? 'map-outline' : 'list-outline'} size={18} color="#FFFFFF" />
-          </TouchableOpacity>
-          <Text style={styles.heroTitle}>استكشف</Text>
-          <View style={{ width: 40 }} />
-        </View>
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={18} color={colors.textMuted} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="ابحث عن مكان..."
-            placeholderTextColor={colors.textFaint}
-            value={query}
-            onChangeText={setQuery}
-            textAlign="right"
-          />
-        </View>
-      </ImageBackground>
-
-      {viewMode === 'list' ? (
-        <FlatList
-          data={listWithoutFeatured}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          showsVerticalScrollIndicator={false}
-          ListHeaderComponent={
-            <>
-              {featuredPlace ? (
-                <TouchableOpacity
-                  style={styles.featuredCard}
-                  activeOpacity={0.9}
-                  onPress={() => navigation.navigate('PlaceDetail', { placeId: featuredPlace.id })}
-                >
-                  <Image source={featuredPlace.image} style={styles.featuredImage} />
-                  <View style={styles.featuredOverlay} />
-                  <View style={styles.featuredBadge}>
-                    <Ionicons name="sparkles" size={12} color={colors.textOnPrimary} />
-                    <Text style={styles.featuredBadgeText}>الأعلى تقييمًا</Text>
-                  </View>
-                  <View style={styles.featuredTextWrap}>
-                    <Text style={styles.featuredTitle}>{featuredPlace.name}</Text>
-                    {featuredDestinationName ? (
-                      <Text style={styles.featuredSubtitle}>{featuredDestinationName}</Text>
-                    ) : null}
-                  </View>
-                </TouchableOpacity>
-              ) : null}
-
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.filtersScroll}
-                contentContainerStyle={styles.filtersRow}
-              >
-                {FILTERS.map((item) => {
-                  const active = activeFilter === item.value;
-                  return (
-                    <TouchableOpacity
-                      key={item.value}
-                      style={styles.filterChip}
-                      activeOpacity={0.8}
-                      onPress={() => setActiveFilter(item.value)}
-                    >
-                      <View style={[styles.filterBadge, active && styles.filterBadgeActive]}>
-                        <Ionicons name={item.icon} size={24} color={active ? colors.primary : colors.textMuted} />
-                      </View>
-                      <Text style={[styles.filterLabel, active && styles.filterLabelActive]}>{item.value}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.typeFiltersScroll}
-                contentContainerStyle={styles.typeFiltersRow}
-              >
-                {TYPE_FILTERS.map((item) => {
-                  const active = activeType === item;
-                  const label = item === 'all' ? 'الكل' : PLACE_TYPE_LABELS[item];
-                  return (
-                    <TouchableOpacity
-                      key={item}
-                      style={[styles.typeFilterChip, active && styles.typeFilterChipActive]}
-                      activeOpacity={0.8}
-                      onPress={() => setActiveType(item)}
-                    >
-                      <Text style={[styles.typeFilterText, active && styles.typeFilterTextActive]}>{label}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-
-              {destinations.length > 0 ? (
-                <View style={styles.destinationsSection}>
-                  <Text style={styles.destinationsTitle}>الوجهات</Text>
-                  <View style={styles.destinationsGrid}>
-                    {destinations.map((destination) => (
-                      <TouchableOpacity
-                        key={destination.id}
-                        style={styles.destinationTile}
-                        activeOpacity={0.85}
-                        onPress={() => navigation.navigate('DestinationDetail', { destinationId: destination.id })}
-                      >
-                        <Image source={destination.image} style={styles.destinationImage} />
-                        <View style={styles.destinationOverlay} />
-                        <Text style={styles.destinationName}>{destination.name}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </View>
-              ) : null}
-            </>
-          }
-          renderItem={({ item }) => (
-            <PlaceCard
-              place={item}
-              onPress={() => navigation.navigate('PlaceDetail', { placeId: item.id })}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scroll}
+        stickyHeaderIndices={[0]}
+      >
+        <View style={styles.top}>
+          <View style={styles.topRow}>
+            <Text style={styles.topTitle}>اكتشف</Text>
+            <TouchableOpacity
+              style={styles.iconBtn}
+              activeOpacity={0.8}
+              onPress={() => setViewMode((m) => (m === 'list' ? 'map' : 'list'))}
+            >
+              <Ionicons name={viewMode === 'list' ? 'map-outline' : 'list-outline'} size={18} color={colors.text} />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.searchBar}>
+            <Ionicons name="search" size={16} color={colors.textMuted} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="مطعم، فعالية، مدينة…"
+              placeholderTextColor={colors.textFaint}
+              value={query}
+              onChangeText={setQuery}
+              textAlign="right"
             />
-          )}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>لا توجد نتائج مطابقة لبحثك</Text>
-          }
-        />
-      ) : (
-        <PlacesMapView
-          places={filteredPlaces}
-          onMarkerPress={(place) => navigation.navigate('PlaceDetail', { placeId: place.id })}
-        />
-      )}
+          </View>
+        </View>
+
+        {viewMode === 'map' ? (
+          <PlacesMapView
+            places={filteredPlaces}
+            onMarkerPress={(place) => navigation.navigate('PlaceDetail', { placeId: place.id })}
+          />
+        ) : (
+          <>
+            <View style={styles.cats}>
+              {TYPE_FILTERS.map((item) => {
+                const active = activeType === item.value;
+                return (
+                  <TouchableOpacity
+                    key={item.value}
+                    style={styles.cat}
+                    activeOpacity={0.8}
+                    onPress={() => setActiveType(active ? null : item.value)}
+                  >
+                    <View
+                      style={[
+                        styles.catIcon,
+                        { borderColor: active ? item.color : colors.border },
+                        active && { backgroundColor: item.color + '1a' },
+                      ]}
+                    >
+                      <Ionicons name={item.icon} size={22} color={item.color} />
+                    </View>
+                    <Text style={styles.catLabel}>{PLACE_TYPE_LABELS[item.value]}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            <View style={styles.sec}>
+              <View style={styles.secTitle}>
+                <Text style={styles.secTitleText}>مختارة لك</Text>
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hscroll}>
+                {pickedForYou.map(({ place, why }) => {
+                  const isRecommended = recommendedPlaceIds.includes(place.id);
+                  return (
+                    <TouchableOpacity
+                      key={place.id}
+                      style={styles.pcard}
+                      activeOpacity={0.9}
+                      onPress={() => navigation.navigate('PlaceDetail', { placeId: place.id })}
+                    >
+                      <View style={styles.pcardImageWrap}>
+                        <Image source={place.image} style={styles.pcardImage} />
+                        <TouchableOpacity
+                          style={styles.pcardHeart}
+                          activeOpacity={0.7}
+                          onPress={() => requireAccount('recommend', () => toggleRecommended(place.id))}
+                        >
+                          <Ionicons
+                            name={isRecommended ? 'heart' : 'heart-outline'}
+                            size={15}
+                            color={isRecommended ? colors.heart : '#fff'}
+                          />
+                        </TouchableOpacity>
+                        <View style={styles.pcardWhy}>
+                          <Text style={styles.pcardWhyText}>{why}</Text>
+                        </View>
+                      </View>
+                      <Text style={styles.pcardName} numberOfLines={1}>{place.name}</Text>
+                      <View style={styles.pcardMeta}>
+                        <Ionicons name="star" size={12} color={colors.accentDark} />
+                        <Text style={styles.pcardMetaText}>{place.rating.toFixed(1)}</Text>
+                        <Text style={styles.pcardMetaText}>· {PLACE_TYPE_LABELS[place.type]}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
+
+            {experiences.length > 0 ? (
+              <View style={styles.sec}>
+                <View style={styles.secTitle}>
+                  <Text style={styles.secTitleText}>تجارب تستاهل</Text>
+                </View>
+                <View style={styles.rows}>
+                  {experiences.map((place) => (
+                    <TouchableOpacity
+                      key={place.id}
+                      style={styles.row}
+                      activeOpacity={0.8}
+                      onPress={() => navigation.navigate('PlaceDetail', { placeId: place.id })}
+                    >
+                      <Image source={place.image} style={styles.rowImage} />
+                      <View style={styles.rowBody}>
+                        <Text style={styles.rowTitle} numberOfLines={1}>{place.name}</Text>
+                        <Text style={styles.rowSubtitle} numberOfLines={1}>
+                          {PLACE_TYPE_LABELS[place.type]} · {destinationName(place.destinationId) ?? ''}
+                        </Text>
+                      </View>
+                      <View style={styles.rowRating}>
+                        <Ionicons name="star" size={12} color={colors.accentDark} />
+                        <Text style={styles.rowRatingText}>{place.rating.toFixed(1)}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            ) : null}
+
+            <View style={styles.sec}>
+              <View style={styles.secTitle}>
+                <Text style={styles.secTitleText}>الوجهات</Text>
+              </View>
+              <View style={styles.dgrid}>
+                {destinations.map((destination) => (
+                  <TouchableOpacity
+                    key={destination.id}
+                    style={styles.dtile}
+                    activeOpacity={0.85}
+                    onPress={() => navigation.navigate('DestinationDetail', { destinationId: destination.id })}
+                  >
+                    <Image source={destination.image} style={styles.dtileImage} />
+                    <View style={styles.dtileOverlay} />
+                    <Text style={styles.dtileName}>{destination.name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.sec}>
+              <View style={styles.secTitle}>
+                <Text style={styles.secTitleText}>كل الأماكن</Text>
+              </View>
+              {filteredPlaces.length === 0 ? (
+                <Text style={styles.emptyText}>ما لقينا شي بهالفلاتر</Text>
+              ) : (
+                <FlatList
+                  data={filteredPlaces}
+                  keyExtractor={(item) => item.id}
+                  scrollEnabled={false}
+                  contentContainerStyle={styles.rows}
+                  renderItem={({ item: place }) => (
+                    <TouchableOpacity
+                      style={styles.row}
+                      activeOpacity={0.8}
+                      onPress={() => navigation.navigate('PlaceDetail', { placeId: place.id })}
+                    >
+                      <Image source={place.image} style={styles.rowImage} />
+                      <View style={styles.rowBody}>
+                        <Text style={styles.rowTitle} numberOfLines={1}>{place.name}</Text>
+                        <Text style={styles.rowSubtitle} numberOfLines={1}>
+                          {PLACE_TYPE_LABELS[place.type]} · {destinationName(place.destinationId) ?? ''}
+                        </Text>
+                      </View>
+                      <Text style={styles.rowPrice}>{'﷼'.repeat(place.priceLevel)}</Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              )}
+            </View>
+          </>
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  container: {
-    flex: 1,
+  container: { flex: 1, backgroundColor: colors.background },
+  scroll: { paddingBottom: 120 },
+  top: {
     backgroundColor: colors.background,
-  },
-  hero: {
-    height: 210,
-    justifyContent: 'space-between',
-  },
-  heroImage: {
-    resizeMode: 'cover',
-  },
-  heroOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: colors.overlay,
-  },
-  heroHeader: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md,
+    gap: spacing.md,
   },
-  heroTitle: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  toggleButton: {
-    width: 40,
-    height: 40,
+  topRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' },
+  topTitle: { color: colors.text, fontSize: 20, fontWeight: '800' },
+  iconBtn: {
+    width: 36,
+    height: 36,
     borderRadius: radius.pill,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -257,192 +284,75 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
     backgroundColor: colors.surface,
-    borderRadius: radius.pill,
-    marginHorizontal: spacing.lg,
-    marginBottom: spacing.lg,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-  },
-  searchInput: {
-    flex: 1,
-    color: colors.text,
-    fontSize: 13,
-  },
-  featuredCard: {
-    marginHorizontal: spacing.lg,
-    marginTop: spacing.lg,
-    marginBottom: spacing.lg,
-    height: 160,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: radius.lg,
-    overflow: 'hidden',
-  },
-  featuredImage: {
-    width: '100%',
-    height: '100%',
-  },
-  featuredOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: colors.overlay,
-  },
-  featuredBadge: {
-    position: 'absolute',
-    top: spacing.md,
-    right: spacing.md,
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.primary,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-  },
-  featuredBadgeText: {
-    color: colors.textOnPrimary,
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  featuredTextWrap: {
-    position: 'absolute',
-    bottom: spacing.md,
-    right: spacing.md,
-    left: spacing.md,
-  },
-  featuredTitle: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '800',
-    textAlign: 'right',
-  },
-  featuredSubtitle: {
-    color: 'rgba(255,255,255,0.85)',
-    fontSize: 12,
-    textAlign: 'right',
-    marginTop: 2,
-  },
-  filtersScroll: {
-    flexGrow: 0,
-    flexShrink: 0,
-    marginBottom: spacing.lg,
-  },
-  filtersRow: {
-    flexDirection: 'row-reverse',
-    alignItems: 'flex-start',
-    gap: spacing.sm,
+    height: 48,
     paddingHorizontal: spacing.lg,
   },
-  filterChip: {
-    alignItems: 'center',
-    gap: spacing.xs,
-    width: 76,
+  searchInput: { flex: 1, color: colors.text, fontSize: 13.5 },
+  cats: {
+    flexDirection: 'row-reverse',
+    flexWrap: 'wrap',
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
+    gap: spacing.sm,
   },
-  filterBadge: {
-    width: 56,
-    height: 56,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surfaceAlt,
+  cat: { width: '23%', alignItems: 'center', gap: spacing.xs },
+  catIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  filterBadgeActive: {
-    backgroundColor: colors.primarySoft,
-  },
-  filterLabel: {
-    color: colors.textMuted,
-    fontSize: 11,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  filterLabelActive: {
-    color: colors.primary,
-    fontWeight: '700',
-  },
-  typeFiltersScroll: {
-    flexGrow: 0,
-    flexShrink: 0,
-    marginBottom: spacing.lg,
-  },
-  typeFiltersRow: {
-    flexDirection: 'row-reverse',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-  },
-  typeFilterChip: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
+  catLabel: { color: colors.text, fontSize: 11, fontWeight: '500' },
+  sec: { marginTop: spacing.xl, paddingHorizontal: spacing.lg },
+  secTitle: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: spacing.sm },
+  secTitleText: { color: colors.text, fontSize: 15, fontWeight: '700' },
+  hscroll: { flexDirection: 'row-reverse', gap: spacing.md, paddingVertical: 2 },
+  pcard: { width: 180, gap: spacing.xs },
+  pcardImageWrap: { width: '100%', height: 130, borderRadius: radius.lg, overflow: 'hidden' },
+  pcardImage: { width: '100%', height: '100%' },
+  pcardHeart: {
+    position: 'absolute',
+    top: spacing.sm,
+    left: spacing.sm,
+    width: 28,
+    height: 28,
     borderRadius: radius.pill,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  typeFilterChipActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  typeFilterText: {
-    color: colors.text,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  typeFilterTextActive: {
-    color: colors.textOnPrimary,
-  },
-  destinationsSection: {
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.lg,
-  },
-  destinationsTitle: {
-    color: colors.text,
-    fontSize: 15,
-    fontWeight: '800',
-    textAlign: 'right',
-    marginBottom: spacing.md,
-  },
-  destinationsGrid: {
-    flexDirection: 'row-reverse',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  destinationTile: {
-    width: '31%',
-    aspectRatio: 1,
-    borderRadius: radius.md,
-    overflow: 'hidden',
-    justifyContent: 'flex-end',
-  },
-  destinationImage: {
+  pcardWhy: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
-    height: '100%',
+    bottom: spacing.sm,
+    right: spacing.sm,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
   },
-  destinationOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: colors.overlay,
-  },
-  destinationName: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '800',
-    textAlign: 'center',
-    paddingVertical: spacing.sm,
-  },
-  list: {
-    paddingBottom: 120,
-  },
-  emptyText: {
-    color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.xl,
-  },
+  pcardWhyText: { color: '#141a2b', fontSize: 10.5, fontWeight: '600' },
+  pcardName: { color: colors.text, fontSize: 13.5, fontWeight: '700', textAlign: 'right' },
+  pcardMeta: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
+  pcardMetaText: { color: colors.textMuted, fontSize: 11.5 },
+  rows: { gap: spacing.md },
+  row: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.md },
+  rowImage: { width: 64, height: 64, borderRadius: radius.md },
+  rowBody: { flex: 1, gap: 3 },
+  rowTitle: { color: colors.text, fontSize: 13.5, fontWeight: '700', textAlign: 'right' },
+  rowSubtitle: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right' },
+  rowRating: { flexDirection: 'row-reverse', alignItems: 'center', gap: 3 },
+  rowRatingText: { color: colors.accentDark, fontSize: 12, fontWeight: '700' },
+  rowPrice: { color: colors.primary, fontSize: 12, fontWeight: '700' },
+  dgrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm },
+  dtile: { width: '31.5%', aspectRatio: 0.75, borderRadius: radius.md, overflow: 'hidden', justifyContent: 'flex-end' },
+  dtileImage: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' },
+  dtileOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: colors.overlay },
+  dtileName: { color: '#fff', fontSize: 12.5, fontWeight: '800', textAlign: 'center', paddingVertical: spacing.sm },
+  emptyText: { color: colors.textMuted, textAlign: 'center', paddingVertical: spacing.lg },
 });
