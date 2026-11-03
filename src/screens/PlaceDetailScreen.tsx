@@ -332,7 +332,7 @@ export default function PlaceDetailScreen() {
       <AddToTripSheet
         visible={pickerVisible}
         placeName={place.name}
-        isRestaurant={place.type === 'restaurant'}
+        isRestaurant={place.type === 'food' || place.type === 'cafe'}
         trips={trips}
         onClose={() => setPickerVisible(false)}
         onAdd={handleAdd}

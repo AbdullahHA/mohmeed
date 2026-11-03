@@ -5,10 +5,14 @@ import { supabase } from '../lib/supabase';
 type Row = { id: string; name: string; description: string; image_url: string; destination_id: string; type: string };
 
 const TYPE_LABELS: Record<string, string> = {
-  hotel: 'فنادق',
-  restaurant: 'مطاعم',
-  activity: 'أنشطة',
-  landmark: 'معالم',
+  food: 'مطاعم',
+  cafe: 'كافيهات',
+  events: 'فعاليات',
+  experiences: 'تجارب',
+  shopping: 'تسوّق',
+  nature: 'طبيعة',
+  landmarks: 'معالم',
+  hotels: 'فنادق',
 };
 
 export default function Places() {

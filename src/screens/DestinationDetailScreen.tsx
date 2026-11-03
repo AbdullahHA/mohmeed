@@ -33,7 +33,9 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 type TypeFilter = 'all' | PlaceType;
 type CityTab = 'places' | 'posts';
 
-const TYPE_FILTERS: TypeFilter[] = ['all', 'hotel', 'restaurant', 'activity', 'landmark'];
+const TYPE_FILTERS: TypeFilter[] = [
+  'all', 'food', 'cafe', 'hotels', 'experiences', 'events', 'nature', 'landmarks', 'shopping',
+];
 
 const MONTH_NAMES = [
   'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',

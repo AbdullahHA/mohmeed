@@ -37,7 +37,7 @@ export default function AdminEditPlaceScreen() {
 
   const [name, setName] = useState(place?.name ?? '');
   const [description, setDescription] = useState(place?.description ?? '');
-  const [type, setType] = useState<PlaceType>(place?.type ?? 'activity');
+  const [type, setType] = useState<PlaceType>(place?.type ?? 'experiences');
   const [image, setImage] = useState(place?.image);
   const [newImageUrl, setNewImageUrl] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);

@@ -43,16 +43,40 @@ function mapPriceLevel(level: string | undefined): 1 | 2 | 3 {
 
 function mapPlaceType(googleTypes: string[] | undefined): PlaceType {
   const types = googleTypes ?? [];
-  if (types.some((t) => t === 'lodging' || t === 'hotel')) return 'hotel';
-  if (types.some((t) => t.includes('restaurant') || t === 'cafe' || t === 'bakery' || t === 'bar' || t === 'food'))
-    return 'restaurant';
+  if (types.some((t) => t === 'lodging' || t === 'hotel' || t === 'resort_hotel')) return 'hotels';
+  if (types.some((t) => t === 'cafe' || t === 'coffee_shop' || t === 'bakery')) return 'cafe';
+  if (types.some((t) => t.includes('restaurant') || t === 'bar' || t === 'food' || t === 'meal_takeaway'))
+    return 'food';
+  if (
+    types.some(
+      (t) =>
+        t === 'shopping_mall' ||
+        t === 'store' ||
+        t === 'clothing_store' ||
+        t === 'supermarket' ||
+        t === 'department_store'
+    )
+  )
+    return 'shopping';
+  if (
+    types.some(
+      (t) => t === 'park' || t === 'natural_feature' || t === 'hiking_area' || t === 'campground' || t === 'beach'
+    )
+  )
+    return 'nature';
+  if (
+    types.some(
+      (t) => t === 'amusement_park' || t === 'stadium' || t === 'event_venue' || t === 'night_club' || t === 'zoo'
+    )
+  )
+    return 'events';
   if (
     types.some(
       (t) => t === 'tourist_attraction' || t === 'landmark' || t === 'museum' || t === 'historical_landmark'
     )
   )
-    return 'landmark';
-  return 'activity';
+    return 'landmarks';
+  return 'experiences';
 }
 
 function mapResult(raw: any): GooglePlaceResult {

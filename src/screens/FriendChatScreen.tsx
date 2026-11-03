@@ -297,7 +297,7 @@ export default function FriendChatScreen() {
       <AddToTripSheet
         visible={!!sharePickerPlace}
         placeName={sharePickerPlace?.name ?? ''}
-        isRestaurant={sharePickerPlace?.type === 'restaurant'}
+        isRestaurant={sharePickerPlace?.type === 'food' || sharePickerPlace?.type === 'cafe'}
         trips={trips}
         onClose={() => setSharePickerPlaceId(null)}
         onAdd={handleAddSharedPlace}

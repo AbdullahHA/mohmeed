@@ -10,7 +10,7 @@ type FormState = {
   name: string;
   description: string;
   image_url: string;
-  type: 'hotel' | 'restaurant' | 'activity' | 'landmark';
+  type: 'food' | 'cafe' | 'events' | 'experiences' | 'shopping' | 'nature' | 'landmarks' | 'hotels';
   category: string;
   rating: string;
   price_level: '1' | '2' | '3';
@@ -25,7 +25,7 @@ const EMPTY: FormState = {
   name: '',
   description: '',
   image_url: '',
-  type: 'activity',
+  type: 'experiences',
   category: 'الافتراضي',
   rating: '4.5',
   price_level: '2',
@@ -150,10 +150,14 @@ export default function PlaceEdit() {
         <div className="grid grid-cols-2 gap-4">
           <Field label="النوع">
             <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as FormState['type'] })} className="input">
-              <option value="restaurant">مطاعم</option>
-              <option value="hotel">فنادق</option>
-              <option value="activity">أنشطة</option>
-              <option value="landmark">معالم</option>
+              <option value="experiences">تجارب</option>
+              <option value="events">فعاليات</option>
+              <option value="cafe">كافيهات</option>
+              <option value="food">مطاعم</option>
+              <option value="shopping">تسوّق</option>
+              <option value="nature">طبيعة</option>
+              <option value="landmarks">معالم</option>
+              <option value="hotels">فنادق</option>
             </select>
           </Field>
           <Field label="مستوى السعر">
