@@ -27,6 +27,7 @@ import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
+import { formatTripDateRange } from '../lib/tripDates';
 import type { FeedPost } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -194,7 +195,7 @@ export default function HomeScreen() {
                 <View style={styles.glassRow}>
                   <View style={styles.glassChip}>
                     <Ionicons name="calendar-outline" size={12} color="#fff" />
-                    <Text style={styles.glassChipText}>{nextTrip.startDate} – {nextTrip.endDate}</Text>
+                    <Text style={styles.glassChipText}>{formatTripDateRange(nextTrip.startDate, nextTrip.endDate)}</Text>
                   </View>
                   {checklistTotal > 0 ? (
                     <View style={styles.glassChip}>

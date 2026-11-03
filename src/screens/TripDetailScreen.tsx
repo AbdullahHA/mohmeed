@@ -27,6 +27,7 @@ import { getHijriDateEnabled } from '../lib/hijriSetting';
 import { scheduleTripReminders } from '../lib/smartReminders';
 import CountryInfoCard from '../components/CountryInfoCard';
 import { useContent } from '../context/ContentContext';
+import { formatTripDateRange } from '../lib/tripDates';
 import { BUDGET_CATEGORY_LABELS, type BudgetCategory, type ChecklistGroup, type ItinerarySlot } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -240,9 +241,6 @@ export default function TripDetailScreen() {
         <View style={styles.imageWrap}>
           <Image source={trip.coverImage} style={styles.image} />
           <View style={styles.headerRow}>
-            <TouchableOpacity style={styles.glassButton} onPress={() => navigation.goBack()} activeOpacity={0.85}>
-              <Ionicons name="arrow-forward" size={20} color={colors.textOnPrimary} />
-            </TouchableOpacity>
             <View style={styles.glassGroup}>
               <TouchableOpacity
                 style={styles.glassButton}
@@ -258,6 +256,9 @@ export default function TripDetailScreen() {
                 <Ionicons name="share-social-outline" size={17} color={colors.textOnPrimary} />
               </TouchableOpacity>
             </View>
+            <TouchableOpacity style={styles.glassButton} onPress={() => navigation.goBack()} activeOpacity={0.85}>
+              <Ionicons name="arrow-forward" size={20} color={colors.textOnPrimary} />
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -271,7 +272,8 @@ export default function TripDetailScreen() {
           ) : null}
           <View style={styles.subtitleRow}>
             <Text style={styles.subtitle}>
-              {trip.destination} · {trip.startDate} → {trip.endDate}
+              {trip.destination}
+              {hasRealDates ? ` · ${formatTripDateRange(trip.startDate, trip.endDate)}` : ''}
             </Text>
             {countdownLabel ? (
               <View style={styles.countdownBadge}>
@@ -344,20 +346,19 @@ export default function TripDetailScreen() {
             </View>
           ) : null}
 
-          <TouchableOpacity
-            style={styles.chatButton}
-            activeOpacity={0.85}
-            onPress={() => navigation.navigate('GroupChat', { tripId: trip.id })}
-          >
-            <Ionicons name="chatbubbles-outline" size={16} color={colors.textOnPrimary} />
-            <Text style={styles.chatButtonText}>الشلة · محادثة المجموعة</Text>
-          </TouchableOpacity>
-
           <View style={styles.tabsRow}>
+            <TouchableOpacity
+              style={styles.tabButton}
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('GroupChat', { tripId: trip.id })}
+            >
+              <Ionicons name="chatbubble-ellipses-outline" size={15} color={colors.text} />
+              <Text style={styles.tabText}>الشلة</Text>
+            </TouchableOpacity>
             {([
-              ['schedule', 'الجدول'],
-              ['budget', 'الميزانية'],
               ['checklist', 'التجهيز'],
+              ['budget', 'الميزانية'],
+              ['schedule', 'الجدول'],
             ] as const).map(([tab, label]) => (
               <TouchableOpacity
                 key={tab}
@@ -696,24 +697,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   inviteRowName: { color: colors.text, fontSize: 13, fontWeight: '600' },
   emptyMuted: { color: colors.textFaint, fontSize: 12, textAlign: 'center', paddingVertical: spacing.sm },
-  chatButton: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    backgroundColor: colors.primary,
-    borderRadius: radius.pill,
-    paddingVertical: spacing.md,
-    marginBottom: spacing.lg,
-  },
-  chatButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 13 },
   tabsRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginBottom: spacing.md },
   tabButton: {
     flex: 1,
+    flexDirection: 'row-reverse',
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
     backgroundColor: colors.surfaceAlt,
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
   },
   tabButtonActive: { backgroundColor: colors.text },
   tabText: { color: colors.text, fontSize: 12.5, fontWeight: '700' },

@@ -19,6 +19,7 @@ import { useAppState } from '../context/AppState';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import type { Trip } from '../types';
 import type { RootStackParamList } from '../navigation/types';
+import { formatTripDateRange } from '../lib/tripDates';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type TripTab = 'upcoming' | 'past';
@@ -89,7 +90,7 @@ export default function TripsScreen() {
           <View style={styles.cardTextWrap}>
             <Text style={styles.cardTitle}>{item.title}</Text>
             <Text style={styles.cardSubtitle}>
-              {hasDate ? `${item.startDate} – ${item.endDate}` : extraMembers > 0 ? `أنت و${extraMembers} معك` : 'شخص واحد'}
+              {hasDate ? formatTripDateRange(item.startDate, item.endDate) : extraMembers > 0 ? `أنت و${extraMembers} معك` : 'شخص واحد'}
             </Text>
           </View>
         </View>
