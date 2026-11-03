@@ -89,8 +89,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
+    borderTopLeftRadius: radius.sheet,
+    borderTopRightRadius: radius.sheet,
     padding: spacing.xl,
     alignItems: 'center',
   },

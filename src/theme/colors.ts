@@ -74,20 +74,33 @@ export const fixedColors = {
   },
 } as const;
 
+// Matches yalla-handoff/theme/native/tokens.ts's `space` scale exactly.
+// `xxs` is an alias for the existing `xs` value so nothing that already
+// reads `spacing.xs` needs to change; `gutter`/`section` are newly added
+// (the handoff distinguishes screen-edge gutters and section gaps from
+// generic spacing, which this scale didn't have a slot for before).
 export const spacing = {
+  xxs: 4,
   xs: 4,
   sm: 8,
   md: 12,
   lg: 16,
+  gutter: 18,
+  section: 20,
   xl: 24,
   xxl: 32,
 };
 
+// Matches yalla-handoff/theme/native/tokens.ts's `radius` scale exactly:
+// sm = small chips, md = buttons, lg = small cards, card = standard
+// cards, xl = large rounded corners, sheet = bottom-sheet modals.
 export const radius = {
   sm: 8,
-  md: 14,
-  lg: 20,
-  xl: 28,
+  md: 12,
+  lg: 14,
+  card: 18,
+  xl: 22,
+  sheet: 28,
   pill: 999,
 };
 

@@ -399,8 +399,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   glassGroup: { flexDirection: 'row-reverse', gap: spacing.sm },
   body: {
     backgroundColor: colors.background,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
+    borderTopLeftRadius: radius.sheet,
+    borderTopRightRadius: radius.sheet,
     marginTop: -22,
     paddingTop: spacing.lg,
     paddingHorizontal: spacing.xl,

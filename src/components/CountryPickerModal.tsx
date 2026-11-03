@@ -83,8 +83,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   sheet: {
     backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
+    borderTopLeftRadius: radius.sheet,
+    borderTopRightRadius: radius.sheet,
     padding: spacing.lg,
     maxHeight: '75%',
   },

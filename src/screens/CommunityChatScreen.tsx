@@ -355,8 +355,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   menuBackdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
   menuSheet: {
     backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
+    borderTopLeftRadius: radius.sheet,
+    borderTopRightRadius: radius.sheet,
     padding: spacing.xl,
     maxHeight: '60%',
   },
