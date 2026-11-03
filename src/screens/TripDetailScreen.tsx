@@ -24,6 +24,7 @@ import DayPicker, { tripDateRange, formatIsoDate } from '../components/DayPicker
 import SlotPicker, { SLOT_LABELS } from '../components/SlotPicker';
 import { formatHijriDate } from '../lib/hijri';
 import { getHijriDateEnabled } from '../lib/hijriSetting';
+import { scheduleTripReminders } from '../lib/smartReminders';
 import CountryInfoCard from '../components/CountryInfoCard';
 import { useContent } from '../context/ContentContext';
 import { BUDGET_CATEGORY_LABELS, type BudgetCategory, type ChecklistGroup, type ItinerarySlot } from '../types';
@@ -73,6 +74,34 @@ export default function TripDetailScreen() {
   useEffect(() => {
     getHijriDateEnabled().then(setHijriEnabled);
   }, []);
+
+  const incompleteChecklistCount = trip ? trip.checklist.filter((c) => !c.done).length : 0;
+
+  useEffect(() => {
+    if (!trip) return;
+    let cancelled = false;
+    (async () => {
+      const { data: flightDocs } = await supabase
+        .from('trip_documents')
+        .select('starts_at')
+        .eq('trip_id', trip.id)
+        .eq('kind', 'flight');
+      if (cancelled) return;
+      const destCoord = destinations.find((d) => d.name === trip.destination);
+      const coordinate =
+        destCoord && destCoord.latitude != null && destCoord.longitude != null
+          ? { latitude: destCoord.latitude, longitude: destCoord.longitude }
+          : null;
+      scheduleTripReminders(
+        trip,
+        (flightDocs ?? []).map((d: any) => ({ startsAt: d.starts_at })),
+        coordinate
+      );
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [trip?.id, trip?.startDate, trip?.endDate, incompleteChecklistCount]);
 
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [itinTitle, setItinTitle] = useState('');

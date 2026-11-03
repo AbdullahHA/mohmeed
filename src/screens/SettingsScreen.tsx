@@ -23,6 +23,12 @@ import {
   setBiometricLockEnabled,
 } from '../lib/biometric';
 import { getHijriDateEnabled, setHijriDateEnabled } from '../lib/hijriSetting';
+import {
+  getReminderSettings,
+  setReminderEnabled,
+  REMINDER_TYPE_LABELS,
+  type ReminderType,
+} from '../lib/smartReminders';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -53,6 +59,7 @@ export default function SettingsScreen() {
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [biometricLoading, setBiometricLoading] = useState(true);
   const [hijriEnabled, setHijriEnabledState] = useState(false);
+  const [reminderSettings, setReminderSettingsState] = useState<Record<ReminderType, boolean> | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -62,6 +69,7 @@ export default function SettingsScreen() {
       setBiometricLoading(false);
     })();
     getHijriDateEnabled().then(setHijriEnabledState);
+    getReminderSettings().then(setReminderSettingsState);
   }, []);
 
   const handleToggleBiometric = async (value: boolean) => {
@@ -72,6 +80,11 @@ export default function SettingsScreen() {
   const handleToggleHijri = async (value: boolean) => {
     setHijriEnabledState(value);
     await setHijriDateEnabled(value);
+  };
+
+  const handleToggleReminder = async (type: ReminderType, value: boolean) => {
+    setReminderSettingsState((prev) => (prev ? { ...prev, [type]: value } : prev));
+    await setReminderEnabled(type, value);
   };
 
   const handleDeleteAccount = () => {
@@ -204,6 +217,29 @@ export default function SettingsScreen() {
             </View>
           </View>
         </View>
+
+        {profile && reminderSettings ? (
+          <>
+            <Text style={styles.sectionTitle}>التذكيرات الذكية</Text>
+            <View style={styles.card}>
+              {(Object.keys(REMINDER_TYPE_LABELS) as ReminderType[]).map((type, index, arr) => (
+                <React.Fragment key={type}>
+                  <View style={styles.switchRow}>
+                    <Switch
+                      value={reminderSettings[type]}
+                      onValueChange={(v) => handleToggleReminder(type, v)}
+                      trackColor={{ false: colors.border, true: colors.primary }}
+                    />
+                    <View style={styles.switchTextWrap}>
+                      <Text style={styles.switchLabel}>{REMINDER_TYPE_LABELS[type]}</Text>
+                    </View>
+                  </View>
+                  {index < arr.length - 1 ? <Divider /> : null}
+                </React.Fragment>
+              ))}
+            </View>
+          </>
+        ) : null}
 
         <Text style={styles.sectionTitle}>معلومات ومساعدة</Text>
         <View style={styles.card}>
