@@ -227,6 +227,17 @@ export default function TripDetailScreen() {
             ) : null}
           </View>
 
+          {countdownLabel === 'انتهت' ? (
+            <TouchableOpacity
+              style={styles.summaryBanner}
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('TripSummary', { tripId: trip.id })}
+            >
+              <Ionicons name="sparkles-outline" size={16} color={colors.accentDark} />
+              <Text style={styles.summaryBannerText}>شوف ملخص الرحلة</Text>
+            </TouchableOpacity>
+          ) : null}
+
           <View style={styles.membersRow}>
             {members.map((member) => {
               const role = memberRoles[member.id] ?? 'member';
@@ -546,6 +557,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   subtitleRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, marginTop: 4, marginBottom: spacing.md },
   subtitle: { color: colors.textMuted, fontSize: 13 },
   countdownBadge: { backgroundColor: colors.accentSoft, borderRadius: radius.pill, paddingHorizontal: spacing.sm, paddingVertical: 2 },
+  summaryBanner: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.accentSoft,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    marginBottom: spacing.md,
+    alignSelf: 'flex-end',
+  },
+  summaryBannerText: { color: colors.accentDark, fontSize: 12.5, fontWeight: '700' },
   countdownText: { color: colors.accentDark, fontSize: 11, fontWeight: '700' },
   membersRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm, alignItems: 'center', marginBottom: spacing.md },
   memberChip: { alignItems: 'center', width: 52 },

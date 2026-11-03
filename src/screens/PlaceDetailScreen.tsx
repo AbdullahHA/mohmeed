@@ -18,6 +18,8 @@ import { useTheme } from '../context/ThemeContext';
 import PlaceMiniMap from '../components/PlaceMiniMap';
 import AddToTripSheet from '../components/AddToTripSheet';
 import AddedToast from '../components/AddedToast';
+import QuickRateSheet from '../components/QuickRateSheet';
+import PersonAvatar from '../components/PersonAvatar';
 import { getMapsUrl } from '../utils/place';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
@@ -25,7 +27,7 @@ import { useContent } from '../context/ContentContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import { supabase } from '../lib/supabase';
 import { PLACE_TYPE_LABELS } from '../data/places';
-import type { Trip, ItinerarySlot } from '../types';
+import type { Trip, ItinerarySlot, PlaceQuickRating, QuickRateTag } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'PlaceDetail'>;
@@ -45,19 +47,62 @@ export default function PlaceDetailScreen() {
   const route = useRoute<Route>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { recommendedPlaceIds, toggleRecommended, trips, addItineraryItem, removeItineraryItem } = useAppState();
+  const { recommendedPlaceIds, toggleRecommended, trips, addItineraryItem, removeItineraryItem, followingIds } = useAppState();
   const { profile } = useAuth();
   const { requireAccount } = useRequireAccount();
   const { places, destinations } = useContent();
   const place = places.find((p) => p.id === route.params.placeId);
   const [pickerVisible, setPickerVisible] = useState(false);
   const [toast, setToast] = useState<{ tripId: string; tripTitle: string; itemId: string } | null>(null);
+  const [rateSheetVisible, setRateSheetVisible] = useState(false);
+  const [ratings, setRatings] = useState<PlaceQuickRating[]>([]);
+  const [myRating, setMyRating] = useState<PlaceQuickRating | null>(null);
 
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => setToast(null), 5000);
     return () => clearTimeout(timer);
   }, [toast]);
+
+  const loadRatings = async () => {
+    if (!place) return;
+    const { data } = await supabase
+      .from('place_quick_ratings')
+      .select('id,place_id,user_id,stars,tags,note,created_at,user:profiles(name,avatar_url)')
+      .eq('place_id', place.id)
+      .order('created_at', { ascending: false });
+    const mapped: PlaceQuickRating[] = ((data ?? []) as any[]).map((r) => ({
+      id: r.id,
+      placeId: r.place_id,
+      userId: r.user_id,
+      stars: r.stars,
+      tags: r.tags ?? [],
+      note: r.note,
+      createdAt: new Date(r.created_at).getTime(),
+      user: r.user ? { name: r.user.name, avatarUrl: r.user.avatar_url ?? null } : null,
+    }));
+    mapped.sort((a, b) => {
+      const aFollowed = followingIds.includes(a.userId) ? 1 : 0;
+      const bFollowed = followingIds.includes(b.userId) ? 1 : 0;
+      if (aFollowed !== bFollowed) return bFollowed - aFollowed;
+      return b.createdAt - a.createdAt;
+    });
+    setRatings(mapped);
+    setMyRating(mapped.find((r) => r.userId === profile?.id) ?? null);
+  };
+
+  useEffect(() => {
+    loadRatings();
+  }, [place?.id]);
+
+  const handleSubmitRating = async (stars: number, tags: QuickRateTag[], note: string) => {
+    if (!place || !profile) return;
+    await supabase
+      .from('place_quick_ratings')
+      .upsert({ place_id: place.id, user_id: profile.id, stars, tags, note: note || null }, { onConflict: 'place_id,user_id' });
+    setRateSheetVisible(false);
+    loadRatings();
+  };
 
   if (!place) {
     return (
@@ -207,6 +252,48 @@ export default function PlaceDetailScreen() {
 
           <Text style={styles.sectionTitle}>لمحة عامة</Text>
           <Text style={styles.description}>{place.description}</Text>
+
+          <View style={styles.ratingsSectionHeader}>
+            <Text style={styles.sectionTitle}>آراء المسافرين</Text>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => requireAccount('recommend', () => setRateSheetVisible(true))}
+            >
+              <Text style={styles.rateLink}>{myRating ? 'عدّل تقييمك' : 'قيّم تجربتك'}</Text>
+            </TouchableOpacity>
+          </View>
+
+          {ratings.length === 0 ? (
+            <Text style={styles.emptyRatings}>ما فيه تقييمات بعد — كن أول من يقيّم</Text>
+          ) : (
+            <View style={styles.ratingsList}>
+              {ratings.map((r) => (
+                <View key={r.id} style={styles.ratingRow}>
+                  <PersonAvatar avatarUrl={r.user?.avatarUrl ?? null} size={32} />
+                  <View style={styles.ratingTextWrap}>
+                    <View style={styles.ratingTopRow}>
+                      <Text style={styles.ratingName}>{r.userId === profile?.id ? 'أنت' : r.user?.name ?? 'مستخدم'}</Text>
+                      <View style={styles.ratingStarsRow}>
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Ionicons key={i} name={i < r.stars ? 'star' : 'star-outline'} size={12} color={colors.accent} />
+                        ))}
+                      </View>
+                    </View>
+                    {r.tags.length > 0 ? (
+                      <View style={styles.ratingTagsRow}>
+                        {r.tags.map((t) => (
+                          <View key={t} style={styles.ratingTagChip}>
+                            <Text style={styles.ratingTagText}>{t}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    ) : null}
+                    {r.note ? <Text style={styles.ratingNote}>{r.note}</Text> : null}
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
         </View>
       </ScrollView>
 
@@ -247,6 +334,13 @@ export default function PlaceDetailScreen() {
           }}
         />
       ) : null}
+
+      <QuickRateSheet
+        visible={rateSheetVisible}
+        placeName={place.name}
+        onClose={() => setRateSheetVisible(false)}
+        onSubmit={handleSubmitRating}
+      />
     </SafeAreaView>
   );
 }
@@ -334,6 +428,19 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   locationText: { color: colors.textMuted, fontSize: 13 },
   description: { color: colors.textMuted, fontSize: 14, lineHeight: 22, textAlign: 'right' },
+  ratingsSectionHeader: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.lg },
+  rateLink: { color: colors.primary, fontSize: 12.5, fontWeight: '700' },
+  emptyRatings: { color: colors.textFaint, fontSize: 12.5, textAlign: 'center', paddingVertical: spacing.md },
+  ratingsList: { gap: spacing.md, marginTop: spacing.sm },
+  ratingRow: { flexDirection: 'row-reverse', gap: spacing.sm, alignItems: 'flex-start' },
+  ratingTextWrap: { flex: 1 },
+  ratingTopRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' },
+  ratingName: { color: colors.text, fontSize: 13, fontWeight: '700' },
+  ratingStarsRow: { flexDirection: 'row-reverse', gap: 1 },
+  ratingTagsRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 6, marginTop: 4 },
+  ratingTagChip: { backgroundColor: colors.surfaceAlt, borderRadius: radius.pill, paddingHorizontal: spacing.sm, paddingVertical: 2 },
+  ratingTagText: { color: colors.textMuted, fontSize: 10.5, fontWeight: '600' },
+  ratingNote: { color: colors.textMuted, fontSize: 12.5, textAlign: 'right', marginTop: 4, lineHeight: 18 },
   footer: {
     flexDirection: 'row-reverse',
     gap: spacing.sm,

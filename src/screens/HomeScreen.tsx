@@ -89,6 +89,16 @@ export default function HomeScreen() {
   const daysUntilTrip = nextTrip ? Math.ceil((new Date(nextTrip.startDate).getTime() - Date.now()) / 86400000) : null;
   const tripBudgetSpent = nextTrip ? nextTrip.budgetItems.reduce((sum, i) => sum + i.amount, 0) : 0;
 
+  const recentlyEndedTrip = useMemo(() => {
+    const now = Date.now();
+    return trips.find((t) => {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(t.endDate)) return false;
+      const endMs = new Date(t.endDate + 'T23:59:59').getTime();
+      const daysSinceEnd = (now - endMs) / 86400000;
+      return daysSinceEnd >= 0 && daysSinceEnd <= 7;
+    });
+  }, [trips]);
+
   const filteredAllDestinations = useMemo(() => {
     if (!activeInterest) return destinations;
     return destinations.filter((d) => d.interests.includes(activeInterest));
@@ -120,6 +130,18 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
+
+        {recentlyEndedTrip ? (
+          <TouchableOpacity
+            style={styles.returnBanner}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('TripSummary', { tripId: recentlyEndedTrip.id })}
+          >
+            <Ionicons name="sparkles-outline" size={18} color={colors.accentDark} />
+            <Text style={styles.returnBannerText}>كيف كانت {recentlyEndedTrip.destination}؟</Text>
+            <Ionicons name="chevron-back" size={16} color={colors.accentDark} />
+          </TouchableOpacity>
+        ) : null}
 
         {nextTrip && daysUntilTrip !== null ? (
           <TouchableOpacity
@@ -359,6 +381,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   offlineText: { color: colors.textMuted, fontSize: 11, fontWeight: '600' },
+  returnBanner: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.accentSoft,
+    borderRadius: radius.md,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.sm,
+    padding: spacing.md,
+  },
+  returnBannerText: { flex: 1, color: colors.accentDark, fontSize: 13, fontWeight: '700', textAlign: 'right' },
   apphead: {
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',

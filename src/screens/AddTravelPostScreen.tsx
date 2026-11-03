@@ -12,7 +12,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
@@ -23,17 +23,19 @@ import { pickAndUploadTravelPostImage } from '../lib/travelPosts';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
+type Route = RouteProp<RootStackParamList, 'AddTravelPost'>;
 
 export default function AddTravelPostScreen() {
   const navigation = useNavigation<Nav>();
+  const route = useRoute<Route>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { profile } = useAuth();
   const { addTravelPost } = useAppState();
   const { destinations } = useContent();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [caption, setCaption] = useState('');
-  const [destinationId, setDestinationId] = useState<string | null>(null);
+  const [caption, setCaption] = useState(route.params?.caption ?? '');
+  const [destinationId, setDestinationId] = useState<string | null>(route.params?.destinationId ?? null);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 

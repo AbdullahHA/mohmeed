@@ -274,3 +274,17 @@ export type MeetupMatch = {
   myTrip: TripWindow;
   theirTrip: TripWindow;
 };
+
+export type QuickRateTag = 'يستاهل' | 'زحمة' | 'غالي' | 'للعوائل';
+export const QUICK_RATE_TAGS: QuickRateTag[] = ['يستاهل', 'زحمة', 'غالي', 'للعوائل'];
+
+export type PlaceQuickRating = {
+  id: string;
+  placeId: string;
+  userId: string;
+  stars: number;
+  tags: QuickRateTag[];
+  note: string | null;
+  createdAt: number;
+  user: { name: string; avatarUrl: string | null } | null;
+};

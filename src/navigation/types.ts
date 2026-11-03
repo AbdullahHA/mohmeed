@@ -18,6 +18,7 @@ export type RootStackParamList = {
   TripDetail: { tripId: string };
   CreateTrip: { destinationId?: string } | undefined;
   TripDatesVote: { tripId: string };
+  TripSummary: { tripId: string };
   JoinTrip: undefined;
   GroupChat: { tripId: string };
   GuideChat: undefined;
@@ -36,7 +37,7 @@ export type RootStackParamList = {
   MyCheckIns: undefined;
   UserProfile: { userId: string };
   FollowList: { userId: string; mode: 'followers' | 'following' };
-  AddTravelPost: undefined;
+  AddTravelPost: { destinationId?: string; caption?: string } | undefined;
   Wallet: undefined;
   Settings: undefined;
   OnboardingQuiz: undefined;
