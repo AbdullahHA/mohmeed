@@ -33,6 +33,7 @@ export default function AdminEditDestinationScreen() {
   const destination = destinations.find((d) => d.id === route.params.destinationId);
 
   const [name, setName] = useState(destination?.name ?? '');
+  const [country, setCountry] = useState(destination?.country ?? '');
   const [tagline, setTagline] = useState(destination?.tagline ?? '');
   const [whyVisit, setWhyVisit] = useState(destination?.whyVisit ?? '');
   const [image, setImage] = useState(destination?.image);
@@ -67,6 +68,7 @@ export default function AdminEditDestinationScreen() {
     setSaving(true);
     const payload: Record<string, unknown> = {
       name: name.trim(),
+      country: country.trim(),
       tagline: tagline.trim(),
       why_visit: whyVisit.trim(),
     };
@@ -114,6 +116,9 @@ export default function AdminEditDestinationScreen() {
 
         <Text style={styles.label}>الاسم</Text>
         <TextInput style={styles.input} value={name} onChangeText={setName} textAlign="right" />
+
+        <Text style={styles.label}>الدولة</Text>
+        <TextInput style={styles.input} value={country} onChangeText={setCountry} textAlign="right" />
 
         <Text style={styles.label}>الوصف القصير</Text>
         <TextInput style={styles.input} value={tagline} onChangeText={setTagline} textAlign="right" />

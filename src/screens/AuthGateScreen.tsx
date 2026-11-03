@@ -13,7 +13,7 @@ import {
   Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import DesertHero from '../components/DesertHero';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -132,20 +132,7 @@ export default function AuthGateScreen() {
 
   if (mode === 'landing') {
     return (
-      <View style={styles.heroContainer}>
-        <LinearGradient
-          colors={['#f0a35c', '#e9895a', '#b6573a', '#7a3524']}
-          locations={[0, 0.32, 0.58, 1]}
-          style={StyleSheet.absoluteFill}
-        />
-        <View style={[styles.dune, styles.dune1]} />
-        <View style={[styles.dune, styles.dune2]} />
-        <View style={[styles.dune, styles.dune3]} />
-        <LinearGradient
-          colors={['rgba(10,14,30,0.1)', 'rgba(10,14,30,0.62)', 'rgba(10,14,30,0.92)']}
-          locations={[0.2, 0.62, 1]}
-          style={StyleSheet.absoluteFill}
-        />
+      <DesertHero dark style={styles.heroContainer}>
         <SafeAreaView style={styles.heroSafe}>
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
             <ScrollView contentContainerStyle={styles.heroBody} showsVerticalScrollIndicator={false}>
@@ -191,7 +178,7 @@ export default function AuthGateScreen() {
             </ScrollView>
           </KeyboardAvoidingView>
         </SafeAreaView>
-      </View>
+      </DesertHero>
     );
   }
 
@@ -452,11 +439,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
     zIndex: 1,
   },
-  heroContainer: { flex: 1, backgroundColor: '#7a3524', overflow: 'hidden' },
-  dune: { position: 'absolute', height: 220, borderRadius: 500 },
-  dune1: { bottom: -150, left: -20, right: -20, backgroundColor: '#5c2a1c' },
-  dune2: { bottom: -165, right: '-10%', width: '70%', backgroundColor: '#6d3221' },
-  dune3: { bottom: -175, left: '10%', width: '55%', backgroundColor: '#4a2216' },
+  heroContainer: { flex: 1 },
   heroSafe: { flex: 1 },
   heroBody: { flexGrow: 1, justifyContent: 'space-between', paddingBottom: spacing.xl },
   heroTop: { paddingHorizontal: spacing.xl, paddingTop: spacing.xxl, gap: spacing.sm },

@@ -24,6 +24,7 @@ function mapDestinationRow(row: any): Destination {
   return {
     id: row.id,
     name: row.name,
+    country: row.country ?? '',
     tagline: row.tagline,
     image: { uri: row.image_url } as ImageSourcePropType,
     trending: row.trending ?? false,

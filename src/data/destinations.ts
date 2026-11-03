@@ -3,6 +3,7 @@ import type { ImageSourcePropType } from 'react-native';
 export type Destination = {
   id: string;
   name: string;
+  country: string;
   tagline: string;
   image: ImageSourcePropType;
   trending?: boolean;
@@ -21,6 +22,7 @@ export const destinations: Destination[] = [
   {
     id: 'alula',
     name: 'العلا',
+    country: 'السعودية',
     tagline: 'آثار عمرها آلاف السنين وسماء بلا حدود',
     image: require('../assets/images/alula.png'),
     trending: true,
@@ -35,6 +37,7 @@ export const destinations: Destination[] = [
   {
     id: 'redsea',
     name: 'البحر الأحمر',
+    country: 'السعودية',
     tagline: 'الوجهة التي يتحدث عنها الجميع',
     image: require('../assets/images/redsea.png'),
     bestMonths: [3, 4, 5, 10, 11],
@@ -48,6 +51,7 @@ export const destinations: Destination[] = [
   {
     id: 'marbella',
     name: 'ماربيا',
+    country: 'إسبانيا',
     tagline: 'أجواء شاطئية ورحلات بحرية',
     image: require('../assets/images/marbella.png'),
     bestMonths: [6, 7, 8],
@@ -61,6 +65,7 @@ export const destinations: Destination[] = [
   {
     id: 'riyadh',
     name: 'الرياض',
+    country: 'السعودية',
     tagline: 'حيث يلتقي التراث بالحداثة',
     image: require('../assets/images/riyadh.png'),
     bestMonths: [11, 12, 1, 2, 3],
@@ -74,6 +79,7 @@ export const destinations: Destination[] = [
   {
     id: 'jeddah',
     name: 'جدة',
+    country: 'السعودية',
     tagline: 'عروس البحر الأحمر',
     image: require('../assets/images/jeddah.png'),
     bestMonths: [7, 8, 9],
@@ -87,6 +93,7 @@ export const destinations: Destination[] = [
   {
     id: 'abha',
     name: 'أبها',
+    country: 'السعودية',
     tagline: 'برودة الجبال وسحاب يلامس القمم',
     image: require('../assets/images/abha.png'),
     bestMonths: [6, 7, 8, 9],
