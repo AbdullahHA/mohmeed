@@ -41,6 +41,8 @@ jobs:
           VITE_SUPABASE_URL: https://jxsdiumqzbjxrvkmydgu.supabase.co
           VITE_SUPABASE_ANON_KEY: sb_publishable_Fjgt1ajw8SQ4Iy4V0_0NNw_j-gPO4eW
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: admin-web/dist
