@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -8,28 +8,39 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
+  Modal,
+  Pressable,
 } from 'react-native';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import PlacesMapView from '../components/PlacesMapView';
 import { radius, spacing, fixedColors, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useRequireAccount } from '../hooks/useRequireAccount';
+import { useUserLocation } from '../hooks/useUserLocation';
+import { haversineDistanceKm } from '../lib/geo';
 import { PLACE_TYPE_LABELS, type Place, type PlaceType } from '../data/places';
 import { useContent } from '../context/ContentContext';
 import type { RootStackParamList } from '../navigation/types';
+
+const CITY_STORAGE_KEY = 'yalla-nsafer:discover-city';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type ViewMode = 'list' | 'map';
 
 const TYPE_FILTERS: Array<{ value: PlaceType; icon: keyof typeof Ionicons.glyphMap; color: string }> = [
-  { value: 'restaurant', icon: 'restaurant-outline', color: fixedColors.category.food },
-  { value: 'hotel', icon: 'bed-outline', color: fixedColors.category.hotels },
-  { value: 'activity', icon: 'sparkles-outline', color: fixedColors.category.experiences },
-  { value: 'landmark', icon: 'flag-outline', color: fixedColors.category.landmarks },
+  { value: 'experiences', icon: 'sparkles-outline', color: fixedColors.category.experiences },
+  { value: 'events', icon: 'calendar-outline', color: fixedColors.category.events },
+  { value: 'cafe', icon: 'cafe-outline', color: fixedColors.category.cafe },
+  { value: 'food', icon: 'restaurant-outline', color: fixedColors.category.food },
+  { value: 'shopping', icon: 'bag-outline', color: fixedColors.category.shopping },
+  { value: 'nature', icon: 'leaf-outline', color: fixedColors.category.nature },
+  { value: 'landmarks', icon: 'flag-outline', color: fixedColors.category.landmarks },
+  { value: 'hotels', icon: 'bed-outline', color: fixedColors.category.hotels },
 ];
 
 export default function DiscoverScreen() {
@@ -43,24 +54,72 @@ export default function DiscoverScreen() {
   const [query, setQuery] = useState('');
   const [activeType, setActiveType] = useState<PlaceType | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [manualCityId, setManualCityId] = useState<string | null>(null);
+  const [cityPickerVisible, setCityPickerVisible] = useState(false);
+  const { coords, requestLocation } = useUserLocation();
+
+  useEffect(() => {
+    AsyncStorage.getItem(CITY_STORAGE_KEY).then((saved) => {
+      if (saved) setManualCityId(saved);
+    });
+  }, []);
+
+  // Honest "current city": a manual pick always wins; otherwise the nearest
+  // destination to the real device GPS fix — never a guessed default.
+  const nearestDestinationId = useMemo(() => {
+    if (!coords) return null;
+    const withCoords = destinations.filter((d) => d.latitude != null && d.longitude != null);
+    if (withCoords.length === 0) return null;
+    let best = withCoords[0];
+    let bestDist = haversineDistanceKm(coords, { latitude: best.latitude!, longitude: best.longitude! });
+    for (const d of withCoords.slice(1)) {
+      const dist = haversineDistanceKm(coords, { latitude: d.latitude!, longitude: d.longitude! });
+      if (dist < bestDist) {
+        best = d;
+        bestDist = dist;
+      }
+    }
+    return best.id;
+  }, [coords, destinations]);
+
+  const currentCityId = manualCityId ?? nearestDestinationId;
+  const currentCity = currentCityId ? destinations.find((d) => d.id === currentCityId) ?? null : null;
+
+  const selectCity = (id: string) => {
+    setManualCityId(id);
+    setCityPickerVisible(false);
+    AsyncStorage.setItem(CITY_STORAGE_KEY, id).catch(() => {});
+  };
+
+  const useMyLocation = () => {
+    setManualCityId(null);
+    AsyncStorage.removeItem(CITY_STORAGE_KEY).catch(() => {});
+    setCityPickerVisible(false);
+    requestLocation();
+  };
+
+  const cityPlaces = useMemo(
+    () => (currentCityId ? places.filter((p) => p.destinationId === currentCityId) : places),
+    [places, currentCityId]
+  );
 
   const filteredPlaces = useMemo(() => {
-    return places.filter((place) => {
+    return cityPlaces.filter((place) => {
       const matchesType = !activeType || place.type === activeType;
       const matchesQuery = place.name.toLowerCase().includes(query.trim().toLowerCase());
       return matchesType && matchesQuery;
     });
-  }, [query, activeType, places]);
+  }, [query, activeType, cityPlaces]);
 
   const pickedForYou = useMemo(() => {
-    const scored = [...places].sort((a, b) => b.rating - a.rating).slice(0, 6);
+    const scored = [...cityPlaces].sort((a, b) => b.rating - a.rating).slice(0, 6);
     return scored.map((place) => ({
       place,
       why: recommendedPlaceIds.includes(place.id) ? 'من مفضلاتك' : 'الأعلى تقييمًا',
     }));
-  }, [places, recommendedPlaceIds]);
+  }, [cityPlaces, recommendedPlaceIds]);
 
-  const experiences = useMemo(() => places.filter((p) => p.type === 'activity').slice(0, 4), [places]);
+  const experiences = useMemo(() => cityPlaces.filter((p) => p.type === 'experiences').slice(0, 4), [cityPlaces]);
 
   const destinationName = (id: string) => destinations.find((d) => d.id === id)?.name;
 
@@ -73,14 +132,35 @@ export default function DiscoverScreen() {
       >
         <View style={styles.top}>
           <View style={styles.topRow}>
-            <Text style={styles.topTitle}>اكتشف</Text>
-            <TouchableOpacity
-              style={styles.iconBtn}
-              activeOpacity={0.8}
-              onPress={() => setViewMode((m) => (m === 'list' ? 'map' : 'list'))}
-            >
-              <Ionicons name={viewMode === 'list' ? 'map-outline' : 'list-outline'} size={18} color={colors.text} />
+            <TouchableOpacity activeOpacity={0.8} onPress={() => setCityPickerVisible(true)}>
+              {currentCity ? (
+                <>
+                  <Text style={styles.cityKicker}>أنت في</Text>
+                  <View style={styles.cityRow}>
+                    <Ionicons name="chevron-down" size={14} color={colors.text} />
+                    <Text style={styles.topTitle}>{currentCity.name}</Text>
+                  </View>
+                </>
+              ) : (
+                <Text style={styles.topTitle}>اكتشف</Text>
+              )}
             </TouchableOpacity>
+            <View style={styles.topIcons}>
+              <TouchableOpacity
+                style={styles.iconBtn}
+                activeOpacity={0.8}
+                onPress={() => setViewMode((m) => (m === 'list' ? 'map' : 'list'))}
+              >
+                <Ionicons name={viewMode === 'list' ? 'map-outline' : 'list-outline'} size={18} color={colors.text} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.iconBtn}
+                activeOpacity={0.8}
+                onPress={() => requireAccount('recommend', () => navigation.navigate('SavedPlaces'))}
+              >
+                <Ionicons name="heart-outline" size={18} color={colors.text} />
+              </TouchableOpacity>
+            </View>
           </View>
           <View style={styles.searchBar}>
             <Ionicons name="search" size={16} color={colors.textMuted} />
@@ -263,6 +343,35 @@ export default function DiscoverScreen() {
           </>
         )}
       </ScrollView>
+
+      <Modal visible={cityPickerVisible} transparent animationType="fade" onRequestClose={() => setCityPickerVisible(false)}>
+        <Pressable style={styles.cityBackdrop} onPress={() => setCityPickerVisible(false)}>
+          <Pressable style={styles.citySheet} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.citySheetTitle}>اختر مدينتك</Text>
+            <TouchableOpacity style={styles.cityOption} activeOpacity={0.8} onPress={useMyLocation}>
+              <Ionicons name="locate-outline" size={16} color={colors.primary} />
+              <Text style={styles.cityOptionTextPrimary}>استخدم موقعي الحالي</Text>
+            </TouchableOpacity>
+            <ScrollView style={styles.cityList}>
+              {destinations.map((d) => (
+                <TouchableOpacity
+                  key={d.id}
+                  style={styles.cityOption}
+                  activeOpacity={0.8}
+                  onPress={() => selectCity(d.id)}
+                >
+                  <Ionicons
+                    name={currentCityId === d.id ? 'radio-button-on' : 'radio-button-off'}
+                    size={16}
+                    color={currentCityId === d.id ? colors.primary : colors.textFaint}
+                  />
+                  <Text style={styles.cityOptionText}>{d.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -279,6 +388,29 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   topRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' },
   topTitle: { color: colors.text, fontSize: 20, fontWeight: '700' },
+  topIcons: { flexDirection: 'row-reverse', gap: spacing.sm },
+  cityKicker: { color: colors.textMuted, fontSize: 11, textAlign: 'right' },
+  cityRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
+  cityBackdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
+  citySheet: {
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: radius.sheet,
+    borderTopRightRadius: radius.sheet,
+    padding: spacing.xl,
+    maxHeight: '70%',
+  },
+  citySheetTitle: { color: colors.text, fontSize: 16, fontWeight: '800', textAlign: 'right', marginBottom: spacing.md },
+  cityList: { marginTop: spacing.xs },
+  cityOption: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  cityOptionText: { color: colors.text, fontSize: 14, fontWeight: '600' },
+  cityOptionTextPrimary: { color: colors.primary, fontSize: 14, fontWeight: '700' },
   iconBtn: {
     width: 36,
     height: 36,
