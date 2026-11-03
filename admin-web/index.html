@@ -8,6 +8,15 @@
     <title>لوحة إدارة يلا نسافر</title>
     <script>
       (function () {
+        // GitHub Pages SPA fallback: 404.html redirected here with the real
+        // path encoded in ?p=... — restore it before the router mounts.
+        var redirect = sessionStorage.getItem('spa-redirect-path');
+        if (redirect) {
+          sessionStorage.removeItem('spa-redirect-path');
+          history.replaceState(null, '', redirect);
+        }
+      })();
+      (function () {
         try {
           var t = localStorage.getItem('yalla-theme') || 'system';
           var d = t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
