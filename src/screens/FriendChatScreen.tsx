@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   SafeAreaView,
   View,
+  Image,
   Text,
   StyleSheet,
   FlatList,
@@ -18,10 +19,15 @@ import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
+import { useContent } from '../context/ContentContext';
+import { useRequireAccount } from '../hooks/useRequireAccount';
 import { supabase } from '../lib/supabase';
 import PersonAvatar from '../components/PersonAvatar';
+import AddToTripSheet from '../components/AddToTripSheet';
+import AddedToast from '../components/AddedToast';
 import { parseLocationShareMessage } from '../lib/locationShare';
-import type { DirectMessage } from '../types';
+import { parsePlaceShareMessage } from '../lib/placeShare';
+import type { DirectMessage, Trip, ItinerarySlot } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'FriendChat'>;
@@ -42,17 +48,51 @@ export default function FriendChatScreen() {
   const route = useRoute<Route>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { friends } = useAppState();
+  const { friends, trips, addItineraryItem, removeItineraryItem } = useAppState();
   const { profile } = useAuth();
+  const { places } = useContent();
+  const { requireAccount } = useRequireAccount();
   const [messages, setMessages] = useState<DirectMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
+  const [sharePickerPlaceId, setSharePickerPlaceId] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ tripId: string; tripTitle: string; itemId: string } | null>(null);
   const meId = profile?.id;
   const friendId = route.params.friendId;
   const listRef = useRef<FlatList<DirectMessage>>(null);
 
   const friend = friends.find((f) => f.id === friendId);
+  const sharePickerPlace = sharePickerPlaceId ? places.find((p) => p.id === sharePickerPlaceId) ?? null : null;
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 5000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  const handleAddSharedPlace = async (
+    trip: Trip,
+    day: string | null,
+    slot: ItinerarySlot | null,
+    _notifyGroup: boolean
+  ) => {
+    if (!sharePickerPlace) return;
+    const WEEKDAY = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const dayLabel = day ? WEEKDAY[new Date(day + 'T00:00:00').getDay()] : 'غير محدد';
+    const created = await addItineraryItem(trip.id, {
+      day: dayLabel,
+      time: slot ?? '—',
+      title: sharePickerPlace.name,
+      itemDate: day,
+      slot,
+      placeId: sharePickerPlace.id,
+      kind: 'place',
+    });
+    setSharePickerPlaceId(null);
+    if (!created) return;
+    setToast({ tripId: trip.id, tripTitle: trip.title, itemId: created.id });
+  };
 
   useEffect(() => {
     if (!meId) return;
@@ -150,6 +190,62 @@ export default function FriendChatScreen() {
               <Text style={styles.emptyText}>ابدأ المحادثة مع {friend.name}</Text>
             }
             renderItem={({ item }) => {
+              const placeShare = parsePlaceShareMessage(item.text);
+              if (placeShare) {
+                const sharedPlace = places.find((p) => p.id === placeShare.placeId);
+                if (!sharedPlace) {
+                  return (
+                    <View style={[styles.bubble, item.senderId === meId ? styles.bubbleMe : styles.bubbleOther]}>
+                      <Text style={[styles.bubbleText, item.senderId === meId && styles.bubbleTextMe]}>
+                        شارك مكانًا
+                      </Text>
+                    </View>
+                  );
+                }
+                return (
+                  <View
+                    style={[styles.placeCard, item.senderId === meId ? styles.bubbleMe : styles.bubbleOther]}
+                  >
+                    <TouchableOpacity
+                      activeOpacity={0.85}
+                      style={styles.placeCardTouchable}
+                      onPress={() => navigation.navigate('PlaceDetail', { placeId: sharedPlace.id })}
+                    >
+                      <Image source={sharedPlace.image} style={styles.placeCardImage} />
+                      <View style={styles.placeCardTextWrap}>
+                        <Text
+                          style={[styles.placeCardTitle, item.senderId === meId && styles.bubbleTextMe]}
+                          numberOfLines={1}
+                        >
+                          {sharedPlace.name}
+                        </Text>
+                        <View style={styles.placeCardRateRow}>
+                          <Ionicons name="star" size={12} color={item.senderId === meId ? '#fff' : colors.accentDark} />
+                          <Text style={[styles.placeCardRateText, item.senderId === meId && styles.bubbleTextMe]}>
+                            {sharedPlace.rating.toFixed(1)}
+                          </Text>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.placeCardAddButton}
+                      activeOpacity={0.85}
+                      onPress={() =>
+                        requireAccount('trip', () => {
+                          if (trips.length === 0) {
+                            navigation.navigate('CreateTrip');
+                            return;
+                          }
+                          setSharePickerPlaceId(sharedPlace.id);
+                        })
+                      }
+                    >
+                      <Ionicons name="add-circle-outline" size={16} color={colors.primary} />
+                      <Text style={styles.placeCardAddText}>أضف لجدولي</Text>
+                    </TouchableOpacity>
+                  </View>
+                );
+              }
               const share = parseLocationShareMessage(item.text);
               if (share) {
                 const expired = Date.now() >= share.expiresAtMs;
@@ -197,6 +293,33 @@ export default function FriendChatScreen() {
           />
         </View>
       </KeyboardAvoidingView>
+
+      <AddToTripSheet
+        visible={!!sharePickerPlace}
+        placeName={sharePickerPlace?.name ?? ''}
+        isRestaurant={sharePickerPlace?.type === 'restaurant'}
+        trips={trips}
+        onClose={() => setSharePickerPlaceId(null)}
+        onAdd={handleAddSharedPlace}
+        onNewTrip={() => {
+          setSharePickerPlaceId(null);
+          navigation.navigate('CreateTrip');
+        }}
+      />
+
+      {toast ? (
+        <AddedToast
+          tripTitle={toast.tripTitle}
+          onUndo={() => {
+            removeItineraryItem(toast.tripId, toast.itemId);
+            setToast(null);
+          }}
+          onViewSchedule={() => {
+            navigation.navigate('TripDetail', { tripId: toast.tripId });
+            setToast(null);
+          }}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -234,6 +357,23 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   bubbleMe: { backgroundColor: colors.primary, alignSelf: 'flex-start' },
   bubbleText: { color: colors.text, fontSize: 14, textAlign: 'right', lineHeight: 20 },
   bubbleTextMe: { color: colors.textOnPrimary },
+  placeCard: { maxWidth: '75%', borderRadius: radius.md, marginBottom: spacing.sm, overflow: 'hidden', padding: spacing.sm, gap: spacing.sm },
+  placeCardTouchable: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
+  placeCardImage: { width: 48, height: 48, borderRadius: radius.sm },
+  placeCardTextWrap: { flex: 1 },
+  placeCardTitle: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
+  placeCardRateRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 3, marginTop: 2 },
+  placeCardRateText: { color: colors.textMuted, fontSize: 11, fontWeight: '600' },
+  placeCardAddButton: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    backgroundColor: colors.background,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.xs,
+  },
+  placeCardAddText: { color: colors.primary, fontSize: 12, fontWeight: '700' },
   inputRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

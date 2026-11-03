@@ -20,7 +20,9 @@ import AddToTripSheet from '../components/AddToTripSheet';
 import AddedToast from '../components/AddedToast';
 import QuickRateSheet from '../components/QuickRateSheet';
 import PersonAvatar from '../components/PersonAvatar';
+import ShareToFriendSheet from '../components/ShareToFriendSheet';
 import { getMapsUrl } from '../utils/place';
+import { encodePlaceShareMessage } from '../lib/placeShare';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
 import { useContent } from '../context/ContentContext';
@@ -47,12 +49,13 @@ export default function PlaceDetailScreen() {
   const route = useRoute<Route>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { recommendedPlaceIds, toggleRecommended, trips, addItineraryItem, removeItineraryItem, followingIds } = useAppState();
+  const { recommendedPlaceIds, toggleRecommended, trips, addItineraryItem, removeItineraryItem, followingIds, friends } = useAppState();
   const { profile } = useAuth();
   const { requireAccount } = useRequireAccount();
   const { places, destinations } = useContent();
   const place = places.find((p) => p.id === route.params.placeId);
   const [pickerVisible, setPickerVisible] = useState(false);
+  const [shareSheetVisible, setShareSheetVisible] = useState(false);
   const [toast, setToast] = useState<{ tripId: string; tripTitle: string; itemId: string } | null>(null);
   const [rateSheetVisible, setRateSheetVisible] = useState(false);
   const [ratings, setRatings] = useState<PlaceQuickRating[]>([]);
@@ -151,6 +154,17 @@ export default function PlaceDetailScreen() {
     setToast({ tripId: trip.id, tripTitle: trip.title, itemId: created.id });
   };
 
+  const handleShareToFriend = async (friend: { id: string }) => {
+    setShareSheetVisible(false);
+    if (!profile) return;
+    await supabase.from('direct_messages').insert({
+      sender_id: profile.id,
+      recipient_id: friend.id,
+      text: encodePlaceShareMessage(place.id),
+    });
+    navigation.navigate('FriendChat', { friendId: friend.id });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
@@ -167,6 +181,13 @@ export default function PlaceDetailScreen() {
                 onPress={() => Share.share({ message: `${place.name} — يلا نسافر` })}
               >
                 <Ionicons name="share-outline" size={18} color="#fff" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.glassButton}
+                activeOpacity={0.85}
+                onPress={() => requireAccount('chat', () => setShareSheetVisible(true))}
+              >
+                <Ionicons name="chatbubble-ellipses-outline" size={18} color="#fff" />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.glassButton}
@@ -340,6 +361,13 @@ export default function PlaceDetailScreen() {
         placeName={place.name}
         onClose={() => setRateSheetVisible(false)}
         onSubmit={handleSubmitRating}
+      />
+
+      <ShareToFriendSheet
+        visible={shareSheetVisible}
+        friends={friends}
+        onClose={() => setShareSheetVisible(false)}
+        onPick={handleShareToFriend}
       />
     </SafeAreaView>
   );
