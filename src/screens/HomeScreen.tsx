@@ -144,13 +144,6 @@ export default function HomeScreen() {
       ) : null}
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <View style={styles.apphead}>
-          <View style={styles.hi}>
-            <PersonAvatar avatarUrl={currentUser.avatarUrl} size={40} />
-            <View>
-              <Text style={styles.hiGreeting}>{greeting()}</Text>
-              <Text style={styles.hiName}>{currentUser.name}</Text>
-            </View>
-          </View>
           {profile ? (
             <TouchableOpacity
               style={styles.bellButton}
@@ -161,6 +154,13 @@ export default function HomeScreen() {
               {unreadNotifications > 0 ? <View style={styles.bellDot} /> : null}
             </TouchableOpacity>
           ) : null}
+          <View style={styles.hi}>
+            <View>
+              <Text style={styles.hiGreeting}>{greeting()}</Text>
+              <Text style={styles.hiName}>{currentUser.name}</Text>
+            </View>
+            <PersonAvatar avatarUrl={currentUser.avatarUrl} size={40} />
+          </View>
         </View>
 
         {recentlyEndedTrip ? (

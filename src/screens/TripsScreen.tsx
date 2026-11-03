@@ -55,9 +55,13 @@ export default function TripsScreen() {
   const renderCard = (item: Trip) => {
     const spent = item.budgetItems.reduce((sum, b) => sum + b.amount, 0);
     const budgetRatio = item.budgetTotal > 0 ? Math.min(1, spent / item.budgetTotal) : 0;
-    const budgetWarn = budgetRatio >= 0.75;
-    const days = daysUntil(item.startDate);
+    const budgetWarn = item.budgetTotal > 0 && spent > item.budgetTotal;
+    const hasDate = !!item.startDate && item.startDate !== '—';
+    const days = hasDate ? daysUntil(item.startDate) : null;
     const extraMembers = Math.max(0, item.memberIds.length - 1);
+    const checklistTotal = item.checklist.length;
+    const checklistDone = item.checklist.filter((c) => c.done).length;
+    const checklistRatio = checklistTotal > 0 ? checklistDone / checklistTotal : 0;
 
     return (
       <TouchableOpacity
@@ -69,20 +73,31 @@ export default function TripsScreen() {
         <View style={styles.cardImageWrap}>
           <Image source={item.coverImage} style={styles.cardImage} />
           <View style={styles.cardOverlay} />
-          {days !== null ? (
-            <View style={styles.badge2}>
-              <Text style={styles.badge2Text}>
-                {days > 0 ? `بعد ${days} ${days === 1 ? 'يوم' : 'أيام'}` : days === 0 ? 'تبدأ اليوم' : 'انتهت'}
-              </Text>
-            </View>
-          ) : null}
+          <View style={[styles.badge2, !hasDate && styles.badge2Muted]}>
+            <Text style={[styles.badge2Text, !hasDate && styles.badge2TextMuted]}>
+              {!hasDate
+                ? 'بدون تاريخ'
+                : days !== null
+                ? days > 0
+                  ? `بعد ${days} ${days === 1 ? 'يوم' : 'أيام'}`
+                  : days === 0
+                  ? 'تبدأ اليوم'
+                  : 'انتهت'
+                : ''}
+            </Text>
+          </View>
           <View style={styles.cardTextWrap}>
             <Text style={styles.cardTitle}>{item.title}</Text>
-            <Text style={styles.cardSubtitle}>{item.startDate} – {item.endDate}</Text>
+            <Text style={styles.cardSubtitle}>
+              {hasDate ? `${item.startDate} – ${item.endDate}` : extraMembers > 0 ? `أنت و${extraMembers} معك` : 'شخص واحد'}
+            </Text>
           </View>
         </View>
         <View style={styles.cardBody}>
           <View style={styles.facesRow}>
+            <View style={styles.memberCount}>
+              <Text style={styles.memberCountText}>{item.memberIds.length}</Text>
+            </View>
             <View style={styles.faces}>
               {item.memberIds.slice(0, 3).map((id, i) => (
                 <View key={id} style={[styles.face, { backgroundColor: FACE_COLORS[i % FACE_COLORS.length] }]} />
@@ -92,19 +107,42 @@ export default function TripsScreen() {
               {extraMembers > 0 ? `أنت و${extraMembers} معك` : 'لحالك'}
             </Text>
           </View>
-          {item.budgetTotal > 0 ? (
-            <View style={styles.progRow}>
-              <View style={styles.progTop}>
-                <Text style={[styles.progValue, budgetWarn && styles.progValueWarn]}>
-                  {spent.toLocaleString()} / {item.budgetTotal.toLocaleString()}
-                </Text>
-                <Text style={styles.progLabel}>الميزانية</Text>
-              </View>
-              <View style={styles.progTrack}>
-                <View style={[styles.progFill, budgetWarn && styles.progFillWarn, { width: `${Math.round(budgetRatio * 100)}%` }]} />
-              </View>
-            </View>
+          {!hasDate ? (
+            <TouchableOpacity
+              style={styles.datePrompt}
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('TripDetail', { tripId: item.id })}
+            >
+              <Ionicons name="chevron-back" size={14} color={colors.accentDark} />
+              <Text style={styles.datePromptText}>حدد التواريخ عشان نقترح لك أماكن وجدول</Text>
+            </TouchableOpacity>
           ) : null}
+          <View style={styles.statsRow}>
+            {checklistTotal > 0 ? (
+              <View style={styles.progRow}>
+                <View style={styles.progTop}>
+                  <Text style={styles.progLabel}>التجهيز</Text>
+                  <Text style={styles.progValue}>{checklistTotal} / {checklistDone}</Text>
+                </View>
+                <View style={styles.progTrack}>
+                  <View style={[styles.progFill, { width: `${Math.round(checklistRatio * 100)}%` }]} />
+                </View>
+              </View>
+            ) : null}
+            {item.budgetTotal > 0 ? (
+              <View style={styles.progRow}>
+                <View style={styles.progTop}>
+                  <Text style={styles.progLabel}>الميزانية</Text>
+                  <Text style={[styles.progValue, budgetWarn && styles.progValueWarn]}>
+                    {item.budgetTotal.toLocaleString()} / {spent.toLocaleString()}
+                  </Text>
+                </View>
+                <View style={styles.progTrack}>
+                  <View style={[styles.progFill, styles.progFillGold, budgetWarn && styles.progFillWarn, { width: `${Math.round(budgetRatio * 100)}%` }]} />
+                </View>
+              </View>
+            ) : null}
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -113,15 +151,7 @@ export default function TripsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={styles.headerTitle}>رحلاتي</Text>
         <View style={styles.headerActions}>
-          <TouchableOpacity
-            style={styles.iconButton}
-            activeOpacity={0.8}
-            onPress={() => requireAccount('trip', () => navigation.navigate('JoinTrip'))}
-          >
-            <Ionicons name="key-outline" size={18} color={colors.text} />
-          </TouchableOpacity>
           <TouchableOpacity
             style={styles.newButton}
             activeOpacity={0.85}
@@ -130,7 +160,15 @@ export default function TripsScreen() {
             <Ionicons name="add" size={16} color={colors.textOnPrimary} />
             <Text style={styles.newButtonText}>رحلة جديدة</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.iconButton}
+            activeOpacity={0.8}
+            onPress={() => requireAccount('trip', () => navigation.navigate('JoinTrip'))}
+          >
+            <Ionicons name="key-outline" size={18} color={colors.text} />
+          </TouchableOpacity>
         </View>
+        <Text style={styles.headerTitle}>رحلاتي</Text>
       </View>
 
       {tripsLoading ? (
@@ -151,20 +189,24 @@ export default function TripsScreen() {
               activeOpacity={0.85}
               onPress={() => setActiveTab('upcoming')}
             >
+              {upcomingTrips.length > 0 ? (
+                <View style={[styles.segN, activeTab === 'upcoming' && styles.segNActive]}>
+                  <Text style={[styles.segNText, activeTab === 'upcoming' && styles.segNTextActive]}>{upcomingTrips.length}</Text>
+                </View>
+              ) : null}
               <Text style={[styles.segText, activeTab === 'upcoming' && styles.segTextActive]}>القادمة</Text>
-              <View style={[styles.segN, activeTab === 'upcoming' && styles.segNActive]}>
-                <Text style={[styles.segNText, activeTab === 'upcoming' && styles.segNTextActive]}>{upcomingTrips.length}</Text>
-              </View>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.segItem, activeTab === 'past' && styles.segItemActive]}
               activeOpacity={0.85}
               onPress={() => setActiveTab('past')}
             >
+              {pastTrips.length > 0 ? (
+                <View style={[styles.segN, activeTab === 'past' && styles.segNActive]}>
+                  <Text style={[styles.segNText, activeTab === 'past' && styles.segNTextActive]}>{pastTrips.length}</Text>
+                </View>
+              ) : null}
               <Text style={[styles.segText, activeTab === 'past' && styles.segTextActive]}>السابقة</Text>
-              <View style={[styles.segN, activeTab === 'past' && styles.segNActive]}>
-                <Text style={[styles.segNText, activeTab === 'past' && styles.segNTextActive]}>{pastTrips.length}</Text>
-              </View>
             </TouchableOpacity>
           </View>
 
@@ -240,12 +282,28 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   newButtonText: { color: colors.textOnPrimary, fontSize: 12, fontWeight: '700' },
-  seg: { flexDirection: 'row-reverse', gap: spacing.lg, paddingHorizontal: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.border, marginBottom: spacing.lg },
-  segItem: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6, paddingBottom: spacing.sm, borderBottomWidth: 2, borderBottomColor: 'transparent' },
-  segItemActive: { borderBottomColor: colors.primary },
-  segText: { color: colors.textMuted, fontSize: 14, fontWeight: '600' },
+  seg: {
+    flexDirection: 'row-reverse',
+    gap: 4,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.md,
+    padding: 4,
+  },
+  segItem: {
+    flex: 1,
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+  },
+  segItemActive: { backgroundColor: colors.surface },
+  segText: { color: colors.textMuted, fontSize: 13, fontWeight: '600' },
   segTextActive: { color: colors.text, fontWeight: '700' },
-  segN: { minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 4, backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
+  segN: { minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 4, backgroundColor: colors.border, alignItems: 'center', justifyContent: 'center' },
   segNActive: { backgroundColor: colors.primarySoft },
   segNText: { color: colors.textMuted, fontSize: 10, fontWeight: '700' },
   segNTextActive: { color: colors.primary },
@@ -271,22 +329,45 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: 4,
   },
   badge2Text: { color: '#141a2b', fontSize: 10.5, fontWeight: '700' },
+  badge2Muted: { backgroundColor: colors.accentSoft },
+  badge2TextMuted: { color: colors.accentDark },
   cardTextWrap: { padding: spacing.md },
   cardTitle: { color: '#fff', fontSize: 16, fontWeight: '700', textAlign: 'right' },
   cardSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: 11.5, textAlign: 'right', marginTop: 2 },
   cardBody: { padding: spacing.md, gap: spacing.sm },
   facesRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
+  memberCount: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  memberCountText: { color: colors.textOnPrimary, fontSize: 11, fontWeight: '700' },
   faces: { flexDirection: 'row' },
   face: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: colors.surface, marginLeft: -7 },
   facesText: { color: colors.textMuted, fontSize: 11.5 },
-  progRow: { gap: 4 },
+  datePrompt: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.accentSoft,
+    borderRadius: radius.md,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+  },
+  datePromptText: { color: colors.accentDark, fontSize: 12, fontWeight: '700', flex: 1, textAlign: 'right' },
+  statsRow: { flexDirection: 'row-reverse', gap: spacing.md },
+  progRow: { flex: 1, gap: 4 },
   progTop: { flexDirection: 'row-reverse', justifyContent: 'space-between' },
   progLabel: { color: colors.textMuted, fontSize: 11 },
   progValue: { color: colors.text, fontSize: 12, fontWeight: '700' },
-  progValueWarn: { color: colors.accentDark },
+  progValueWarn: { color: colors.red },
   progTrack: { height: 5, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt, overflow: 'hidden' },
   progFill: { height: '100%', borderRadius: radius.pill, backgroundColor: colors.primary },
-  progFillWarn: { backgroundColor: colors.accent },
+  progFillGold: { backgroundColor: colors.accent },
+  progFillWarn: { backgroundColor: colors.red },
   templatesBanner: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
