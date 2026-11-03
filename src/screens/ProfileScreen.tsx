@@ -16,7 +16,7 @@ import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
-import { computeTravelerLevel, nextLevelThreshold } from '../utils/travelerStats';
+import { computeXp, computeTravelerLevel, nextLevelThreshold } from '../utils/travelerStats';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -102,9 +102,6 @@ export default function ProfileScreen() {
   const myTemplates = tripTemplates.filter((t) => t.isMine);
 
   const stampCount = visitedDestinations.length + manualVisitedPlaces.length;
-  const travelerLevel = computeTravelerLevel(stampCount);
-  const nextLevel = nextLevelThreshold(stampCount);
-  const levelProgress = nextLevel ? Math.min(1, stampCount / (stampCount + nextLevel.remaining)) : 1;
 
   // Real countries only (destinations tagged with a country) — never a made-up figure.
   const countriesVisited = useMemo(() => {
@@ -112,6 +109,18 @@ export default function ProfileScreen() {
     return set.size;
   }, [visitedDestinations]);
   const worldPercent = Math.round((countriesVisited / WORLD_COUNTRIES) * 100);
+
+  // XP = رحلة +100، دولة جديدة +150، مدونة +80، تقييم +20 (SPEC §18) — summed
+  // from real counts only.
+  const xp = computeXp({
+    tripsCount: trips.length,
+    countriesCount: countriesVisited,
+    postsCount: myPosts.length,
+    reviewsCount: recommendedPlaces.length,
+  });
+  const travelerLevel = computeTravelerLevel(xp);
+  const nextLevel = nextLevelThreshold(xp);
+  const levelProgress = nextLevel ? Math.min(1, xp / (xp + nextLevel.remaining)) : 1;
 
   // "خبير محلي": ≥10 ratings or ≥3 posts about the same city (SPEC §18).
   const localExpertCity = useMemo(() => {
@@ -373,7 +382,7 @@ export default function ProfileScreen() {
             </View>
             <Text style={styles.passportCaption}>
               {nextLevel
-                ? `باقي ${nextLevel.remaining} ${nextLevel.remaining === 1 ? 'ختم' : 'أختام'} عشان تصير "${nextLevel.label}"`
+                ? `باقي ${nextLevel.remaining} نقطة عشان تصير "${nextLevel.label}"`
                 : 'وصلت لأعلى مستوى 🏆'}
             </Text>
           </View>

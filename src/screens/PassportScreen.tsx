@@ -10,7 +10,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
-import { computeTravelerLevel, nextLevelThreshold } from '../utils/travelerStats';
+import { computeXp, computeTravelerLevel, nextLevelThreshold } from '../utils/travelerStats';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -30,8 +30,8 @@ export default function PassportScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { visitedStamps, manualVisitedPlaces, removeManualVisitedPlace } = useAppState();
-  const { destinations } = useContent();
+  const { visitedStamps, manualVisitedPlaces, removeManualVisitedPlace, trips, myPosts, recommendedPlaceIds } = useAppState();
+  const { destinations, places } = useContent();
   const { requireAccount } = useRequireAccount();
 
   const visitedDestinations = visitedStamps
@@ -48,15 +48,24 @@ export default function PassportScreen() {
     )
     .sort((a, b) => a.visitedAt - b.visitedAt);
 
-  const stampCount = visitedDestinations.length + manualVisitedPlaces.length;
-  const travelerLevel = computeTravelerLevel(stampCount);
-  const nextLevel = nextLevelThreshold(stampCount);
-  const levelProgress = nextLevel ? Math.min(1, stampCount / (stampCount + nextLevel.remaining)) : 1;
-
   const countriesVisited = useMemo(() => {
     const set = new Set(visitedDestinations.map((v) => v.destination.country).filter(Boolean));
     return set.size;
   }, [visitedDestinations]);
+
+  const reviewsCount = useMemo(
+    () => places.filter((p) => recommendedPlaceIds.includes(p.id)).length,
+    [places, recommendedPlaceIds]
+  );
+  const xp = computeXp({
+    tripsCount: trips.length,
+    countriesCount: countriesVisited,
+    postsCount: myPosts.length,
+    reviewsCount,
+  });
+  const travelerLevel = computeTravelerLevel(xp);
+  const nextLevel = nextLevelThreshold(xp);
+  const levelProgress = nextLevel ? Math.min(1, xp / (xp + nextLevel.remaining)) : 1;
   const worldPercent = Math.round((countriesVisited / WORLD_COUNTRIES) * 100);
 
   type CombinedStamp = {
@@ -118,7 +127,7 @@ export default function PassportScreen() {
           </View>
           <Text style={styles.caption}>
             {nextLevel
-              ? `باقي ${nextLevel.remaining} ${nextLevel.remaining === 1 ? 'ختم' : 'أختام'} عشان تصير "${nextLevel.label}"`
+              ? `باقي ${nextLevel.remaining} نقطة عشان تصير "${nextLevel.label}"`
               : 'وصلت لأعلى مستوى 🏆'}
           </Text>
 
