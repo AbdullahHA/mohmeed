@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -16,25 +16,37 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import PlaceMiniMap from '../components/PlaceMiniMap';
+import TripPickerModal from '../components/TripPickerModal';
 import { getMapsUrl } from '../utils/place';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import { PLACE_TYPE_LABELS } from '../data/places';
+import type { Trip } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'PlaceDetail'>;
 type Nav = NativeStackNavigationProp<RootStackParamList>;
+
+// Honest price-per-person bucket derived from the real 1–3 price level
+// (we don't have a real per-place SAR range, so this is a bucket, not a
+// made-up number).
+const PRICE_RANGE_LABEL: Record<1 | 2 | 3, string> = {
+  1: 'أقل من 50 ﷼',
+  2: '50 – 150 ﷼',
+  3: '150 ﷼ فأكثر',
+};
 
 export default function PlaceDetailScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { recommendedPlaceIds, toggleRecommended } = useAppState();
+  const { recommendedPlaceIds, toggleRecommended, trips, addItineraryItem } = useAppState();
   const { requireAccount } = useRequireAccount();
   const { places, destinations } = useContent();
   const place = places.find((p) => p.id === route.params.placeId);
+  const [pickerVisible, setPickerVisible] = useState(false);
 
   if (!place) {
     return (
@@ -49,67 +61,111 @@ export default function PlaceDetailScreen() {
   const destinationName = destinations.find((d) => d.id === place.destinationId)?.name;
   const locationLabel = [destinationName, 'المملكة العربية السعودية'].filter(Boolean).join('، ');
 
+  const handleAddToTrip = () => {
+    requireAccount('trip', () => {
+      if (trips.length === 0) {
+        navigation.navigate('CreateTrip');
+        return;
+      }
+      setPickerVisible(true);
+    });
+  };
+
+  const handleSelectTrip = (trip: Trip) => {
+    addItineraryItem(trip.id, { day: 'غير محدد', time: '—', title: place.name });
+    setPickerVisible(false);
+    navigation.navigate('TripDetail', { tripId: trip.id });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <View style={styles.imageWrap}>
           <Image source={place.image} style={styles.image} />
           <View style={styles.imageHeader}>
-            <TouchableOpacity
-              style={styles.headerButton}
-              onPress={() => navigation.goBack()}
-              activeOpacity={0.85}
-            >
-              <Ionicons name="chevron-forward" size={20} color={colors.textOnPrimary} />
+            <TouchableOpacity style={styles.glassButton} onPress={() => navigation.goBack()} activeOpacity={0.85}>
+              <Ionicons name="chevron-forward" size={20} color="#fff" />
             </TouchableOpacity>
-            <Text style={styles.imageHeaderTitle} numberOfLines={1}>
-              {place.name}
-            </Text>
-            <View style={styles.headerButtonGroup}>
+            <View style={styles.glassGroup}>
               <TouchableOpacity
-                style={styles.headerButton}
+                style={styles.glassButton}
                 activeOpacity={0.85}
                 onPress={() => Share.share({ message: `${place.name} — يلا نسافر` })}
               >
-                <Ionicons name="share-outline" size={18} color={colors.textOnPrimary} />
+                <Ionicons name="share-outline" size={18} color="#fff" />
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.headerButton}
+                style={styles.glassButton}
                 onPress={() => requireAccount('recommend', () => toggleRecommended(place.id))}
                 activeOpacity={0.85}
               >
-                <Ionicons
-                  name={isRecommended ? 'heart' : 'heart-outline'}
-                  size={18}
-                  color={isRecommended ? colors.accent : colors.textOnPrimary}
-                />
+                <Ionicons name={isRecommended ? 'heart' : 'heart-outline'} size={18} color={isRecommended ? colors.heart : '#fff'} />
               </TouchableOpacity>
             </View>
           </View>
         </View>
 
         <View style={styles.body}>
-          <View style={styles.ratingRow}>
-            <View style={styles.badgesGroup}>
-              <View style={styles.typeBadge}>
-                <Text style={styles.typeBadgeText}>{PLACE_TYPE_LABELS[place.type]}</Text>
-              </View>
-              <View style={styles.categoryBadge}>
-                <Text style={styles.categoryText}>{place.category}</Text>
-              </View>
+          <View style={styles.chipsRow}>
+            <View style={[styles.chip, styles.chipGold]}>
+              <Text style={styles.chipGoldText}>{PLACE_TYPE_LABELS[place.type]}</Text>
             </View>
-            <View style={styles.ratingGroup}>
-              <Text style={styles.priceLevel}>
-                {'﷼'.repeat(place.priceLevel)}
-                <Text style={styles.priceLevelMuted}>{'﷼'.repeat(3 - place.priceLevel)}</Text>
-              </Text>
-              <Ionicons name="star" size={16} color={colors.accent} />
-              <Text style={styles.rating}>{place.rating.toFixed(1)}</Text>
+            <View style={styles.chip}>
+              <Text style={styles.chipText}>{place.category}</Text>
             </View>
           </View>
 
           <Text style={styles.name}>{place.name}</Text>
 
+          <View style={styles.subRow}>
+            <View style={styles.subRate}>
+              <Ionicons name="star" size={14} color={colors.accentDark} />
+              <Text style={styles.subRateText}>{place.rating.toFixed(1)}</Text>
+            </View>
+            <Text style={styles.subDot}>·</Text>
+            <Text style={styles.subText}>{'﷼'.repeat(place.priceLevel)}</Text>
+          </View>
+
+          <View style={styles.qaRow}>
+            <TouchableOpacity style={styles.qaItem} activeOpacity={0.8} onPress={() => Linking.openURL(mapsUrl)}>
+              <Ionicons name="navigate-outline" size={18} color={colors.primary} />
+              <Text style={styles.qaText}>الاتجاهات</Text>
+            </TouchableOpacity>
+            {place.website ? (
+              <TouchableOpacity style={styles.qaItem} activeOpacity={0.8} onPress={() => Linking.openURL(place.website!)}>
+                <Ionicons name="globe-outline" size={18} color={colors.primary} />
+                <Text style={styles.qaText}>الموقع</Text>
+              </TouchableOpacity>
+            ) : null}
+            <TouchableOpacity
+              style={styles.qaItem}
+              activeOpacity={0.8}
+              onPress={() => requireAccount('recommend', () => toggleRecommended(place.id))}
+            >
+              <Ionicons name={isRecommended ? 'heart' : 'heart-outline'} size={18} color={isRecommended ? colors.heart : colors.primary} />
+              <Text style={styles.qaText}>{isRecommended ? 'محفوظ' : 'احفظه'}</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.factsRow}>
+            <View style={styles.factCard}>
+              <Ionicons name="pricetag-outline" size={18} color={colors.textMuted} />
+              <Text style={styles.factLabel}>الصنف</Text>
+              <Text style={styles.factValue}>{place.category}</Text>
+            </View>
+            <View style={styles.factCard}>
+              <Ionicons name="apps-outline" size={18} color={colors.textMuted} />
+              <Text style={styles.factLabel}>النوع</Text>
+              <Text style={styles.factValue}>{PLACE_TYPE_LABELS[place.type]}</Text>
+            </View>
+            <View style={styles.factCard}>
+              <Ionicons name="wallet-outline" size={18} color={colors.textMuted} />
+              <Text style={styles.factLabel}>للشخص</Text>
+              <Text style={styles.factValue}>{PRICE_RANGE_LABEL[place.priceLevel]}</Text>
+            </View>
+          </View>
+
+          <Text style={styles.sectionTitle}>الموقع</Text>
           <View style={styles.mapWrap}>
             <PlaceMiniMap coordinate={place.coordinate} />
           </View>
@@ -126,49 +182,33 @@ export default function PlaceDetailScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <View style={styles.actionsRow}>
-          <TouchableOpacity
-            style={[styles.actionButton, styles.actionPrimary]}
-            activeOpacity={0.85}
-            onPress={() => Linking.openURL(mapsUrl)}
-          >
-            <Ionicons name="navigate" size={16} color={colors.textOnPrimary} />
-            <Text style={styles.actionPrimaryText}>الاتجاهات</Text>
-          </TouchableOpacity>
-          {place.website ? (
-            <TouchableOpacity
-              style={styles.actionButton}
-              activeOpacity={0.85}
-              onPress={() => Linking.openURL(place.website!)}
-            >
-              <Ionicons name="globe-outline" size={16} color={colors.text} />
-              <Text style={styles.actionText}>الموقع</Text>
-            </TouchableOpacity>
-          ) : null}
-        </View>
+        <TouchableOpacity style={[styles.footerBtn, styles.footerGhost]} activeOpacity={0.85} onPress={() => Linking.openURL(mapsUrl)}>
+          <Ionicons name="navigate" size={16} color={colors.text} />
+          <Text style={styles.footerGhostText}>الاتجاهات</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.footerBtn, styles.footerPrimary]} activeOpacity={0.85} onPress={handleAddToTrip}>
+          <Ionicons name="add" size={18} color={colors.textOnPrimary} />
+          <Text style={styles.footerPrimaryText}>أضف لرحلتي</Text>
+        </TouchableOpacity>
       </View>
+
+      <TripPickerModal
+        visible={pickerVisible}
+        title={`أضف "${place.name}" لجدول أي رحلة؟`}
+        trips={trips}
+        onSelect={handleSelectTrip}
+        onClose={() => setPickerVisible(false)}
+      />
     </SafeAreaView>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  notFound: {
-    color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.xxl,
-  },
-  imageWrap: {
-    width: '100%',
-    height: 280,
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-  },
+  container: { flex: 1, backgroundColor: colors.background },
+  scrollContent: { paddingBottom: 110 },
+  notFound: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
+  imageWrap: { width: '100%', height: 300 },
+  image: { width: '100%', height: '100%' },
   imageHeader: {
     position: 'absolute',
     top: spacing.xl,
@@ -178,106 +218,62 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  headerButton: {
+  glassButton: {
     width: 38,
     height: 38,
     borderRadius: radius.pill,
-    backgroundColor: colors.overlay,
+    backgroundColor: 'rgba(0,0,0,0.32)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerButtonGroup: {
-    flexDirection: 'row-reverse',
-    gap: spacing.sm,
-  },
-  imageHeaderTitle: {
-    flex: 1,
-    color: colors.textOnPrimary,
-    fontSize: 15,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginHorizontal: spacing.sm,
-  },
+  glassGroup: { flexDirection: 'row-reverse', gap: spacing.sm },
   body: {
-    padding: spacing.xl,
+    backgroundColor: colors.background,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    marginTop: -22,
+    paddingTop: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    gap: spacing.md,
   },
-  ratingRow: {
-    flexDirection: 'row-reverse',
+  chipsRow: { flexDirection: 'row-reverse', gap: 6 },
+  chip: { backgroundColor: colors.surfaceAlt, borderRadius: radius.pill, paddingHorizontal: spacing.sm, paddingVertical: 4 },
+  chipText: { color: colors.textMuted, fontSize: 11, fontWeight: '600' },
+  chipGold: { backgroundColor: colors.accentSoft },
+  chipGoldText: { color: colors.accentDark, fontSize: 11, fontWeight: '700' },
+  name: { color: colors.text, fontSize: 22, fontWeight: '800', textAlign: 'right' },
+  subRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.xs },
+  subRate: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
+  subRateText: { color: colors.accentDark, fontWeight: '700', fontSize: 13 },
+  subDot: { color: colors.textFaint },
+  subText: { color: colors.textMuted, fontSize: 13 },
+  qaRow: { flexDirection: 'row-reverse', gap: spacing.sm },
+  qaItem: {
+    flex: 1,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.sm,
-  },
-  ratingGroup: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  rating: {
-    color: colors.accentDark,
-    fontWeight: '700',
-    fontSize: 14,
-  },
-  priceLevel: {
-    color: colors.text,
-    fontWeight: '700',
-    fontSize: 13,
-  },
-  priceLevelMuted: {
-    color: colors.textFaint,
-  },
-  badgesGroup: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  typeBadge: {
-    backgroundColor: colors.primarySoft,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    borderRadius: radius.sm,
-  },
-  typeBadgeText: {
-    color: colors.primary,
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  categoryBadge: {
-    backgroundColor: colors.surfaceAlt,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    borderRadius: radius.sm,
-  },
-  categoryText: {
-    color: colors.textMuted,
-    fontSize: 11,
-  },
-  name: {
-    color: colors.text,
-    fontSize: 24,
-    fontWeight: '700',
-    textAlign: 'right',
-    marginBottom: spacing.xs,
-  },
-  sectionTitle: {
-    color: colors.text,
-    fontSize: 15,
-    fontWeight: '700',
-    textAlign: 'right',
-    marginBottom: spacing.sm,
-  },
-  description: {
-    color: colors.textMuted,
-    fontSize: 14,
-    lineHeight: 22,
-    textAlign: 'right',
-    marginBottom: spacing.xl,
-  },
-  mapWrap: {
-    height: 160,
+    gap: 4,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: radius.md,
-    overflow: 'hidden',
-    marginBottom: spacing.md,
+    paddingVertical: spacing.sm,
   },
+  qaText: { color: colors.text, fontSize: 11, fontWeight: '600' },
+  factsRow: { flexDirection: 'row-reverse', gap: spacing.sm },
+  factCard: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingVertical: spacing.md,
+  },
+  factLabel: { color: colors.text, fontSize: 12, fontWeight: '700' },
+  factValue: { color: colors.textMuted, fontSize: 10.5, textAlign: 'center' },
+  sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right', marginTop: spacing.sm },
+  mapWrap: { height: 150, borderRadius: radius.md, overflow: 'hidden' },
   locationCard: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -287,47 +283,28 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.md,
     padding: spacing.md,
-    marginBottom: spacing.xl,
   },
-  locationText: {
-    color: colors.textMuted,
-    fontSize: 13,
-  },
+  locationText: { color: colors.textMuted, fontSize: 13 },
+  description: { color: colors.textMuted, fontSize: 14, lineHeight: 22, textAlign: 'right' },
   footer: {
+    flexDirection: 'row-reverse',
+    gap: spacing.sm,
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.background,
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
   },
-  actionsRow: {
-    flexDirection: 'row-reverse',
-    gap: spacing.md,
-  },
-  actionButton: {
+  footerBtn: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.pill,
-    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  actionPrimary: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-    flex: 1,
-    justifyContent: 'center',
-  },
-  actionPrimaryText: {
-    color: colors.textOnPrimary,
-    fontWeight: '700',
-    fontSize: 13,
-  },
-  actionText: {
-    color: colors.text,
-    fontWeight: '600',
-    fontSize: 13,
-  },
+  footerGhost: { flex: 1, borderWidth: 1, borderColor: colors.border },
+  footerGhostText: { color: colors.text, fontWeight: '700', fontSize: 13 },
+  footerPrimary: { flex: 1.4, backgroundColor: colors.primary },
+  footerPrimaryText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 13 },
 });
