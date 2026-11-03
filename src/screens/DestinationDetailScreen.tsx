@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Share,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
@@ -20,11 +21,13 @@ import PersonAvatar from '../components/PersonAvatar';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
+import { supabase } from '../lib/supabase';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'DestinationDetail'>;
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type TypeFilter = 'all' | PlaceType;
+type CityTab = 'places' | 'posts';
 
 const TYPE_FILTERS: TypeFilter[] = ['all', 'hotel', 'restaurant', 'activity', 'landmark'];
 
@@ -32,6 +35,15 @@ const MONTH_NAMES = [
   'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
   'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
 ];
+const MONTH_SHORT = ['ينا', 'فبر', 'مار', 'أبر', 'ماي', 'يون', 'يول', 'أغس', 'سبت', 'أكت', 'نوف', 'ديس'];
+
+type CityPost = {
+  id: string;
+  imageUrl: string;
+  caption: string;
+  authorName: string;
+  authorAvatarUrl: string | null;
+};
 
 export default function DestinationDetailScreen() {
   const navigation = useNavigation<Nav>();
@@ -48,11 +60,44 @@ export default function DestinationDetailScreen() {
     checkIn,
     checkOut,
     sendGuideMessage,
+    addWishlistItem,
   } = useAppState();
   const { destinations, places } = useContent();
   const { requireAccount } = useRequireAccount();
   const destination = destinations.find((d) => d.id === route.params.destinationId);
   const [activeType, setActiveType] = useState<TypeFilter>('all');
+  const [activeTab, setActiveTab] = useState<CityTab>('places');
+  const [posts, setPosts] = useState<CityPost[]>([]);
+  const [postsLoading, setPostsLoading] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
+
+  useEffect(() => {
+    if (!destination || activeTab !== 'posts') return;
+    let cancelled = false;
+    setPostsLoading(true);
+    supabase
+      .from('travel_posts')
+      .select('id,image_url,caption,profiles(name,avatar_url)')
+      .eq('destination_id', destination.id)
+      .order('created_at', { ascending: false })
+      .limit(30)
+      .then(({ data }) => {
+        if (cancelled) return;
+        setPosts(
+          (data ?? []).map((row: any) => ({
+            id: row.id,
+            imageUrl: row.image_url,
+            caption: row.caption,
+            authorName: row.profiles?.name ?? '',
+            authorAvatarUrl: row.profiles?.avatar_url ?? null,
+          }))
+        );
+        setPostsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [destination, activeTab]);
 
   const destinationPlaces = useMemo(
     () => places.filter((p) => p.destinationId === route.params.destinationId),
@@ -75,25 +120,66 @@ export default function DestinationDetailScreen() {
   const isFavorite = favoriteDestinationIds.includes(destination.id);
   const isCheckedInHere = myCheckIn === destination.id;
   const nearbyPeers = checkInPeersByDestination[destination.id] ?? [];
-  const bestMonthsLabel = destination.bestMonths.map((m) => MONTH_NAMES[m - 1]).join('، ');
 
   const askGuide = () => {
     sendGuideMessage(`وش أفضل وقت وأماكن أزورها في ${destination.name}؟`);
     navigation.navigate('GuideChat');
   };
 
+  const currentMonth = new Date().getMonth() + 1;
+
+  const handleShare = () => {
+    Share.share({ message: `${destination.name} — ${destination.tagline}` });
+  };
+
+  const handleWishlist = () => {
+    requireAccount('trip', () => {
+      addWishlistItem(destination.name);
+      setWishlisted(true);
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <View style={styles.imageWrap}>
           <Image source={destination.image} style={styles.image} />
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.85}
-          >
-            <Ionicons name="arrow-forward" size={20} color={colors.textOnPrimary} />
-          </TouchableOpacity>
+          <View style={styles.headerRow}>
+            <TouchableOpacity
+              style={styles.glassButton}
+              onPress={() => navigation.goBack()}
+              activeOpacity={0.85}
+            >
+              <Ionicons name="arrow-forward" size={20} color={colors.textOnPrimary} />
+            </TouchableOpacity>
+            <View style={styles.glassGroup}>
+              <TouchableOpacity
+                style={styles.glassButton}
+                activeOpacity={0.85}
+                onPress={() => requireAccount('favoriteDestination', () => toggleFavoriteDestination(destination.id))}
+              >
+                <Ionicons
+                  name={isFavorite ? 'heart' : 'heart-outline'}
+                  size={18}
+                  color={isFavorite ? colors.accent : colors.textOnPrimary}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.glassButton} activeOpacity={0.85} onPress={handleShare}>
+                <Ionicons name="share-social-outline" size={18} color={colors.textOnPrimary} />
+              </TouchableOpacity>
+            </View>
+          </View>
+          {destination.country ? (
+            <View style={styles.countryBadge}>
+              <Text style={styles.countryBadgeText}>{destination.country}</Text>
+            </View>
+          ) : null}
+        </View>
+
+        <View style={styles.body}>
+          <Text style={styles.name}>{destination.name}</Text>
+          <Text style={styles.tagline}>{destination.tagline}</Text>
+
           <TouchableOpacity
             style={[styles.stampButton, isVisited && styles.stampButtonActive]}
             onPress={() => requireAccount('visited', () => toggleVisited(destination.id))}
@@ -102,72 +188,108 @@ export default function DestinationDetailScreen() {
             <Ionicons
               name={isVisited ? 'checkmark-circle' : 'ribbon-outline'}
               size={16}
-              color={isVisited ? colors.textOnPrimary : colors.text}
+              color={isVisited ? colors.textOnPrimary : colors.primaryDark}
             />
             <Text style={[styles.stampButtonText, isVisited && styles.stampButtonTextActive]}>
               {isVisited ? 'زرتها' : 'أضفها لأماكن زرتها'}
             </Text>
           </TouchableOpacity>
-        </View>
-
-        <View style={styles.body}>
-          <View style={styles.nameRow}>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => requireAccount('favoriteDestination', () => toggleFavoriteDestination(destination.id))}
-            >
-              <Ionicons
-                name={isFavorite ? 'heart' : 'heart-outline'}
-                size={22}
-                color={isFavorite ? colors.accent : colors.textFaint}
-              />
-            </TouchableOpacity>
-            <Text style={styles.name}>{destination.name}</Text>
-          </View>
-          <Text style={styles.tagline}>{destination.tagline}</Text>
-
-          <View style={styles.monthsRow}>
-            <Ionicons name="calendar-outline" size={16} color={colors.primary} />
-            <Text style={styles.monthsText}>أفضل وقت للزيارة: {bestMonthsLabel}</Text>
-          </View>
 
           <Text style={styles.whyVisit}>{destination.whyVisit}</Text>
 
-          <Text style={styles.sectionTitle}>الأماكن</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.typeFiltersScroll}
-            contentContainerStyle={styles.typeFiltersRow}
-          >
-            {TYPE_FILTERS.map((item) => {
-              const active = activeType === item;
-              const label = item === 'all' ? 'الكل' : PLACE_TYPE_LABELS[item];
+          <Text style={styles.sectionTitle}>أفضل وقت للزيارة</Text>
+          <View style={styles.monthsChart}>
+            {MONTH_SHORT.map((label, i) => {
+              const month = i + 1;
+              const isBest = destination.bestMonths.includes(month);
+              const isCurrent = month === currentMonth;
               return (
-                <TouchableOpacity
-                  key={item}
-                  style={[styles.typeFilterChip, active && styles.typeFilterChipActive]}
-                  activeOpacity={0.8}
-                  onPress={() => setActiveType(item)}
-                >
-                  <Text style={[styles.typeFilterText, active && styles.typeFilterTextActive]}>{label}</Text>
-                </TouchableOpacity>
+                <View key={month} style={styles.monthColumn}>
+                  <View
+                    style={[
+                      styles.monthBar,
+                      isBest ? styles.monthBarGood : styles.monthBarMuted,
+                      isCurrent && styles.monthBarCurrent,
+                    ]}
+                  />
+                  <Text style={[styles.monthLabel, isCurrent && styles.monthLabelCurrent]}>{label}</Text>
+                </View>
               );
             })}
-          </ScrollView>
+          </View>
+          {destination.bestMonths.includes(currentMonth) ? (
+            <Text style={styles.monthsVerdict}>{MONTH_NAMES[currentMonth - 1]} وقت ممتاز للزيارة</Text>
+          ) : null}
 
-          {destinationPlaces.length === 0 ? (
-            <Text style={styles.emptyPlacesText}>لسا ما أضفنا أماكن لهذي الوجهة</Text>
-          ) : filteredPlaces.length === 0 ? (
-            <Text style={styles.emptyPlacesText}>لا توجد أماكن بهذا التصنيف هنا حاليًا</Text>
+          <View style={styles.tabsRow}>
+            <TouchableOpacity
+              style={[styles.tabButton, activeTab === 'places' && styles.tabButtonActive]}
+              activeOpacity={0.8}
+              onPress={() => setActiveTab('places')}
+            >
+              <Text style={[styles.tabText, activeTab === 'places' && styles.tabTextActive]}>الأماكن</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tabButton, activeTab === 'posts' && styles.tabButtonActive]}
+              activeOpacity={0.8}
+              onPress={() => setActiveTab('posts')}
+            >
+              <Text style={[styles.tabText, activeTab === 'posts' && styles.tabTextActive]}>مدونات</Text>
+            </TouchableOpacity>
+          </View>
+
+          {activeTab === 'places' ? (
+            <>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.typeFiltersScroll}
+                contentContainerStyle={styles.typeFiltersRow}
+              >
+                {TYPE_FILTERS.map((item) => {
+                  const active = activeType === item;
+                  const label = item === 'all' ? 'الكل' : PLACE_TYPE_LABELS[item];
+                  return (
+                    <TouchableOpacity
+                      key={item}
+                      style={[styles.typeFilterChip, active && styles.typeFilterChipActive]}
+                      activeOpacity={0.8}
+                      onPress={() => setActiveType(item)}
+                    >
+                      <Text style={[styles.typeFilterText, active && styles.typeFilterTextActive]}>{label}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+
+              {destinationPlaces.length === 0 ? (
+                <Text style={styles.emptyPlacesText}>لسا ما أضفنا أماكن لهذي الوجهة</Text>
+              ) : filteredPlaces.length === 0 ? (
+                <Text style={styles.emptyPlacesText}>لا توجد أماكن بهذا التصنيف هنا حاليًا</Text>
+              ) : (
+                <View style={styles.placesList}>
+                  {filteredPlaces.map((place) => (
+                    <PlaceCard
+                      key={place.id}
+                      place={place}
+                      onPress={() => navigation.navigate('PlaceDetail', { placeId: place.id })}
+                    />
+                  ))}
+                </View>
+              )}
+            </>
+          ) : postsLoading ? null : posts.length === 0 ? (
+            <Text style={styles.emptyPlacesText}>لسا ما فيه مدونات عن {destination.name}</Text>
           ) : (
-            <View style={styles.placesList}>
-              {filteredPlaces.map((place) => (
-                <PlaceCard
-                  key={place.id}
-                  place={place}
-                  onPress={() => navigation.navigate('PlaceDetail', { placeId: place.id })}
-                />
+            <View style={styles.postsGrid}>
+              {posts.map((post) => (
+                <View key={post.id} style={styles.postTile}>
+                  <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
+                  <View style={styles.postAuthorRow}>
+                    <PersonAvatar avatarUrl={post.authorAvatarUrl ?? undefined} size={18} />
+                    <Text style={styles.postAuthorName} numberOfLines={1}>{post.authorName}</Text>
+                  </View>
+                </View>
               ))}
             </View>
           )}
@@ -213,24 +335,35 @@ export default function DestinationDetailScreen() {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.actionsRow}>
-            <TouchableOpacity
-              style={[styles.actionButton, styles.actionPrimary]}
-              activeOpacity={0.85}
-              onPress={() =>
-                requireAccount('trip', () => navigation.navigate('CreateTrip', { destinationId: destination.id }))
-              }
-            >
-              <Ionicons name="add-circle-outline" size={16} color={colors.textOnPrimary} />
-              <Text style={styles.actionPrimaryText}>خطط رحلة لهذي الوجهة</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton} activeOpacity={0.85} onPress={askGuide}>
-              <Ionicons name="chatbubble-outline" size={16} color={colors.text} />
-              <Text style={styles.actionText}>اسأل الدليل</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity style={styles.guideLink} activeOpacity={0.8} onPress={askGuide}>
+            <Ionicons name="chatbubble-outline" size={15} color={colors.primaryDark} />
+            <Text style={styles.guideLinkText}>اسأل الدليل عن {destination.name}</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <View style={styles.stickyBar}>
+        <TouchableOpacity
+          style={[styles.wishlistButton, wishlisted && styles.wishlistButtonActive]}
+          activeOpacity={0.85}
+          onPress={handleWishlist}
+        >
+          <Ionicons
+            name={wishlisted ? 'bookmark' : 'bookmark-outline'}
+            size={18}
+            color={wishlisted ? colors.primary : colors.text}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.planTripButton}
+          activeOpacity={0.85}
+          onPress={() =>
+            requireAccount('trip', () => navigation.navigate('CreateTrip', { destinationId: destination.id }))
+          }
+        >
+          <Text style={styles.planTripButtonText}>خطط رحلة لـ{destination.name}</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
@@ -238,12 +371,19 @@ export default function DestinationDetailScreen() {
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   notFound: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
-  imageWrap: { width: '100%', height: 240 },
+  scrollContent: { paddingBottom: 100 },
+  imageWrap: { width: '100%', height: 260 },
   image: { width: '100%', height: '100%' },
-  backButton: {
+  headerRow: {
     position: 'absolute',
     top: spacing.xl,
+    left: spacing.lg,
     right: spacing.lg,
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  glassButton: {
     width: 38,
     height: 38,
     borderRadius: radius.pill,
@@ -251,41 +391,67 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stampButton: {
+  glassGroup: { flexDirection: 'row-reverse', gap: spacing.sm },
+  countryBadge: {
     position: 'absolute',
-    top: spacing.xl,
-    left: spacing.lg,
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: 4,
+    bottom: spacing.lg,
+    right: spacing.lg,
     backgroundColor: colors.overlay,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.md,
+    paddingVertical: 4,
+  },
+  countryBadgeText: { color: colors.textOnPrimary, fontSize: 11, fontWeight: '700' },
+  stampButton: {
+    alignSelf: 'flex-end',
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    marginTop: spacing.sm,
   },
   stampButtonActive: {
     backgroundColor: colors.primary,
   },
-  stampButtonText: { color: colors.textOnPrimary, fontSize: 11, fontWeight: '700' },
+  stampButtonText: { color: colors.primaryDark, fontSize: 11, fontWeight: '700' },
   stampButtonTextActive: { color: colors.textOnPrimary },
   body: { padding: spacing.xl },
-  nameRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
   name: { color: colors.text, fontSize: 24, fontWeight: '800', textAlign: 'right' },
-  tagline: { color: colors.textMuted, fontSize: 14, textAlign: 'right', marginTop: 4, marginBottom: spacing.md },
-  monthsRow: {
+  tagline: { color: colors.textMuted, fontSize: 14, textAlign: 'right', marginTop: 4 },
+  whyVisit: { color: colors.text, fontSize: 14, lineHeight: 22, textAlign: 'right', marginTop: spacing.lg, marginBottom: spacing.xl },
+  sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right', marginBottom: spacing.sm },
+  monthsChart: {
     flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: spacing.xs,
-    backgroundColor: colors.primarySoft,
-    alignSelf: 'flex-end',
-    paddingHorizontal: spacing.md,
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    height: 56,
+    marginBottom: spacing.xs,
+  },
+  monthColumn: { alignItems: 'center', gap: 4, flex: 1 },
+  monthBar: { width: 10, height: 28, borderRadius: 4 },
+  monthBarGood: { backgroundColor: colors.success },
+  monthBarMuted: { backgroundColor: colors.surfaceAlt },
+  monthBarCurrent: { borderWidth: 1.5, borderColor: colors.primary },
+  monthLabel: { color: colors.textFaint, fontSize: 9 },
+  monthLabelCurrent: { color: colors.primaryDark, fontWeight: '700' },
+  monthsVerdict: { color: colors.successDark, fontSize: 12, fontWeight: '700', textAlign: 'right', marginBottom: spacing.xl },
+  tabsRow: {
+    flexDirection: 'row-reverse',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  tabButton: {
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
-    marginBottom: spacing.lg,
+    backgroundColor: colors.surfaceAlt,
   },
-  monthsText: { color: colors.primaryDark, fontSize: 12.5, fontWeight: '700' },
-  whyVisit: { color: colors.text, fontSize: 14, lineHeight: 22, textAlign: 'right', marginBottom: spacing.xl },
-  sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right', marginBottom: spacing.sm },
+  tabButtonActive: { backgroundColor: colors.text },
+  tabText: { color: colors.text, fontSize: 13, fontWeight: '700' },
+  tabTextActive: { color: colors.background },
   typeFiltersScroll: {
     flexGrow: 0,
     flexShrink: 0,
@@ -326,20 +492,60 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginHorizontal: -spacing.xl,
     marginBottom: spacing.sm,
   },
-  actionsRow: { flexDirection: 'row-reverse', gap: spacing.md, marginTop: spacing.sm },
-  actionButton: {
+  postsGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 2, marginBottom: spacing.lg },
+  postTile: { width: '32.5%', aspectRatio: 4 / 5 },
+  postImage: { width: '100%', height: '100%', borderRadius: radius.sm },
+  postAuthorRow: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+    left: 4,
     flexDirection: 'row-reverse',
     alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.overlay,
+    borderRadius: radius.pill,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  postAuthorName: { color: colors.textOnPrimary, fontSize: 9, fontWeight: '600', flexShrink: 1 },
+  guideLink: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: spacing.xs,
+    marginTop: spacing.sm,
+  },
+  guideLinkText: { color: colors.primaryDark, fontWeight: '600', fontSize: 13 },
+  stickyBar: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    backgroundColor: colors.background,
+  },
+  wishlistButton: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  actionPrimary: { backgroundColor: colors.primary, borderColor: colors.primary, flex: 1, justifyContent: 'center' },
-  actionPrimaryText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 13 },
-  actionText: { color: colors.text, fontWeight: '600', fontSize: 13 },
+  wishlistButtonActive: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
+  planTripButton: {
+    flex: 1,
+    backgroundColor: colors.primary,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  planTripButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
   checkInCard: {
     backgroundColor: colors.surface,
     borderWidth: 1,
