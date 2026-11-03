@@ -220,7 +220,7 @@ export function CityScreen({ route, navigation }: RootProps<'City'>) {
     const f = new Set(follows.filter((x) => x.followerId === me).map((x) => x.followingId));
     const recent = checkins.filter((x) => x.cityId === c?.id && Date.now() - x.createdAt < 864e5 * 30);
     const ids = [...new Set(recent.map((x) => x.userId))];
-    return { count: 18 + ids.length * 5, friends: ids.filter((i) => f.has(i) && users.get(i)?.showHere).map((i) => users.get(i)!) };
+    return { count: ids.length, friends: ids.filter((i) => f.has(i) && users.get(i)?.showHere).map((i) => users.get(i)!) };
   }, [follows, checkins, users, me, c?.id]);
   if (!c) return <Empty icon="alert-circle-outline" title="المدينة غير موجودة" />;
   const m = new Date().getMonth();
@@ -293,11 +293,11 @@ export function CityScreen({ route, navigation }: RootProps<'City'>) {
               </Txt>
             </Card>
           </Row>
-          <Card>
+          {here.count ? (<Card>
             <Row>
               <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: colors.success }} />
               <View style={{ flex: 1 }}>
-                <Txt variant="bodyStrong">{here.count} مسافر في {c.name} الحين</Txt>
+                <Txt variant="bodyStrong">{here.count === 1 ? 'مسافر واحد' : `${here.count} مسافرين`} في {c.name} هالشهر</Txt>
                 {here.friends.length ? (
                   <Txt variant="caption" tone="muted">
                     منهم {here.friends.map((f) => f.name.split(' ')[0]).join(' و')} اللي تتابعهم
@@ -306,7 +306,7 @@ export function CityScreen({ route, navigation }: RootProps<'City'>) {
               </View>
               {here.friends.length ? <Faces people={here.friends} /> : null}
             </Row>
-          </Card>
+          </Card>) : null}
           <Row gap={8}>
             <Pill label="الأماكن" active={tab === 'places'} onPress={() => setTab('places')} />
             <Pill label="الفعاليات" active={tab === 'events'} onPress={() => setTab('events')} />

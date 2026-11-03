@@ -75,7 +75,7 @@ export function ChatsScreen() {
                   {c.name}
                 </Txt>
                 <Txt variant="caption" tone="muted">
-                  {c.memberIds.length * 260} عضو
+                  {c.memberIds.length} أعضاء
                 </Txt>
                 <Btn size="sm" variant="ghost" title="انضم" onPress={() => { const id = joinCommunity(c.id); if (id) nav.navigate('Chat', { id }); }} />
               </Card>

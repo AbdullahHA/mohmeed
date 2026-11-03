@@ -410,7 +410,7 @@ export function CheckinScreen({ navigation }: RootProps<'Checkin'>) {
     () => [...places].filter((p) => !q || p.name.includes(q)).sort((a, b) => km(origin, a) - km(origin, b)).slice(0, 6),
     [places, origin.lat, origin.lng, q], // eslint-disable-line react-hooks/exhaustive-deps
   );
-  const here = (p: Place) => checkins.filter((c) => c.placeId === p.id && Date.now() - c.createdAt < 864e5 * 30).length + 2;
+  const here = (p: Place) => new Set(checkins.filter((c) => c.placeId === p.id && Date.now() - c.createdAt < 864e5 * 30).map((c) => c.userId)).size;
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <View style={{ height: 280 }}>
@@ -437,7 +437,7 @@ export function CheckinScreen({ navigation }: RootProps<'Checkin'>) {
               <View style={{ flex: 1 }}>
                 <Txt variant="bodyStrong">{p.name}</Txt>
                 <Txt variant="caption" tone="muted">
-                  {fmtKm(km(origin, p))} منك · {here(p)} مسافرين هنا
+                  {fmtKm(km(origin, p))} منك{here(p) ? ` · ${here(p)} مسافرين هالشهر` : ''}
                 </Txt>
               </View>
               <Btn

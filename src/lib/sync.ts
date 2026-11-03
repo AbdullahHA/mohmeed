@@ -65,6 +65,13 @@ export async function syncNow() {
       const rows = (st.db[c] as { id: string }[]).filter((r) => ids.includes(r.id)).map((r) => toRow(r as never));
       const { error } = await supabase.from(table).upsert(rows);
       if (!error) st.clearDirty(c, ids);
+      else {
+        // صف صف: اللي ينجح أو ترفضه الصلاحيات (42501) ما نعيد محاولته
+        for (const row of rows) {
+          const r = await supabase.from(table).upsert(row);
+          if (!r.error || r.error.code === '42501') st.clearDirty(c, [row.id as string]);
+        }
+      }
     }
     // 2) سحب الجديد
     const since = st.lastSync;
@@ -124,4 +131,14 @@ export function startSync() {
     sub.remove();
     void supabase?.removeChannel(ch);
   };
+}
+
+/** عمليات تمر عبر دوال السيرفر لأن الصلاحيات ما تسمح بالكتابة المباشرة */
+export async function rpc(name: 'join_trip' | 'toggle_like' | 'join_community', args: Record<string, string>) {
+  if (!supabase || useStore.getState().session.mode !== 'cloud') return;
+  try {
+    await supabase.rpc(name, args);
+  } catch {
+    /* تتزامن لاحقاً */
+  }
 }

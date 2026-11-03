@@ -6,6 +6,7 @@ import { suggestPacking } from '../lib/guide';
 import { inviteCode, uid } from '../lib/id';
 import { SLOT_TIME, bestDates, membersOf, tripStatus } from '../lib/logic';
 import { scheduleTripReminders } from '../lib/notify';
+import { rpc } from '../lib/sync';
 import { FX } from './seed';
 import { getState, meId, useStore } from './store';
 import { toast } from './ui';
@@ -198,6 +199,7 @@ export function copyTrip(srcId: ID) {
 export function joinByCode(code: string) {
   const trip = live(db().trips).find((t) => t.inviteCode.toUpperCase() === code.trim().toUpperCase());
   if (!trip) return null;
+  void rpc('join_trip', { code });
   const me = meId();
   if (!db().members.some((m) => m.tripId === trip.id && m.userId === me && !m.deleted)) {
     S().put('members', { id: uid('m'), tripId: trip.id, userId: me, role: 'member', updatedAt: now() });
@@ -400,6 +402,7 @@ export function toggleLike(postId: ID) {
   const p = db().posts.find((x) => x.id === postId);
   if (!p) return;
   const me = meId();
+  void rpc('toggle_like', { post: postId });
   S().patch('posts', postId, { likes: p.likes.includes(me) ? p.likes.filter((x) => x !== me) : [...p.likes, me] });
   tap();
 }
@@ -434,6 +437,7 @@ export function joinCommunity(id: ID) {
   const c = db().communities.find((x) => x.id === id);
   if (!c) return null;
   const me = meId();
+  void rpc('join_community', { cid: id });
   S().patch('communities', id, { memberIds: [...new Set([...c.memberIds, me])] });
   let chat = live(db().chats).find((x) => x.communityId === id);
   if (!chat) {
