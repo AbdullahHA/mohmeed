@@ -140,7 +140,7 @@ export default function DiscoverScreen() {
               <View style={styles.secTitle}>
                 <Text style={styles.secTitleText}>مختارة لك يا {firstName}</Text>
               </View>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hscroll}>
+              <View style={styles.pgrid}>
                 {pickedForYou.map(({ place, why }) => {
                   const isRecommended = recommendedPlaceIds.includes(place.id);
                   return (
@@ -176,7 +176,7 @@ export default function DiscoverScreen() {
                     </TouchableOpacity>
                   );
                 })}
-              </ScrollView>
+              </View>
             </View>
 
             {experiences.length > 0 ? (
@@ -322,8 +322,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   sec: { marginTop: spacing.xl, paddingHorizontal: spacing.lg },
   secTitle: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: spacing.sm },
   secTitleText: { color: colors.text, fontSize: 15, fontWeight: '700' },
-  hscroll: { flexDirection: 'row-reverse', gap: spacing.md, paddingVertical: 2 },
-  pcard: { width: 180, gap: spacing.xs },
+  pgrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.md },
+  pcard: { width: '47%', gap: spacing.xs },
   pcardImageWrap: { width: '100%', height: 130, borderRadius: radius.lg, overflow: 'hidden' },
   pcardImage: { width: '100%', height: '100%' },
   pcardHeart: {
