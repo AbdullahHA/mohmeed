@@ -13,6 +13,7 @@ import {
   Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -54,7 +55,6 @@ export default function AuthGateScreen() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [resetCode, setResetCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -130,86 +130,68 @@ export default function AuthGateScreen() {
     setMode(next);
   };
 
-  const handlePhoneContinue = () => {
-    if (phone.trim().length < 5) return;
-    setError('تسجيل الدخول برقم الجوال غير متاح حاليًا — استخدم البريد الإلكتروني بالأسفل.');
-  };
-
   if (mode === 'landing') {
     return (
-      <SafeAreaView style={styles.container}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-          <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
-            <View style={styles.logoBadge}>
-              <Image source={require('../../assets/icon.png')} style={styles.logo} resizeMode="contain" />
-            </View>
-            <Text style={styles.title}>تسجيل الدخول أو إنشاء حساب</Text>
-
-            <Text style={styles.label}>رقم الجوال</Text>
-            <View style={styles.phoneRow}>
-              <TextInput
-                style={[styles.input, styles.phoneInput]}
-                placeholder="5xxxxxxxx"
-                placeholderTextColor={colors.textFaint}
-                value={phone}
-                onChangeText={(v) => {
-                  setPhone(v);
-                  resetFeedback();
-                }}
-                keyboardType="phone-pad"
-                textAlign="right"
-              />
-              <View style={styles.countryCode}>
-                <Text style={styles.countryCodeText}>+966</Text>
+      <View style={styles.heroContainer}>
+        <LinearGradient
+          colors={['#f0a35c', '#e9895a', '#b6573a', '#7a3524']}
+          locations={[0, 0.32, 0.58, 1]}
+          style={StyleSheet.absoluteFill}
+        />
+        <View style={[styles.dune, styles.dune1]} />
+        <View style={[styles.dune, styles.dune2]} />
+        <View style={[styles.dune, styles.dune3]} />
+        <LinearGradient
+          colors={['rgba(10,14,30,0.1)', 'rgba(10,14,30,0.62)', 'rgba(10,14,30,0.92)']}
+          locations={[0.2, 0.62, 1]}
+          style={StyleSheet.absoluteFill}
+        />
+        <SafeAreaView style={styles.heroSafe}>
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+            <ScrollView contentContainerStyle={styles.heroBody} showsVerticalScrollIndicator={false}>
+              <View style={styles.heroTop}>
+                <View style={styles.heroLogoBadge}>
+                  <Image source={require('../../assets/icon.png')} style={styles.heroLogo} resizeMode="contain" />
+                </View>
+                <Text style={styles.heroTitle}>رفيقك في كل رحلة</Text>
+                <Text style={styles.heroSubtitle}>
+                  اكتشف أماكن جديدة، خطط مع شلتك، وشارك تجربتك مع مسافرين يشبهونك.
+                </Text>
               </View>
-            </View>
 
-            {error ? <Text style={styles.error}>{error}</Text> : null}
+              <View style={styles.heroBottom}>
+                {error ? <Text style={styles.heroError}>{error}</Text> : null}
 
-            <TouchableOpacity
-              style={[styles.submitButton, phone.trim().length < 5 && styles.submitDisabled]}
-              activeOpacity={0.85}
-              disabled={phone.trim().length < 5}
-              onPress={handlePhoneContinue}
-            >
-              <Text style={styles.submitText}>متابعة</Text>
-            </TouchableOpacity>
+                <View style={[styles.sso, styles.ssoApple]}>
+                  <Ionicons name="logo-apple" size={20} color="#8891a6" />
+                  <Text style={styles.ssoAppleText}>المتابعة مع Apple — قريبًا</Text>
+                </View>
 
-            <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>أو</Text>
-              <View style={styles.dividerLine} />
-            </View>
+                <View style={[styles.sso, styles.ssoGoogle]}>
+                  <Ionicons name="logo-google" size={18} color="rgba(255,255,255,0.55)" />
+                  <Text style={styles.ssoGoogleText}>المتابعة مع Google — قريبًا</Text>
+                </View>
 
-            <TouchableOpacity
-              style={styles.altButton}
-              activeOpacity={0.7}
-              onPress={() => goToMode('signIn')}
-            >
-              <Ionicons name="mail-outline" size={18} color={colors.text} />
-              <Text style={styles.altButtonText}>المتابعة بالبريد الإلكتروني</Text>
-            </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.sso, styles.ssoMail]}
+                  activeOpacity={0.8}
+                  onPress={() => goToMode('signIn')}
+                >
+                  <Ionicons name="mail-outline" size={20} color="#fff" />
+                  <Text style={styles.ssoMailText}>المتابعة بالبريد</Text>
+                </TouchableOpacity>
 
-            <View style={[styles.altButton, styles.altButtonDisabled]}>
-              <Ionicons name="logo-apple" size={18} color={colors.textFaint} />
-              <Text style={styles.altButtonTextDisabled}>المتابعة بحساب Apple — قريبًا</Text>
-            </View>
-
-            <View style={[styles.altButton, styles.altButtonDisabled]}>
-              <Ionicons name="logo-google" size={18} color={colors.textFaint} />
-              <Text style={styles.altButtonTextDisabled}>المتابعة بحساب Google — قريبًا</Text>
-            </View>
-
-            <TouchableOpacity style={styles.guestButton} activeOpacity={0.7} onPress={continueAsGuest}>
-              <Ionicons name="eye-outline" size={16} color={colors.textMuted} />
-              <Text style={styles.guestButtonText}>المتابعة كضيف بدون تسجيل</Text>
-            </TouchableOpacity>
-            <Text style={styles.guestHint}>
-              تقدر تتصفح الوجهات والأماكن، بس ميزات مثل الأصدقاء والمفضلة تحتاج حساب
-            </Text>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
+                <TouchableOpacity activeOpacity={0.7} onPress={continueAsGuest}>
+                  <Text style={styles.heroGuest}>
+                    أو <Text style={styles.heroGuestUnderline}>تصفح كزائر</Text> بدون تسجيل
+                  </Text>
+                </TouchableOpacity>
+                <Text style={styles.heroLegal}>بالمتابعة توافق على الشروط وسياسة الخصوصية</Text>
+              </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
+      </View>
     );
   }
 
@@ -470,52 +452,46 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
     zIndex: 1,
   },
-  phoneRow: {
-    flexDirection: 'row-reverse',
-    gap: spacing.sm,
+  heroContainer: { flex: 1, backgroundColor: '#7a3524', overflow: 'hidden' },
+  dune: { position: 'absolute', height: 220, borderRadius: 500 },
+  dune1: { bottom: -150, left: -20, right: -20, backgroundColor: '#5c2a1c' },
+  dune2: { bottom: -165, right: '-10%', width: '70%', backgroundColor: '#6d3221' },
+  dune3: { bottom: -175, left: '10%', width: '55%', backgroundColor: '#4a2216' },
+  heroSafe: { flex: 1 },
+  heroBody: { flexGrow: 1, justifyContent: 'space-between', paddingBottom: spacing.xl },
+  heroTop: { paddingHorizontal: spacing.xl, paddingTop: spacing.xxl, gap: spacing.sm },
+  heroLogoBadge: {
+    width: 56,
+    height: 56,
+    borderRadius: 18,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    marginBottom: spacing.xs,
   },
-  phoneInput: {
-    flex: 1,
-  },
-  countryCode: {
+  heroLogo: { width: '72%', height: '72%' },
+  heroTitle: { color: '#fff', fontSize: 28, fontWeight: '800', lineHeight: 38 },
+  heroSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: 14, lineHeight: 22 },
+  heroBottom: { paddingHorizontal: spacing.lg, gap: spacing.sm },
+  heroError: { color: '#fff', backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: radius.sm, padding: spacing.sm, fontSize: 12, textAlign: 'center', marginBottom: spacing.xs },
+  sso: {
+    height: 52,
+    borderRadius: 16,
     flexDirection: 'row-reverse',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-  },
-  countryCodeText: {
-    color: colors.text,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  altButton: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    justifyContent: 'center',
     gap: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.pill,
-    paddingVertical: spacing.md,
-    marginTop: spacing.md,
   },
-  altButtonText: {
-    color: colors.text,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  altButtonDisabled: {
-    opacity: 0.5,
-  },
-  altButtonTextDisabled: {
-    color: colors.textFaint,
-    fontSize: 13,
-    fontWeight: '600',
-  },
+  ssoApple: { backgroundColor: 'rgba(255,255,255,0.5)' },
+  ssoAppleText: { color: '#5b4538', fontWeight: '600', fontSize: 15 },
+  ssoGoogle: { backgroundColor: 'rgba(255,255,255,0.14)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)' },
+  ssoGoogleText: { color: 'rgba(255,255,255,0.65)', fontWeight: '600', fontSize: 15 },
+  ssoMail: { backgroundColor: 'transparent', borderWidth: 1, borderColor: 'rgba(255,255,255,0.5)' },
+  ssoMailText: { color: '#fff', fontWeight: '600', fontSize: 15 },
+  heroGuest: { textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.8)', paddingTop: spacing.xs },
+  heroGuestUnderline: { color: '#fff', textDecorationLine: 'underline' },
+  heroLegal: { textAlign: 'center', fontSize: 10.5, color: 'rgba(255,255,255,0.55)', marginTop: spacing.xs },
   badge: {
     alignSelf: 'center',
     width: 64,
