@@ -4,6 +4,7 @@
     "slug": "yalla-nsafer",
     "version": "1.0.0",
     "orientation": "portrait",
+    "scheme": "yallansafer",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
@@ -55,7 +56,8 @@
         }
       ],
       "expo-splash-screen",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-web-browser"
     ]
   }
 }

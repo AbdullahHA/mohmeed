@@ -1,7 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import type { Session } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as WebBrowser from 'expo-web-browser';
+import { makeRedirectUri } from 'expo-auth-session';
 import { supabase } from '../lib/supabase';
+
+// Lets the web auth tab/window close itself and hand control back to the app
+// once Google redirects back with a session — a no-op on native.
+WebBrowser.maybeCompleteAuthSession();
 
 export type Profile = {
   id: string;
@@ -53,6 +60,7 @@ type AuthState = {
   guestMode: boolean;
   signIn: (email: string, password: string) => Promise<AuthResult>;
   signUp: (email: string, password: string, name: string, username: string) => Promise<AuthResult>;
+  signInWithGoogle: () => Promise<AuthResult>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   updateInterests: (interests: string[]) => Promise<AuthResult>;
@@ -148,6 +156,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       return { error: error?.message ?? null, errorKind: 'auth' };
+    } catch (e: any) {
+      return { error: e?.message ?? 'network error', errorKind: 'network' };
+    }
+  };
+
+  const signInWithGoogle: AuthState['signInWithGoogle'] = async () => {
+    try {
+      const redirectTo = makeRedirectUri();
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo, skipBrowserRedirect: Platform.OS !== 'web' },
+      });
+      if (error) return { error: error.message, errorKind: 'auth' };
+      if (Platform.OS === 'web') {
+        // supabase-js already navigated the browser to Google; this resolves
+        // only after the user comes back, so there's nothing left to do here.
+        return { error: null };
+      }
+      if (!data?.url) return { error: 'تعذّر بدء تسجيل الدخول', errorKind: 'auth' };
+
+      const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+      if (result.type !== 'success' || !result.url) {
+        if (result.type === 'cancel' || result.type === 'dismiss') {
+          return { error: null }; // user backed out — not an error to surface
+        }
+        return { error: 'تعذّر تسجيل الدخول بجوجل، حاول مرة ثانية', errorKind: 'auth' };
+      }
+
+      const callbackUrl = new URL(result.url.replace('#', '?'));
+      const code = callbackUrl.searchParams.get('code');
+      if (code) {
+        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+        return { error: exchangeError?.message ?? null, errorKind: 'auth' };
+      }
+      const accessToken = callbackUrl.searchParams.get('access_token');
+      const refreshToken = callbackUrl.searchParams.get('refresh_token');
+      if (accessToken && refreshToken) {
+        const { error: setError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+        return { error: setError?.message ?? null, errorKind: 'auth' };
+      }
+      return { error: 'تعذّر إكمال تسجيل الدخول بجوجل', errorKind: 'auth' };
     } catch (e: any) {
       return { error: e?.message ?? 'network error', errorKind: 'network' };
     }
@@ -271,6 +323,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         guestMode,
         signIn,
         signUp,
+        signInWithGoogle,
         signOut,
         refreshProfile,
         updateInterests,

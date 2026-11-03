@@ -44,7 +44,8 @@ function friendlyAuthError(result: AuthResult, fallback: string) {
 export default function AuthGateScreen() {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { signIn, signUp, continueAsGuest, requestPasswordReset, confirmPasswordReset } = useAuth();
+  const { signIn, signUp, signInWithGoogle, continueAsGuest, requestPasswordReset, confirmPasswordReset } = useAuth();
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [mode, setMode] = useState<Mode>('landing');
   const [resetStep, setResetStep] = useState<ResetStep>('request');
   const [name, setName] = useState('');
@@ -122,6 +123,16 @@ export default function AuthGateScreen() {
     // gate will pick it up automatically and move past this screen.
   };
 
+  const handleGoogleSignIn = async () => {
+    resetFeedback();
+    setGoogleLoading(true);
+    const result = await signInWithGoogle();
+    setGoogleLoading(false);
+    if (result.error) {
+      setError(friendlyAuthError(result, 'تعذّر تسجيل الدخول بجوجل، حاول مرة ثانية.'));
+    }
+  };
+
   const goToMode = (next: Mode) => {
     resetFeedback();
     setResetStep('request');
@@ -154,10 +165,21 @@ export default function AuthGateScreen() {
                   <Text style={styles.ssoAppleText}>المتابعة مع Apple — قريبًا</Text>
                 </View>
 
-                <View style={[styles.sso, styles.ssoGoogle]}>
-                  <Ionicons name="logo-google" size={18} color="rgba(255,255,255,0.55)" />
-                  <Text style={styles.ssoGoogleText}>المتابعة مع Google — قريبًا</Text>
-                </View>
+                <TouchableOpacity
+                  style={[styles.sso, styles.ssoGoogleActive]}
+                  activeOpacity={0.8}
+                  onPress={handleGoogleSignIn}
+                  disabled={googleLoading}
+                >
+                  {googleLoading ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <>
+                      <Ionicons name="logo-google" size={18} color="#fff" />
+                      <Text style={styles.ssoGoogleActiveText}>المتابعة مع Google</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
 
                 <TouchableOpacity
                   style={[styles.sso, styles.ssoMail]}
@@ -470,6 +492,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   ssoAppleText: { color: '#5b4538', fontWeight: '600', fontSize: 15 },
   ssoGoogle: { backgroundColor: 'rgba(255,255,255,0.14)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)' },
   ssoGoogleText: { color: 'rgba(255,255,255,0.65)', fontWeight: '600', fontSize: 15 },
+  ssoGoogleActive: { backgroundColor: 'rgba(255,255,255,0.14)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.5)' },
+  ssoGoogleActiveText: { color: '#fff', fontWeight: '600', fontSize: 15 },
   ssoMail: { backgroundColor: 'transparent', borderWidth: 1, borderColor: 'rgba(255,255,255,0.5)' },
   ssoMailText: { color: '#fff', fontWeight: '600', fontSize: 15 },
   heroGuest: { textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.8)', paddingTop: spacing.xs },

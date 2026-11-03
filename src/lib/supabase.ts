@@ -1,4 +1,5 @@
 import 'react-native-url-polyfill/auto';
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 
@@ -58,6 +59,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     storage: resilientStorage,
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false,
+    // Web needs this to pick up the access/refresh tokens Google OAuth
+    // appends to the redirect URL; native handles its own callback via
+    // expo-web-browser's auth session instead (see signInWithGoogle).
+    detectSessionInUrl: Platform.OS === 'web',
   },
 });
