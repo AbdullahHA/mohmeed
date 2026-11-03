@@ -16,7 +16,9 @@
         "NSFaceIDUsageDescription": "نستخدم Face ID عشان نحمي مستنداتك الخاصة.",
         "NSPhotoLibraryUsageDescription": "عشان تضيف صور لمنشوراتك ومستنداتك.",
         "NSCameraUsageDescription": "عشان تصوّر تذاكرك وحجوزاتك.",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "ExpoLocalization_supportsRTL": true,
+        "ExpoLocalization_forcesRTL": true
       },
       "config": {
         "usesNonExemptEncryption": false
@@ -34,7 +36,11 @@
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
-        "USE_BIOMETRIC"
+        "USE_BIOMETRIC",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
       ]
     },
     "web": {
@@ -84,7 +90,11 @@
     "scheme": "yallansafer",
     "extra": {
       "supportsRTL": true,
-      "forcesRTL": true
-    }
+      "forcesRTL": true,
+      "eas": {
+        "projectId": "5597a6a3-0fc9-4d3a-83ca-1ec3cdebb952"
+      }
+    },
+    "owner": "abdullbmo"
   }
 }
