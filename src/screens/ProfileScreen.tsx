@@ -111,8 +111,6 @@ export default function ProfileScreen() {
 
   const myTemplates = tripTemplates.filter((t) => t.isMine);
 
-  const stampCount = visitedDestinations.length + manualVisitedPlaces.length;
-
   // Real countries only (destinations tagged with a country) — never a made-up figure.
   const countriesVisited = useMemo(() => {
     const set = new Set(visitedDestinations.map((v) => v.destination.country).filter(Boolean));
@@ -207,6 +205,15 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <DesertHero style={styles.cover}>
+          {profile ? (
+            <TouchableOpacity
+              style={styles.editHeroButton}
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('EditProfile')}
+            >
+              <Ionicons name="pencil-outline" size={16} color="#fff" />
+            </TouchableOpacity>
+          ) : null}
           <TouchableOpacity
             style={styles.settingsButton}
             activeOpacity={0.8}
@@ -226,7 +233,7 @@ export default function ProfileScreen() {
             >
               <PersonAvatar avatarUrl={currentUser.avatarUrl} size={80} style={styles.avatarInner} />
             </LinearGradient>
-            {profile && stampCount > 0 ? (
+            {profile ? (
               <View style={styles.levelPill}>
                 <Ionicons name="trophy-outline" size={13} color={colors.accentDark} />
                 <Text style={styles.levelPillText}>{travelerLevel.label}</Text>
@@ -324,23 +331,23 @@ export default function ProfileScreen() {
           {profile ? (
             <View style={styles.actionsRow}>
               <TouchableOpacity
-                style={[styles.btn, styles.btnPrimary]}
+                style={[styles.btn, styles.btnGhost, styles.btnIconOnly]}
                 activeOpacity={0.85}
-                onPress={() => navigation.navigate('EditProfile')}
+                onPress={() => requireAccount('friend', () => navigation.navigate('AddFriend'))}
               >
-                <Ionicons name="pencil-outline" size={14} color={colors.textOnPrimary} />
-                <Text style={styles.btnPrimaryText}>تعديل الملف</Text>
+                <Ionicons name="person-add-outline" size={16} color={colors.text} />
               </TouchableOpacity>
               <TouchableOpacity style={[styles.btn, styles.btnGhost]} activeOpacity={0.85} onPress={handleShare}>
                 <Ionicons name="share-outline" size={14} color={colors.text} />
                 <Text style={styles.btnGhostText}>مشاركة</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.btn, styles.btnGhost, styles.btnIconOnly]}
+                style={[styles.btn, styles.btnPrimary]}
                 activeOpacity={0.85}
-                onPress={() => requireAccount('friend', () => navigation.navigate('AddFriend'))}
+                onPress={() => navigation.navigate('EditProfile')}
               >
-                <Ionicons name="person-add-outline" size={16} color={colors.text} />
+                <Ionicons name="pencil-outline" size={14} color={colors.textOnPrimary} />
+                <Text style={styles.btnPrimaryText}>تعديل الملف</Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -764,6 +771,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     position: 'absolute',
     top: spacing.md,
     right: spacing.lg,
+    width: 34,
+    height: 34,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  editHeroButton: {
+    position: 'absolute',
+    top: spacing.md,
+    left: spacing.lg,
     width: 34,
     height: 34,
     borderRadius: radius.pill,
