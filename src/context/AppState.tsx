@@ -107,7 +107,7 @@ type AppStateValue = {
   addMember: (tripId: string, friendId: string) => Promise<void>;
   addBudgetItem: (tripId: string, item: Omit<BudgetItem, 'id'>) => Promise<void>;
   removeBudgetItem: (tripId: string, itemId: string) => Promise<void>;
-  addItineraryItem: (tripId: string, item: Omit<ItineraryItem, 'id' | 'addedBy'>) => Promise<void>;
+  addItineraryItem: (tripId: string, item: Omit<ItineraryItem, 'id' | 'addedBy'>) => Promise<ItineraryItem | null>;
   removeItineraryItem: (tripId: string, itemId: string) => Promise<void>;
   addChecklistItem: (tripId: string, item: Omit<ChecklistItem, 'id' | 'done'>) => Promise<void>;
   toggleChecklistItem: (tripId: string, itemId: string) => Promise<void>;
@@ -970,8 +970,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     await supabase.from('budget_items').delete().eq('id', itemId);
   };
 
-  const addItineraryItem = async (tripId: string, item: Omit<ItineraryItem, 'id' | 'addedBy'>) => {
-    if (!profile) return;
+  const addItineraryItem = async (tripId: string, item: Omit<ItineraryItem, 'id' | 'addedBy'>): Promise<ItineraryItem | null> => {
+    if (!profile) return null;
     const { data, error } = await supabase
       .from('itinerary_items')
       .insert({
@@ -988,8 +988,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       })
       .select()
       .single();
-    if (error || !data) return;
-    updateTripLocal(tripId, (t) => ({ ...t, itinerary: [...t.itinerary, mapItineraryRow(data)] }));
+    if (error || !data) return null;
+    const mapped = mapItineraryRow(data);
+    updateTripLocal(tripId, (t) => ({ ...t, itinerary: [...t.itinerary, mapped] }));
+    return mapped;
   };
 
   const removeItineraryItem = async (tripId: string, itemId: string) => {

@@ -32,7 +32,7 @@ type Tab = 'schedule' | 'budget' | 'checklist';
 
 const CATEGORIES: BudgetCategory[] = ['hotels', 'food', 'transport', 'activities', 'other'];
 const CHECKLIST_GROUPS: ChecklistGroup[] = ['الحجوزات', 'الشنطة', 'الأوراق', 'أخرى'];
-const SLOT_ORDER: ItinerarySlot[] = ['morning', 'afternoon', 'evening'];
+const SLOT_ORDER: ItinerarySlot[] = ['breakfast', 'morning', 'lunch', 'afternoon', 'dinner', 'evening'];
 
 export default function TripDetailScreen() {
   const navigation = useNavigation<Nav>();

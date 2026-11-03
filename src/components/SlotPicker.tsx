@@ -13,20 +13,23 @@ export const SLOT_LABELS: Record<ItinerarySlot, string> = {
   dinner: 'عشاء',
 };
 
-const SLOTS: ItinerarySlot[] = ['morning', 'afternoon', 'evening'];
+const TIME_SLOTS: ItinerarySlot[] = ['morning', 'afternoon', 'evening'];
+const MEAL_SLOTS: ItinerarySlot[] = ['breakfast', 'lunch', 'dinner'];
 
 type Props = {
   value: ItinerarySlot | null;
   onChange: (slot: ItinerarySlot | null) => void;
+  variant?: 'time' | 'meal';
 };
 
-export default function SlotPicker({ value, onChange }: Props) {
+export default function SlotPicker({ value, onChange, variant = 'time' }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+  const slots = variant === 'meal' ? MEAL_SLOTS : TIME_SLOTS;
 
   return (
     <View style={styles.row}>
-      {SLOTS.map((slot) => {
+      {slots.map((slot) => {
         const active = value === slot;
         return (
           <TouchableOpacity

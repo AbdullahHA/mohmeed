@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -6,11 +6,14 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
+import { useAuth } from '../context/AuthContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import { getMapsUrl } from '../utils/place';
-import TripPickerModal from './TripPickerModal';
+import { supabase } from '../lib/supabase';
+import AddToTripSheet from './AddToTripSheet';
+import AddedToast from './AddedToast';
 import type { RootStackParamList } from '../navigation/types';
-import type { Trip } from '../types';
+import type { Trip, ItinerarySlot } from '../types';
 import { PLACE_TYPE_LABELS, type Place } from '../data/places';
 
 type Props = {
@@ -24,9 +27,11 @@ export default function PlaceCard({ place, onPress }: Props) {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { trips, addItineraryItem, recommendedPlaceIds, toggleRecommended } = useAppState();
+  const { trips, addItineraryItem, removeItineraryItem, recommendedPlaceIds, toggleRecommended } = useAppState();
+  const { profile } = useAuth();
   const { requireAccount } = useRequireAccount();
   const [pickerVisible, setPickerVisible] = useState(false);
+  const [toast, setToast] = useState<{ tripId: string; tripTitle: string; itemId: string } | null>(null);
   const mapsUrl = getMapsUrl(place.coordinate);
   const isRecommended = recommendedPlaceIds.includes(place.id);
 
@@ -40,19 +45,35 @@ export default function PlaceCard({ place, onPress }: Props) {
     });
   };
 
-  const handleSelectTrip = (trip: Trip) => {
-    addItineraryItem(trip.id, {
-      day: 'غير محدد',
-      time: '—',
+  const handleAdd = async (trip: Trip, day: string | null, slot: ItinerarySlot | null, notifyGroup: boolean) => {
+    const WEEKDAY = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const dayLabel = day ? WEEKDAY[new Date(day + 'T00:00:00').getDay()] : 'غير محدد';
+    const created = await addItineraryItem(trip.id, {
+      day: dayLabel,
+      time: slot ?? '—',
       title: place.name,
-      itemDate: null,
-      slot: null,
+      itemDate: day,
+      slot,
       placeId: place.id,
       kind: 'place',
     });
     setPickerVisible(false);
-    navigation.navigate('TripDetail', { tripId: trip.id });
+    if (!created) return;
+    if (notifyGroup && profile) {
+      await supabase.from('trip_messages').insert({
+        trip_id: trip.id,
+        from_id: profile.id,
+        text: `أضاف ${place.name} للجدول${day ? ` — ${dayLabel}` : ''}`,
+      });
+    }
+    setToast({ tripId: trip.id, tripTitle: trip.title, itemId: created.id });
   };
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 5000);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   return (
     <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={onPress}>
@@ -121,13 +142,32 @@ export default function PlaceCard({ place, onPress }: Props) {
         </View>
       </View>
 
-      <TripPickerModal
+      <AddToTripSheet
         visible={pickerVisible}
-        title={`أضف "${place.name}" لجدول أي رحلة؟`}
+        placeName={place.name}
+        isRestaurant={place.type === 'restaurant'}
         trips={trips}
-        onSelect={handleSelectTrip}
         onClose={() => setPickerVisible(false)}
+        onAdd={handleAdd}
+        onNewTrip={() => {
+          setPickerVisible(false);
+          navigation.navigate('CreateTrip');
+        }}
       />
+
+      {toast ? (
+        <AddedToast
+          tripTitle={toast.tripTitle}
+          onUndo={() => {
+            removeItineraryItem(toast.tripId, toast.itemId);
+            setToast(null);
+          }}
+          onViewSchedule={() => {
+            navigation.navigate('TripDetail', { tripId: toast.tripId });
+            setToast(null);
+          }}
+        />
+      ) : null}
     </TouchableOpacity>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -16,13 +16,16 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import PlaceMiniMap from '../components/PlaceMiniMap';
-import TripPickerModal from '../components/TripPickerModal';
+import AddToTripSheet from '../components/AddToTripSheet';
+import AddedToast from '../components/AddedToast';
 import { getMapsUrl } from '../utils/place';
 import { useAppState } from '../context/AppState';
+import { useAuth } from '../context/AuthContext';
 import { useContent } from '../context/ContentContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
+import { supabase } from '../lib/supabase';
 import { PLACE_TYPE_LABELS } from '../data/places';
-import type { Trip } from '../types';
+import type { Trip, ItinerarySlot } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'PlaceDetail'>;
@@ -42,11 +45,19 @@ export default function PlaceDetailScreen() {
   const route = useRoute<Route>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { recommendedPlaceIds, toggleRecommended, trips, addItineraryItem } = useAppState();
+  const { recommendedPlaceIds, toggleRecommended, trips, addItineraryItem, removeItineraryItem } = useAppState();
+  const { profile } = useAuth();
   const { requireAccount } = useRequireAccount();
   const { places, destinations } = useContent();
   const place = places.find((p) => p.id === route.params.placeId);
   const [pickerVisible, setPickerVisible] = useState(false);
+  const [toast, setToast] = useState<{ tripId: string; tripTitle: string; itemId: string } | null>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 5000);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   if (!place) {
     return (
@@ -71,18 +82,28 @@ export default function PlaceDetailScreen() {
     });
   };
 
-  const handleSelectTrip = (trip: Trip) => {
-    addItineraryItem(trip.id, {
-      day: 'غير محدد',
-      time: '—',
+  const handleAdd = async (trip: Trip, day: string | null, slot: ItinerarySlot | null, notifyGroup: boolean) => {
+    const WEEKDAY = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const dayLabel = day ? WEEKDAY[new Date(day + 'T00:00:00').getDay()] : 'غير محدد';
+    const created = await addItineraryItem(trip.id, {
+      day: dayLabel,
+      time: slot ?? '—',
       title: place.name,
-      itemDate: null,
-      slot: null,
+      itemDate: day,
+      slot,
       placeId: place.id,
       kind: 'place',
     });
     setPickerVisible(false);
-    navigation.navigate('TripDetail', { tripId: trip.id });
+    if (!created) return;
+    if (notifyGroup && profile) {
+      await supabase.from('trip_messages').insert({
+        trip_id: trip.id,
+        from_id: profile.id,
+        text: `أضاف ${place.name} للجدول${day ? ` — ${dayLabel}` : ''}`,
+      });
+    }
+    setToast({ tripId: trip.id, tripTitle: trip.title, itemId: created.id });
   };
 
   return (
@@ -200,13 +221,32 @@ export default function PlaceDetailScreen() {
         </TouchableOpacity>
       </View>
 
-      <TripPickerModal
+      <AddToTripSheet
         visible={pickerVisible}
-        title={`أضف "${place.name}" لجدول أي رحلة؟`}
+        placeName={place.name}
+        isRestaurant={place.type === 'restaurant'}
         trips={trips}
-        onSelect={handleSelectTrip}
         onClose={() => setPickerVisible(false)}
+        onAdd={handleAdd}
+        onNewTrip={() => {
+          setPickerVisible(false);
+          navigation.navigate('CreateTrip');
+        }}
       />
+
+      {toast ? (
+        <AddedToast
+          tripTitle={toast.tripTitle}
+          onUndo={() => {
+            removeItineraryItem(toast.tripId, toast.itemId);
+            setToast(null);
+          }}
+          onViewSchedule={() => {
+            navigation.navigate('TripDetail', { tripId: toast.tripId });
+            setToast(null);
+          }}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
