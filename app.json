@@ -1,25 +1,86 @@
 {
   "expo": {
-    "name": "mohmeed",
+    "name": "يلا نسافر",
     "slug": "mohmeed",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "app.yallansafer",
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "CFBundleDevelopmentRegion": "ar",
+        "NSLocationWhenInUseUsageDescription": "نستخدم موقعك عشان نقترح أماكن قريبة، ونحسب وقت المشوار وأوقات الصلاة.",
+        "NSFaceIDUsageDescription": "نستخدم Face ID عشان نحمي مستنداتك الخاصة.",
+        "NSPhotoLibraryUsageDescription": "عشان تضيف صور لمنشوراتك ومستنداتك.",
+        "NSCameraUsageDescription": "عشان تصوّر تذاكرك وحجوزاتك."
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0151e3",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "app.yallansafer",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "USE_BIOMETRIC"
+      ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "name": "يلا نسافر",
+      "lang": "ar",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#f6f8fb",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "dark": {
+            "backgroundColor": "#10162a"
+          }
+        }
+      ],
+      "expo-image",
+      "expo-secure-store",
+      "expo-sharing",
+      [
+        "expo-localization",
+        {
+          "supportsRTL": true,
+          "forcesRTL": true
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "نستخدم موقعك عشان نقترح أماكن قريبة، ونحسب وقت المشوار وأوقات الصلاة."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "نستخدم Face ID عشان نحمي مستنداتك الخاصة."
+        }
+      ],
+      "expo-notifications",
+      "expo-web-browser"
+    ],
+    "scheme": "yallansafer",
+    "extra": {
+      "supportsRTL": true,
+      "forcesRTL": true
     }
   }
 }

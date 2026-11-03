@@ -112,7 +112,7 @@ export const type = {
   bodyStrong: { fontFamily: fonts.semibold, fontSize: 14, lineHeight: 24 },
   caption: { fontFamily: fonts.regular, fontSize: 12, lineHeight: 18 }, // النص الثانوي
   badge: { fontFamily: fonts.semibold, fontSize: 11, lineHeight: 16 },
-  stat: { fontFamily: fonts.bold, fontSize: 17, lineHeight: 24, fontVariant: ["tabular-nums"] as const },
+  stat: { fontFamily: fonts.bold, fontSize: 17, lineHeight: 24, fontVariant: ["tabular-nums"] as "tabular-nums"[] },
   button: { fontFamily: fonts.semibold, fontSize: 14, lineHeight: 20 },
 } as const;
 
