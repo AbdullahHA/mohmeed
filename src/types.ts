@@ -176,6 +176,13 @@ export type TravelPost = {
   createdAt: number;
 };
 
+// A travel post from someone the current user follows, for the home
+// screen's "من مجتمعك" feed.
+export type FeedPost = {
+  post: TravelPost;
+  author: { id: string; name: string; username: string; avatarUrl: string | null };
+};
+
 // Minimal public profile info for the other-user ("كما يشوفه غيري") view.
 export type PublicProfile = {
   id: string;

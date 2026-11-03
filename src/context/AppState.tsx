@@ -27,6 +27,7 @@ import type {
   PlaceSearchResult,
   CheckInRecord,
   TravelPost,
+  FeedPost,
   TripWindow,
   MeetupMatch,
   PublicProfile,
@@ -146,6 +147,7 @@ type AppStateValue = {
   addTravelPost: (imageUrl: string, caption: string, destinationId: string | null) => Promise<{ error: string | null }>;
   removeTravelPost: (id: string) => void;
   loadUserPosts: (userId: string) => Promise<TravelPost[]>;
+  loadFollowingFeed: (limit?: number) => Promise<FeedPost[]>;
   meetupMatches: MeetupMatch[];
 };
 
@@ -593,6 +595,30 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
     return (data ?? []).map(mapPostRow);
+  };
+
+  // Travel posts from people the current user follows, newest first — the
+  // home screen's "من مجتمعك" section. No likes/comments exist yet, so the
+  // feed only shows real post content, not fabricated engagement counts.
+  const loadFollowingFeed = async (limit = 6): Promise<FeedPost[]> => {
+    if (followingIds.length === 0) return [];
+    const { data } = await supabase
+      .from('travel_posts')
+      .select('id,user_id,image_url,caption,destination_id,created_at,author:profiles!travel_posts_user_id_fkey(id,name,username,avatar_url)')
+      .in('user_id', followingIds)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    return ((data ?? []) as any[])
+      .filter((row) => row.author)
+      .map((row) => ({
+        post: mapPostRow(row),
+        author: {
+          id: row.author.id,
+          name: row.author.name,
+          username: row.author.username,
+          avatarUrl: row.author.avatar_url,
+        },
+      }));
   };
 
   const mirrorTripWindow = (trip: Trip) => {
@@ -1150,6 +1176,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       addTravelPost,
       removeTravelPost,
       loadUserPosts,
+      loadFollowingFeed,
       meetupMatches,
     }),
     [

@@ -5,26 +5,29 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  ImageBackground,
   TouchableOpacity,
   TextInput,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
-import TopBar from '../components/TopBar';
+import DesertHero from '../components/DesertHero';
 import SectionHeader from '../components/SectionHeader';
 import DestinationCard from '../components/DestinationCard';
 import FilterChip from '../components/FilterChip';
+import PersonAvatar from '../components/PersonAvatar';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
-import { heroDestination, INTEREST_TAGS } from '../data/destinations';
+import { INTEREST_TAGS } from '../data/destinations';
 import { seasonalHighlights } from '../data/seasonalHighlights';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
+import type { FeedPost } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
 const ONBOARDING_QUIZ_SEEN_PREFIX = 'yalla-nsafer:onboarding-quiz-seen:';
@@ -36,16 +39,27 @@ const MONTH_NAMES = [
   'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
 ];
 
+const GUIDE_SUGGESTIONS = ['ويكند قريب من الرياض', 'رحلة بميزانية محدودة', 'وجهة تناسب العائلة'];
+
+function greeting() {
+  const hour = new Date().getHours();
+  if (hour < 5) return 'مساء الخير';
+  if (hour < 12) return 'صباح الخير';
+  if (hour < 17) return 'نهارك سعيد';
+  return 'مساء الخير';
+}
+
 export default function HomeScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { trips, sendGuideMessage } = useAppState();
+  const { trips, sendGuideMessage, currentUser, loadFollowingFeed, followingIds } = useAppState();
   const { requireAccount } = useRequireAccount();
   const { destinations, offline } = useContent();
   const { profile } = useAuth();
   const [query, setQuery] = useState('');
   const [activeInterest, setActiveInterest] = useState<string | null>(null);
+  const [feed, setFeed] = useState<FeedPost[]>([]);
 
   useEffect(() => {
     if (!profile || profile.interests.length > 0) return;
@@ -57,6 +71,14 @@ export default function HomeScreen() {
     });
   }, [profile?.id]);
 
+  useEffect(() => {
+    if (!profile || followingIds.length === 0) {
+      setFeed([]);
+      return;
+    }
+    loadFollowingFeed(4).then(setFeed);
+  }, [profile?.id, followingIds.length]);
+
   const currentMonth = new Date().getMonth() + 1;
   const monthlyDestinations = useMemo(() => {
     const matches = destinations.filter((d) => d.bestMonths.includes(currentMonth));
@@ -64,14 +86,16 @@ export default function HomeScreen() {
   }, [currentMonth, destinations]);
 
   const nextTrip = trips[0];
+  const daysUntilTrip = nextTrip ? Math.ceil((new Date(nextTrip.startDate).getTime() - Date.now()) / 86400000) : null;
+  const tripBudgetSpent = nextTrip ? nextTrip.budgetItems.reduce((sum, i) => sum + i.amount, 0) : 0;
 
   const filteredAllDestinations = useMemo(() => {
     if (!activeInterest) return destinations;
     return destinations.filter((d) => d.interests.includes(activeInterest));
   }, [activeInterest, destinations]);
 
-  const askGuide = () => {
-    const trimmed = query.trim();
+  const askGuide = (text?: string) => {
+    const trimmed = (text ?? query).trim();
     if (!trimmed) return;
     sendGuideMessage(trimmed);
     setQuery('');
@@ -80,7 +104,6 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar />
       {offline ? (
         <View style={styles.offlineBanner}>
           <Ionicons name="cloud-offline-outline" size={14} color={colors.textMuted} />
@@ -88,95 +111,155 @@ export default function HomeScreen() {
         </View>
       ) : null}
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <ImageBackground
-          source={heroDestination.image}
-          style={styles.hero}
-          imageStyle={styles.heroImage}
-        >
-          <View style={styles.heroOverlay} />
-          <View style={styles.heroTextWrap}>
-            <Text style={styles.heroTitle}>رفيقك في كل رحلة</Text>
-            <Text style={styles.heroSubtitle}>اكتشف، خطط، وشارك رحلتك مع أصدقائك</Text>
+        <View style={styles.apphead}>
+          <View style={styles.hi}>
+            <PersonAvatar avatarUrl={currentUser.avatarUrl} size={40} />
+            <View>
+              <Text style={styles.hiGreeting}>{greeting()}</Text>
+              <Text style={styles.hiName}>{currentUser.name}</Text>
+            </View>
           </View>
-        </ImageBackground>
+        </View>
 
-        <View style={styles.quickActions}>
+        {nextTrip && daysUntilTrip !== null ? (
           <TouchableOpacity
-            style={styles.quickAction}
+            style={styles.nextTripWrap}
+            activeOpacity={0.9}
+            onPress={() => navigation.navigate('TripDetail', { tripId: nextTrip.id })}
+          >
+            <DesertHero dark style={styles.nextTripBg}>
+              {daysUntilTrip >= 0 ? (
+                <View style={styles.countBadge}>
+                  <Text style={styles.countBadgeNum}>{daysUntilTrip}</Text>
+                  <Text style={styles.countBadgeLabel}>{daysUntilTrip === 1 ? 'يوم' : 'أيام'}</Text>
+                </View>
+              ) : null}
+              <View style={styles.nextTripIn}>
+                <Text style={styles.nextTripLbl}>رحلتك الجاية</Text>
+                <Text style={styles.nextTripTitle}>{nextTrip.title}</Text>
+                <View style={styles.glassRow}>
+                  <View style={styles.glassChip}>
+                    <Ionicons name="calendar-outline" size={12} color="#fff" />
+                    <Text style={styles.glassChipText}>{nextTrip.startDate} – {nextTrip.endDate}</Text>
+                  </View>
+                  {tripBudgetSpent > 0 ? (
+                    <View style={styles.glassChip}>
+                      <Ionicons name="wallet-outline" size={12} color="#fff" />
+                      <Text style={styles.glassChipText}>
+                        {tripBudgetSpent.toLocaleString()} / {nextTrip.budgetTotal.toLocaleString()} ﷼
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+              </View>
+            </DesertHero>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.nextTripWrap}>
+            <DesertHero dark style={styles.nextTripBg}>
+              <View style={styles.nextTripIn}>
+                <Text style={styles.nextTripTitle}>رفيقك في كل رحلة</Text>
+                <TouchableOpacity
+                  style={styles.planTripBtn}
+                  activeOpacity={0.85}
+                  onPress={() => requireAccount('trip', () => navigation.navigate('CreateTrip'))}
+                >
+                  <Ionicons name="add" size={14} color="#141a2b" />
+                  <Text style={styles.planTripBtnText}>خطط رحلتك الأولى</Text>
+                </TouchableOpacity>
+              </View>
+            </DesertHero>
+          </View>
+        )}
+
+        <View style={styles.askCard}>
+          <View style={styles.askTop}>
+            <View style={styles.askIcon}>
+              <Ionicons name="compass-outline" size={18} color={colors.textOnPrimary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.askTitle}>دليل السفر</Text>
+              <Text style={styles.askSubtitle}>اسأله عن أي وجهة، يخطط لك في ثواني</Text>
+            </View>
+          </View>
+          <View style={styles.askIn}>
+            <TextInput
+              style={styles.askInput}
+              placeholder="وين تحب تسافر؟ أو أي شهر يناسبك؟"
+              placeholderTextColor={colors.textFaint}
+              value={query}
+              onChangeText={setQuery}
+              onSubmitEditing={() => askGuide()}
+              textAlign="right"
+            />
+            <TouchableOpacity style={styles.askGo} activeOpacity={0.8} onPress={() => askGuide()}>
+              <Ionicons name="send" size={14} color="#fff" />
+            </TouchableOpacity>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.suggRow}>
+            {GUIDE_SUGGESTIONS.map((s) => (
+              <TouchableOpacity key={s} style={styles.suggChip} activeOpacity={0.8} onPress={() => askGuide(s)}>
+                <Text style={styles.suggChipText}>{s}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        <View style={styles.qact}>
+          <TouchableOpacity
+            style={styles.qactItem}
             activeOpacity={0.85}
             onPress={() => requireAccount('trip', () => navigation.navigate('CreateTrip'))}
           >
-            <View style={styles.quickActionBadge}>
-              <Ionicons name="add-circle-outline" size={26} color={colors.primary} />
-            </View>
-            <Text style={styles.quickActionText}>خطط رحلة</Text>
+            <View style={styles.qactIcon}><Ionicons name="add" size={22} color={colors.primary} /></View>
+            <Text style={styles.qactText}>خطط رحلة</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.quickAction}
+            style={styles.qactItem}
             activeOpacity={0.85}
             onPress={() => navigation.navigate('MainTabs', { screen: 'Discover' })}
           >
-            <View style={styles.quickActionBadge}>
-              <Ionicons name="search" size={26} color={colors.primary} />
-            </View>
-            <Text style={styles.quickActionText}>استكشف</Text>
+            <View style={styles.qactIcon}><Ionicons name="search" size={20} color={colors.primary} /></View>
+            <Text style={styles.qactText}>اكتشف</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.quickAction}
+            style={styles.qactItem}
             activeOpacity={0.85}
-            onPress={() => navigation.navigate('MainTabs', { screen: 'Chat' })}
+            onPress={() => requireAccount('trip', () => navigation.navigate('JoinTrip'))}
           >
-            <View style={styles.quickActionBadge}>
-              <Ionicons name="chatbubble-outline" size={26} color={colors.primary} />
-            </View>
-            <Text style={styles.quickActionText}>تحدث معنا</Text>
+            <View style={styles.qactIcon}><Ionicons name="key-outline" size={20} color={colors.primary} /></View>
+            <Text style={styles.qactText}>رمز دعوة</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.quickAction}
+            style={styles.qactItem}
             activeOpacity={0.85}
             onPress={() => requireAccount('checkIn', () => navigation.navigate('CheckInSearch'))}
           >
-            <View style={styles.quickActionBadge}>
-              <Ionicons name="location-outline" size={26} color={colors.primary} />
-            </View>
-            <Text style={styles.quickActionText}>تسجيل وصول</Text>
+            <View style={styles.qactIcon}><Ionicons name="location-outline" size={20} color={colors.primary} /></View>
+            <Text style={styles.qactText}>سجّل وصول</Text>
           </TouchableOpacity>
-        </View>
-
-        <View style={styles.aiSearchBar}>
-          <TouchableOpacity onPress={askGuide} activeOpacity={0.8}>
-            <Ionicons name="paper-plane-outline" size={18} color={colors.primary} />
-          </TouchableOpacity>
-          <TextInput
-            style={styles.aiInput}
-            placeholder="وين تحب تسافر؟ أو أي شهر يناسبك؟"
-            placeholderTextColor={colors.textFaint}
-            value={query}
-            onChangeText={setQuery}
-            onSubmitEditing={askGuide}
-            textAlign="right"
-          />
         </View>
 
         <SectionHeader title="لفتات الموسم" />
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.highlightsRow}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.storiesRow}>
           {seasonalHighlights.map((highlight) => (
             <TouchableOpacity
               key={highlight.id}
-              style={styles.highlightItem}
+              style={styles.storyItem}
               activeOpacity={0.85}
               onPress={() => navigation.navigate('DestinationDetail', { destinationId: highlight.destinationId })}
             >
-              <View style={[styles.highlightAvatar, { borderColor: highlight.color }]}>
-                <Text style={styles.highlightEmoji}>{highlight.emoji}</Text>
-              </View>
-              <Text style={styles.highlightLabel} numberOfLines={2}>
-                {highlight.label}
-              </Text>
+              <LinearGradient
+                colors={[highlight.color, colors.accent, highlight.color]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.storyRing}
+              >
+                <View style={styles.storyAvatar}>
+                  <Text style={styles.storyEmoji}>{highlight.emoji}</Text>
+                </View>
+              </LinearGradient>
+              <Text style={styles.storyLabel} numberOfLines={2}>{highlight.label}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -186,11 +269,7 @@ export default function HomeScreen() {
           actionLabel="اسأل الدليل"
           onActionPress={() => navigation.navigate('GuideChat')}
         />
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.destinationsRow}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.destinationsRow}>
           {monthlyDestinations.map((destination) => (
             <DestinationCard
               key={destination.id}
@@ -200,63 +279,42 @@ export default function HomeScreen() {
           ))}
         </ScrollView>
 
-        <SectionHeader
-          title="رحلاتك القادمة"
-          actionLabel="عرض الكل"
-          onActionPress={() => navigation.navigate('MainTabs', { screen: 'Trips' })}
-        />
-        {nextTrip ? (
-          <TouchableOpacity
-            style={styles.tripPreview}
-            activeOpacity={0.85}
-            onPress={() => navigation.navigate('TripDetail', { tripId: nextTrip.id })}
-          >
-            <ImageBackground
-              source={nextTrip.coverImage}
-              style={styles.tripPreviewImage}
-              imageStyle={styles.heroImage}
-            >
-              <View style={styles.heroOverlay} />
-              <View style={styles.tripPreviewTextWrap}>
-                <Text style={styles.tripPreviewTitle}>{nextTrip.title}</Text>
-                <Text style={styles.tripPreviewSubtitle}>
-                  {nextTrip.startDate} · {nextTrip.memberIds.length} أشخاص
-                </Text>
-              </View>
-            </ImageBackground>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={styles.emptyTripCard}
-            activeOpacity={0.85}
-            onPress={() => requireAccount('trip', () => navigation.navigate('CreateTrip'))}
-          >
-            <Ionicons name="airplane-outline" size={22} color={colors.primary} />
-            <Text style={styles.emptyTripText}>ما عندك رحلات بعد، ابدأ رحلتك الأولى</Text>
-          </TouchableOpacity>
-        )}
+        {profile && followingIds.length > 0 ? (
+          <>
+            <SectionHeader title="من مجتمعك" />
+            {feed.length === 0 ? (
+              <Text style={styles.emptyMuted}>ما فيه مدونات جديدة من اللي تتابعهم حالياً</Text>
+            ) : (
+              feed.map(({ post, author }) => (
+                <TouchableOpacity
+                  key={post.id}
+                  style={styles.feedCard}
+                  activeOpacity={0.9}
+                  onPress={() => navigation.navigate('UserProfile', { userId: author.id })}
+                >
+                  <View style={styles.feedWho}>
+                    <PersonAvatar avatarUrl={author.avatarUrl} size={28} />
+                    <View>
+                      <Text style={styles.feedAuthor}>{author.name}</Text>
+                      <Text style={styles.feedWhen}>كتب مدونة</Text>
+                    </View>
+                  </View>
+                  <Image source={{ uri: post.imageUrl }} style={styles.feedImage} />
+                  {post.caption ? <Text style={styles.feedCaption} numberOfLines={2}>{post.caption}</Text> : null}
+                </TouchableOpacity>
+              ))
+            )}
+          </>
+        ) : null}
 
         <SectionHeader title="كل الوجهات" />
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.interestChipsRow}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.interestChipsRow}>
           <FilterChip label="الكل" active={!activeInterest} onPress={() => setActiveInterest(null)} />
           {INTEREST_TAGS.map((tag) => (
-            <FilterChip
-              key={tag}
-              label={tag}
-              active={activeInterest === tag}
-              onPress={() => setActiveInterest(tag)}
-            />
+            <FilterChip key={tag} label={tag} active={activeInterest === tag} onPress={() => setActiveInterest(tag)} />
           ))}
         </ScrollView>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.destinationsRow}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.destinationsRow}>
           {filteredAllDestinations.length === 0 ? (
             <Text style={styles.emptyMuted}>ما فيه وجهات بهذا التصنيف حاليًا</Text>
           ) : (
@@ -290,13 +348,8 @@ export default function HomeScreen() {
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollContent: {
-    paddingBottom: 120,
-  },
+  container: { flex: 1, backgroundColor: colors.background },
+  scrollContent: { paddingBottom: 120 },
   offlineBanner: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -305,182 +358,158 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.lg,
   },
-  offlineText: {
-    color: colors.textMuted,
-    fontSize: 11,
-    fontWeight: '600',
+  offlineText: { color: colors.textMuted, fontSize: 11, fontWeight: '600' },
+  apphead: {
+    flexDirection: 'row-reverse',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md,
   },
-  hero: {
-    height: 220,
-    marginHorizontal: spacing.lg,
-    borderRadius: radius.lg,
-    overflow: 'hidden',
-    marginBottom: spacing.lg,
-    justifyContent: 'flex-end',
-  },
-  heroImage: {
-    borderRadius: radius.lg,
-  },
-  heroOverlay: {
+  hi: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
+  hiGreeting: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right' },
+  hiName: { color: colors.text, fontSize: 16, fontWeight: '800', textAlign: 'right' },
+  nextTripWrap: { marginHorizontal: spacing.lg, marginBottom: spacing.lg },
+  nextTripBg: { height: 190, borderRadius: radius.xl },
+  countBadge: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: colors.overlay,
+    top: spacing.md,
+    left: spacing.md,
+    backgroundColor: '#fff',
+    borderRadius: radius.lg,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    alignItems: 'center',
   },
-  heroTextWrap: {
-    padding: spacing.lg,
+  countBadgeNum: { color: '#141a2b', fontSize: 20, fontWeight: '800' },
+  countBadgeLabel: { color: '#6b7389', fontSize: 10 },
+  nextTripIn: { position: 'absolute', bottom: spacing.md, right: spacing.lg, left: spacing.lg, gap: spacing.xs },
+  nextTripLbl: { color: 'rgba(255,255,255,0.9)', fontSize: 11, fontWeight: '600', textAlign: 'right' },
+  nextTripTitle: { color: '#fff', fontSize: 19, fontWeight: '800', textAlign: 'right' },
+  glassRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 6 },
+  glassChip: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
   },
-  heroTitle: {
-    color: colors.textOnPrimary,
-    fontSize: 22,
-    fontWeight: '800',
-    textAlign: 'right',
+  glassChipText: { color: '#fff', fontSize: 10.5, fontWeight: '600' },
+  planTripBtn: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    gap: 4,
+    backgroundColor: '#fff',
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    marginTop: spacing.xs,
   },
-  heroSubtitle: {
-    color: 'rgba(255,255,255,0.9)',
-    fontSize: 13,
-    textAlign: 'right',
-    marginTop: 4,
+  planTripBtnText: { color: '#141a2b', fontSize: 12, fontWeight: '700' },
+  askCard: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    padding: spacing.md,
+    borderWidth: 1.5,
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.lg,
+    gap: spacing.sm,
   },
-  quickActions: {
+  askTop: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
+  askIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  askTitle: { color: colors.text, fontSize: 14, fontWeight: '800', textAlign: 'right' },
+  askSubtitle: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right' },
+  askIn: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.sm,
+    height: 44,
+  },
+  askInput: { flex: 1, color: colors.text, fontSize: 13 },
+  askGo: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  suggRow: { flexDirection: 'row-reverse', gap: spacing.xs },
+  suggChip: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 5,
+  },
+  suggChipText: { color: colors.text, fontSize: 11 },
+  qact: {
     flexDirection: 'row-reverse',
     paddingHorizontal: spacing.lg,
     gap: spacing.sm,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xl,
   },
-  quickAction: {
-    flex: 1,
+  qactItem: { flex: 1, alignItems: 'center', gap: spacing.xs },
+  qactIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: radius.lg,
+    backgroundColor: colors.primarySoft,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  qactText: { color: colors.text, fontSize: 11, fontWeight: '600' },
+  storiesRow: { flexDirection: 'row-reverse', paddingHorizontal: spacing.lg, gap: spacing.md, marginBottom: spacing.xl },
+  storyItem: { alignItems: 'center', width: 68, gap: 4 },
+  storyRing: { width: 66, height: 66, borderRadius: 33, alignItems: 'center', justifyContent: 'center', padding: 2.5 },
+  storyAvatar: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 33,
+    backgroundColor: colors.surface,
+    borderWidth: 2,
+    borderColor: colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  storyEmoji: { fontSize: 24 },
+  storyLabel: { color: colors.text, fontSize: 10.5, fontWeight: '600', textAlign: 'center' },
+  destinationsRow: { flexDirection: 'row-reverse', paddingHorizontal: spacing.lg, marginBottom: spacing.xl },
+  interestChipsRow: { flexDirection: 'row-reverse', paddingHorizontal: spacing.lg, marginBottom: spacing.md },
+  emptyMuted: { color: colors.textFaint, fontSize: 12, paddingHorizontal: spacing.lg, marginBottom: spacing.lg },
+  feedCard: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.lg,
-    paddingVertical: spacing.lg,
-    gap: spacing.sm,
-  },
-  quickActionBadge: {
-    width: 56,
-    height: 56,
-    borderRadius: radius.pill,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  quickActionText: {
-    color: colors.text,
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  aiSearchBar: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    borderRadius: radius.pill,
-    marginHorizontal: spacing.lg,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    gap: spacing.sm,
-    marginBottom: spacing.xl,
-  },
-  aiInput: {
-    flex: 1,
-    color: colors.text,
-    fontSize: 13,
-  },
-  highlightsRow: {
-    flexDirection: 'row-reverse',
-    paddingHorizontal: spacing.lg,
-    gap: spacing.md,
-    marginBottom: spacing.xl,
-  },
-  highlightItem: {
-    alignItems: 'center',
-    width: 76,
-  },
-  highlightAvatar: {
-    width: 64,
-    height: 64,
-    borderRadius: radius.pill,
-    borderWidth: 2,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.xs,
-  },
-  highlightEmoji: {
-    fontSize: 26,
-  },
-  highlightLabel: {
-    color: colors.text,
-    fontSize: 11,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  interestChipsRow: {
-    flexDirection: 'row-reverse',
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.md,
-  },
-  destinationsRow: {
-    flexDirection: 'row-reverse',
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.xl,
-  },
-  emptyMuted: {
-    color: colors.textFaint,
-    fontSize: 12,
-    paddingHorizontal: spacing.lg,
-  },
-  tripPreview: {
-    height: 130,
-    marginHorizontal: spacing.lg,
-    borderRadius: radius.md,
-    overflow: 'hidden',
-    marginBottom: spacing.xl,
-  },
-  tripPreviewImage: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  tripPreviewTextWrap: {
     padding: spacing.md,
-  },
-  tripPreviewTitle: {
-    color: colors.textOnPrimary,
-    fontSize: 16,
-    fontWeight: '700',
-    textAlign: 'right',
-  },
-  tripPreviewSubtitle: {
-    color: 'rgba(255,255,255,0.85)',
-    fontSize: 12,
-    textAlign: 'right',
-    marginTop: 2,
-  },
-  emptyTripCard: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
     gap: spacing.sm,
-    marginHorizontal: spacing.lg,
-    marginBottom: spacing.xl,
-    padding: spacing.lg,
-    backgroundColor: colors.primarySoft,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    borderStyle: 'dashed',
   },
-  emptyTripText: {
-    color: colors.primaryDark,
-    fontSize: 13,
-    fontWeight: '600',
-    flex: 1,
-    textAlign: 'right',
-  },
+  feedWho: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
+  feedAuthor: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
+  feedWhen: { color: colors.textMuted, fontSize: 10.5, textAlign: 'right' },
+  feedImage: { width: '100%', height: 160, borderRadius: radius.md },
+  feedCaption: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
   banner: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -500,19 +529,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  bannerTextWrap: {
-    flex: 1,
-  },
-  bannerTitle: {
-    color: colors.text,
-    fontSize: 14,
-    fontWeight: '700',
-    textAlign: 'right',
-  },
-  bannerSubtitle: {
-    color: colors.textMuted,
-    fontSize: 12,
-    textAlign: 'right',
-    marginTop: 2,
-  },
+  bannerTextWrap: { flex: 1 },
+  bannerTitle: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
+  bannerSubtitle: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
 });
