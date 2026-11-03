@@ -52,6 +52,7 @@ export default function TripDetailScreen() {
   const { destinations } = useContent();
   const {
     trips,
+    tripsOffline,
     friends,
     addMember,
     addBudgetItem,
@@ -262,6 +263,12 @@ export default function TripDetailScreen() {
 
         <View style={styles.body}>
           <Text style={styles.title}>{trip.title}</Text>
+          {tripsOffline ? (
+            <View style={styles.offlineBadge}>
+              <Ionicons name="cloud-offline-outline" size={12} color={colors.textMuted} />
+              <Text style={styles.offlineBadgeText}>محفوظ بدون نت</Text>
+            </View>
+          ) : null}
           <View style={styles.subtitleRow}>
             <Text style={styles.subtitle}>
               {trip.destination} · {trip.startDate} → {trip.endDate}
@@ -633,6 +640,18 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   glassGroup: { flexDirection: 'row-reverse', gap: spacing.sm },
   body: { padding: spacing.xl },
   title: { color: colors.text, fontSize: 22, fontWeight: '800', textAlign: 'right' },
+  offlineBadge: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    gap: 4,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    marginTop: spacing.xs,
+  },
+  offlineBadgeText: { color: colors.textMuted, fontSize: 10, fontWeight: '700' },
   subtitleRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, marginTop: 4, marginBottom: spacing.md },
   hijriSubtitle: { color: colors.textFaint, fontSize: 11.5, textAlign: 'right', marginTop: -4, marginBottom: spacing.sm },
   subtitle: { color: colors.textMuted, fontSize: 13 },

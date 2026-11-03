@@ -94,6 +94,7 @@ type AppStateValue = {
   friends: Friend[];
   trips: Trip[];
   tripsLoading: boolean;
+  tripsOffline: boolean;
   guideMessages: ChatMessage[];
   guideThinking: boolean;
   communities: Community[];
@@ -244,6 +245,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [outgoingRequests, setOutgoingRequests] = useState<Friend[]>([]);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [tripsLoading, setTripsLoading] = useState(true);
+  const [tripsOffline, setTripsOffline] = useState(false);
   const [guideMessages, setGuideMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
   const [guideThinking, setGuideThinking] = useState(false);
   const [communities, setCommunities] = useState<Community[]>([]);
@@ -703,17 +705,59 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     'itinerary_items(id,day,time,title,note,item_date,slot,added_by,place_id,kind),' +
     'trip_checklist(id,group_name,title,assignee_id,due_date,done)';
 
+  const tripsCacheKey = (userId: string) => `yalla-nsafer:trips-cache:${userId}`;
+  // Tracks which profile's trips have actually finished loading (success or
+  // offline-fallback), so the persist effect below can't fire on the brief
+  // transient render where `profile` has just resolved but `tripsLoading` is
+  // still a stale `false` left over from an earlier early-return — which would
+  // otherwise overwrite the real offline cache with an empty array.
+  const tripsLoadedForRef = useRef<string | null>(null);
+
   const loadTrips = async () => {
     if (!profile) {
+      tripsLoadedForRef.current = null;
       setTrips([]);
       setTripsLoading(false);
+      setTripsOffline(false);
       return;
     }
     setTripsLoading(true);
-    const { data } = await supabase.from('trips').select(TRIP_SELECT).order('created_at', { ascending: false });
-    setTrips(((data ?? []) as any[]).map(mapTripRow));
-    setTripsLoading(false);
+    try {
+      const { data, error } = await supabase
+        .from('trips')
+        .select(TRIP_SELECT)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      const mapped = ((data ?? []) as any[]).map(mapTripRow);
+      setTrips(mapped);
+      setTripsOffline(false);
+      tripsLoadedForRef.current = profile.id;
+    } catch {
+      // Network/Supabase unavailable — fall back to the last offline-saved copy
+      // (SPEC §22.2: the trip schedule stays viewable without internet).
+      try {
+        const raw = await AsyncStorage.getItem(tripsCacheKey(profile.id));
+        if (raw) {
+          setTrips(JSON.parse(raw));
+          setTripsOffline(true);
+        }
+      } catch {
+        // corrupt cache — leave trips as they were
+      }
+      tripsLoadedForRef.current = profile.id;
+    } finally {
+      setTripsLoading(false);
+    }
   };
+
+  useEffect(() => {
+    if (!profile || tripsLoading || tripsOffline) return;
+    if (tripsLoadedForRef.current !== profile.id) return;
+    // Keep the offline copy in sync with every local change (not just a fresh
+    // fetch), so a trip created/edited while online is still there if the
+    // network drops right after — not just whatever the last full reload saw.
+    AsyncStorage.setItem(tripsCacheKey(profile.id), JSON.stringify(trips)).catch(() => {});
+  }, [trips, tripsLoading, tripsOffline, profile?.id]);
 
   const mirrorTripWindow = (trip: Trip) => {
     if (!profile) return;
@@ -1474,6 +1518,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       outgoingRequests,
       trips,
       tripsLoading,
+      tripsOffline,
       guideMessages,
       guideThinking,
       communities,
@@ -1560,6 +1605,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       outgoingRequests,
       trips,
       tripsLoading,
+      tripsOffline,
       guideMessages,
       guideThinking,
       communities,

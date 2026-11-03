@@ -22,7 +22,7 @@ export default function DayMapScreen() {
   const route = useRoute<Route>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { trips } = useAppState();
+  const { trips, tripsOffline } = useAppState();
   const { places } = useContent();
 
   const trip = trips.find((t) => t.id === route.params.tripId);
@@ -59,7 +59,11 @@ export default function DayMapScreen() {
           <Ionicons name="close" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>خريطة اليوم</Text>
-        <View style={{ width: 22 }} />
+        {tripsOffline ? (
+          <Ionicons name="cloud-offline-outline" size={18} color={colors.textMuted} />
+        ) : (
+          <View style={{ width: 22 }} />
+        )}
       </View>
 
       {tripDays.length > 0 ? (

@@ -44,6 +44,7 @@ export type ProfileUpdateFields = {
 };
 
 const GUEST_MODE_KEY = 'yalla-nsafer:guest-mode';
+const profileCacheKey = (userId: string) => `yalla-nsafer:profile-cache:${userId}`;
 
 type AuthState = {
   session: Session | null;
@@ -98,8 +99,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [guestMode, setGuestMode] = useState(false);
 
   const loadProfile = async (userId: string, email: string | null) => {
-    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
-    if (!error && data) setProfile(mapProfileRow(data, email));
+    try {
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+      if (error) throw error;
+      if (data) {
+        const mapped = mapProfileRow(data, email);
+        setProfile(mapped);
+        AsyncStorage.setItem(profileCacheKey(userId), JSON.stringify(mapped)).catch(() => {});
+      }
+    } catch {
+      // Network/Supabase unavailable — fall back to the last cached profile so
+      // the session doesn't vanish and the rest of the app (trips cache included)
+      // stays reachable without internet (SPEC §22.2).
+      try {
+        const raw = await AsyncStorage.getItem(profileCacheKey(userId));
+        if (raw) setProfile(JSON.parse(raw));
+      } catch {
+        // corrupt cache — leave profile as-is
+      }
+    }
   };
 
   useEffect(() => {
