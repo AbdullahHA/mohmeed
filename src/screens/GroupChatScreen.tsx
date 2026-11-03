@@ -19,7 +19,8 @@ import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import type { TripMessage } from '../types';
+import LogExpenseSheet from '../components/LogExpenseSheet';
+import { BUDGET_CATEGORY_LABELS, type BudgetCategory, type TripMessage } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'GroupChat'>;
@@ -40,7 +41,7 @@ export default function GroupChatScreen() {
   const route = useRoute<Route>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { trips } = useAppState();
+  const { trips, addBudgetItem } = useAppState();
   const { profile } = useAuth();
   const meId = profile?.id;
   const tripId = route.params.tripId;
@@ -51,6 +52,7 @@ export default function GroupChatScreen() {
   const [loading, setLoading] = useState(true);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
+  const [expenseSheetVisible, setExpenseSheetVisible] = useState(false);
   const listRef = useRef<FlatList<TripMessage>>(null);
 
   useEffect(() => {
@@ -117,6 +119,23 @@ export default function GroupChatScreen() {
     }
   };
 
+  const handleLogExpense = async (category: BudgetCategory, label: string, amount: number) => {
+    if (!meId || !trip) return;
+    setExpenseSheetVisible(false);
+    await addBudgetItem(trip.id, {
+      category,
+      label,
+      amount,
+      paidBy: meId,
+      splitBetween: trip.memberIds,
+    });
+    await supabase.from('trip_messages').insert({
+      trip_id: tripId,
+      from_id: meId,
+      text: `سجّل مصروف: ${label} — ${amount} ر.س (${BUDGET_CATEGORY_LABELS[category]})`,
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -127,6 +146,9 @@ export default function GroupChatScreen() {
           <Text style={styles.headerTitle}>{trip.title}</Text>
           <Text style={styles.headerSubtitle}>{trip.memberIds.length} أعضاء</Text>
         </View>
+        <TouchableOpacity onPress={() => setExpenseSheetVisible(true)} activeOpacity={0.8} hitSlop={8}>
+          <Ionicons name="wallet-outline" size={22} color={colors.primary} />
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('TripDetail', { tripId: trip.id })} activeOpacity={0.8}>
           <Ionicons name="information-circle-outline" size={22} color={colors.primary} />
         </TouchableOpacity>
@@ -174,6 +196,12 @@ export default function GroupChatScreen() {
           />
         </View>
       </KeyboardAvoidingView>
+
+      <LogExpenseSheet
+        visible={expenseSheetVisible}
+        onClose={() => setExpenseSheetVisible(false)}
+        onSubmit={handleLogExpense}
+      />
     </SafeAreaView>
   );
 }
