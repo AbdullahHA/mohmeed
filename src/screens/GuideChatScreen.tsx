@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -11,16 +11,22 @@ import {
   Animated,
   Easing,
   Alert,
+  Modal,
+  Pressable,
+  ScrollView,
 } from 'react-native';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
-import { radius, spacing } from '../theme/colors';
+import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 import type { RootStackParamList } from '../navigation/types';
+import type { ChatMessage, Trip } from '../types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -31,27 +37,25 @@ const SUGGESTIONS: Array<{ text: string; icon: keyof typeof Ionicons.glyphMap }>
   { text: 'وش أفضل وجهة أزورها بنوفمبر؟', icon: 'calendar-outline' },
 ];
 
-// Dark theme local to this screen only, matching the AI-assistant look
-// elsewhere in the product — kept separate from the app's light palette.
-const dark = {
-  background: '#0B0B10',
-  surface: '#1C1C22',
-  surfaceAlt: '#232329',
-  border: '#2E2E36',
-  text: '#F5F6F8',
-  textMuted: '#9A9AA4',
-  textFaint: '#6E6E78',
-  accent: '#1359D3',
-  gradientEnd: '#2A0E22',
-};
+const FOLLOWUP_SUGGESTIONS = ['أرخص؟', 'أماكن للعوائل', 'وش غير كذا؟', 'اقترح مطاعم بس'];
 
 export default function GuideChatScreen() {
   const navigation = useNavigation<Nav>();
-  const { guideMessages, guideThinking, sendGuideMessage, resetGuideConversation } = useAppState();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const { guideMessages, guideThinking, sendGuideMessage, resetGuideConversation, trips } = useAppState();
+  const { profile } = useAuth();
   const [input, setInput] = useState('');
+  const [shareMessage, setShareMessage] = useState<ChatMessage | null>(null);
   const pulse = useRef(new Animated.Value(0.4)).current;
 
   const hasConversation = guideMessages.length > 1;
+  const lastGuideMessageId = useMemo(() => {
+    for (let i = guideMessages.length - 1; i >= 0; i -= 1) {
+      if (guideMessages[i].fromId !== 'me') return guideMessages[i].id;
+    }
+    return null;
+  }, [guideMessages]);
 
   const handleResetConversation = () => {
     if (!hasConversation) return;
@@ -76,27 +80,30 @@ export default function GuideChatScreen() {
     return () => loop.stop();
   }, [guideThinking, pulse]);
 
-  const send = () => {
-    if (!input.trim()) return;
-    sendGuideMessage(input);
+  const send = (text?: string) => {
+    const value = (text ?? input).trim();
+    if (!value) return;
+    sendGuideMessage(value);
     setInput('');
   };
 
   return (
-    <LinearGradient colors={[dark.background, dark.background, dark.gradientEnd]} style={styles.flex}>
+    <View style={styles.flex}>
       <SafeAreaView style={styles.container}>
-        <StatusBar style="light" />
+        <StatusBar style="dark" />
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} hitSlop={8}>
-            <Ionicons name="close" size={22} color={dark.text} />
+          <TouchableOpacity onPress={handleResetConversation} activeOpacity={0.8} hitSlop={8} style={styles.headerIconButton}>
+            <Ionicons name="create-outline" size={18} color={colors.text} />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleResetConversation}
-            activeOpacity={0.8}
-            hitSlop={8}
-            disabled={!hasConversation}
-          >
-            <Ionicons name="refresh-outline" size={20} color={hasConversation ? dark.text : dark.textFaint} />
+          <View style={styles.headerTitleWrap}>
+            <Text style={styles.headerTitle}>دليل السفر</Text>
+            <Text style={styles.headerSubtitle}>يعرف اهتماماتك وميزانيتك</Text>
+          </View>
+          <View style={styles.headerAvatar}>
+            <Ionicons name="compass" size={20} color="#FFFFFF" />
+          </View>
+          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} hitSlop={8} style={styles.headerIconButton}>
+            <Ionicons name="chevron-forward" size={18} color={colors.text} />
           </TouchableOpacity>
         </View>
 
@@ -104,7 +111,7 @@ export default function GuideChatScreen() {
         {guideThinking && !hasConversation ? (
           <View style={styles.emptyState}>
             <Animated.View style={[styles.orb, { opacity: pulse }]}>
-              <Ionicons name="sparkles" size={30} color={dark.text} />
+              <Ionicons name="compass" size={28} color="#FFFFFF" />
             </Animated.View>
             <Text style={styles.emptyTitle}>جار البحث عن أفضل الاقتراحات...</Text>
           </View>
@@ -116,23 +123,32 @@ export default function GuideChatScreen() {
             contentContainerStyle={styles.list}
             ListHeaderComponent={
               guideThinking ? (
-                <View style={[styles.bubble, styles.bubbleGuide, styles.typingBubble]}>
+                <View style={styles.typingRow}>
                   <Animated.View style={{ opacity: pulse }}>
-                    <Ionicons name="sparkles" size={16} color={dark.textMuted} />
+                    <Ionicons name="ellipsis-horizontal" size={18} color={colors.textMuted} />
                   </Animated.View>
                 </View>
               ) : undefined
             }
-            renderItem={({ item }) => (
-              <View style={[styles.bubble, item.fromId === 'me' ? styles.bubbleMe : styles.bubbleGuide]}>
-                <Text style={[styles.bubbleText, item.fromId === 'me' && styles.bubbleTextMe]}>{item.text}</Text>
-              </View>
-            )}
+            renderItem={({ item }) =>
+              item.fromId === 'me' ? (
+                <View style={[styles.bubble, styles.bubbleMe]}>
+                  <Text style={styles.bubbleTextMe}>{item.text}</Text>
+                </View>
+              ) : (
+                <View style={styles.guideRow}>
+                  <Text style={styles.guideText}>{item.text}</Text>
+                  <View style={styles.guideAvatar}>
+                    <Ionicons name="compass" size={14} color="#FFFFFF" />
+                  </View>
+                </View>
+              )
+            }
           />
         ) : (
           <View style={styles.emptyState}>
             <View style={styles.orb}>
-              <Ionicons name="sparkles" size={30} color={dark.text} />
+              <Ionicons name="compass" size={28} color="#FFFFFF" />
             </View>
             <Text style={styles.emptyTitle}>عن ماذا تبحث؟</Text>
             <Text style={styles.emptySubtitle}>
@@ -144,115 +160,302 @@ export default function GuideChatScreen() {
                   key={s.text}
                   style={styles.suggestionCard}
                   activeOpacity={0.8}
-                  onPress={() => sendGuideMessage(s.text)}
+                  onPress={() => send(s.text)}
                 >
                   <Text style={styles.suggestionText}>{s.text}</Text>
-                  <Ionicons name={s.icon} size={18} color={dark.accent} />
+                  <Ionicons name={s.icon} size={18} color={colors.primary} />
                 </TouchableOpacity>
               ))}
             </View>
           </View>
         )}
 
+        {hasConversation && !guideThinking ? (
+          <View style={styles.actionsStrip}>
+            {lastGuideMessageId && profile?.id ? (
+              <TouchableOpacity
+                style={styles.shareChip}
+                activeOpacity={0.8}
+                onPress={() => {
+                  const msg = guideMessages.find((m) => m.id === lastGuideMessageId);
+                  if (msg) setShareMessage(msg);
+                }}
+              >
+                <Ionicons name="people-outline" size={14} color={colors.primary} />
+                <Text style={styles.shareChipText}>شاركها مع الشلة</Text>
+              </TouchableOpacity>
+            ) : null}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.followupRow}>
+              {FOLLOWUP_SUGGESTIONS.map((s) => (
+                <TouchableOpacity key={s} style={styles.followupChip} activeOpacity={0.8} onPress={() => send(s)}>
+                  <Text style={styles.followupText}>{s}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        ) : null}
+
         <View style={styles.inputRow}>
-          <TouchableOpacity style={styles.sendButton} onPress={send} activeOpacity={0.8}>
-            <Ionicons name="search" size={18} color={dark.textMuted} />
+          <TouchableOpacity style={styles.sendButton} onPress={() => send()} activeOpacity={0.8}>
+            <Ionicons name="send" size={16} color="#FFFFFF" />
           </TouchableOpacity>
           <TextInput
             style={styles.input}
-            placeholder="ابحث عن أي شيء"
-            placeholderTextColor={dark.textFaint}
+            placeholder="اسأل الدليل..."
+            placeholderTextColor={colors.textFaint}
             value={input}
             onChangeText={setInput}
-            onSubmitEditing={send}
+            onSubmitEditing={() => send()}
             textAlign="right"
           />
         </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
-    </LinearGradient>
+
+      <ShareReplySheet
+        visible={!!shareMessage}
+        trips={trips}
+        onClose={() => setShareMessage(null)}
+        onShared={(tripId) => {
+          setShareMessage(null);
+          navigation.navigate('GroupChat', { tripId });
+        }}
+        message={shareMessage}
+        meId={profile?.id ?? ''}
+      />
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  flex: { flex: 1 },
-  header: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-  list: { padding: spacing.lg, gap: spacing.md },
-  bubble: { maxWidth: '80%', padding: spacing.md, borderRadius: radius.md, marginBottom: spacing.sm },
-  bubbleGuide: { backgroundColor: dark.surface, alignSelf: 'flex-end' },
-  typingBubble: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg },
-  bubbleMe: { backgroundColor: dark.accent, alignSelf: 'flex-start' },
-  bubbleText: { color: dark.text, fontSize: 14, textAlign: 'right', lineHeight: 20 },
-  bubbleTextMe: { color: '#FFFFFF' },
-  emptyState: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.xl,
-  },
-  orb: {
-    width: 64,
-    height: 64,
-    borderRadius: radius.pill,
-    backgroundColor: dark.surfaceAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.lg,
-  },
-  emptyTitle: { color: dark.text, fontSize: 20, fontWeight: '700', textAlign: 'center' },
-  emptySubtitle: {
-    color: dark.textMuted,
-    fontSize: 13,
-    textAlign: 'center',
-    lineHeight: 20,
-    marginTop: spacing.sm,
-    marginBottom: spacing.xl,
-  },
-  suggestionsGrid: {
-    flexDirection: 'row-reverse',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    width: '100%',
-  },
-  suggestionCard: {
-    flexBasis: '47%',
-    flexGrow: 1,
-    backgroundColor: dark.surfaceAlt,
-    borderWidth: 1,
-    borderColor: dark.border,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    minHeight: 76,
-    justifyContent: 'space-between',
-  },
-  suggestionText: { color: dark.text, fontSize: 13, fontWeight: '600', textAlign: 'right', lineHeight: 18 },
-  inputRow: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
-  },
-  input: {
-    flex: 1,
-    backgroundColor: dark.surfaceAlt,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    color: dark.text,
-    fontSize: 14,
-  },
-  sendButton: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+function ShareReplySheet({
+  visible,
+  trips,
+  message,
+  meId,
+  onClose,
+  onShared,
+}: {
+  visible: boolean;
+  trips: Trip[];
+  message: ChatMessage | null;
+  meId: string;
+  onClose: () => void;
+  onShared: (tripId: string) => void;
+}) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const [sending, setSending] = useState(false);
+
+  const handlePick = async (tripId: string) => {
+    if (!message || !meId || sending) return;
+    setSending(true);
+    const { error } = await supabase.from('trip_messages').insert({
+      trip_id: tripId,
+      from_id: meId,
+      text: `💬 من دليل السفر:\n${message.text}`,
+    });
+    setSending(false);
+    if (error) {
+      Alert.alert('ما قدرنا نشارك الرد', 'جرّب مرة ثانية.');
+      return;
+    }
+    onShared(tripId);
+  };
+
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <Pressable style={styles.sheetBackdrop} onPress={onClose}>
+        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+          <Text style={styles.sheetTitle}>شارك الرد مع أي رحلة؟</Text>
+          <ScrollView style={{ maxHeight: 320 }}>
+            {trips.length === 0 ? (
+              <Text style={styles.sheetEmpty}>ما عندك رحلات بعد</Text>
+            ) : (
+              trips.map((trip) => (
+                <Pressable
+                  key={trip.id}
+                  style={styles.sheetRow}
+                  disabled={sending}
+                  onPress={() => handlePick(trip.id)}
+                >
+                  <Ionicons name="chevron-back" size={16} color={colors.textFaint} />
+                  <View style={styles.sheetRowTextWrap}>
+                    <Text style={styles.sheetRowTitle}>{trip.title}</Text>
+                    <Text style={styles.sheetRowMeta}>{trip.destination}</Text>
+                  </View>
+                </Pressable>
+              ))
+            )}
+          </ScrollView>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: { flex: 1 },
+    flex: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row-reverse',
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+    },
+    headerIconButton: {
+      width: 36,
+      height: 36,
+      borderRadius: radius.pill,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    headerTitleWrap: { flex: 1, alignItems: 'flex-end' },
+    headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+    headerSubtitle: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
+    headerAvatar: {
+      width: 36,
+      height: 36,
+      borderRadius: radius.pill,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    list: { padding: spacing.lg, gap: spacing.md },
+    bubble: { maxWidth: '82%', padding: spacing.md, borderRadius: radius.md, marginBottom: spacing.sm },
+    bubbleMe: { backgroundColor: colors.primary, alignSelf: 'flex-start' },
+    bubbleTextMe: { color: '#FFFFFF', fontSize: 14, textAlign: 'right', lineHeight: 20 },
+    guideRow: {
+      flexDirection: 'row-reverse',
+      alignItems: 'flex-start',
+      gap: spacing.sm,
+      marginBottom: spacing.sm,
+    },
+    guideText: { flex: 1, color: colors.text, fontSize: 14, textAlign: 'right', lineHeight: 21 },
+    guideAvatar: {
+      width: 26,
+      height: 26,
+      borderRadius: radius.pill,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 2,
+    },
+    typingRow: { flexDirection: 'row-reverse', paddingHorizontal: spacing.sm, marginBottom: spacing.sm },
+    emptyState: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: spacing.xl,
+    },
+    orb: {
+      width: 60,
+      height: 60,
+      borderRadius: radius.pill,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: spacing.lg,
+    },
+    emptyTitle: { color: colors.text, fontSize: 20, fontWeight: '700', textAlign: 'center' },
+    emptySubtitle: {
+      color: colors.textMuted,
+      fontSize: 13,
+      textAlign: 'center',
+      lineHeight: 20,
+      marginTop: spacing.sm,
+      marginBottom: spacing.xl,
+    },
+    suggestionsGrid: {
+      flexDirection: 'row-reverse',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+      width: '100%',
+    },
+    suggestionCard: {
+      flexBasis: '47%',
+      flexGrow: 1,
+      backgroundColor: colors.surfaceAlt,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      padding: spacing.md,
+      minHeight: 76,
+      justifyContent: 'space-between',
+    },
+    suggestionText: { color: colors.text, fontSize: 13, fontWeight: '600', textAlign: 'right', lineHeight: 18 },
+    actionsStrip: { paddingHorizontal: spacing.lg, paddingBottom: spacing.sm, gap: spacing.sm },
+    shareChip: {
+      flexDirection: 'row-reverse',
+      alignSelf: 'flex-end',
+      alignItems: 'center',
+      gap: 6,
+      backgroundColor: colors.surfaceAlt,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.pill,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 6,
+    },
+    shareChipText: { color: colors.primary, fontSize: 12, fontWeight: '700' },
+    followupRow: { flexDirection: 'row-reverse', gap: spacing.sm },
+    followupChip: {
+      backgroundColor: colors.surfaceAlt,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.pill,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 8,
+    },
+    followupText: { color: colors.text, fontSize: 12, fontWeight: '600' },
+    inputRow: {
+      flexDirection: 'row-reverse',
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.lg,
+    },
+    input: {
+      flex: 1,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: radius.pill,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      color: colors.text,
+      fontSize: 14,
+    },
+    sendButton: {
+      width: 40,
+      height: 40,
+      borderRadius: radius.pill,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    sheetBackdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
+    sheet: {
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: radius.sheet,
+      borderTopRightRadius: radius.sheet,
+      padding: spacing.lg,
+      maxHeight: '70%',
+    },
+    sheetTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right', marginBottom: spacing.md },
+    sheetEmpty: { color: colors.textMuted, fontSize: 13, textAlign: 'center', paddingVertical: spacing.lg },
+    sheetRow: {
+      flexDirection: 'row-reverse',
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.md,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+    },
+    sheetRowTextWrap: { flex: 1 },
+    sheetRowTitle: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
+    sheetRowMeta: { color: colors.textMuted, fontSize: 11, textAlign: 'right', marginTop: 2 },
+  });
