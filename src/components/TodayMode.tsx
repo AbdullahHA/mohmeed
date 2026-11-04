@@ -188,6 +188,14 @@ export default function TodayMode({ trip, navigation }: Props) {
           <Text style={styles.nextTitle}>{nextItem.title}</Text>
           <Text style={styles.nextSlot}>{nextItem.slot ? SLOT_LABELS[nextItem.slot] : nextItem.time}</Text>
           <View style={styles.nextActions}>
+            <TouchableOpacity
+              style={[styles.nextActionBtn, styles.nextActionPrimary]}
+              activeOpacity={0.85}
+              onPress={() => toggleItineraryItemDone(trip.id, nextItem.id)}
+            >
+              <Ionicons name="checkmark" size={14} color={colors.textOnPrimary} />
+              <Text style={[styles.nextActionText, styles.nextActionTextPrimary]}>وصلت</Text>
+            </TouchableOpacity>
             {nextPlace ? (
               <TouchableOpacity
                 style={styles.nextActionBtn}
@@ -198,14 +206,6 @@ export default function TodayMode({ trip, navigation }: Props) {
                 <Text style={styles.nextActionText}>الاتجاهات</Text>
               </TouchableOpacity>
             ) : null}
-            <TouchableOpacity
-              style={[styles.nextActionBtn, styles.nextActionPrimary]}
-              activeOpacity={0.85}
-              onPress={() => toggleItineraryItemDone(trip.id, nextItem.id)}
-            >
-              <Ionicons name="checkmark" size={14} color={colors.textOnPrimary} />
-              <Text style={[styles.nextActionText, styles.nextActionTextPrimary]}>وصلت</Text>
-            </TouchableOpacity>
             <TouchableOpacity
               style={styles.nextActionBtn}
               activeOpacity={0.85}

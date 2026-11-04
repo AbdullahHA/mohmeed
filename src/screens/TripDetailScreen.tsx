@@ -584,10 +584,9 @@ export default function TripDetailScreen() {
               <Text style={styles.expensesHeading}>المصاريف · {trip.budgetItems.length}</Text>
               {trip.budgetItems.map((item) => (
                 <View key={item.id} style={styles.budgetItemRow}>
-                  <TouchableOpacity onPress={() => removeBudgetItem(trip.id, item.id)} activeOpacity={0.7}>
-                    <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
-                  </TouchableOpacity>
-                  <Text style={styles.budgetItemAmount}>{item.amount.toLocaleString()} {currency.symbol}</Text>
+                  <View style={[styles.budgetItemIcon, { backgroundColor: `${BUDGET_CATEGORY_COLORS[item.category]}22` }]}>
+                    <Ionicons name={BUDGET_CATEGORY_ICONS[item.category]} size={16} color={BUDGET_CATEGORY_COLORS[item.category]} />
+                  </View>
                   <View style={styles.budgetItemTextWrap}>
                     <Text style={styles.budgetItemLabel}>{item.label}</Text>
                     <Text style={styles.budgetItemCategory}>
@@ -595,9 +594,10 @@ export default function TripDetailScreen() {
                       {item.paidBy ? ` · دفعه ${memberName(item.paidBy)}` : ''}
                     </Text>
                   </View>
-                  <View style={[styles.budgetItemIcon, { backgroundColor: `${BUDGET_CATEGORY_COLORS[item.category]}22` }]}>
-                    <Ionicons name={BUDGET_CATEGORY_ICONS[item.category]} size={16} color={BUDGET_CATEGORY_COLORS[item.category]} />
-                  </View>
+                  <Text style={styles.budgetItemAmount}>{item.amount.toLocaleString()} {currency.symbol}</Text>
+                  <TouchableOpacity onPress={() => removeBudgetItem(trip.id, item.id)} activeOpacity={0.7}>
+                    <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
+                  </TouchableOpacity>
                 </View>
               ))}
 

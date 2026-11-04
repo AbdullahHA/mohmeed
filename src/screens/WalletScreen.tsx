@@ -125,14 +125,14 @@ export default function WalletScreen() {
         ) : (
           loyaltyMemberships.map((membership) => (
             <View key={membership.id} style={styles.row}>
-              <TouchableOpacity onPress={() => removeLoyaltyMembership(membership.id)} activeOpacity={0.7}>
-                <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
-              </TouchableOpacity>
+              <Ionicons name="star-outline" size={16} color={colors.accent} />
               <View style={styles.textWrap}>
                 <Text style={styles.airline}>{membership.airline}</Text>
                 <Text style={styles.number}>{membership.memberNumber}</Text>
               </View>
-              <Ionicons name="star-outline" size={16} color={colors.accent} />
+              <TouchableOpacity onPress={() => removeLoyaltyMembership(membership.id)} activeOpacity={0.7}>
+                <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
+              </TouchableOpacity>
             </View>
           ))
         )}
