@@ -27,7 +27,7 @@ import { getHijriDateEnabled } from '../lib/hijriSetting';
 import { scheduleTripReminders } from '../lib/smartReminders';
 import CountryInfoCard from '../components/CountryInfoCard';
 import { useContent } from '../context/ContentContext';
-import { formatTripDateRange } from '../lib/tripDates';
+import { formatTripDate, formatTripDateRange, formatTripMonth } from '../lib/tripDates';
 import { BUDGET_CATEGORY_LABELS, type BudgetCategory, type ChecklistGroup, type ItinerarySlot } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 import DonutChart from '../components/DonutChart';
@@ -59,6 +59,7 @@ type Tab = 'schedule' | 'budget' | 'checklist';
 const CATEGORIES: BudgetCategory[] = ['hotels', 'food', 'transport', 'activities', 'other'];
 const CHECKLIST_GROUPS: ChecklistGroup[] = ['الحجوزات', 'الشنطة', 'الأوراق', 'أخرى'];
 const SLOT_ORDER: ItinerarySlot[] = ['breakfast', 'morning', 'lunch', 'afternoon', 'dinner', 'evening'];
+const FACE_COLORS = ['#e07b24', '#2a9bb0', '#b2449a', '#2a55d8', '#1f9d63'];
 
 export default function TripDetailScreen() {
   const navigation = useNavigation<Nav>();
@@ -80,6 +81,7 @@ export default function TripDetailScreen() {
     addChecklistItem,
     toggleChecklistItem,
     removeChecklistItem,
+    sendGuideMessage,
   } = useAppState();
 
   const trip = trips.find((t) => t.id === route.params.tripId);
@@ -654,6 +656,52 @@ export default function TripDetailScreen() {
                 }}
               />
               <View style={styles.checklistCard}>
+              {trip.checklist.length > 0 ? (
+                <View style={styles.checklistHeaderWrap}>
+                  <View style={styles.checklistHeaderRow}>
+                    <Text style={styles.checklistHeaderCount}>
+                      {trip.checklist.filter((c) => c.done).length} من {trip.checklist.length}
+                      {countdownLabel ? ` · ${countdownLabel}` : ''}
+                    </Text>
+                  </View>
+                  <View style={styles.checklistProgressTrack}>
+                    <View
+                      style={[
+                        styles.checklistProgressFill,
+                        {
+                          width: `${Math.round(
+                            (trip.checklist.filter((c) => c.done).length / trip.checklist.length) * 100
+                          )}%`,
+                        },
+                      ]}
+                    />
+                  </View>
+                </View>
+              ) : null}
+
+              <TouchableOpacity
+                style={styles.suggestCard}
+                activeOpacity={0.85}
+                onPress={() => {
+                  const month = formatTripMonth(trip.startDate);
+                  const prompt = month
+                    ? `اقترح لي قائمة تجهيز لرحلة ${trip.destination} في ${month}`
+                    : `اقترح لي قائمة تجهيز لرحلة ${trip.destination}`;
+                  sendGuideMessage(prompt);
+                  navigation.navigate('GuideChat');
+                }}
+              >
+                <View style={styles.suggestIcon}>
+                  <Ionicons name="sparkles" size={16} color={colors.textOnPrimary} />
+                </View>
+                <View style={styles.flex1}>
+                  <Text style={styles.suggestTitle}>
+                    اقترح لي قائمة لـ{trip.destination}{formatTripMonth(trip.startDate) ? ` في ${formatTripMonth(trip.startDate)}` : ''}
+                  </Text>
+                  <Text style={styles.suggestSubtitle} numberOfLines={1}>اسأل دليل السفر عن أغراض تناسب وجهتك وموسمك</Text>
+                </View>
+              </TouchableOpacity>
+
               {CHECKLIST_GROUPS.map((group) => {
                 const items = trip.checklist.filter((c) => c.group === group);
                 if (items.length === 0) return null;
@@ -664,18 +712,37 @@ export default function TripDetailScreen() {
                     {items.map((item) => (
                       <TouchableOpacity
                         key={item.id}
-                        style={styles.checklistRow}
+                        style={styles.checklistRow2}
                         activeOpacity={0.7}
                         onPress={() => toggleChecklistItem(trip.id, item.id)}
                       >
-                        <Ionicons
-                          name={item.done ? 'checkbox' : 'square-outline'}
-                          size={20}
-                          color={item.done ? colors.success : colors.textFaint}
-                        />
-                        <Text style={[styles.checklistTitle, item.done && styles.checklistTitleDone]}>{item.title}</Text>
                         <TouchableOpacity onPress={() => removeChecklistItem(trip.id, item.id)} activeOpacity={0.7}>
-                          <Ionicons name="close" size={16} color={colors.textFaint} />
+                          <Ionicons name="close" size={14} color={colors.textFaint} />
+                        </TouchableOpacity>
+                        <View style={styles.checklistAssignee}>
+                          {item.assigneeId ? (
+                            <View
+                              style={[
+                                styles.checklistAssigneeDot,
+                                { backgroundColor: FACE_COLORS[members.findIndex((m) => m.id === item.assigneeId) % FACE_COLORS.length] },
+                              ]}
+                            />
+                          ) : (
+                            <Ionicons name="add" size={14} color={colors.textFaint} />
+                          )}
+                        </View>
+                        <View style={styles.checklistTextWrap2}>
+                          <Text style={[styles.checklistTitle, item.done && styles.checklistTitleDone]}>{item.title}</Text>
+                          {item.dueDate ? (
+                            <Text style={styles.checklistDueDate}>قبل {formatTripDate(item.dueDate)}</Text>
+                          ) : null}
+                        </View>
+                        <TouchableOpacity onPress={() => toggleChecklistItem(trip.id, item.id)} activeOpacity={0.7}>
+                          <Ionicons
+                            name={item.done ? 'checkmark-circle' : 'ellipse-outline'}
+                            size={24}
+                            color={item.done ? colors.success : colors.border}
+                          />
                         </TouchableOpacity>
                       </TouchableOpacity>
                     ))}
@@ -945,8 +1012,52 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.md,
   },
+  checklistHeaderWrap: { gap: 6, marginBottom: spacing.md },
+  checklistHeaderRow: { flexDirection: 'row-reverse' },
+  checklistHeaderCount: { color: colors.text, fontSize: 13, fontWeight: '700' },
+  checklistProgressTrack: { height: 6, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt, overflow: 'hidden' },
+  checklistProgressFill: { height: '100%', borderRadius: radius.pill, backgroundColor: colors.success },
+  suggestCard: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  suggestIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  suggestTitle: { color: colors.text, fontSize: 12.5, fontWeight: '700', textAlign: 'right' },
+  suggestSubtitle: { color: colors.textMuted, fontSize: 11, textAlign: 'right', marginTop: 1 },
   checklistGroupWrap: { marginBottom: spacing.sm },
   checklistRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, paddingVertical: 6 },
+  checklistRow2: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  checklistTextWrap2: { flex: 1 },
+  checklistDueDate: { color: colors.textFaint, fontSize: 10.5, textAlign: 'right', marginTop: 1 },
+  checklistAssignee: {
+    width: 22,
+    height: 22,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checklistAssigneeDot: { width: 22, height: 22, borderRadius: 11 },
   checklistTitle: { color: colors.text, fontSize: 13, textAlign: 'right', flex: 1 },
   checklistTitleDone: { color: colors.textFaint, textDecorationLine: 'line-through' },
   shareCodeCard: {

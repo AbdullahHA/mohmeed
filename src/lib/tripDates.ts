@@ -15,6 +15,14 @@ export function formatTripDate(isoDate: string): string {
   return `${d.getDate()} ${MONTHS_AR[d.getMonth()]}`;
 }
 
+/** Just the month name, for prompts like "قائمة تجهيز لشهر نوفمبر". */
+export function formatTripMonth(isoDate: string): string | null {
+  if (!ISO_RE.test(isoDate)) return null;
+  const d = new Date(`${isoDate}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return null;
+  return MONTHS_AR[d.getMonth()];
+}
+
 export function formatTripDateRange(startIso: string, endIso: string): string {
   if (!ISO_RE.test(startIso) || !ISO_RE.test(endIso)) return `${startIso} – ${endIso}`;
   const start = new Date(`${startIso}T00:00:00`);
