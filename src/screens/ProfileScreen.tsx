@@ -18,7 +18,6 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import DesertHero from '../components/DesertHero';
 import CircularProgress from '../components/CircularProgress';
 import FeedbackCard from '../components/FeedbackCard';
-import AchievementsRow, { type Achievement } from '../components/AchievementsRow';
 import PersonAvatar from '../components/PersonAvatar';
 import { radius, spacing, fixedColors, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
@@ -184,20 +183,6 @@ export default function ProfileScreen() {
           { text: 'حذف', style: 'destructive', onPress: () => removeManualVisitedPlace(place.id) },
         ]),
     })),
-  ];
-
-  const achievements: Achievement[] = [
-    { id: 'explorer', icon: '🧭', label: 'مستكشف', unlocked: visitedDestinations.length >= 3 },
-    { id: 'recommender', icon: '💛', label: 'موصي', unlocked: recommendedPlaces.length >= 1 },
-    { id: 'social', icon: '🤝', label: 'اجتماعي', unlocked: friends.length >= 3 },
-    { id: 'author', icon: '📝', label: 'كاتب رحلات', unlocked: myTemplates.length >= 1 },
-    { id: 'blogger', icon: '📸', label: 'مدوّن سفر', unlocked: myPosts.length >= 1 },
-    {
-      id: 'complete',
-      icon: '⭐',
-      label: 'ملف مكتمل',
-      unlocked: Boolean(profile?.bio) && (profile?.interests.length ?? 0) >= 1,
-    },
   ];
 
   const now = Date.now();
@@ -476,15 +461,6 @@ export default function ProfileScreen() {
               <Ionicons name="chevron-back" size={14} color={colors.primary} />
             </View>
           </TouchableOpacity>
-        ) : null}
-
-        {profile ? (
-          <>
-            <View style={styles.sectionHeaderRow}>
-              <Text style={styles.sectionTitle}>إنجازاتي</Text>
-            </View>
-            <AchievementsRow achievements={achievements} />
-          </>
         ) : null}
 
         <View style={styles.ltabs} onLayout={(e) => setTabsSectionY(e.nativeEvent.layout.y)}>
