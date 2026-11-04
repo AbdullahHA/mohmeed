@@ -94,18 +94,18 @@ export default function GuideChatScreen() {
       <SafeAreaView style={styles.container}>
         <StatusBar style="dark" />
         <View style={styles.header}>
-          <TouchableOpacity onPress={handleResetConversation} activeOpacity={0.8} hitSlop={8} style={styles.headerIconButton}>
-            <Ionicons name="create-outline" size={18} color={colors.text} />
+          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} hitSlop={8} style={styles.headerIconButton}>
+            <Ionicons name="chevron-forward" size={18} color={colors.text} />
           </TouchableOpacity>
+          <View style={styles.headerAvatar}>
+            <Ionicons name="compass" size={20} color="#FFFFFF" />
+          </View>
           <View style={styles.headerTitleWrap}>
             <Text style={styles.headerTitle}>دليل السفر</Text>
             <Text style={styles.headerSubtitle}>يعرف اهتماماتك وميزانيتك</Text>
           </View>
-          <View style={styles.headerAvatar}>
-            <Ionicons name="compass" size={20} color="#FFFFFF" />
-          </View>
-          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} hitSlop={8} style={styles.headerIconButton}>
-            <Ionicons name="chevron-forward" size={18} color={colors.text} />
+          <TouchableOpacity onPress={handleResetConversation} activeOpacity={0.8} hitSlop={8} style={styles.headerIconButton}>
+            <Ionicons name="create-outline" size={18} color={colors.text} />
           </TouchableOpacity>
         </View>
 
