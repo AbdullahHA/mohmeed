@@ -114,8 +114,8 @@ export default function TripsScreen() {
               activeOpacity={0.85}
               onPress={() => navigation.navigate('TripDetail', { tripId: item.id })}
             >
-              <Ionicons name="chevron-back" size={14} color={colors.accentDark} />
               <Text style={styles.datePromptText}>حدد التواريخ عشان نقترح لك أماكن وجدول</Text>
+              <Ionicons name="chevron-back" size={14} color={colors.accentDark} />
             </TouchableOpacity>
           ) : null}
           <View style={styles.statsRow}>
@@ -234,14 +234,14 @@ export default function TripsScreen() {
                   activeOpacity={0.85}
                   onPress={() => navigation.navigate('TripTemplates')}
                 >
-                  <Ionicons name="chevron-back" size={14} color={colors.textMuted} />
+                  <View style={styles.templatesBannerIcon}>
+                    <Ionicons name="book-outline" size={18} color={colors.primary} />
+                  </View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.templatesBannerTitle}>قوالب رحلات جاهزة</Text>
                     <Text style={styles.templatesBannerSubtitle}>خطط مجرّبة من مسافرين ثانين، انسخها وعدّل</Text>
                   </View>
-                  <View style={styles.templatesBannerIcon}>
-                    <Ionicons name="book-outline" size={18} color={colors.primary} />
-                  </View>
+                  <Ionicons name="chevron-back" size={14} color={colors.textMuted} />
                 </TouchableOpacity>
               }
             />

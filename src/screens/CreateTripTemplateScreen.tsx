@@ -108,11 +108,11 @@ export default function CreateTripTemplateScreen() {
         <Text style={styles.label}>محتوى الخطة</Text>
         {items.map((item) => (
           <View key={item.id} style={styles.itemRow}>
+            <Text style={styles.itemText}>{item.label}</Text>
+            <Text style={styles.itemCategory}>{BUDGET_CATEGORY_LABELS[item.category]}</Text>
             <TouchableOpacity onPress={() => removeItem(item.id)} activeOpacity={0.7}>
               <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
             </TouchableOpacity>
-            <Text style={styles.itemText}>{item.label}</Text>
-            <Text style={styles.itemCategory}>{BUDGET_CATEGORY_LABELS[item.category]}</Text>
           </View>
         ))}
 
