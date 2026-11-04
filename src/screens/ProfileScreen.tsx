@@ -9,6 +9,7 @@ import {
   Share,
 } from 'react-native';
 import Text from '../components/Text';
+import RtlScrollRow from '../components/RtlScrollRow';
 import { Alert } from '../lib/alert';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Clipboard from 'expo-clipboard';
@@ -347,7 +348,7 @@ export default function ProfileScreen() {
         </View>
 
         {combinedStamps.length > 0 ? (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.highlights}>
+          <RtlScrollRow contentContainerStyle={styles.highlights}>
             <TouchableOpacity
               style={styles.highlightItem}
               activeOpacity={0.8}
@@ -369,7 +370,7 @@ export default function ProfileScreen() {
                 <Text style={styles.highlightLabel} numberOfLines={1}>{entry.destination.name}</Text>
               </TouchableOpacity>
             ))}
-          </ScrollView>
+          </RtlScrollRow>
         ) : null}
 
         <TouchableOpacity style={styles.passportCard} activeOpacity={0.9} onPress={() => navigation.navigate('Passport')}>

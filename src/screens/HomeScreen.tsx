@@ -20,6 +20,7 @@ import SectionHeader from '../components/SectionHeader';
 import DestinationCard from '../components/DestinationCard';
 import FilterChip from '../components/FilterChip';
 import PersonAvatar from '../components/PersonAvatar';
+import RtlScrollRow from '../components/RtlScrollRow';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { INTEREST_TAGS } from '../data/destinations';
@@ -165,6 +166,13 @@ export default function HomeScreen() {
       ) : null}
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <View style={styles.apphead}>
+          <View style={styles.hi}>
+            <View>
+              <Text style={styles.hiGreeting}>{greeting()}</Text>
+              <Text style={styles.hiName}>{currentUser.name}</Text>
+            </View>
+            <PersonAvatar avatarUrl={currentUser.avatarUrl} size={40} />
+          </View>
           {profile ? (
             <TouchableOpacity
               style={styles.bellButton}
@@ -175,13 +183,6 @@ export default function HomeScreen() {
               {unreadNotifications > 0 ? <View style={styles.bellDot} /> : null}
             </TouchableOpacity>
           ) : null}
-          <View style={styles.hi}>
-            <View>
-              <Text style={styles.hiGreeting}>{greeting()}</Text>
-              <Text style={styles.hiName}>{currentUser.name}</Text>
-            </View>
-            <PersonAvatar avatarUrl={currentUser.avatarUrl} size={40} />
-          </View>
         </View>
 
         {recentlyEndedTrip ? (
@@ -277,13 +278,13 @@ export default function HomeScreen() {
               <Ionicons name="send" size={14} color="#fff" />
             </TouchableOpacity>
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.suggRow}>
+          <RtlScrollRow contentContainerStyle={styles.suggRow}>
             {GUIDE_SUGGESTIONS.map((s) => (
               <TouchableOpacity key={s} style={styles.suggChip} activeOpacity={0.8} onPress={() => askGuide(s)}>
                 <Text style={styles.suggChipText}>{s}</Text>
               </TouchableOpacity>
             ))}
-          </ScrollView>
+          </RtlScrollRow>
         </View>
 
         <View style={styles.qact}>
@@ -322,7 +323,7 @@ export default function HomeScreen() {
         </View>
 
         <SectionHeader title="لفتات الموسم" />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.storiesRow}>
+        <RtlScrollRow contentContainerStyle={styles.storiesRow}>
           {seasonalHighlights.map((highlight) => (
             <TouchableOpacity
               key={highlight.id}
@@ -343,14 +344,14 @@ export default function HomeScreen() {
               <Text style={styles.storyLabel} numberOfLines={2}>{highlight.label}</Text>
             </TouchableOpacity>
           ))}
-        </ScrollView>
+        </RtlScrollRow>
 
         <SectionHeader
           title={`أفضل الوجهات في ${MONTH_NAMES[currentMonth - 1]}`}
           actionLabel="اسأل الدليل"
           onActionPress={() => navigation.navigate('GuideChat')}
         />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.destinationsRow}>
+        <RtlScrollRow contentContainerStyle={styles.destinationsRow}>
           {monthlyDestinations.map((destination) => (
             <DestinationCard
               key={destination.id}
@@ -358,7 +359,7 @@ export default function HomeScreen() {
               onPress={() => navigation.navigate('DestinationDetail', { destinationId: destination.id })}
             />
           ))}
-        </ScrollView>
+        </RtlScrollRow>
 
         {profile && followingIds.length > 0 ? (
           <>
@@ -389,13 +390,13 @@ export default function HomeScreen() {
         ) : null}
 
         <SectionHeader title="كل الوجهات" />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.interestChipsRow}>
+        <RtlScrollRow contentContainerStyle={styles.interestChipsRow}>
           <FilterChip label="الكل" active={!activeInterest} onPress={() => setActiveInterest(null)} />
           {INTEREST_TAGS.map((tag) => (
             <FilterChip key={tag} label={tag} active={activeInterest === tag} onPress={() => setActiveInterest(tag)} />
           ))}
-        </ScrollView>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.destinationsRow}>
+        </RtlScrollRow>
+        <RtlScrollRow contentContainerStyle={styles.destinationsRow}>
           {filteredAllDestinations.length === 0 ? (
             <Text style={styles.emptyMuted}>ما فيه وجهات بهذا التصنيف حاليًا</Text>
           ) : (
@@ -407,7 +408,7 @@ export default function HomeScreen() {
               />
             ))
           )}
-        </ScrollView>
+        </RtlScrollRow>
 
         <TouchableOpacity
           style={styles.banner}

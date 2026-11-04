@@ -20,6 +20,7 @@ import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
 import { useContent } from '../context/ContentContext';
 import { pickAndUploadTravelPostImage } from '../lib/travelPosts';
+import RtlScrollRow from '../components/RtlScrollRow';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -105,7 +106,7 @@ export default function AddTravelPostScreen() {
         />
 
         <Text style={styles.label}>ربطها بوجهة (اختياري)</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.destRow}>
+        <RtlScrollRow contentContainerStyle={styles.destRow}>
           <TouchableOpacity
             style={[styles.destChip, destinationId === null && styles.destChipActive]}
             activeOpacity={0.8}
@@ -125,7 +126,7 @@ export default function AddTravelPostScreen() {
               </Text>
             </TouchableOpacity>
           ))}
-        </ScrollView>
+        </RtlScrollRow>
 
         <TouchableOpacity
           style={[styles.submitButton, (!imageUrl || submitting) && styles.submitDisabled]}

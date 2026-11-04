@@ -10,6 +10,7 @@ import {
   Share,
 } from 'react-native';
 import Text from '../components/Text';
+import RtlScrollRow from '../components/RtlScrollRow';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -601,7 +602,7 @@ export default function TripDetailScreen() {
                 </View>
               ))}
 
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
+              <RtlScrollRow contentContainerStyle={styles.chipsRow}>
                 {CATEGORIES.map((cat) => (
                   <TouchableOpacity
                     key={cat}
@@ -614,7 +615,7 @@ export default function TripDetailScreen() {
                     </Text>
                   </TouchableOpacity>
                 ))}
-              </ScrollView>
+              </RtlScrollRow>
               {!isViewer ? (
                 <View style={styles.addRow}>
                   <TouchableOpacity style={styles.addButton} activeOpacity={0.85} onPress={handleAddBudgetItem}>
@@ -751,7 +752,7 @@ export default function TripDetailScreen() {
               })}
               {trip.checklist.length === 0 ? <Text style={styles.emptyMuted}>ما فيه مهام تجهيز بعد</Text> : null}
 
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
+              <RtlScrollRow contentContainerStyle={styles.chipsRow}>
                 {CHECKLIST_GROUPS.map((g) => (
                   <TouchableOpacity
                     key={g}
@@ -762,7 +763,7 @@ export default function TripDetailScreen() {
                     <Text style={[styles.chipText, checklistGroup === g && styles.chipTextActive]}>{g}</Text>
                   </TouchableOpacity>
                 ))}
-              </ScrollView>
+              </RtlScrollRow>
               {!isViewer ? (
                 <View style={styles.addRow}>
                   <TouchableOpacity style={styles.addButton} activeOpacity={0.85} onPress={handleAddChecklist}>

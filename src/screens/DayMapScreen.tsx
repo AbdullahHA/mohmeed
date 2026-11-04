@@ -9,6 +9,7 @@ import {
   Linking,
 } from 'react-native';
 import Text from '../components/Text';
+import RtlScrollRow from '../components/RtlScrollRow';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -94,7 +95,7 @@ export default function DayMapScreen() {
       </View>
 
       {tripDays.length > 0 ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dayRow}>
+        <RtlScrollRow contentContainerStyle={styles.dayRow}>
           {tripDays.map((date) => {
             const iso = formatIsoDate(date);
             const active = selectedDay === iso;
@@ -111,7 +112,7 @@ export default function DayMapScreen() {
               </TouchableOpacity>
             );
           })}
-        </ScrollView>
+        </RtlScrollRow>
       ) : (
         <Text style={styles.noDatesHint}>حدد تواريخ الرحلة عشان تقدر تشوف خريطة كل يوم</Text>
       )}

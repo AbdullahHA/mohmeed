@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import {
-  ScrollView,
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
 import Text from './Text';
+import RtlScrollRow from './RtlScrollRow';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 
@@ -40,7 +40,7 @@ export default function DayPicker({ days, selected, onSelect }: Props) {
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
+    <RtlScrollRow contentContainerStyle={styles.row}>
       <TouchableOpacity
         style={[styles.chip, selected === null && styles.chipActive]}
         activeOpacity={0.8}
@@ -64,7 +64,7 @@ export default function DayPicker({ days, selected, onSelect }: Props) {
           </TouchableOpacity>
         );
       })}
-    </ScrollView>
+    </RtlScrollRow>
   );
 }
 

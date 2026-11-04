@@ -15,6 +15,7 @@ import {
   ScrollView,
 } from 'react-native';
 import Text from '../components/Text';
+import RtlScrollRow from '../components/RtlScrollRow';
 import { Alert } from '../lib/alert';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -213,13 +214,13 @@ export default function GuideChatScreen() {
                 </TouchableOpacity>
               </View>
             ) : null}
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.followupRow}>
+            <RtlScrollRow contentContainerStyle={styles.followupRow}>
               {FOLLOWUP_SUGGESTIONS.map((s) => (
                 <TouchableOpacity key={s} style={styles.followupChip} activeOpacity={0.8} onPress={() => send(s)}>
                   <Text style={styles.followupText}>{s}</Text>
                 </TouchableOpacity>
               ))}
-            </ScrollView>
+            </RtlScrollRow>
           </View>
         ) : null}
 

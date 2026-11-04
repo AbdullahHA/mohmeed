@@ -7,7 +7,6 @@ import {
   SectionList,
   ActivityIndicator,
   Platform,
-  ScrollView,
 } from 'react-native';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,6 +16,7 @@ import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import EmptyState from '../components/EmptyState';
+import RtlScrollRow from '../components/RtlScrollRow';
 import { VENUE_CATEGORY_ICON, VENUE_CATEGORY_LABEL } from '../utils/venueCategory';
 import { computeCheckInBadges } from '../utils/checkInBadges';
 import { lightMapStyle } from '../theme/mapStyle';
@@ -108,7 +108,7 @@ export default function MyCheckInsScreen() {
         />
       ) : (
         <>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgesRow}>
+          <RtlScrollRow contentContainerStyle={styles.badgesRow}>
             {badges.map((b) => (
               <View key={b.id} style={[styles.badgeChip, !b.earned && styles.badgeChipLocked]}>
                 <View style={[styles.badgeIconWrap, !b.earned && styles.badgeIconWrapLocked]}>
@@ -120,7 +120,7 @@ export default function MyCheckInsScreen() {
                 </Text>
               </View>
             ))}
-          </ScrollView>
+          </RtlScrollRow>
 
           <View style={styles.viewToggle}>
             <TouchableOpacity

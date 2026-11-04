@@ -10,6 +10,7 @@ import {
   FlatList,
 } from 'react-native';
 import Text from '../components/Text';
+import RtlScrollRow from '../components/RtlScrollRow';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -197,7 +198,7 @@ export default function UserProfileScreen() {
         {publishedTrips.length > 0 ? (
           <>
             <Text style={styles.sectionTitle}>رحلات منشورة</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.publishedRow}>
+            <RtlScrollRow contentContainerStyle={styles.publishedRow}>
               {publishedTrips.map((t) => (
                 <TouchableOpacity
                   key={t.id}
@@ -209,7 +210,7 @@ export default function UserProfileScreen() {
                   <Text style={styles.publishedDestination} numberOfLines={1}>{t.destination}</Text>
                 </TouchableOpacity>
               ))}
-            </ScrollView>
+            </RtlScrollRow>
           </>
         ) : null}
 

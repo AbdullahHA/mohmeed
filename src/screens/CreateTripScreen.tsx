@@ -9,6 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import Text from '../components/Text';
+import RtlScrollRow from '../components/RtlScrollRow';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
@@ -323,7 +324,7 @@ export default function CreateTripScreen() {
                 {datesMode === 'flexible' ? (
                   <>
                     <Text style={styles.subLabel}>الشهر</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRowScroll}>
+                    <RtlScrollRow contentContainerStyle={styles.chipsRowScroll}>
                       {MONTH_NAMES.map((m, i) => (
                         <TouchableOpacity
                           key={m}
@@ -334,7 +335,7 @@ export default function CreateTripScreen() {
                           <Text style={[styles.chipText, flexibleMonthIndex === i && styles.chipTextActive]}>{m}</Text>
                         </TouchableOpacity>
                       ))}
-                    </ScrollView>
+                    </RtlScrollRow>
                     <Text style={styles.subLabel}>عدد الأيام</Text>
                     <View style={styles.stepperRow}>
                       <TouchableOpacity style={styles.stepperBtn} onPress={() => setFlexibleDays((d) => Math.max(1, d - 1))}>

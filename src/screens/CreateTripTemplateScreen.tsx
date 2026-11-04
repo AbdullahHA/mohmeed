@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Text from '../components/Text';
+import RtlScrollRow from '../components/RtlScrollRow';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -83,7 +84,7 @@ export default function CreateTripTemplateScreen() {
         />
 
         <Text style={styles.label}>الوجهة</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
+        <RtlScrollRow contentContainerStyle={styles.chipsRow}>
           {destinations.map((d) => (
             <TouchableOpacity
               key={d.id}
@@ -94,7 +95,7 @@ export default function CreateTripTemplateScreen() {
               <Text style={[styles.chipText, destinationId === d.id && styles.chipTextActive]}>{d.name}</Text>
             </TouchableOpacity>
           ))}
-        </ScrollView>
+        </RtlScrollRow>
 
         <Text style={styles.label}>عدد الأيام</Text>
         <TextInput
@@ -116,7 +117,7 @@ export default function CreateTripTemplateScreen() {
           </View>
         ))}
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
+        <RtlScrollRow contentContainerStyle={styles.chipsRow}>
           {CATEGORIES.map((cat) => (
             <TouchableOpacity
               key={cat}
@@ -129,7 +130,7 @@ export default function CreateTripTemplateScreen() {
               </Text>
             </TouchableOpacity>
           ))}
-        </ScrollView>
+        </RtlScrollRow>
         <View style={styles.addRow}>
           <TouchableOpacity style={styles.addButton} activeOpacity={0.85} onPress={addItem}>
             <Ionicons name="add" size={18} color={colors.textOnPrimary} />
