@@ -12,7 +12,7 @@ const NAV_ITEMS = [
   { to: '/community-reports', label: 'بلاغات المجتمعات' },
   { to: '/users', label: 'المستخدمون' },
   { to: '/notifications', label: 'الإشعارات' },
-  { to: '/flags', label: 'مفاتيح الدخل' },
+  { to: '/flags', label: 'مفاتيح الميزات' },
 ];
 
 export default function Layout() {

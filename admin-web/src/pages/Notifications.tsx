@@ -32,11 +32,21 @@ export default function Notifications() {
     if (!canSubmit || !profile) return;
     setSending(true);
     setError(null);
+
+    const { data: pushResult, error: pushError } = await supabase.functions.invoke('send-notification', {
+      body: { title: title.trim(), body: body.trim() },
+    });
+    if (pushError) {
+      setSending(false);
+      setError(`تعذّر إرسال الإشعار: ${pushError.message}`);
+      return;
+    }
+
     const { error: sendError } = await supabase.from('notifications_log').insert({
       sent_by: profile.id,
       title: title.trim(),
       body: body.trim(),
-      recipient_count: tokenCount ?? 0,
+      recipient_count: pushResult?.delivered ?? 0,
     });
     setSending(false);
     if (sendError) {
@@ -53,8 +63,7 @@ export default function Notifications() {
       <h1 className="mb-6 text-xl font-bold text-foreground">الإشعارات</h1>
 
       <div className="mb-4 flex items-start gap-2 rounded-md bg-secondary p-3 text-xs leading-5 text-foreground">
-        هذا يسجل الإشعار فعلياً في قاعدة البيانات. التوصيل الفعلي لإشعارات الجوال (Push) يحتاج إعداد إضافي
-        (دالة إرسال على الأجهزة المسجّلة). حالياً عدد الأجهزة المسجّلة:{' '}
+        الإرسال هنا فعلي ويوصل كإشعار Push حقيقي لكل الأجهزة المسجّلة عبر خدمة Expo. عدد الأجهزة المسجّلة حالياً:{' '}
         <span className="font-bold text-primary-ink">{tokenCount ?? '...'}</span>
       </div>
 
@@ -73,7 +82,7 @@ export default function Notifications() {
           disabled={!canSubmit}
           className="rounded-md bg-primary px-5 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50"
         >
-          {sending ? 'جاري التسجيل...' : 'تسجيل الإشعار'}
+          {sending ? 'جاري الإرسال...' : 'إرسال الإشعار'}
         </button>
       </div>
 
@@ -87,7 +96,7 @@ export default function Notifications() {
               <div className="text-sm font-bold text-foreground">{item.title}</div>
               <div className="mt-0.5 text-xs text-muted-foreground">{item.body}</div>
               <div className="mt-1 text-[11px] text-muted-foreground">
-                {new Date(item.sent_at).toLocaleString('ar-SA')} · {item.recipient_count} جهاز
+                {new Date(item.sent_at).toLocaleString('ar-SA')} · وصل إلى {item.recipient_count} جهاز
               </div>
             </div>
           ))

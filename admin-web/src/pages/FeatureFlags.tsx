@@ -41,7 +41,7 @@ export default function FeatureFlags() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-foreground">مفاتيح الدخل</h1>
+      <h1 className="mb-1 text-xl font-bold text-foreground">مفاتيح الميزات</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         التطبيق ينطلق مجانياً. هذي المفاتيح جاهزة في التصميم بس مطفية افتراضياً — شغّلها فقط إذا قررت تفعيل طريقة دخل.
       </p>
