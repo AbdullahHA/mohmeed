@@ -10,3 +10,13 @@ create policy "non-viewers update itinerary" on public.itinerary_items for updat
   to authenticated
   using (public.is_trip_member(trip_id) and not public.is_trip_viewer(trip_id))
   with check (public.is_trip_member(trip_id) and not public.is_trip_viewer(trip_id));
+
+-- Same gap, same migration, same oversight: budget_items also lost its
+-- update policy when 0017 split it into select/insert/delete (compare to
+-- trip_checklist in that same migration, which correctly kept one). Found
+-- while backfilling paid_by/split_between on existing budget_items rows
+-- for live testing — the update silently touched zero rows.
+create policy "non-viewers update budget" on public.budget_items for update
+  to authenticated
+  using (public.is_trip_member(trip_id) and not public.is_trip_viewer(trip_id))
+  with check (public.is_trip_member(trip_id) and not public.is_trip_viewer(trip_id));

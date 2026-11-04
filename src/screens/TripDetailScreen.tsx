@@ -30,6 +30,23 @@ import { useContent } from '../context/ContentContext';
 import { formatTripDateRange } from '../lib/tripDates';
 import { BUDGET_CATEGORY_LABELS, type BudgetCategory, type ChecklistGroup, type ItinerarySlot } from '../types';
 import type { RootStackParamList } from '../navigation/types';
+import DonutChart from '../components/DonutChart';
+
+const BUDGET_CATEGORY_COLORS: Record<BudgetCategory, string> = {
+  hotels: '#2a55d8',
+  food: '#e07b24',
+  activities: '#1f9d63',
+  transport: '#2a9bb0',
+  other: '#6b55df',
+};
+
+const BUDGET_CATEGORY_ICONS: Record<BudgetCategory, keyof typeof Ionicons.glyphMap> = {
+  hotels: 'bed-outline',
+  food: 'restaurant-outline',
+  activities: 'ticket-outline',
+  transport: 'car-outline',
+  other: 'receipt-outline',
+};
 
 type Route = RouteProp<RootStackParamList, 'TripDetail'>;
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -188,6 +205,32 @@ export default function TripDetailScreen() {
   const spent = trip.budgetItems.reduce((sum, item) => sum + item.amount, 0);
   const perPerson = members.length > 0 ? Math.ceil(spent / members.length) : spent;
   const spentRatio = trip.budgetTotal > 0 ? Math.max(0, Math.min(spent / trip.budgetTotal, 1)) : 0;
+
+  const categoryTotals = trip.budgetItems.reduce((acc, item) => {
+    acc[item.category] = (acc[item.category] ?? 0) + item.amount;
+    return acc;
+  }, {} as Record<BudgetCategory, number>);
+  const categoryBreakdown = (Object.keys(categoryTotals) as BudgetCategory[])
+    .filter((c) => categoryTotals[c] > 0)
+    .sort((a, b) => categoryTotals[b] - categoryTotals[a]);
+  const remainingBudget = Math.max(0, trip.budgetTotal - spent);
+
+  const settlements = profile?.id
+    ? members
+        .filter((m) => m.id !== profile.id)
+        .map((m) => {
+          let owedToMe = 0;
+          let iOwe = 0;
+          for (const item of trip.budgetItems) {
+            if (item.splitBetween.length === 0) continue;
+            const share = item.amount / item.splitBetween.length;
+            if (item.paidBy === profile.id && item.splitBetween.includes(m.id)) owedToMe += share;
+            if (item.paidBy === m.id && item.splitBetween.includes(profile.id)) iOwe += share;
+          }
+          return { member: m, net: Math.round(owedToMe - iOwe) };
+        })
+        .filter((s) => s.net !== 0)
+    : [];
 
   const visibleItinerary = selectedDay
     ? trip.itinerary.filter((i) => i.itemDate === selectedDay)
@@ -470,16 +513,73 @@ export default function TripDetailScreen() {
 
           {activeTab === 'budget' ? (
             <View style={styles.budgetCard}>
-              <View style={styles.budgetHeaderRow}>
-                <Text style={styles.budgetSpent}>
-                  {spent.toLocaleString()} من {trip.budgetTotal.toLocaleString()} {currency.symbol}
-                </Text>
-                <Text style={styles.budgetPerPerson}>نصيب الفرد: {perPerson.toLocaleString()} {currency.symbol}</Text>
-              </View>
-              <View style={styles.progressTrack}>
-                <View style={[styles.progressFill, { width: `${spentRatio * 100}%` }]} />
-              </View>
+              {trip.budgetTotal > 0 && categoryBreakdown.length > 0 ? (
+                <View style={styles.donutRow}>
+                  <View style={styles.donutLegend}>
+                    {categoryBreakdown.map((cat) => (
+                      <View key={cat} style={styles.legendRow}>
+                        <View style={[styles.legendDot, { backgroundColor: BUDGET_CATEGORY_COLORS[cat] }]} />
+                        <Text style={styles.legendLabel}>{BUDGET_CATEGORY_LABELS[cat]}</Text>
+                        <Text style={styles.legendValue}>{categoryTotals[cat].toLocaleString()}</Text>
+                      </View>
+                    ))}
+                    {remainingBudget > 0 ? (
+                      <View style={styles.legendRow}>
+                        <View style={[styles.legendDot, { backgroundColor: colors.border }]} />
+                        <Text style={styles.legendLabel}>باقي</Text>
+                        <Text style={styles.legendValue}>{remainingBudget.toLocaleString()}</Text>
+                      </View>
+                    ) : null}
+                  </View>
+                  <DonutChart
+                    size={116}
+                    strokeWidth={14}
+                    trackColor={colors.surfaceAlt}
+                    segments={[
+                      ...categoryBreakdown.map((cat) => ({ value: categoryTotals[cat], color: BUDGET_CATEGORY_COLORS[cat] })),
+                      { value: remainingBudget, color: colors.border },
+                    ]}
+                  >
+                    <Text style={styles.donutCenterValue}>{spent.toLocaleString()}</Text>
+                    <Text style={styles.donutCenterLabel}>من {trip.budgetTotal.toLocaleString()} {currency.symbol}</Text>
+                  </DonutChart>
+                </View>
+              ) : (
+                <>
+                  <View style={styles.budgetHeaderRow}>
+                    <Text style={styles.budgetSpent}>
+                      {spent.toLocaleString()} من {trip.budgetTotal.toLocaleString()} {currency.symbol}
+                    </Text>
+                    <Text style={styles.budgetPerPerson}>نصيب الفرد: {perPerson.toLocaleString()} {currency.symbol}</Text>
+                  </View>
+                  <View style={styles.progressTrack}>
+                    <View style={[styles.progressFill, { width: `${spentRatio * 100}%` }]} />
+                  </View>
+                </>
+              )}
 
+              {settlements.length > 0 ? (
+                <View style={styles.settleCard}>
+                  <Text style={styles.settleTitle}>التسوية</Text>
+                  <Text style={styles.settleSub}>نصيب كل واحد {perPerson.toLocaleString()} {currency.symbol}</Text>
+                  {settlements.map(({ member, net }) => (
+                    <View key={member.id} style={styles.settleRow}>
+                      <PersonAvatar avatarUrl={member.avatarUrl} size={28} />
+                      <Text style={styles.settleName}>{memberName(member.id)} {net > 0 ? 'عليه لك' : 'عليك له'}</Text>
+                      <Text style={styles.settleAmount}>{Math.abs(net).toLocaleString()} {currency.symbol}</Text>
+                    </View>
+                  ))}
+                  <TouchableOpacity
+                    style={styles.settleReminderButton}
+                    activeOpacity={0.85}
+                    onPress={() => navigation.navigate('GroupChat', { tripId: trip.id })}
+                  >
+                    <Text style={styles.settleReminderText}>ذكّرهم في محادثة الشلة</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : null}
+
+              <Text style={styles.expensesHeading}>المصاريف · {trip.budgetItems.length}</Text>
               {trip.budgetItems.map((item) => (
                 <View key={item.id} style={styles.budgetItemRow}>
                   <TouchableOpacity onPress={() => removeBudgetItem(trip.id, item.id)} activeOpacity={0.7}>
@@ -492,6 +592,9 @@ export default function TripDetailScreen() {
                       {BUDGET_CATEGORY_LABELS[item.category]}
                       {item.paidBy ? ` · دفعه ${memberName(item.paidBy)}` : ''}
                     </Text>
+                  </View>
+                  <View style={[styles.budgetItemIcon, { backgroundColor: `${BUDGET_CATEGORY_COLORS[item.category]}22` }]}>
+                    <Ionicons name={BUDGET_CATEGORY_ICONS[item.category]} size={16} color={BUDGET_CATEGORY_COLORS[item.category]} />
                   </View>
                 </View>
               ))}
@@ -733,6 +836,43 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   budgetHeaderRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', marginBottom: spacing.xs },
   budgetSpent: { color: colors.text, fontSize: 13, fontWeight: '700' },
   budgetPerPerson: { color: colors.accentDark, fontSize: 12, fontWeight: '600' },
+  donutRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.lg, marginBottom: spacing.md },
+  donutLegend: { flex: 1, gap: spacing.sm },
+  legendRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
+  legendDot: { width: 10, height: 10, borderRadius: 5 },
+  legendLabel: { flex: 1, color: colors.text, fontSize: 12.5, fontWeight: '600', textAlign: 'right' },
+  legendValue: { color: colors.textMuted, fontSize: 12.5, fontWeight: '700' },
+  donutCenterValue: { color: colors.text, fontSize: 17, fontWeight: '700', textAlign: 'center' },
+  donutCenterLabel: { color: colors.textMuted, fontSize: 9.5, textAlign: 'center', marginTop: 2 },
+  settleCard: {
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  settleTitle: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
+  settleSub: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right', marginBottom: spacing.xs },
+  settleRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
+  settleName: { flex: 1, color: colors.text, fontSize: 12.5, fontWeight: '600', textAlign: 'right' },
+  settleAmount: { color: colors.accentDark, fontSize: 13, fontWeight: '700' },
+  settleReminderButton: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.sm,
+    alignItems: 'center',
+    marginTop: spacing.xs,
+  },
+  settleReminderText: { color: colors.text, fontSize: 12.5, fontWeight: '700' },
+  expensesHeading: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right', marginBottom: spacing.xs },
+  budgetItemIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: radius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   progressTrack: {
     height: 8,
     borderRadius: radius.pill,
