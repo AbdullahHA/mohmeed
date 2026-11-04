@@ -279,16 +279,16 @@ export default function CreateTripScreen() {
                 {datesMode === 'exact' ? (
                   <View style={styles.dateRow}>
                     <View style={styles.dateField}>
-                      <TouchableOpacity style={styles.input} activeOpacity={0.8} onPress={() => setActivePicker('end')}>
-                        <Text style={endDate ? styles.dateValue : styles.datePlaceholder}>
-                          {endDate ? formatDate(endDate) : 'تاريخ العودة'}
+                      <TouchableOpacity style={styles.input} activeOpacity={0.8} onPress={() => setActivePicker('start')}>
+                        <Text style={startDate ? styles.dateValue : styles.datePlaceholder}>
+                          {startDate ? formatDate(startDate) : 'تاريخ البداية'}
                         </Text>
                       </TouchableOpacity>
                     </View>
                     <View style={styles.dateField}>
-                      <TouchableOpacity style={styles.input} activeOpacity={0.8} onPress={() => setActivePicker('start')}>
-                        <Text style={startDate ? styles.dateValue : styles.datePlaceholder}>
-                          {startDate ? formatDate(startDate) : 'تاريخ البداية'}
+                      <TouchableOpacity style={styles.input} activeOpacity={0.8} onPress={() => setActivePicker('end')}>
+                        <Text style={endDate ? styles.dateValue : styles.datePlaceholder}>
+                          {endDate ? formatDate(endDate) : 'تاريخ العودة'}
                         </Text>
                       </TouchableOpacity>
                     </View>

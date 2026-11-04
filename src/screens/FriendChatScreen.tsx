@@ -162,6 +162,7 @@ export default function FriendChatScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
           <Ionicons name="arrow-forward" size={20} color={colors.text} />
         </TouchableOpacity>
+        <PersonAvatar avatarUrl={friend.avatarUrl} size={36} />
         <View style={styles.headerTextWrap}>
           <Text style={styles.headerTitle}>{friend.name}</Text>
           <Text style={styles.headerSubtitle}>@{friend.username}</Text>
@@ -173,7 +174,6 @@ export default function FriendChatScreen() {
         >
           <Ionicons name="location-outline" size={20} color={colors.textMuted} />
         </TouchableOpacity>
-        <PersonAvatar avatarUrl={friend.avatarUrl} size={36} />
       </View>
 
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>

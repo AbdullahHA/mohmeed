@@ -262,11 +262,6 @@ export default function ChatScreen() {
         ) : (
           filteredRows.map((row) => (
             <TouchableOpacity key={row.key} style={styles.rowCard} activeOpacity={0.85} onPress={row.onPress}>
-              {row.at ? <Text style={styles.rowTime}>{formatRelativeChatTime(row.at)}</Text> : <View style={styles.rowTimeSpacer} />}
-              <View style={styles.rowTextWrap}>
-                <Text style={styles.rowTitle} numberOfLines={1}>{row.title}</Text>
-                <Text style={styles.rowSubtitle} numberOfLines={1}>{row.subtitle}</Text>
-              </View>
               <View style={styles.rowAvatarWrap}>
                 <View style={[styles.rowAvatar, styles[`rowAvatar_${row.kind}` as const]]}>
                   <Ionicons
@@ -283,6 +278,11 @@ export default function ChatScreen() {
                   />
                 </View>
               </View>
+              <View style={styles.rowTextWrap}>
+                <Text style={styles.rowTitle} numberOfLines={1}>{row.title}</Text>
+                <Text style={styles.rowSubtitle} numberOfLines={1}>{row.subtitle}</Text>
+              </View>
+              {row.at ? <Text style={styles.rowTime}>{formatRelativeChatTime(row.at)}</Text> : <View style={styles.rowTimeSpacer} />}
             </TouchableOpacity>
           ))
         )}
