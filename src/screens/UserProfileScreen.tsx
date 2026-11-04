@@ -20,6 +20,7 @@ import { useRequireAccount } from '../hooks/useRequireAccount';
 import { supabase } from '../lib/supabase';
 import PersonAvatar from '../components/PersonAvatar';
 import EmptyState from '../components/EmptyState';
+import DesertHero from '../components/DesertHero';
 import type { PublicProfile, TravelPost } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -109,12 +110,11 @@ export default function UserProfileScreen() {
   if (!profile) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
-            <Ionicons name="chevron-forward" size={22} color={colors.text} />
+        <DesertHero style={styles.cover}>
+          <TouchableOpacity style={styles.backButton} activeOpacity={0.8} onPress={() => navigation.goBack()}>
+            <Ionicons name="chevron-forward" size={18} color="#fff" />
           </TouchableOpacity>
-          <View style={{ width: 22 }} />
-        </View>
+        </DesertHero>
         <EmptyState icon="person-outline" title="ما لقينا هذا الملف" subtitle="ممكن الحساب محذوف أو غير متاح" />
       </SafeAreaView>
     );
@@ -122,17 +122,13 @@ export default function UserProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
-          <Ionicons name="chevron-forward" size={22} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
-          @{profile.username}
-        </Text>
-        <View style={{ width: 22 }} />
-      </View>
-
       <ScrollView showsVerticalScrollIndicator={false}>
+        <DesertHero style={styles.cover}>
+          <TouchableOpacity style={styles.backButton} activeOpacity={0.8} onPress={() => navigation.goBack()}>
+            <Ionicons name="chevron-forward" size={18} color="#fff" />
+          </TouchableOpacity>
+        </DesertHero>
+
         <View style={styles.profileCard}>
           <PersonAvatar avatarUrl={profile.avatarUrl} size={80} style={styles.avatarMargin} />
           <Text style={styles.name}>{profile.name}</Text>
@@ -242,18 +238,20 @@ export default function UserProfileScreen() {
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   centerState: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  header: {
-    flexDirection: 'row-reverse',
+  cover: { height: 130 },
+  backButton: {
+    position: 'absolute',
+    top: spacing.md,
+    right: spacing.lg,
+    width: 34,
+    height: 34,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(255,255,255,0.22)',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    justifyContent: 'center',
   },
-  headerTitle: { flex: 1, color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'center' },
-  profileCard: { alignItems: 'center', padding: spacing.xl },
-  avatarMargin: { marginBottom: spacing.sm },
+  profileCard: { alignItems: 'center', padding: spacing.xl, marginTop: -46 },
+  avatarMargin: { marginBottom: spacing.sm, borderWidth: 3, borderColor: colors.background, borderRadius: 999 },
   name: { color: colors.text, fontSize: 18, fontWeight: '700' },
   username: { color: colors.textFaint, fontSize: 13, marginTop: 2 },
   bio: { color: colors.textMuted, fontSize: 13, textAlign: 'center', marginTop: spacing.sm, lineHeight: 20 },
