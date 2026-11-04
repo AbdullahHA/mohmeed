@@ -317,23 +317,23 @@ export default function ProfileScreen() {
           {profile ? (
             <View style={styles.actionsRow}>
               <TouchableOpacity
-                style={[styles.btn, styles.btnGhost, styles.btnIconOnly]}
-                activeOpacity={0.85}
-                onPress={() => requireAccount('friend', () => navigation.navigate('AddFriend'))}
-              >
-                <Ionicons name="person-add-outline" size={16} color={colors.text} />
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.btn, styles.btnGhost]} activeOpacity={0.85} onPress={handleShare}>
-                <Ionicons name="share-outline" size={14} color={colors.text} />
-                <Text style={styles.btnGhostText}>مشاركة</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
                 style={[styles.btn, styles.btnPrimary]}
                 activeOpacity={0.85}
                 onPress={() => navigation.navigate('EditProfile')}
               >
                 <Ionicons name="pencil-outline" size={14} color={colors.textOnPrimary} />
                 <Text style={styles.btnPrimaryText}>تعديل الملف</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.btn, styles.btnGhost]} activeOpacity={0.85} onPress={handleShare}>
+                <Ionicons name="share-outline" size={14} color={colors.text} />
+                <Text style={styles.btnGhostText}>مشاركة</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.btn, styles.btnGhost, styles.btnIconOnly]}
+                activeOpacity={0.85}
+                onPress={() => requireAccount('friend', () => navigation.navigate('AddFriend'))}
+              >
+                <Ionicons name="person-add-outline" size={16} color={colors.text} />
               </TouchableOpacity>
             </View>
           ) : (

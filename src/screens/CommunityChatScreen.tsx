@@ -147,6 +147,9 @@ export default function CommunityChatScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
           <Ionicons name="arrow-forward" size={20} color={colors.text} />
         </TouchableOpacity>
+        <View style={[styles.headerIcon, { backgroundColor: community.color }]}>
+          <Text style={styles.headerEmoji}>{community.emoji}</Text>
+        </View>
         <View style={styles.headerTextWrap}>
           <Text style={styles.headerTitle}>{community.name}</Text>
           <Text style={styles.headerSubtitle}>{community.memberCount.toLocaleString()} عضو</Text>
@@ -154,9 +157,6 @@ export default function CommunityChatScreen() {
         <TouchableOpacity onPress={() => setMenuOpen(true)} activeOpacity={0.8} hitSlop={8}>
           <Ionicons name="ellipsis-vertical" size={18} color={colors.textMuted} />
         </TouchableOpacity>
-        <View style={[styles.headerIcon, { backgroundColor: community.color }]}>
-          <Text style={styles.headerEmoji}>{community.emoji}</Text>
-        </View>
       </View>
 
       <View style={styles.taglineRow}>
