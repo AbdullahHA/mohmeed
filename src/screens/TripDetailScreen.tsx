@@ -287,6 +287,9 @@ export default function TripDetailScreen() {
         <View style={styles.imageWrap}>
           <Image source={trip.coverImage} style={styles.image} />
           <View style={styles.headerRow}>
+            <TouchableOpacity style={styles.glassButton} onPress={() => navigation.goBack()} activeOpacity={0.85}>
+              <Ionicons name="chevron-forward" size={20} color={colors.textOnPrimary} />
+            </TouchableOpacity>
             <View style={styles.glassGroup}>
               <TouchableOpacity
                 style={styles.glassButton}
@@ -302,9 +305,6 @@ export default function TripDetailScreen() {
                 <Ionicons name="share-social-outline" size={17} color={colors.textOnPrimary} />
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.glassButton} onPress={() => navigation.goBack()} activeOpacity={0.85}>
-              <Ionicons name="arrow-forward" size={20} color={colors.textOnPrimary} />
-            </TouchableOpacity>
           </View>
         </View>
 

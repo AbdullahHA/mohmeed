@@ -102,6 +102,10 @@ export default function NotificationsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} activeOpacity={0.8}>
+          <Ionicons name="chevron-forward" size={18} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>الإشعارات</Text>
         {notifications.some((n) => !n.read) ? (
           <TouchableOpacity onPress={() => markAllNotificationsRead()} activeOpacity={0.8}>
             <Text style={styles.markAllText}>قراءة الكل</Text>
@@ -109,12 +113,6 @@ export default function NotificationsScreen() {
         ) : (
           <View style={{ width: 60 }} />
         )}
-        <View style={styles.headerTitleRow}>
-          <Text style={styles.headerTitle}>الإشعارات</Text>
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} activeOpacity={0.8}>
-            <Ionicons name="chevron-forward" size={18} color={colors.text} />
-          </TouchableOpacity>
-        </View>
       </View>
 
       <View style={styles.filterRow}>
@@ -200,12 +198,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   header: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: spacing.sm,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  headerTitleRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
-  headerTitle: { color: colors.text, fontSize: 18, fontWeight: '700' },
+  headerTitle: { flex: 1, color: colors.text, fontSize: 18, fontWeight: '700', textAlign: 'center' },
   backButton: {
     width: 36,
     height: 36,
