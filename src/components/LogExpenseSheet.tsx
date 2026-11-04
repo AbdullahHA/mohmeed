@@ -9,6 +9,7 @@ import {
 import Text from './Text';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
+import { useRegion } from '../context/RegionContext';
 import { BUDGET_CATEGORY_LABELS, type BudgetCategory } from '../types';
 
 const CATEGORIES: BudgetCategory[] = ['hotels', 'food', 'transport', 'activities', 'other'];
@@ -21,6 +22,7 @@ type Props = {
 
 export default function LogExpenseSheet({ visible, onClose, onSubmit }: Props) {
   const { colors } = useTheme();
+  const { currency } = useRegion();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [category, setCategory] = useState<BudgetCategory>('food');
   const [label, setLabel] = useState('');
@@ -69,7 +71,7 @@ export default function LogExpenseSheet({ visible, onClose, onSubmit }: Props) {
           />
           <TextInput
             style={styles.input}
-            placeholder="المبلغ (ر.س)"
+            placeholder={`المبلغ (${currency.symbol})`}
             placeholderTextColor={colors.textFaint}
             value={amount}
             onChangeText={setAmount}

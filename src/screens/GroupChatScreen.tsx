@@ -18,6 +18,7 @@ import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
+import { useRegion } from '../context/RegionContext';
 import { supabase } from '../lib/supabase';
 import LogExpenseSheet from '../components/LogExpenseSheet';
 import { BUDGET_CATEGORY_LABELS, type BudgetCategory, type ItinerarySlot, type TripMessage } from '../types';
@@ -53,6 +54,7 @@ export default function GroupChatScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { trips, addBudgetItem } = useAppState();
   const { profile } = useAuth();
+  const { currency } = useRegion();
   const meId = profile?.id;
   const tripId = route.params.tripId;
 
@@ -175,7 +177,7 @@ export default function GroupChatScreen() {
     await supabase.from('trip_messages').insert({
       trip_id: tripId,
       from_id: meId,
-      text: `سجّل مصروف: ${label} — ${amount} ر.س (${BUDGET_CATEGORY_LABELS[category]})`,
+      text: `سجّل مصروف: ${label} — ${amount} ${currency.symbol} (${BUDGET_CATEGORY_LABELS[category]})`,
     });
   };
 

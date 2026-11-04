@@ -14,6 +14,7 @@ import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
+import { useRegion } from '../context/RegionContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import EmptyState from '../components/EmptyState';
 import type { RootStackParamList } from '../navigation/types';
@@ -26,6 +27,7 @@ export default function WalletScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { trips, loyaltyMemberships, removeLoyaltyMembership } = useAppState();
   const { profile } = useAuth();
+  const { currency } = useRegion();
   const { requireAccount } = useRequireAccount();
 
   // Real per-trip settlement balance — same math TripDetailScreen's budget
@@ -80,7 +82,7 @@ export default function WalletScreen() {
         <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>{totalNet === 0 ? 'كل شي متوازن' : totalNet > 0 ? 'لك عند الشلة' : 'عليك للشلة'}</Text>
           <Text style={[styles.balanceValue, totalNet < 0 && styles.balanceValueNegative]}>
-            {Math.abs(totalNet).toLocaleString()} ﷼
+            {Math.abs(totalNet).toLocaleString()} {currency.symbol}
           </Text>
         </View>
 
@@ -98,7 +100,7 @@ export default function WalletScreen() {
                   <Text style={styles.number}>{trip.destination}</Text>
                 </View>
                 <Text style={[styles.tripNet, net < 0 && styles.tripNetNegative]}>
-                  {net > 0 ? 'لك' : 'عليك'} {Math.abs(net).toLocaleString()} ﷼
+                  {net > 0 ? 'لك' : 'عليك'} {Math.abs(net).toLocaleString()} {currency.symbol}
                 </Text>
               </TouchableOpacity>
             ))}

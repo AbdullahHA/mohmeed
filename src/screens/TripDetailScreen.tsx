@@ -720,7 +720,7 @@ export default function TripDetailScreen() {
                           <Ionicons
                             name={item.done ? 'checkmark-circle' : 'ellipse-outline'}
                             size={24}
-                            color={item.done ? colors.success : colors.border}
+                            color={item.done ? colors.success : colors.textFaint}
                           />
                         </TouchableOpacity>
                         <View style={styles.checklistTextWrap2}>

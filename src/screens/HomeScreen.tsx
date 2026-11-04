@@ -27,6 +27,7 @@ import { seasonalHighlights } from '../data/seasonalHighlights';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
+import { useRegion } from '../context/RegionContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import { formatTripDateRange } from '../lib/tripDates';
 import type { FeedPost } from '../types';
@@ -57,6 +58,7 @@ export default function HomeScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { trips, sendGuideMessage, currentUser, loadFollowingFeed, followingIds, notifications } = useAppState();
   const { requireAccount } = useRequireAccount();
+  const { currency } = useRegion();
   const { destinations, offline } = useContent();
   const { profile } = useAuth();
   const [query, setQuery] = useState('');
@@ -225,7 +227,7 @@ export default function HomeScreen() {
                     <View style={styles.glassChip}>
                       <Ionicons name="wallet-outline" size={12} color="#fff" />
                       <Text style={styles.glassChipText}>
-                        {tripBudgetSpent.toLocaleString()} / {nextTrip.budgetTotal.toLocaleString()} ﷼
+                        {tripBudgetSpent.toLocaleString()} / {nextTrip.budgetTotal.toLocaleString()} {currency.symbol}
                       </Text>
                     </View>
                   ) : null}

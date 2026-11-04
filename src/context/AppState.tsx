@@ -190,6 +190,15 @@ function uid(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 }
 
+// The guide-chat model sometimes replies with markdown emphasis
+// (**bold**), but every place this text gets rendered — the guide bubble,
+// a shared copy pasted into a trip/community chat — is a plain Text node
+// with no markdown parser, so the literal asterisks showed up to users.
+// Stripped once here, at the one place the reply enters app state.
+function stripMarkdownEmphasis(text: string): string {
+  return text.replace(/\*\*(.+?)\*\*/g, '$1').replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '$1');
+}
+
 function buildGuideReply(question: string, destinations: Destination[]): string {
   const text = question.trim();
   const lower = text.toLowerCase();
@@ -1330,7 +1339,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         });
         if (error) throw error;
         if (typeof data?.reply === 'string' && data.reply.trim()) {
-          replyText = data.reply.trim();
+          replyText = stripMarkdownEmphasis(data.reply.trim());
         }
         if (Array.isArray(data?.days) && data.days.length > 0) {
           const valid = data.days.filter(

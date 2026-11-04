@@ -15,6 +15,7 @@ import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
+import { useRegion } from '../context/RegionContext';
 import { useContent } from '../context/ContentContext';
 import { supabase } from '../lib/supabase';
 import { tripDateRange } from '../components/DayPicker';
@@ -31,6 +32,7 @@ export default function TripSummaryScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { trips, publishTrip } = useAppState();
   const { profile } = useAuth();
+  const { currency } = useRegion();
   const { places, destinations } = useContent();
 
   const trip = trips.find((t) => t.id === route.params.tripId);
@@ -144,7 +146,7 @@ export default function TripSummaryScreen() {
         {spent > 0 ? (
           <View style={styles.budgetCard}>
             <Ionicons name="wallet-outline" size={16} color={colors.textMuted} />
-            <Text style={styles.budgetText}>صرفت {spent.toLocaleString()} ر.س على الرحلة</Text>
+            <Text style={styles.budgetText}>صرفت {spent.toLocaleString()} {currency.symbol} على الرحلة</Text>
           </View>
         ) : null}
 
