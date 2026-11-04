@@ -22,6 +22,7 @@ import { RegionProvider } from './src/context/RegionContext';
 import AuthGateScreen from './src/screens/AuthGateScreen';
 import AppIntro from './src/components/AppIntro';
 import BiometricLockGate from './src/components/BiometricLockGate';
+import WebAlertHost from './src/components/WebAlertHost';
 
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
 if (sentryDsn) {
@@ -100,6 +101,7 @@ function AppShell() {
       </AuthProvider>
       {showIntro && <AppIntro onDone={() => setShowIntro(false)} />}
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+      <WebAlertHost />
     </SafeAreaProvider>
   );
 }

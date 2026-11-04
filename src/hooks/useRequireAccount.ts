@@ -1,4 +1,4 @@
-import { Alert } from 'react-native';
+import { Alert } from '../lib/alert';
 import { useAuth } from '../context/AuthContext';
 
 const MESSAGES: Record<string, string> = {
