@@ -838,7 +838,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   btnPrimaryText: { color: colors.textOnPrimary, fontSize: 13, fontWeight: '700' },
   btnGhost: { flex: 1, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   btnGhostText: { color: colors.text, fontSize: 13, fontWeight: '700' },
-  btnIconOnly: { flex: 0, width: 42, paddingHorizontal: 0 },
+  btnIconOnly: {
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: 42,
+    width: 42,
+    paddingHorizontal: 0,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
   guestBanner: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
