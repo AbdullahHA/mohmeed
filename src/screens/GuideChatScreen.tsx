@@ -25,8 +25,9 @@ import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import { tripDateRange, formatIsoDate } from '../components/DayPicker';
 import type { RootStackParamList } from '../navigation/types';
-import type { ChatMessage, Trip } from '../types';
+import type { ChatMessage, ItineraryItem, Trip } from '../types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -43,16 +44,17 @@ export default function GuideChatScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { guideMessages, guideThinking, sendGuideMessage, resetGuideConversation, trips } = useAppState();
+  const { guideMessages, guideThinking, sendGuideMessage, resetGuideConversation, trips, addItineraryItem } = useAppState();
   const { profile } = useAuth();
   const [input, setInput] = useState('');
   const [shareMessage, setShareMessage] = useState<ChatMessage | null>(null);
+  const [convertMessage, setConvertMessage] = useState<ChatMessage | null>(null);
   const pulse = useRef(new Animated.Value(0.4)).current;
 
   const hasConversation = guideMessages.length > 1;
-  const lastGuideMessageId = useMemo(() => {
+  const lastGuideMessage = useMemo(() => {
     for (let i = guideMessages.length - 1; i >= 0; i -= 1) {
-      if (guideMessages[i].fromId !== 'me') return guideMessages[i].id;
+      if (guideMessages[i].fromId !== 'me') return guideMessages[i];
     }
     return null;
   }, [guideMessages]);
@@ -137,7 +139,24 @@ export default function GuideChatScreen() {
                 </View>
               ) : (
                 <View style={styles.guideRow}>
-                  <Text style={styles.guideText}>{item.text}</Text>
+                  <View style={styles.guideContentWrap}>
+                    <Text style={styles.guideText}>{item.planDays?.length ? item.text.split('\n\n')[0] : item.text}</Text>
+                    {item.planDays?.length ? (
+                      <View style={styles.dayCardsWrap}>
+                        {item.planDays.map((day, i) => (
+                          <View key={i} style={styles.dayCard}>
+                            <Text style={styles.dayCardLabel}>{day.label}</Text>
+                            {day.activities.map((act, j) => (
+                              <View key={j} style={styles.dayCardActivityRow}>
+                                <Text style={styles.dayCardBullet}>•</Text>
+                                <Text style={styles.dayCardActivity}>{act}</Text>
+                              </View>
+                            ))}
+                          </View>
+                        ))}
+                      </View>
+                    ) : null}
+                  </View>
                   <View style={styles.guideAvatar}>
                     <Ionicons name="compass" size={14} color="#FFFFFF" />
                   </View>
@@ -172,18 +191,27 @@ export default function GuideChatScreen() {
 
         {hasConversation && !guideThinking ? (
           <View style={styles.actionsStrip}>
-            {lastGuideMessageId && profile?.id ? (
-              <TouchableOpacity
-                style={styles.shareChip}
-                activeOpacity={0.8}
-                onPress={() => {
-                  const msg = guideMessages.find((m) => m.id === lastGuideMessageId);
-                  if (msg) setShareMessage(msg);
-                }}
-              >
-                <Ionicons name="people-outline" size={14} color={colors.primary} />
-                <Text style={styles.shareChipText}>شاركها مع الشلة</Text>
-              </TouchableOpacity>
+            {lastGuideMessage && profile?.id ? (
+              <View style={styles.chipRow}>
+                {lastGuideMessage.planDays?.length ? (
+                  <TouchableOpacity
+                    style={styles.convertChip}
+                    activeOpacity={0.8}
+                    onPress={() => setConvertMessage(lastGuideMessage)}
+                  >
+                    <Ionicons name="briefcase-outline" size={14} color="#FFFFFF" />
+                    <Text style={styles.convertChipText}>حوّلها لرحلة</Text>
+                  </TouchableOpacity>
+                ) : null}
+                <TouchableOpacity
+                  style={styles.shareChip}
+                  activeOpacity={0.8}
+                  onPress={() => setShareMessage(lastGuideMessage)}
+                >
+                  <Ionicons name="people-outline" size={14} color={colors.primary} />
+                  <Text style={styles.shareChipText}>شاركها مع الشلة</Text>
+                </TouchableOpacity>
+              </View>
             ) : null}
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.followupRow}>
               {FOLLOWUP_SUGGESTIONS.map((s) => (
@@ -222,6 +250,18 @@ export default function GuideChatScreen() {
         }}
         message={shareMessage}
         meId={profile?.id ?? ''}
+      />
+
+      <ConvertToTripSheet
+        visible={!!convertMessage}
+        trips={trips}
+        message={convertMessage}
+        onClose={() => setConvertMessage(null)}
+        onConverted={(tripId) => {
+          setConvertMessage(null);
+          navigation.navigate('TripDetail', { tripId });
+        }}
+        addItineraryItem={addItineraryItem}
       />
     </View>
   );
@@ -293,6 +333,80 @@ function ShareReplySheet({
   );
 }
 
+function ConvertToTripSheet({
+  visible,
+  trips,
+  message,
+  onClose,
+  onConverted,
+  addItineraryItem,
+}: {
+  visible: boolean;
+  trips: Trip[];
+  message: ChatMessage | null;
+  onClose: () => void;
+  onConverted: (tripId: string) => void;
+  addItineraryItem: (tripId: string, item: Omit<ItineraryItem, 'id' | 'addedBy'>) => Promise<ItineraryItem | null>;
+}) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const [converting, setConverting] = useState(false);
+
+  const handlePick = async (trip: Trip) => {
+    if (!message?.planDays?.length || converting) return;
+    setConverting(true);
+    const days = tripDateRange(trip.startDate, trip.endDate);
+    for (let i = 0; i < message.planDays.length; i += 1) {
+      const day = message.planDays[i];
+      const itemDate = days[i] ? formatIsoDate(days[i]) : null;
+      for (const activity of day.activities) {
+        await addItineraryItem(trip.id, {
+          day: day.label,
+          time: '',
+          title: activity,
+          itemDate,
+          slot: null,
+          placeId: null,
+          kind: 'place',
+        });
+      }
+    }
+    setConverting(false);
+    onConverted(trip.id);
+  };
+
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <Pressable style={styles.sheetBackdrop} onPress={onClose}>
+        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+          <Text style={styles.sheetTitle}>حوّل الخطة لأي رحلة؟</Text>
+          <ScrollView style={{ maxHeight: 320 }}>
+            {trips.length === 0 ? (
+              <Text style={styles.sheetEmpty}>ما عندك رحلات بعد</Text>
+            ) : (
+              trips.map((trip) => (
+                <Pressable
+                  key={trip.id}
+                  style={styles.sheetRow}
+                  disabled={converting}
+                  onPress={() => handlePick(trip)}
+                >
+                  <Ionicons name="chevron-back" size={16} color={colors.textFaint} />
+                  <View style={styles.sheetRowTextWrap}>
+                    <Text style={styles.sheetRowTitle}>{trip.title}</Text>
+                    <Text style={styles.sheetRowMeta}>{trip.destination}</Text>
+                  </View>
+                </Pressable>
+              ))
+            )}
+          </ScrollView>
+          {converting ? <Text style={styles.sheetEmpty}>جاري الإضافة...</Text> : null}
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1 },
@@ -336,7 +450,20 @@ const createStyles = (colors: ThemeColors) =>
       gap: spacing.sm,
       marginBottom: spacing.sm,
     },
-    guideText: { flex: 1, color: colors.text, fontSize: 14, textAlign: 'right', lineHeight: 21 },
+    guideContentWrap: { flex: 1 },
+    guideText: { color: colors.text, fontSize: 14, textAlign: 'right', lineHeight: 21 },
+    dayCardsWrap: { gap: spacing.sm, marginTop: spacing.sm },
+    dayCard: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      padding: spacing.md,
+    },
+    dayCardLabel: { color: colors.primary, fontSize: 13, fontWeight: '700', textAlign: 'right', marginBottom: spacing.xs },
+    dayCardActivityRow: { flexDirection: 'row-reverse', gap: 6, marginTop: 3 },
+    dayCardBullet: { color: colors.textFaint, fontSize: 13 },
+    dayCardActivity: { flex: 1, color: colors.text, fontSize: 13, textAlign: 'right', lineHeight: 19 },
     guideAvatar: {
       width: 26,
       height: 26,
@@ -390,9 +517,9 @@ const createStyles = (colors: ThemeColors) =>
     },
     suggestionText: { color: colors.text, fontSize: 13, fontWeight: '600', textAlign: 'right', lineHeight: 18 },
     actionsStrip: { paddingHorizontal: spacing.lg, paddingBottom: spacing.sm, gap: spacing.sm },
+    chipRow: { flexDirection: 'row-reverse', alignSelf: 'flex-end', gap: spacing.sm },
     shareChip: {
       flexDirection: 'row-reverse',
-      alignSelf: 'flex-end',
       alignItems: 'center',
       gap: 6,
       backgroundColor: colors.surfaceAlt,
@@ -403,6 +530,16 @@ const createStyles = (colors: ThemeColors) =>
       paddingVertical: 6,
     },
     shareChipText: { color: colors.primary, fontSize: 12, fontWeight: '700' },
+    convertChip: {
+      flexDirection: 'row-reverse',
+      alignItems: 'center',
+      gap: 6,
+      backgroundColor: colors.primary,
+      borderRadius: radius.pill,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 6,
+    },
+    convertChipText: { color: '#FFFFFF', fontSize: 12, fontWeight: '700' },
     followupRow: { flexDirection: 'row-reverse', gap: spacing.sm },
     followupChip: {
       backgroundColor: colors.surfaceAlt,

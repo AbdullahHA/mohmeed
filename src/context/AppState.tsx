@@ -11,6 +11,7 @@ import { useTheme } from './ThemeContext';
 import type {
   BudgetItem,
   ChatMessage,
+  GuidePlanDay,
   ChecklistItem,
   Community,
   CommunityRequest,
@@ -1278,6 +1279,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setGuideThinking(true);
     (async () => {
       let replyText: string | null = null;
+      let planDays: GuidePlanDay[] | undefined;
       try {
         const { data, error } = await supabase.functions.invoke('guide-chat', {
           body: {
@@ -1295,6 +1297,12 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         if (typeof data?.reply === 'string' && data.reply.trim()) {
           replyText = data.reply.trim();
         }
+        if (Array.isArray(data?.days) && data.days.length > 0) {
+          const valid = data.days.filter(
+            (d: any) => d && typeof d.label === 'string' && Array.isArray(d.activities) && d.activities.length > 0
+          );
+          if (valid.length > 0) planDays = valid;
+        }
       } catch {
         // fall back below
       }
@@ -1303,6 +1311,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         fromId: 'guide',
         text: replyText ?? buildGuideReply(trimmed, destinations),
         at: Date.now() + 1,
+        planDays,
       };
       setGuideMessages((prev) => [...prev, replyMessage]);
       setGuideThinking(false);

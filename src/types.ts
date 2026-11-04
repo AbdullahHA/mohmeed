@@ -47,11 +47,17 @@ export type ChecklistItem = {
   done: boolean;
 };
 
+export type GuidePlanDay = {
+  label: string;
+  activities: string[];
+};
+
 export type ChatMessage = {
   id: string;
   fromId: string;
   text: string;
   at: number;
+  planDays?: GuidePlanDay[];
 };
 
 export type TravelerType = 'solo' | 'couple' | 'family' | 'group';
