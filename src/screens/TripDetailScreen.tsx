@@ -716,9 +716,19 @@ export default function TripDetailScreen() {
                         activeOpacity={0.7}
                         onPress={() => toggleChecklistItem(trip.id, item.id)}
                       >
-                        <TouchableOpacity onPress={() => removeChecklistItem(trip.id, item.id)} activeOpacity={0.7}>
-                          <Ionicons name="close" size={14} color={colors.textFaint} />
+                        <TouchableOpacity onPress={() => toggleChecklistItem(trip.id, item.id)} activeOpacity={0.7}>
+                          <Ionicons
+                            name={item.done ? 'checkmark-circle' : 'ellipse-outline'}
+                            size={24}
+                            color={item.done ? colors.success : colors.border}
+                          />
                         </TouchableOpacity>
+                        <View style={styles.checklistTextWrap2}>
+                          <Text style={[styles.checklistTitle, item.done && styles.checklistTitleDone]}>{item.title}</Text>
+                          {item.dueDate ? (
+                            <Text style={styles.checklistDueDate}>قبل {formatTripDate(item.dueDate)}</Text>
+                          ) : null}
+                        </View>
                         <View style={styles.checklistAssignee}>
                           {item.assigneeId ? (
                             <View
@@ -731,18 +741,8 @@ export default function TripDetailScreen() {
                             <Ionicons name="add" size={14} color={colors.textFaint} />
                           )}
                         </View>
-                        <View style={styles.checklistTextWrap2}>
-                          <Text style={[styles.checklistTitle, item.done && styles.checklistTitleDone]}>{item.title}</Text>
-                          {item.dueDate ? (
-                            <Text style={styles.checklistDueDate}>قبل {formatTripDate(item.dueDate)}</Text>
-                          ) : null}
-                        </View>
-                        <TouchableOpacity onPress={() => toggleChecklistItem(trip.id, item.id)} activeOpacity={0.7}>
-                          <Ionicons
-                            name={item.done ? 'checkmark-circle' : 'ellipse-outline'}
-                            size={24}
-                            color={item.done ? colors.success : colors.border}
-                          />
+                        <TouchableOpacity onPress={() => removeChecklistItem(trip.id, item.id)} activeOpacity={0.7}>
+                          <Ionicons name="close" size={14} color={colors.textFaint} />
                         </TouchableOpacity>
                       </TouchableOpacity>
                     ))}
