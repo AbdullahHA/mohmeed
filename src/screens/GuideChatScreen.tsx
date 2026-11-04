@@ -346,7 +346,7 @@ function ConvertToTripSheet({
   message: ChatMessage | null;
   onClose: () => void;
   onConverted: (tripId: string) => void;
-  addItineraryItem: (tripId: string, item: Omit<ItineraryItem, 'id' | 'addedBy'>) => Promise<ItineraryItem | null>;
+  addItineraryItem: (tripId: string, item: Omit<ItineraryItem, 'id' | 'addedBy' | 'done'>) => Promise<ItineraryItem | null>;
 }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);

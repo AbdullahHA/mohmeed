@@ -134,8 +134,10 @@ type AppStateValue = {
   addMember: (tripId: string, friendId: string) => Promise<void>;
   addBudgetItem: (tripId: string, item: Omit<BudgetItem, 'id'>) => Promise<void>;
   removeBudgetItem: (tripId: string, itemId: string) => Promise<void>;
-  addItineraryItem: (tripId: string, item: Omit<ItineraryItem, 'id' | 'addedBy'>) => Promise<ItineraryItem | null>;
+  addItineraryItem: (tripId: string, item: Omit<ItineraryItem, 'id' | 'addedBy' | 'done'>) => Promise<ItineraryItem | null>;
   removeItineraryItem: (tripId: string, itemId: string) => Promise<void>;
+  toggleItineraryItemDone: (tripId: string, itemId: string) => Promise<void>;
+  postponeItineraryItemToTomorrow: (tripId: string, itemId: string) => Promise<void>;
   addChecklistItem: (tripId: string, item: Omit<ChecklistItem, 'id' | 'done'>) => Promise<void>;
   toggleChecklistItem: (tripId: string, itemId: string) => Promise<void>;
   removeChecklistItem: (tripId: string, itemId: string) => Promise<void>;
@@ -702,6 +704,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     addedBy: row.added_by ?? null,
     placeId: row.place_id ?? null,
     kind: row.kind ?? 'place',
+    done: row.done ?? false,
   });
 
   const mapChecklistRow = (row: any): ChecklistItem => ({
@@ -745,7 +748,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     'traveler_type,needs,dates_mode,flexible_month,flexible_days,' +
     'trip_members(profile_id),' +
     'budget_items(id,category,label,amount,paid_by,split_between),' +
-    'itinerary_items(id,day,time,title,note,item_date,slot,added_by,place_id,kind),' +
+    'itinerary_items(id,day,time,title,note,item_date,slot,added_by,place_id,kind,done),' +
     'trip_checklist(id,group_name,title,assignee_id,due_date,done)';
 
   const tripsCacheKey = (userId: string) => `yalla-nsafer:trips-cache:${userId}`;
@@ -1206,7 +1209,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     await supabase.from('budget_items').delete().eq('id', itemId);
   };
 
-  const addItineraryItem = async (tripId: string, item: Omit<ItineraryItem, 'id' | 'addedBy'>): Promise<ItineraryItem | null> => {
+  const addItineraryItem = async (tripId: string, item: Omit<ItineraryItem, 'id' | 'addedBy' | 'done'>): Promise<ItineraryItem | null> => {
     if (!profile) return null;
     const { data, error } = await supabase
       .from('itinerary_items')
@@ -1233,6 +1236,37 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const removeItineraryItem = async (tripId: string, itemId: string) => {
     updateTripLocal(tripId, (t) => ({ ...t, itinerary: t.itinerary.filter((i) => i.id !== itemId) }));
     await supabase.from('itinerary_items').delete().eq('id', itemId);
+  };
+
+  const toggleItineraryItemDone = async (tripId: string, itemId: string) => {
+    const trip = trips.find((t) => t.id === tripId);
+    const item = trip?.itinerary.find((i) => i.id === itemId);
+    if (!item) return;
+    const done = !item.done;
+    updateTripLocal(tripId, (t) => ({
+      ...t,
+      itinerary: t.itinerary.map((i) => (i.id === itemId ? { ...i, done } : i)),
+    }));
+    await supabase.from('itinerary_items').update({ done }).eq('id', itemId);
+  };
+
+  // "أجّل" (SPEC 22.4): pushes the item to the same slot/time tomorrow. A
+  // precise "next free gap today" (as the mockup literally says) would need
+  // real commute-time + venue-hours data we don't have — same gap already
+  // called out and left unfaked in خريطة اليوم's conflict detection — so this
+  // is the honest, simple version: move it a day forward, not invent a gap.
+  const postponeItineraryItemToTomorrow = async (tripId: string, itemId: string) => {
+    const trip = trips.find((t) => t.id === tripId);
+    const item = trip?.itinerary.find((i) => i.id === itemId);
+    if (!item?.itemDate) return;
+    const nextDate = new Date(`${item.itemDate}T00:00:00`);
+    nextDate.setDate(nextDate.getDate() + 1);
+    const itemDate = nextDate.toISOString().slice(0, 10);
+    updateTripLocal(tripId, (t) => ({
+      ...t,
+      itinerary: t.itinerary.map((i) => (i.id === itemId ? { ...i, itemDate } : i)),
+    }));
+    await supabase.from('itinerary_items').update({ item_date: itemDate }).eq('id', itemId);
   };
 
   const addChecklistItem = async (tripId: string, item: Omit<ChecklistItem, 'id' | 'done'>) => {
@@ -1674,6 +1708,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       removeBudgetItem,
       addItineraryItem,
       removeItineraryItem,
+      toggleItineraryItemDone,
+      postponeItineraryItemToTomorrow,
       addChecklistItem,
       toggleChecklistItem,
       removeChecklistItem,

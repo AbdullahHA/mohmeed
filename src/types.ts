@@ -34,6 +34,7 @@ export type ItineraryItem = {
   addedBy: string | null;
   placeId: string | null;
   kind: ItineraryKind;
+  done: boolean;
 };
 
 export type ChecklistGroup = 'الحجوزات' | 'الشنطة' | 'الأوراق' | 'أخرى';
