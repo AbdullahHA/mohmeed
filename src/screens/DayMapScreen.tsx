@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
+  Platform,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
@@ -18,6 +19,8 @@ import { useContent } from '../context/ContentContext';
 import { tripDateRange, formatIsoDate } from '../components/DayPicker';
 import { haversineDistanceKm } from '../lib/geo';
 import { getMultiStopMapsUrl } from '../utils/place';
+import { lightMapStyle } from '../theme/mapStyle';
+import { MapView, Marker, Polyline } from '../components/mapModule';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'DayMap'>;
@@ -54,6 +57,22 @@ export default function DayMapScreen() {
   for (let i = 1; i < stops.length; i++) {
     totalKm += haversineDistanceKm(stops[i - 1].place.coordinate, stops[i].place.coordinate);
   }
+
+  const mapRegion = (() => {
+    if (stops.length === 0) return null;
+    const lats = stops.map((s) => s.place.coordinate.latitude);
+    const lngs = stops.map((s) => s.place.coordinate.longitude);
+    const minLat = Math.min(...lats);
+    const maxLat = Math.max(...lats);
+    const minLng = Math.min(...lngs);
+    const maxLng = Math.max(...lngs);
+    return {
+      latitude: (minLat + maxLat) / 2,
+      longitude: (minLng + maxLng) / 2,
+      latitudeDelta: Math.max(maxLat - minLat, 0.03) * 1.8,
+      longitudeDelta: Math.max(maxLng - minLng, 0.03) * 1.8,
+    };
+  })();
 
   const handleOpenFullRoute = () => {
     if (stops.length < 2) return;
@@ -96,6 +115,39 @@ export default function DayMapScreen() {
       ) : (
         <Text style={styles.noDatesHint}>حدد تواريخ الرحلة عشان تقدر تشوف خريطة كل يوم</Text>
       )}
+
+      {stops.length > 0 && mapRegion ? (
+        Platform.OS === 'web' || !MapView || !Marker ? (
+          <View style={[styles.map, styles.webFallback]}>
+            <Text style={styles.webFallbackText}>معاينة الخريطة متاحة على الجوال فقط</Text>
+          </View>
+        ) : (
+          (() => {
+            const MapComponent = MapView;
+            const MarkerComponent = Marker;
+            const PolylineComponent = Polyline;
+            return (
+              <MapComponent style={styles.map} initialRegion={mapRegion} customMapStyle={lightMapStyle}>
+                {PolylineComponent ? (
+                  <PolylineComponent
+                    coordinates={stops.map((s) => s.place.coordinate)}
+                    strokeColor={colors.primary}
+                    strokeWidth={3}
+                    lineDashPattern={[6, 6]}
+                  />
+                ) : null}
+                {stops.map((s, i) => (
+                  <MarkerComponent key={s.item.id} coordinate={s.place.coordinate} tracksViewChanges={false}>
+                    <View style={styles.numberedPin}>
+                      <Text style={styles.numberedPinText}>{i + 1}</Text>
+                    </View>
+                  </MarkerComponent>
+                ))}
+              </MapComponent>
+            );
+          })()
+        )
+      ) : null}
 
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
         {stops.length === 0 ? (
@@ -158,6 +210,20 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   dayChipText: { color: colors.text, fontSize: 12.5, fontWeight: '700' },
   dayChipTextActive: { color: colors.textOnPrimary },
   noDatesHint: { color: colors.textMuted, fontSize: 12.5, textAlign: 'center', padding: spacing.lg },
+  map: { height: 220, marginHorizontal: spacing.lg, borderRadius: radius.md, overflow: 'hidden' },
+  webFallback: { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceAlt },
+  webFallbackText: { color: colors.textMuted, fontSize: 12.5 },
+  numberedPin: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: colors.primary,
+    borderWidth: 2,
+    borderColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  numberedPinText: { color: colors.textOnPrimary, fontSize: 12, fontWeight: '700' },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
   emptyMuted: { color: colors.textFaint, fontSize: 13, textAlign: 'center', paddingVertical: spacing.xxl },
   summaryRow: { flexDirection: 'row-reverse', gap: spacing.xs, marginBottom: spacing.md },

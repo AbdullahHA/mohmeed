@@ -74,11 +74,21 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
       let nextDestinations = latestRef.current.destinations;
       let nextPlaces = latestRef.current.places;
       if (destRes.data && destRes.data.length > 0) {
-        nextDestinations = destRes.data.map(mapDestinationRow);
+        // Merge rather than replace: a destination only seeded locally (not
+        // yet synced to the DB) must not vanish just because other rows exist.
+        const liveDestinations = destRes.data.map(mapDestinationRow);
+        const liveIds = new Set(liveDestinations.map((d) => d.id));
+        nextDestinations = [...liveDestinations, ...localDestinations.filter((d) => !liveIds.has(d.id))];
         setDestinations(nextDestinations);
       }
       if (placeRes.data && placeRes.data.length > 0) {
-        nextPlaces = placeRes.data.map(mapPlaceRow);
+        // Same merge: the `places` table only holds what's been admin-seeded
+        // or cached from a live Google search, so most bundled places (e.g.
+        // a destination nobody has searched in yet) have no DB row at all —
+        // replacing the whole list would silently drop them from the app.
+        const livePlaces = placeRes.data.map(mapPlaceRow);
+        const liveIds = new Set(livePlaces.map((p) => p.id));
+        nextPlaces = [...livePlaces, ...localPlaces.filter((p) => !liveIds.has(p.id))];
         setPlaces(nextPlaces);
       }
       setSynced(true);
