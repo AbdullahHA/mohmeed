@@ -166,6 +166,7 @@ type AppStateValue = {
   searchVenues: (query: string) => Promise<PlaceSearchResult[]>;
   checkInToVenue: (venue: PlaceSearchResult) => Promise<{ error: string | null }>;
   loadVenueCheckIns: (venueId: string) => Promise<CheckInRecord[]>;
+  loadDestinationCheckIns: (destinationId: string) => Promise<CheckInRecord[]>;
   followersCount: number;
   followingCount: number;
   followingIds: string[];
@@ -222,7 +223,7 @@ const AppStateContext = createContext<AppStateValue | undefined>(undefined);
 
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const { colors: themeColors } = useTheme();
-  const { destinations } = useContent();
+  const { destinations, places: contentPlaces } = useContent();
   const { profile, loading: authLoading } = useAuth();
   const currentUser: Friend = profile
     ? {
@@ -1602,6 +1603,31 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // "مسافرين هنا الحين" on a destination page: real check-ins (not the old
+  // static demo list) at any real place within that destination, in the
+  // last 24h. RLS on check_ins only exposes your own + friends' rows, so
+  // this surfaces friends who are actually there — not a public city count,
+  // which the DB doesn't let us compute without inventing a number.
+  const loadDestinationCheckIns = async (destinationId: string): Promise<CheckInRecord[]> => {
+    try {
+      const placeIds = contentPlaces.filter((p) => p.destinationId === destinationId).map((p) => p.id);
+      if (placeIds.length === 0) return [];
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { data } = await supabase
+        .from('check_ins')
+        .select(
+          'id,venue_id,venue_name,venue_address,venue_category,created_at,user:profiles!check_ins_user_id_fkey(id,name,emoji,color,avatar_url)'
+        )
+        .in('venue_id', placeIds)
+        .gte('created_at', since)
+        .order('created_at', { ascending: false })
+        .limit(30);
+      return (data ?? []).map(mapCheckInRow);
+    } catch {
+      return [];
+    }
+  };
+
   const value = useMemo<AppStateValue>(
     () => ({
       currentUser,
@@ -1678,6 +1704,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       searchVenues,
       checkInToVenue,
       loadVenueCheckIns,
+      loadDestinationCheckIns,
       followersCount,
       followingCount,
       followingIds,

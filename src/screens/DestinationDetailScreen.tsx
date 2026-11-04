@@ -16,7 +16,6 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
-import { checkInPeersByDestination } from '../data/checkInPeers';
 import { PLACE_TYPE_LABELS, type PlaceType } from '../data/places';
 import PlaceCard from '../components/PlaceCard';
 import PersonAvatar from '../components/PersonAvatar';
@@ -26,7 +25,10 @@ import { useContent } from '../context/ContentContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import { supabase } from '../lib/supabase';
 import { searchGooglePlaces, cacheGooglePlace, getPlacePhotoUrl, type GooglePlaceResult } from '../lib/googlePlaces';
+import { fetchWeatherNow, type WeatherNow } from '../lib/weather';
+import { estimateFlightMinutes, formatFlightDuration } from '../lib/geo';
 import type { RootStackParamList } from '../navigation/types';
+import type { CheckInRecord } from '../types';
 
 type Route = RouteProp<RootStackParamList, 'DestinationDetail'>;
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -42,6 +44,7 @@ const MONTH_NAMES = [
   'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
 ];
 const MONTH_SHORT = ['ينا', 'فبر', 'مار', 'أبر', 'ماي', 'يون', 'يول', 'أغس', 'سبت', 'أكت', 'نوف', 'ديس'];
+const RIYADH_COORDINATE = { latitude: 24.7136, longitude: 46.6753 };
 
 type CityPost = {
   id: string;
@@ -67,6 +70,7 @@ export default function DestinationDetailScreen() {
     checkOut,
     sendGuideMessage,
     addWishlistItem,
+    loadDestinationCheckIns,
   } = useAppState();
   const { destinations, places, refresh } = useContent();
   const { requireAccount } = useRequireAccount();
@@ -80,6 +84,30 @@ export default function DestinationDetailScreen() {
   const [googleResults, setGoogleResults] = useState<GooglePlaceResult[] | null>(null);
   const [googleSearching, setGoogleSearching] = useState(false);
   const [openingResultId, setOpeningResultId] = useState<string | null>(null);
+  const [weather, setWeather] = useState<WeatherNow | null>(null);
+  const [friendCheckIns, setFriendCheckIns] = useState<CheckInRecord[]>([]);
+
+  useEffect(() => {
+    if (!destination?.latitude || !destination?.longitude) return;
+    let cancelled = false;
+    fetchWeatherNow({ latitude: destination.latitude, longitude: destination.longitude }).then((w) => {
+      if (!cancelled) setWeather(w);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [destination?.id]);
+
+  useEffect(() => {
+    if (!destination) return;
+    let cancelled = false;
+    loadDestinationCheckIns(destination.id).then((rows) => {
+      if (!cancelled) setFriendCheckIns(rows);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [destination?.id]);
 
   useEffect(() => {
     if (!destination || activeTab !== 'posts') return;
@@ -129,7 +157,11 @@ export default function DestinationDetailScreen() {
   const isVisited = visitedStamps.some((s) => s.destinationId === destination.id);
   const isFavorite = favoriteDestinationIds.includes(destination.id);
   const isCheckedInHere = myCheckIn === destination.id;
-  const nearbyPeers = checkInPeersByDestination[destination.id] ?? [];
+
+  const flightMinutes =
+    destination.id !== 'riyadh' && destination.latitude != null && destination.longitude != null
+      ? estimateFlightMinutes(RIYADH_COORDINATE, { latitude: destination.latitude, longitude: destination.longitude })
+      : null;
 
   const askGuide = () => {
     sendGuideMessage(`وش أفضل وقت وأماكن أزورها في ${destination.name}؟`);
@@ -229,6 +261,26 @@ export default function DestinationDetailScreen() {
               {isVisited ? 'زرتها' : 'أضفها لأماكن زرتها'}
             </Text>
           </TouchableOpacity>
+
+          {flightMinutes != null || weather ? (
+            <View style={styles.statsRow}>
+              {flightMinutes != null ? (
+                <View style={styles.statCard}>
+                  <Text style={styles.statLabel}>من الرياض</Text>
+                  <View style={styles.statValueRow}>
+                    <Ionicons name="airplane" size={14} color={colors.text} style={styles.statIcon} />
+                    <Text style={styles.statValue}>~{formatFlightDuration(flightMinutes)}</Text>
+                  </View>
+                </View>
+              ) : null}
+              {weather ? (
+                <View style={styles.statCard}>
+                  <Text style={styles.statLabel}>الطقس الحين</Text>
+                  <Text style={styles.statValue}>{weather.tempC}° {weather.condition}</Text>
+                </View>
+              ) : null}
+            </View>
+          ) : null}
 
           <Text style={styles.whyVisit}>{destination.whyVisit}</Text>
 
@@ -353,6 +405,9 @@ export default function DestinationDetailScreen() {
                                 <View style={styles.googleResultRatingRow}>
                                   <Ionicons name="star" size={11} color={colors.accentDark} />
                                   <Text style={styles.googleResultRatingText}>{result.rating.toFixed(1)}</Text>
+                                  {result.ratingCount ? (
+                                    <Text style={styles.googleResultRatingCount}>({result.ratingCount})</Text>
+                                  ) : null}
                                 </View>
                               ) : null}
                             </View>
@@ -403,11 +458,10 @@ export default function DestinationDetailScreen() {
 
           <View style={styles.checkInCard}>
             <View style={styles.checkInHeader}>
-              <Text style={styles.sectionTitle}>مسافرين هنا الحين</Text>
-              <Text style={styles.checkInDemo}>تجربة محلية فقط</Text>
+              <Text style={styles.sectionTitle}>أصدقاؤك هنا الحين</Text>
             </View>
-            {nearbyPeers.length === 0 && !isCheckedInHere ? (
-              <Text style={styles.checkInEmpty}>محد متشك إن هنا حاليًا</Text>
+            {friendCheckIns.length === 0 && !isCheckedInHere ? (
+              <Text style={styles.checkInEmpty}>ولا أحد من أصدقائك متشيك هنا بآخر يوم</Text>
             ) : (
               <View style={styles.checkInPeersRow}>
                 {isCheckedInHere ? (
@@ -416,10 +470,10 @@ export default function DestinationDetailScreen() {
                     <Text style={styles.checkInName}>أنت</Text>
                   </View>
                 ) : null}
-                {nearbyPeers.map((peer) => (
+                {Array.from(new Map(friendCheckIns.map((c) => [c.user?.id ?? c.id, c])).values()).map((peer) => (
                   <View key={peer.id} style={styles.checkInPeer}>
-                    <PersonAvatar size={40} style={styles.checkInAvatarMargin} />
-                    <Text style={styles.checkInName}>{peer.name}</Text>
+                    <PersonAvatar avatarUrl={peer.user?.avatarUrl ?? undefined} size={40} style={styles.checkInAvatarMargin} />
+                    <Text style={styles.checkInName}>{peer.user?.name ?? 'صديق'}</Text>
                   </View>
                 ))}
               </View>
@@ -529,6 +583,20 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   name: { color: colors.text, fontSize: 24, fontWeight: '700', textAlign: 'right' },
   tagline: { color: colors.textMuted, fontSize: 14, textAlign: 'right', marginTop: 4 },
   whyVisit: { color: colors.text, fontSize: 14, lineHeight: 22, textAlign: 'right', marginTop: spacing.lg, marginBottom: spacing.xl },
+  statsRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginTop: spacing.lg },
+  statCard: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    alignItems: 'flex-end',
+  },
+  statLabel: { color: colors.textMuted, fontSize: 11, marginBottom: 4 },
+  statValueRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
+  statIcon: { transform: [{ scaleX: -1 }] },
+  statValue: { color: colors.text, fontSize: 15, fontWeight: '700' },
   sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right', marginBottom: spacing.sm },
   monthsChart: {
     flexDirection: 'row-reverse',
@@ -631,6 +699,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   googleResultAddress: { color: colors.textMuted, fontSize: 11, textAlign: 'right', marginTop: 1 },
   googleResultRatingRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 3, marginTop: 2 },
   googleResultRatingText: { color: colors.accentDark, fontSize: 11, fontWeight: '700' },
+  googleResultRatingCount: { color: colors.textFaint, fontSize: 10 },
   postsGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 2, marginBottom: spacing.lg },
   postTile: { width: '32.5%', aspectRatio: 4 / 5 },
   postImage: { width: '100%', height: '100%', borderRadius: radius.sm },
@@ -699,7 +768,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.sm,
   },
-  checkInDemo: { color: colors.textFaint, fontSize: 10, fontWeight: '600' },
   checkInEmpty: { color: colors.textFaint, fontSize: 12, textAlign: 'center', paddingVertical: spacing.sm },
   checkInPeersRow: {
     flexDirection: 'row-reverse',

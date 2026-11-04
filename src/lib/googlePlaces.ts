@@ -9,6 +9,7 @@ export type GooglePlaceResult = {
   name: string;
   address: string;
   rating: number | null;
+  ratingCount: number | null;
   priceLevel: 1 | 2 | 3;
   type: PlaceType;
   coordinate: { latitude: number; longitude: number };
@@ -22,6 +23,7 @@ const FIELD_MASK = [
   'places.formattedAddress',
   'places.location',
   'places.rating',
+  'places.userRatingCount',
   'places.priceLevel',
   'places.types',
   'places.photos',
@@ -85,6 +87,7 @@ function mapResult(raw: any): GooglePlaceResult {
     name: raw.displayName?.text ?? 'مكان بدون اسم',
     address: raw.formattedAddress ?? '',
     rating: typeof raw.rating === 'number' ? raw.rating : null,
+    ratingCount: typeof raw.userRatingCount === 'number' ? raw.userRatingCount : null,
     priceLevel: mapPriceLevel(raw.priceLevel),
     type: mapPlaceType(raw.types),
     coordinate: { latitude: raw.location?.latitude, longitude: raw.location?.longitude },
