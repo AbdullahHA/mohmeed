@@ -180,14 +180,10 @@ export default function DestinationDetailScreen() {
         <View style={styles.imageWrap}>
           <Image source={destination.image} style={styles.image} />
           <View style={styles.headerRow}>
-            <TouchableOpacity
-              style={styles.glassButton}
-              onPress={() => navigation.goBack()}
-              activeOpacity={0.85}
-            >
-              <Ionicons name="arrow-forward" size={20} color={colors.textOnPrimary} />
-            </TouchableOpacity>
             <View style={styles.glassGroup}>
+              <TouchableOpacity style={styles.glassButton} activeOpacity={0.85} onPress={handleShare}>
+                <Ionicons name="share-social-outline" size={18} color={colors.textOnPrimary} />
+              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.glassButton}
                 activeOpacity={0.85}
@@ -199,10 +195,14 @@ export default function DestinationDetailScreen() {
                   color={isFavorite ? colors.accent : colors.textOnPrimary}
                 />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.glassButton} activeOpacity={0.85} onPress={handleShare}>
-                <Ionicons name="share-social-outline" size={18} color={colors.textOnPrimary} />
-              </TouchableOpacity>
             </View>
+            <TouchableOpacity
+              style={styles.glassButton}
+              onPress={() => navigation.goBack()}
+              activeOpacity={0.85}
+            >
+              <Ionicons name="arrow-forward" size={20} color={colors.textOnPrimary} />
+            </TouchableOpacity>
           </View>
           {destination.country ? (
             <View style={styles.countryBadge}>
