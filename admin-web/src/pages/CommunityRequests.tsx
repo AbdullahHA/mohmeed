@@ -10,6 +10,7 @@ type Row = {
   reason: string;
   status: 'pending' | 'approved' | 'rejected';
   created_at: string;
+  community_id: string | null;
   requester_name?: string;
 };
 
@@ -30,7 +31,7 @@ export default function CommunityRequests() {
   const load = async () => {
     const { data } = await supabase
       .from('community_requests')
-      .select('id,requester_id,name,tagline,emoji,reason,status,created_at')
+      .select('id,requester_id,name,tagline,emoji,reason,status,created_at,community_id')
       .order('created_at', { ascending: false });
     const requesterIds = Array.from(new Set((data ?? []).map((r) => r.requester_id)));
     const { data: profiles } = requesterIds.length
@@ -48,15 +49,21 @@ export default function CommunityRequests() {
   const approve = async (row: Row) => {
     setBusyId(row.id);
     setError(null);
-    const communityId = slugify(row.name);
-    const { error: communityError } = await supabase.from('communities').insert({
-      id: communityId,
-      name: row.name,
-      tagline: row.tagline,
-      emoji: row.emoji,
-      color: '#1359D3',
-      base_member_count: 0,
-    });
+    // Upsert both steps so a retry after a partial failure (e.g. the
+    // community got created but the moderator insert was rejected) never
+    // hits a duplicate-key error on the part that already succeeded.
+    const communityId = row.community_id ?? slugify(row.name);
+    const { error: communityError } = await supabase.from('communities').upsert(
+      {
+        id: communityId,
+        name: row.name,
+        tagline: row.tagline,
+        emoji: row.emoji,
+        color: '#1359D3',
+        base_member_count: 0,
+      },
+      { onConflict: 'id' }
+    );
     if (communityError) {
       setBusyId(null);
       setError(`تعذّر إنشاء المجتمع: ${communityError.message}`);
@@ -64,7 +71,10 @@ export default function CommunityRequests() {
     }
     const { error: memberError } = await supabase
       .from('community_members')
-      .insert({ community_id: communityId, profile_id: row.requester_id, role: 'moderator' });
+      .upsert(
+        { community_id: communityId, profile_id: row.requester_id, role: 'moderator' },
+        { onConflict: 'community_id,profile_id' }
+      );
     if (memberError) {
       setBusyId(null);
       setError(`تعذّر تعيين المشرف: ${memberError.message}`);
