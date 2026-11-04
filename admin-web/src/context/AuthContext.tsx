@@ -14,6 +14,7 @@ type AuthState = {
   profile: AdminProfile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signInWithGoogle: () => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 };
 
@@ -53,12 +54,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   };
 
+  const signInWithGoogle: AuthState['signInWithGoogle'] = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + window.location.pathname },
+    });
+    if (error) return { error: error.message };
+    return { error: null };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
   };
 
   return (
-    <AuthContext.Provider value={{ session, profile, loading, signIn, signOut }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ session, profile, loading, signIn, signInWithGoogle, signOut }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 
