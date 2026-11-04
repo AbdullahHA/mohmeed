@@ -16,6 +16,7 @@ import PersonAvatar from './PersonAvatar';
 import DayPicker, { tripDateRange, formatIsoDate } from './DayPicker';
 import SlotPicker, { SLOT_LABELS } from './SlotPicker';
 import type { Trip, ItinerarySlot } from '../types';
+import { formatTripDateRange } from '../lib/tripDates';
 
 type MemberProfile = { id: string; name: string; avatarUrl: string | null };
 
@@ -132,7 +133,8 @@ export default function AddToTripSheet({ visible, placeName, isRestaurant, trips
                     <View style={styles.tripRowTextWrap}>
                       <Text style={styles.tripRowTitle}>{trip.title}</Text>
                       <Text style={styles.tripRowMeta}>
-                        {trip.destination} · {trip.startDate} → {trip.endDate}
+                        {trip.destination}
+                        {trip.startDate && trip.startDate !== '—' ? ` · ${formatTripDateRange(trip.startDate, trip.endDate)}` : ''}
                       </Text>
                     </View>
                   </Pressable>

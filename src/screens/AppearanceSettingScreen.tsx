@@ -21,7 +21,7 @@ const OPTIONS: Array<{ value: ThemeMode; label: string }> = [
   { value: 'light', label: 'فاتح' },
 ];
 
-function PreviewCard({ style }: { style: 'light' | 'dark' | 'system' }) {
+export function PreviewCard({ style }: { style: 'light' | 'dark' | 'system' }) {
   const Half = ({ dark }: { dark: boolean }) => (
     <View style={[previewStyles.half, dark ? previewStyles.halfDark : previewStyles.halfLight]}>
       <View style={[previewStyles.bar, dark ? previewStyles.blockDark : previewStyles.blockLight]} />

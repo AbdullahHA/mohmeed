@@ -17,6 +17,8 @@ import { radius, spacing, cardShadow, type ThemeColors } from '../theme/colors';
 import { useTheme, type ThemeMode } from '../context/ThemeContext';
 import { useRegion } from '../context/RegionContext';
 import { useAuth } from '../context/AuthContext';
+import PersonAvatar from '../components/PersonAvatar';
+import { PreviewCard } from './AppearanceSettingScreen';
 import {
   getBiometricLockEnabled,
   isBiometricAvailable,
@@ -123,21 +125,51 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
-          <Ionicons name="close" size={22} color={colors.text} />
-        </TouchableOpacity>
         <Text style={styles.headerTitle}>الإعدادات</Text>
-        <View style={{ width: 22 }} />
+        <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()} activeOpacity={0.8}>
+          <Ionicons name="close" size={20} color={colors.text} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
         {profile ? (
           <>
+            <TouchableOpacity
+              style={styles.profileCard}
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('EditProfile')}
+            >
+              <Ionicons name="chevron-back" size={16} color={colors.textFaint} />
+              <View style={styles.profileTextWrap}>
+                <Text style={styles.profileName} numberOfLines={1}>{profile.name}</Text>
+                <Text style={styles.profileMeta} numberOfLines={1}>تعديل الملف · @{profile.username}</Text>
+              </View>
+              <PersonAvatar avatarUrl={profile.avatarUrl} size={52} />
+            </TouchableOpacity>
+
+            <Text style={styles.sectionTitle}>المظهر</Text>
+            <View style={styles.appearanceRow}>
+              {APPEARANCE_OPTIONS.map((option) => {
+                const active = mode === option.value;
+                return (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={styles.appearanceOption}
+                    activeOpacity={0.85}
+                    onPress={() => setMode(option.value)}
+                  >
+                    <View style={[styles.appearanceFrame, active && styles.appearanceFrameActive]}>
+                      <PreviewCard style={option.value} />
+                    </View>
+                    <Text style={[styles.appearanceLabel, active && styles.appearanceLabelActive]}>{option.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
             <Text style={styles.sectionTitle}>إدارة الحساب</Text>
             <View style={styles.card}>
               <MenuRow icon="person-outline" label="البيانات الشخصية" onPress={() => navigation.navigate('PersonalInfo')} />
-              <Divider />
-              <MenuRow icon="pencil-outline" label="تعديل الملف الشخصي" onPress={() => navigation.navigate('EditProfile')} />
               <Divider />
               <MenuRow icon="people-outline" label="أصدقائي" onPress={() => navigation.navigate('Friends')} />
               <Divider />
@@ -183,13 +215,6 @@ export default function SettingsScreen() {
             label="عرض العملة"
             value={`${currency.flag} ${currency.code}`}
             onPress={() => navigation.navigate('CurrencySetting')}
-          />
-          <Divider />
-          <MenuRow
-            icon="contrast-outline"
-            label="المظهر"
-            value={APPEARANCE_OPTIONS.find((o) => o.value === mode)?.label}
-            onPress={() => navigation.navigate('AppearanceSetting')}
           />
           <Divider />
           <View style={styles.switchRow}>
@@ -284,8 +309,45 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: 18, fontWeight: '700' },
+  closeButton: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
+  profileCard: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    marginBottom: spacing.xl,
+    ...cardShadow,
+  },
+  profileTextWrap: { flex: 1, alignItems: 'flex-end' },
+  profileName: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right' },
+  profileMeta: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
+  appearanceRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginBottom: spacing.xl },
+  appearanceOption: { flex: 1, alignItems: 'center', gap: spacing.xs },
+  appearanceFrame: {
+    width: '100%',
+    aspectRatio: 1,
+    borderRadius: radius.md,
+    borderWidth: 2,
+    borderColor: colors.border,
+    overflow: 'hidden',
+    padding: 3,
+  },
+  appearanceFrameActive: { borderColor: colors.primary },
+  appearanceLabel: { color: colors.textMuted, fontSize: 12, fontWeight: '600' },
+  appearanceLabelActive: { color: colors.primary, fontWeight: '700' },
   sectionTitle: {
     color: colors.textMuted,
     fontSize: 12,

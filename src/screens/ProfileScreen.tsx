@@ -27,6 +27,7 @@ import { useContent } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import { computeXp, computeTravelerLevel, nextLevelThreshold } from '../utils/travelerStats';
+import { formatTripDate, formatTripDateRange } from '../lib/tripDates';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -463,7 +464,7 @@ export default function ProfileScreen() {
               <View style={styles.meetupTextWrap}>
                 <Text style={styles.meetupTitle}>
                   رايح {destinations.find((d) => d.id === meetupMatches[0].destinationId)?.name ?? 'نفس الوجهة'}{' '}
-                  {meetupMatches[0].theirTrip.startDate}
+                  {meetupMatches[0].theirTrip.startDate ? formatTripDate(meetupMatches[0].theirTrip.startDate) : ''}
                 </Text>
                 <Text style={styles.meetupSubtitle}>
                   {meetupMatches.length} {meetupMatches.length === 1 ? 'شخص تتابعه بيكون هناك بنفس الأيام' : 'من اللي تتابعهم بيكونون هناك بنفس الأيام'}
@@ -524,7 +525,9 @@ export default function ProfileScreen() {
                     </View>
                     <View style={styles.upcomingBody}>
                       <Text style={styles.upcomingTitle} numberOfLines={1}>{trip.title}</Text>
-                      <Text style={styles.upcomingDates}>{trip.startDate} – {trip.endDate}</Text>
+                      <Text style={styles.upcomingDates}>
+                        {trip.startDate && trip.startDate !== '—' ? formatTripDateRange(trip.startDate, trip.endDate) : 'بدون تاريخ'}
+                      </Text>
                       {ended ? (
                         <View style={styles.upcomingChip}>
                           <Ionicons name="create-outline" size={11} color={colors.primary} />
