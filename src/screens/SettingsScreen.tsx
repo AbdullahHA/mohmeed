@@ -17,6 +17,8 @@ import { radius, spacing, cardShadow, type ThemeColors } from '../theme/colors';
 import { useTheme, type ThemeMode } from '../context/ThemeContext';
 import { useRegion } from '../context/RegionContext';
 import { useAuth } from '../context/AuthContext';
+import { useAppState } from '../context/AppState';
+import { INTEREST_TAGS } from '../data/destinations';
 import PersonAvatar from '../components/PersonAvatar';
 import { PreviewCard } from './AppearanceSettingScreen';
 import {
@@ -55,6 +57,7 @@ export default function SettingsScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { profile, deleteAccount } = useAuth();
   const { country, currency } = useRegion();
+  const { recommendedPlaceIds, followersCount } = useAppState();
   const [deleting, setDeleting] = useState(false);
 
   const [biometricAvailable, setBiometricAvailable] = useState(false);
@@ -147,6 +150,35 @@ export default function SettingsScreen() {
               <PersonAvatar avatarUrl={profile.avatarUrl} size={52} />
             </TouchableOpacity>
 
+            <Text style={styles.sectionTitle}>الحساب</Text>
+            <View style={styles.tileRow}>
+              <TouchableOpacity style={styles.tile} activeOpacity={0.85} onPress={() => navigation.navigate('SavedPlaces')}>
+                <View style={[styles.tileIconWrap, { backgroundColor: colors.accentSoft }]}>
+                  <Ionicons name="bookmark-outline" size={18} color={colors.accentDark} />
+                </View>
+                <Text style={styles.tileValue}>{recommendedPlaceIds.length}</Text>
+                <Text style={styles.tileLabel}>مفضلاتي</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.tile} activeOpacity={0.85} onPress={() => navigation.navigate('EditProfile')}>
+                <View style={[styles.tileIconWrap, { backgroundColor: colors.primarySoft }]}>
+                  <Ionicons name="heart-outline" size={18} color={colors.primary} />
+                </View>
+                <Text style={styles.tileValue}>{profile.interests.length} من {INTEREST_TAGS.length}</Text>
+                <Text style={styles.tileLabel}>تفضيلات السفر</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.tile}
+                activeOpacity={0.85}
+                onPress={() => navigation.navigate('FollowList', { userId: profile.id, mode: 'followers' })}
+              >
+                <View style={[styles.tileIconWrap, { backgroundColor: colors.successSoft }]}>
+                  <Ionicons name="eye-outline" size={18} color={colors.successDark} />
+                </View>
+                <Text style={styles.tileValue}>{followersCount}</Text>
+                <Text style={styles.tileLabel}>متابعيني</Text>
+              </TouchableOpacity>
+            </View>
+
             <Text style={styles.sectionTitle}>المظهر</Text>
             <View style={styles.appearanceRow}>
               {APPEARANCE_OPTIONS.map((option) => {
@@ -175,6 +207,7 @@ export default function SettingsScreen() {
               <Divider />
               <MenuRow icon="wallet-outline" label="محفظتي" onPress={() => navigation.navigate('Wallet')} />
             </View>
+
 
             <Text style={styles.sectionTitle}>الأمان</Text>
             <View style={styles.card}>
@@ -348,6 +381,26 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   appearanceFrameActive: { borderColor: colors.primary },
   appearanceLabel: { color: colors.textMuted, fontSize: 12, fontWeight: '600' },
   appearanceLabelActive: { color: colors.primary, fontWeight: '700' },
+  tileRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginBottom: spacing.xl },
+  tile: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    paddingVertical: spacing.md,
+    ...cardShadow,
+  },
+  tileIconWrap: {
+    width: 34,
+    height: 34,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 2,
+  },
+  tileValue: { color: colors.text, fontSize: 13, fontWeight: '700' },
+  tileLabel: { color: colors.textMuted, fontSize: 10.5, fontWeight: '600' },
   sectionTitle: {
     color: colors.textMuted,
     fontSize: 12,
