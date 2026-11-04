@@ -19,6 +19,7 @@ import type {
   ItineraryItem,
   LoyaltyMembership,
   Trip,
+  TripPreview,
   TripTemplate,
   TripTemplateItem,
   VisitedStamp,
@@ -128,6 +129,7 @@ type AppStateValue = {
   publishTrip: (tripId: string, published: boolean) => Promise<{ error: string | null }>;
   copyPublishedTrip: (tripId: string) => Promise<{ tripId: string | null; error: string | null }>;
   joinTripByCode: (code: string) => Promise<{ tripId: string | null; error: string | null }>;
+  previewTripByCode: (code: string) => Promise<{ preview: TripPreview | null; error: string | null }>;
   addMember: (tripId: string, friendId: string) => Promise<void>;
   addBudgetItem: (tripId: string, item: Omit<BudgetItem, 'id'>) => Promise<void>;
   removeBudgetItem: (tripId: string, itemId: string) => Promise<void>;
@@ -1144,6 +1146,31 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     return { tripId: data as string, error: null };
   };
 
+  const previewTripByCode = async (code: string): Promise<{ preview: TripPreview | null; error: string | null }> => {
+    const trimmed = code.trim();
+    if (!trimmed) return { preview: null, error: 'اكتب رمز الدعوة' };
+    const { data, error } = await supabase.rpc('preview_trip_by_code', { _code: trimmed });
+    if (error) return { preview: null, error: 'تعذّر البحث، حاول مرة ثانية' };
+    const row = Array.isArray(data) ? data[0] : null;
+    if (!row) return { preview: null, error: 'ما لقينا رحلة بهذا الرمز. تأكد منه مع اللي أرسل لك الدعوة.' };
+    return {
+      preview: {
+        tripId: row.trip_id,
+        title: row.title,
+        destination: row.destination,
+        coverImageUrl: row.cover_image_url ?? null,
+        startDate: row.start_date,
+        endDate: row.end_date,
+        ownerName: row.owner_name,
+        memberNames: row.member_names ?? [],
+        memberCount: row.member_count ?? 0,
+        itineraryCount: row.itinerary_count ?? 0,
+        alreadyMember: !!row.already_member,
+      },
+      error: null,
+    };
+  };
+
   const addMember = async (tripId: string, friendId: string) => {
     const trip = trips.find((t) => t.id === tripId);
     if (trip?.memberIds.includes(friendId)) return;
@@ -1606,6 +1633,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       publishTrip,
       copyPublishedTrip,
       joinTripByCode,
+      previewTripByCode,
       addMember,
       addBudgetItem,
       removeBudgetItem,

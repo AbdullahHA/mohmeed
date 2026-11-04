@@ -100,6 +100,20 @@ export type Trip = {
   isPublished: boolean;
 };
 
+export type TripPreview = {
+  tripId: string;
+  title: string;
+  destination: string;
+  coverImageUrl: string | null;
+  startDate: string;
+  endDate: string;
+  ownerName: string;
+  memberNames: string[];
+  memberCount: number;
+  itineraryCount: number;
+  alreadyMember: boolean;
+};
+
 export type PublishedTripItineraryItem = {
   day: string;
   time: string;
