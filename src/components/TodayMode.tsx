@@ -15,7 +15,7 @@ import { supabase } from '../lib/supabase';
 import { fetchWeatherNow, type WeatherNow } from '../lib/weather';
 import { getNextPrayer, formatCountdown, formatTime, PRAYER_LABELS } from '../lib/prayerTimes';
 import { haversineDistanceKm, type Coordinate } from '../lib/geo';
-import { searchGooglePlaces, type GooglePlaceResult } from '../lib/googlePlaces';
+import { searchNearbyPlaces, type GooglePlaceResult } from '../lib/googlePlaces';
 import type { Trip, ItineraryItem, ItinerarySlot } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -149,7 +149,7 @@ export default function TodayMode({ trip, navigation }: Props) {
       return;
     }
     let cancelled = false;
-    searchGooglePlaces('مستشفى', coordinate, 15000).then((results) => {
+    searchNearbyPlaces('hospital', coordinate, 20000).then((results) => {
       if (cancelled || results.length === 0) return;
       const withDistance = results.map((r) => ({ ...r, distanceKm: haversineDistanceKm(coordinate, r.coordinate) }));
       withDistance.sort((a, b) => a.distanceKm - b.distanceKm);
@@ -245,7 +245,7 @@ export default function TodayMode({ trip, navigation }: Props) {
               <Text style={styles.infoCardMain}>{weather.tempC}°</Text>
               <Text style={styles.infoCardSub}>{weather.condition}</Text>
             </>
-          ) : locationStatus !== 'granted' ? (
+          ) : !coordinate && locationStatus !== 'granted' ? (
             <TouchableOpacity onPress={requestLocation}>
               <Text style={styles.infoCardLink}>فعّل الموقع</Text>
             </TouchableOpacity>

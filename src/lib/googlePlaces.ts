@@ -130,6 +130,39 @@ export async function searchGooglePlaces(
   return ((data.places ?? []) as any[]).map(mapResult);
 }
 
+/**
+ * Type-filtered nearby search (Google's `places:searchNearby`), unlike
+ * `searchGooglePlaces` which is free-text and can surface loosely-related
+ * results (e.g. a dental clinic for "مستشفى"). Used for طوارئ's "أقرب
+ * مستشفى" in Today Mode, where the result needs to actually be a hospital.
+ */
+export async function searchNearbyPlaces(
+  includedType: string,
+  center: { latitude: number; longitude: number },
+  radiusMeters = 20000
+): Promise<GooglePlaceResult[]> {
+  if (!API_KEY) return [];
+
+  const response = await fetch(`${BASE_URL}/places:searchNearby`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': API_KEY,
+      'X-Goog-FieldMask': FIELD_MASK,
+    },
+    body: JSON.stringify({
+      includedTypes: [includedType],
+      maxResultCount: 10,
+      locationRestriction: {
+        circle: { center: { latitude: center.latitude, longitude: center.longitude }, radius: radiusMeters },
+      },
+    }),
+  });
+  if (!response.ok) return [];
+  const data = await response.json();
+  return ((data.places ?? []) as any[]).map(mapResult);
+}
+
 export function getPlacePhotoUrl(photoName: string, maxWidthPx = 800): string | null {
   if (!API_KEY) return null;
   return `${BASE_URL}/${photoName}/media?maxWidthPx=${maxWidthPx}&key=${API_KEY}`;
