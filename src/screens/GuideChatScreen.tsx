@@ -442,7 +442,7 @@ const createStyles = (colors: ThemeColors) =>
     },
     list: { padding: spacing.lg, gap: spacing.md },
     bubble: { maxWidth: '82%', padding: spacing.md, borderRadius: radius.md, marginBottom: spacing.sm },
-    bubbleMe: { backgroundColor: colors.primary, alignSelf: 'flex-start' },
+    bubbleMe: { backgroundColor: colors.primary, alignSelf: 'flex-end' },
     bubbleTextMe: { color: '#FFFFFF', fontSize: 14, textAlign: 'right', lineHeight: 20 },
     guideRow: {
       flexDirection: 'row-reverse',
