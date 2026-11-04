@@ -275,6 +275,9 @@ export type CheckInRecord = {
   venueName: string;
   venueAddress: string;
   category: VenueCategory;
+  lat: number | null;
+  lng: number | null;
+  isPrivate: boolean;
   createdAt: number;
   user?: {
     id: string;

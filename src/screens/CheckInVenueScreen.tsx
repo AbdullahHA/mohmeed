@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Switch,
 } from 'react-native';
 import Text from '../components/Text';
 import { Alert } from '../lib/alert';
@@ -16,6 +17,7 @@ import type { RouteProp } from '@react-navigation/native';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
+import { useAuth } from '../context/AuthContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import PersonAvatar from '../components/PersonAvatar';
 import { VENUE_CATEGORY_ICON, VENUE_CATEGORY_LABEL } from '../utils/venueCategory';
@@ -32,10 +34,34 @@ export default function CheckInVenueScreen() {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { loadVenueCheckIns, checkInToVenue } = useAppState();
+  const { profile } = useAuth();
   const { requireAccount } = useRequireAccount();
   const [peers, setPeers] = useState<CheckInRecord[]>([]);
   const [peersLoading, setPeersLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(false);
+
+  const mayor = useMemo(() => {
+    if (peers.length === 0) return null;
+    const counts = new Map<string, { user: CheckInRecord['user']; count: number; lastVisit: number }>();
+    for (const p of peers) {
+      if (!p.user) continue;
+      const entry = counts.get(p.user.id);
+      if (entry) {
+        entry.count += 1;
+        entry.lastVisit = Math.max(entry.lastVisit, p.createdAt);
+      } else {
+        counts.set(p.user.id, { user: p.user, count: 1, lastVisit: p.createdAt });
+      }
+    }
+    const ranked = [...counts.values()].sort((a, b) => b.count - a.count || b.lastVisit - a.lastVisit);
+    return ranked[0] && ranked[0].count > 1 ? ranked[0] : null;
+  }, [peers]);
+
+  const myVisitCount = useMemo(
+    () => (profile ? peers.filter((p) => p.user?.id === profile.id).length : 0),
+    [peers, profile]
+  );
 
   useEffect(() => {
     let active = true;
@@ -54,7 +80,7 @@ export default function CheckInVenueScreen() {
   const handleCheckIn = () => {
     requireAccount('checkIn', async () => {
       setSubmitting(true);
-      const { error } = await checkInToVenue(venue);
+      const { error } = await checkInToVenue(venue, isPrivate);
       setSubmitting(false);
       if (error) {
         Alert.alert('تعذّر تسجيل الوصول', error);
@@ -84,6 +110,17 @@ export default function CheckInVenueScreen() {
           <Text style={styles.venueName}>{venue.name}</Text>
           <Text style={styles.venueMeta}>{VENUE_CATEGORY_LABEL[venue.category]}</Text>
           {venue.address ? <Text style={styles.venueAddress}>{venue.address}</Text> : null}
+          {mayor ? (
+            <View style={styles.mayorBadge}>
+              <Ionicons name="trophy" size={14} color={colors.accentDark} />
+              <Text style={styles.mayorBadgeText}>
+                عمدة المكان: {mayor.user?.name ?? 'مستخدم'} ({mayor.count} تسجيلات)
+              </Text>
+            </View>
+          ) : null}
+          {myVisitCount > 0 ? (
+            <Text style={styles.myVisitsText}>زرت هذا المكان {myVisitCount} {myVisitCount === 1 ? 'مرة' : 'مرات'}</Text>
+          ) : null}
         </View>
 
         <Text style={styles.sectionTitle}>من تشك هنا من أصدقائك</Text>
@@ -104,6 +141,17 @@ export default function CheckInVenueScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
+        <View style={styles.privateRow}>
+          <Switch
+            value={isPrivate}
+            onValueChange={setIsPrivate}
+            trackColor={{ false: colors.border, true: colors.primary }}
+          />
+          <View style={styles.privateTextWrap}>
+            <Text style={styles.privateLabel}>تسجيل وصول خاص</Text>
+            <Text style={styles.privateHint}>ما يشوفه أصدقاؤك، بس يبقى بسجلك إنت</Text>
+          </View>
+        </View>
         <TouchableOpacity
           style={[styles.checkInButton, submitting && styles.checkInButtonDisabled]}
           activeOpacity={0.85}
@@ -155,6 +203,18 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   venueName: { color: colors.text, fontSize: 17, fontWeight: '700', textAlign: 'center' },
   venueMeta: { color: colors.primary, fontSize: 12, fontWeight: '600', marginTop: 4 },
   venueAddress: { color: colors.textMuted, fontSize: 12, textAlign: 'center', marginTop: spacing.xs },
+  mayorBadge: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.accentSoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 4,
+    marginTop: spacing.sm,
+  },
+  mayorBadgeText: { color: colors.accentDark, fontSize: 11.5, fontWeight: '700' },
+  myVisitsText: { color: colors.textMuted, fontSize: 11.5, marginTop: spacing.xs },
   sectionTitle: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right', marginBottom: spacing.sm },
   emptyPeers: { color: colors.textFaint, fontSize: 12, textAlign: 'center', paddingVertical: spacing.lg },
   peersList: { gap: spacing.sm },
@@ -165,6 +225,15 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
+  privateRow: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  privateTextWrap: { flex: 1 },
+  privateLabel: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
+  privateHint: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: 2 },
   checkInButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.pill,

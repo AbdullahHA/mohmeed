@@ -166,7 +166,7 @@ type AppStateValue = {
   myCheckIns: CheckInRecord[];
   myCheckInsLoading: boolean;
   searchVenues: (query: string) => Promise<PlaceSearchResult[]>;
-  checkInToVenue: (venue: PlaceSearchResult) => Promise<{ error: string | null }>;
+  checkInToVenue: (venue: PlaceSearchResult, isPrivate?: boolean) => Promise<{ error: string | null }>;
   loadVenueCheckIns: (venueId: string) => Promise<CheckInRecord[]>;
   loadDestinationCheckIns: (destinationId: string) => Promise<CheckInRecord[]>;
   followersCount: number;
@@ -423,6 +423,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     venueName: row.venue_name,
     venueAddress: row.venue_address ?? '',
     category: row.venue_category ?? 'other',
+    lat: row.lat ?? null,
+    lng: row.lng ?? null,
+    isPrivate: row.is_private ?? false,
     createdAt: new Date(row.created_at).getTime(),
     user: row.user
       ? {
@@ -445,7 +448,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data } = await supabase
         .from('check_ins')
-        .select('id,venue_id,venue_name,venue_address,venue_category,created_at')
+        .select('id,venue_id,venue_name,venue_address,venue_category,lat,lng,is_private,created_at')
         .eq('user_id', profile.id)
         .order('created_at', { ascending: false })
         .limit(50);
@@ -1610,7 +1613,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const checkInToVenue = async (venue: PlaceSearchResult): Promise<{ error: string | null }> => {
+  const checkInToVenue = async (venue: PlaceSearchResult, isPrivate = false): Promise<{ error: string | null }> => {
     if (!profile) return { error: 'يحتاج حساب حقيقي' };
     const { data, error } = await supabase
       .from('check_ins')
@@ -1622,8 +1625,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         venue_category: venue.category,
         lat: venue.lat,
         lng: venue.lng,
+        is_private: isPrivate,
       })
-      .select('id,venue_id,venue_name,venue_address,venue_category,created_at')
+      .select('id,venue_id,venue_name,venue_address,venue_category,lat,lng,is_private,created_at')
       .single();
     if (error || !data) return { error: 'تعذّر تسجيل الوصول، حاول مرة ثانية' };
     setMyCheckIns((prev) => [mapCheckInRow(data), ...prev]);
@@ -1635,7 +1639,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       const { data } = await supabase
         .from('check_ins')
         .select(
-          'id,venue_id,venue_name,venue_address,venue_category,created_at,user:profiles!check_ins_user_id_fkey(id,name,emoji,color,avatar_url)'
+          'id,venue_id,venue_name,venue_address,venue_category,lat,lng,is_private,created_at,user:profiles!check_ins_user_id_fkey(id,name,emoji,color,avatar_url)'
         )
         .eq('venue_id', venueId)
         .order('created_at', { ascending: false })
