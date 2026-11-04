@@ -20,11 +20,21 @@ import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import LogExpenseSheet from '../components/LogExpenseSheet';
-import { BUDGET_CATEGORY_LABELS, type BudgetCategory, type TripMessage } from '../types';
+import { BUDGET_CATEGORY_LABELS, type BudgetCategory, type ItinerarySlot, type TripMessage } from '../types';
 import type { RootStackParamList } from '../navigation/types';
+import { formatIsoDate } from '../components/DayPicker';
 
 type Route = RouteProp<RootStackParamList, 'GroupChat'>;
 type Nav = NativeStackNavigationProp<RootStackParamList>;
+
+const WEEKDAY_AR = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+function daysUntil(isoDate: string): number | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return null;
+  const parsed = new Date(`${isoDate}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return Math.ceil((parsed.getTime() - Date.now()) / 86400000);
+}
 
 function mapRow(row: any): TripMessage {
   return {
@@ -103,6 +113,39 @@ export default function GroupChatScreen() {
 
   const senderName = (fromId: string) => (fromId === meId ? 'أنت' : memberNames[fromId] ?? 'عضو');
 
+  const otherMemberNames = trip.memberIds
+    .filter((id) => id !== meId)
+    .map((id) => memberNames[id])
+    .filter((name): name is string => !!name)
+    .slice(0, 2);
+  const countdown = daysUntil(trip.startDate);
+  const headerSubtitle = [
+    ['أنت', ...otherMemberNames].join('، '),
+    countdown !== null ? (countdown > 0 ? `بعد ${countdown} ${countdown === 1 ? 'يوم' : 'أيام'}` : countdown === 0 ? 'تبدأ اليوم' : null) : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  const SLOT_ORDER: ItinerarySlot[] = ['breakfast', 'morning', 'lunch', 'afternoon', 'dinner', 'evening'];
+  const todayIso = formatIsoDate(new Date());
+  const pinnedDayIso =
+    trip.itinerary.some((i) => i.itemDate === todayIso)
+      ? todayIso
+      : trip.itinerary
+          .map((i) => i.itemDate)
+          .filter((d): d is string => !!d && d >= todayIso)
+          .sort()[0] ?? null;
+  const pinnedDayItems = pinnedDayIso
+    ? trip.itinerary
+        .filter((i) => i.itemDate === pinnedDayIso)
+        .sort((a, b) => {
+          const sa = a.slot ? SLOT_ORDER.indexOf(a.slot) : 99;
+          const sb = b.slot ? SLOT_ORDER.indexOf(b.slot) : 99;
+          return sa - sb;
+        })
+    : [];
+  const pinnedDayLabel = pinnedDayIso ? WEEKDAY_AR[new Date(`${pinnedDayIso}T00:00:00`).getDay()] : null;
+
   const send = async () => {
     const text = input.trim();
     if (!text || !meId || sending) return;
@@ -142,17 +185,33 @@ export default function GroupChatScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
           <Ionicons name="arrow-forward" size={20} color={colors.text} />
         </TouchableOpacity>
-        <View style={styles.headerTextWrap}>
-          <Text style={styles.headerTitle}>{trip.title}</Text>
-          <Text style={styles.headerSubtitle}>{trip.memberIds.length} أعضاء</Text>
-        </View>
         <TouchableOpacity onPress={() => setExpenseSheetVisible(true)} activeOpacity={0.8} hitSlop={8}>
           <Ionicons name="wallet-outline" size={22} color={colors.primary} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('TripDetail', { tripId: trip.id })} activeOpacity={0.8}>
-          <Ionicons name="information-circle-outline" size={22} color={colors.primary} />
+        <TouchableOpacity
+          style={styles.headerTextWrap}
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('TripDetail', { tripId: trip.id })}
+        >
+          <Text style={styles.headerTitle} numberOfLines={1}>{trip.title}</Text>
+          <Text style={styles.headerSubtitle} numberOfLines={1}>{headerSubtitle || `${trip.memberIds.length} أعضاء`}</Text>
         </TouchableOpacity>
       </View>
+
+      {pinnedDayIso && pinnedDayItems.length > 0 ? (
+        <TouchableOpacity
+          style={styles.pinnedBar}
+          activeOpacity={0.85}
+          onPress={() => navigation.navigate('TripDetail', { tripId: trip.id })}
+        >
+          <Ionicons name="chevron-back" size={14} color={colors.textMuted} />
+          <Text style={styles.pinnedBarText} numberOfLines={1}>
+            <Text style={styles.pinnedBarDay}>{pinnedDayLabel}: </Text>
+            {pinnedDayItems.map((i) => i.title).join('  ←  ')}
+          </Text>
+          <Ionicons name="pin" size={14} color={colors.primary} />
+        </TouchableOpacity>
+      ) : null}
 
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         {loading ? (
@@ -223,6 +282,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   headerTextWrap: { flex: 1, marginHorizontal: spacing.md, alignItems: 'flex-end' },
   headerTitle: { color: colors.text, fontSize: 15, fontWeight: '700' },
   headerSubtitle: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
+  pinnedBar: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.primarySoft,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
+  pinnedBarDay: { color: colors.text, fontWeight: '700' },
+  pinnedBarText: { flex: 1, color: colors.primaryDark, fontSize: 12.5, textAlign: 'right' },
   list: { padding: spacing.lg, gap: spacing.md },
   emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xl },
   bubble: { maxWidth: '80%', padding: spacing.md, borderRadius: radius.md, marginBottom: spacing.sm },
