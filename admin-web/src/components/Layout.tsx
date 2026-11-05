@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
@@ -47,7 +47,9 @@ export default function Layout() {
           >
             المظهر: {theme === 'system' ? `تلقائي (${resolved === 'dark' ? 'داكن' : 'فاتح'})` : theme === 'dark' ? 'داكن' : 'فاتح'}
           </button>
-          <div className="px-2 text-xs text-muted-foreground">{profile?.name}</div>
+          <Link to="/account" className="rounded-md px-2 py-1 text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-foreground">
+            {profile?.name} · إعدادات الحساب
+          </Link>
           <button
             onClick={() => signOut()}
             className="rounded-md px-3 py-2 text-right text-sm font-semibold text-destructive hover:bg-muted"

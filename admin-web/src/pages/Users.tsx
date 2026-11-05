@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { downloadCsv } from '../lib/csv';
 
 type Row = { id: string; name: string; username: string; emoji: string; is_admin: boolean; created_at: string };
 
@@ -30,12 +31,32 @@ export default function Users() {
         <span className="text-sm text-muted-foreground">{rows ? `${rows.length} مستخدم` : ''}</span>
       </div>
 
-      <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="بحث بالاسم أو المعرّف..."
-        className="input mb-4 max-w-sm"
-      />
+      <div className="mb-4 flex items-center gap-3">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="بحث بالاسم أو المعرّف..."
+          className="input max-w-sm"
+        />
+        <button
+          onClick={() =>
+            downloadCsv(
+              'users',
+              filtered,
+              [
+                { key: 'name', label: 'الاسم' },
+                { key: 'username', label: 'المعرّف' },
+                { key: 'is_admin', label: 'مدير' },
+                { key: 'created_at', label: 'تاريخ الانضمام' },
+              ]
+            )
+          }
+          disabled={filtered.length === 0}
+          className="shrink-0 rounded-md border border-border px-4 py-2 text-xs font-bold text-foreground hover:bg-muted disabled:opacity-50"
+        >
+          تصدير CSV
+        </button>
+      </div>
 
       <div className="mb-4 rounded-md bg-secondary p-3 text-xs leading-5 text-foreground">
         هذا العرض للقراءة فقط حالياً. تغيير صلاحية «مدير» مقفول عمداً من قاعدة البيانات (ولو عبر هذه اللوحة) ولا يصير

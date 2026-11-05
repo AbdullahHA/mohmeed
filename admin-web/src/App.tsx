@@ -15,6 +15,7 @@ import CommunityReports from './pages/CommunityReports';
 import Users from './pages/Users';
 import Notifications from './pages/Notifications';
 import FeatureFlags from './pages/FeatureFlags';
+import Account from './pages/Account';
 
 function Gate({ children }: { children: React.ReactNode }) {
   const { session, profile, loading } = useAuth();
@@ -65,6 +66,7 @@ function Router() {
         <Route path="users" element={<Users />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="flags" element={<FeatureFlags />} />
+        <Route path="account" element={<Account />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

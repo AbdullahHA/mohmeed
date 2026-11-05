@@ -1,6 +1,30 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import TrendChart from '../components/TrendChart';
+
+const TREND_DAYS = 30;
+
+function lastNDays(n: number): string[] {
+  const out: string[] = [];
+  const today = new Date();
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    out.push(d.toISOString().slice(0, 10));
+  }
+  return out;
+}
+
+function bucketByDay(timestamps: string[], days: string[]): { date: string; value: number }[] {
+  const counts: Record<string, number> = {};
+  for (const day of days) counts[day] = 0;
+  for (const ts of timestamps) {
+    const day = ts.slice(0, 10);
+    if (day in counts) counts[day] += 1;
+  }
+  return days.map((date) => ({ date, value: counts[date] }));
+}
 
 type Counts = {
   destinations: number;
@@ -19,8 +43,22 @@ type PendingCounts = {
 export default function Dashboard() {
   const [counts, setCounts] = useState<Counts | null>(null);
   const [pending, setPending] = useState<PendingCounts | null>(null);
+  const [userTrend, setUserTrend] = useState<{ date: string; value: number }[] | null>(null);
+  const [tripTrend, setTripTrend] = useState<{ date: string; value: number }[] | null>(null);
 
   useEffect(() => {
+    (async () => {
+      const days = lastNDays(TREND_DAYS);
+      const since = new Date();
+      since.setDate(since.getDate() - (TREND_DAYS - 1));
+      since.setHours(0, 0, 0, 0);
+      const [{ data: profileRows }, { data: tripRows }] = await Promise.all([
+        supabase.from('profiles').select('created_at').gte('created_at', since.toISOString()),
+        supabase.from('trips').select('created_at').gte('created_at', since.toISOString()),
+      ]);
+      setUserTrend(bucketByDay((profileRows ?? []).map((r) => r.created_at), days));
+      setTripTrend(bucketByDay((tripRows ?? []).map((r) => r.created_at), days));
+    })();
     (async () => {
       const [destinations, places, users, trips, communities, pushTokens] = await Promise.all([
         supabase.from('destinations').select('id', { count: 'exact', head: true }),
@@ -82,6 +120,14 @@ export default function Dashboard() {
           ))}
         </div>
       ) : null}
+
+      {userTrend && tripTrend ? (
+        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <TrendChart title="مستخدمون جدد (آخر 30 يوم)" data={userTrend} />
+          <TrendChart title="رحلات جديدة (آخر 30 يوم)" data={tripTrend} />
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         {cards.map((card) => {
           const inner = (

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { downloadCsv } from '../lib/csv';
 
 type Row = { id: string; name: string; country: string; tagline: string; image_url: string };
 
@@ -23,9 +24,29 @@ export default function Destinations() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-xl font-bold text-foreground">الوجهات</h1>
-        <Link to="/destinations/new" className="rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground">
-          + وجهة جديدة
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() =>
+              downloadCsv(
+                'destinations',
+                rows ?? [],
+                [
+                  { key: 'id', label: 'المعرّف' },
+                  { key: 'name', label: 'الاسم' },
+                  { key: 'country', label: 'الدولة' },
+                  { key: 'tagline', label: 'الوصف القصير' },
+                ]
+              )
+            }
+            disabled={!rows || rows.length === 0}
+            className="rounded-md border border-border px-4 py-2 text-xs font-bold text-foreground hover:bg-muted disabled:opacity-50"
+          >
+            تصدير CSV
+          </button>
+          <Link to="/destinations/new" className="rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground">
+            + وجهة جديدة
+          </Link>
+        </div>
       </div>
       <div className="surface-card divide-y divide-border">
         {rows === null ? (
