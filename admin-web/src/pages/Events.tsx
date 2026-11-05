@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { downloadCsv } from '../lib/csv';
 import { logAction } from '../lib/auditLog';
+import DataTable, { type DataTableColumn } from '../components/DataTable';
 
 type Row = {
   id: string;
@@ -18,6 +19,7 @@ type Row = {
 
 type Status = 'draft' | 'upcoming' | 'ongoing' | 'ended';
 type Tab = 'all' | 'ongoing' | 'upcoming' | 'draft' | 'ended';
+type RowWithStatus = Row & { status: Status };
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'all', label: 'الكل' },
@@ -56,6 +58,7 @@ function fmtDate(iso: string) {
 }
 
 export default function Events() {
+  const navigate = useNavigate();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [tab, setTab] = useState<Tab>('all');
 
@@ -80,6 +83,45 @@ export default function Events() {
     logAction({ type: 'content', action: 'حذف فعالية', target: row.name });
     load();
   };
+
+  const columns: DataTableColumn<RowWithStatus>[] = [
+    {
+      key: 'name',
+      label: 'الفعالية',
+      render: (e) => (
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-foreground">{e.name}</span>
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_CLASS[e.status]}`}>{STATUS_LABEL[e.status]}</span>
+            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold text-muted-foreground">{AUDIENCE_LABEL[e.audience]}</span>
+          </div>
+        </div>
+      ),
+    },
+    { key: 'city', label: 'المدينة', render: (e) => e.city },
+    { key: 'category', label: 'التصنيف', render: (e) => e.category },
+    {
+      key: 'dates',
+      label: 'التاريخ',
+      className: 'num text-xs text-muted-foreground',
+      render: (e) => `${fmtDate(e.starts_at)} — ${fmtDate(e.ends_at)}`,
+    },
+    {
+      key: 'actions',
+      label: '',
+      render: (e) => (
+        <button
+          onClick={(ev) => {
+            ev.stopPropagation();
+            remove(e);
+          }}
+          className="text-xs font-semibold text-destructive"
+        >
+          حذف
+        </button>
+      ),
+    },
+  ];
 
   return (
     <div>
@@ -106,9 +148,12 @@ export default function Events() {
           >
             تصدير CSV
           </button>
-          <Link to="/events/new" className="rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground">
+          <button
+            onClick={() => navigate('/events/new')}
+            className="rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground"
+          >
             + فعالية جديدة
-          </Link>
+          </button>
         </div>
       </div>
       <p className="mb-4 text-sm text-muted-foreground">
@@ -130,40 +175,13 @@ export default function Events() {
         ))}
       </div>
 
-      <div className="surface-card divide-y divide-border">
-        {rows === null ? (
-          <div className="p-4 text-sm text-muted-foreground">جاري التحميل...</div>
-        ) : filtered.length === 0 ? (
-          <div className="p-4 text-sm text-muted-foreground">لا توجد فعاليات.</div>
-        ) : (
-          filtered.map((e) => (
-            <div key={e.id} className="flex flex-wrap items-center gap-3 p-4">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <Link to={`/events/${e.id}`} className="text-sm font-bold text-foreground hover:underline">
-                    {e.name}
-                  </Link>
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_CLASS[e.status]}`}>
-                    {STATUS_LABEL[e.status]}
-                  </span>
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
-                    {AUDIENCE_LABEL[e.audience]}
-                  </span>
-                </div>
-                <div className="num mt-0.5 text-xs text-muted-foreground">
-                  {e.city} · {e.category} · {fmtDate(e.starts_at)} — {fmtDate(e.ends_at)}
-                </div>
-              </div>
-              <Link to={`/events/${e.id}`} className="text-xs font-semibold text-primary-ink hover:underline">
-                تعديل
-              </Link>
-              <button onClick={() => remove(e)} className="text-xs font-semibold text-destructive">
-                حذف
-              </button>
-            </div>
-          ))
-        )}
-      </div>
+      <DataTable
+        columns={columns}
+        rows={rows === null ? null : filtered}
+        rowKey={(e) => e.id}
+        onRowClick={(e) => navigate(`/events/${e.id}`)}
+        emptyMessage="لا توجد فعاليات."
+      />
     </div>
   );
 }

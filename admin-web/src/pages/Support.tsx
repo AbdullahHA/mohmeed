@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { logAction } from '../lib/auditLog';
 import Drawer from '../components/Drawer';
+import DataTable, { type DataTableColumn } from '../components/DataTable';
 
 type Ticket = {
   id: string;
@@ -138,6 +139,30 @@ export default function Support() {
     return { open, satisfiedPct, ratedCount: rated.length, total: all.length };
   }, [tickets]);
 
+  const columns: DataTableColumn<Ticket>[] = [
+    {
+      key: 'subject',
+      label: 'التذكرة',
+      render: (t) => (
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-foreground">{t.subject}</span>
+            <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_CLASS[t.status]}`}>{STATUS_LABEL[t.status]}</span>
+          </div>
+          <div className="mt-0.5 text-xs text-muted-foreground">
+            {t.user_name} · {TYPE_LABEL[t.type]} · {new Date(t.updated_at).toLocaleString('ar-SA')}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'satisfaction',
+      label: 'التقييم',
+      className: 'num',
+      render: (t) => (t.satisfaction != null ? <span className="font-bold text-gold-ink">{'★'.repeat(t.satisfaction)}</span> : ''),
+    },
+  ];
+
   return (
     <div>
       <div className="mb-6">
@@ -169,32 +194,7 @@ export default function Support() {
         ))}
       </div>
 
-      <div className="surface-card divide-y divide-border">
-        {tickets === null ? (
-          <div className="p-4 text-sm text-muted-foreground">جاري التحميل...</div>
-        ) : filtered.length === 0 ? (
-          <div className="p-4 text-sm text-muted-foreground">ما فيه تذاكر.</div>
-        ) : (
-          filtered.map((t) => (
-            <button key={t.id} onClick={() => openTicket(t)} className="flex w-full items-center gap-3 p-4 text-right hover:bg-muted">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="truncate text-sm font-bold text-foreground">{t.subject}</span>
-                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_CLASS[t.status]}`}>
-                    {STATUS_LABEL[t.status]}
-                  </span>
-                </div>
-                <div className="mt-0.5 text-xs text-muted-foreground">
-                  {t.user_name} · {TYPE_LABEL[t.type]} · {new Date(t.updated_at).toLocaleString('ar-SA')}
-                </div>
-              </div>
-              {t.satisfaction != null ? (
-                <span className="num shrink-0 text-xs font-bold text-gold-ink">{'★'.repeat(t.satisfaction)}</span>
-              ) : null}
-            </button>
-          ))
-        )}
-      </div>
+      <DataTable columns={columns} rows={tickets === null ? null : filtered} rowKey={(t) => t.id} onRowClick={openTicket} emptyMessage="ما فيه تذاكر." />
 
       <Drawer open={!!selected} onClose={() => setSelected(null)} title={selected?.subject ?? ''}>
         {selected ? (
