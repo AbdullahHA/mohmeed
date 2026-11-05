@@ -69,7 +69,7 @@ export default function Communities() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-bold text-foreground">المجتمعات</h1>
         <button onClick={openNew} className="rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground">
           + مجتمع جديد
@@ -101,7 +101,7 @@ export default function Communities() {
           <Field label="الوصف القصير">
             <input value={editing.tagline} onChange={(e) => setEditing({ ...editing, tagline: e.target.value })} className="input" />
           </Field>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="إيموجي">
               <input value={editing.emoji} onChange={(e) => setEditing({ ...editing, emoji: e.target.value })} className="input" />
             </Field>

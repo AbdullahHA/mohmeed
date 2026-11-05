@@ -101,7 +101,7 @@ export default function CountryInfo() {
                   </span>
                 </button>
                 {isOpen ? (
-                  <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <Field label="حالة التأشيرة">
                       <select
                         value={row.visa_status ?? ''}

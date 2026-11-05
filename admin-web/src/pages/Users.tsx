@@ -31,12 +31,12 @@ export default function Users() {
         <span className="text-sm text-muted-foreground">{rows ? `${rows.length} مستخدم` : ''}</span>
       </div>
 
-      <div className="mb-4 flex items-center gap-3">
+      <div className="mb-4 flex flex-wrap items-center gap-3">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="بحث بالاسم أو المعرّف..."
-          className="input max-w-sm"
+          className="input min-w-0 flex-1 sm:max-w-sm"
         />
         <button
           onClick={() =>

@@ -147,7 +147,7 @@ export default function PlaceEdit() {
         <Field label="رابط الصورة">
           <input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} dir="ltr" className="input" />
         </Field>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="النوع">
             <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as FormState['type'] })} className="input">
               <option value="experiences">تجارب</option>
@@ -168,7 +168,7 @@ export default function PlaceEdit() {
             </select>
           </Field>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="التقييم (من 5)">
             <input value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} dir="ltr" className="input" />
           </Field>
@@ -176,7 +176,7 @@ export default function PlaceEdit() {
             <input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="input" />
           </Field>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="خط العرض (latitude)">
             <input value={form.latitude} onChange={(e) => setForm({ ...form, latitude: e.target.value })} dir="ltr" className="input" />
           </Field>
