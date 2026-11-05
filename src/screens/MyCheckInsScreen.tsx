@@ -21,6 +21,9 @@ import { useAuth } from '../context/AuthContext';
 import EmptyState from '../components/EmptyState';
 import RtlScrollRow from '../components/RtlScrollRow';
 import PersonAvatar from '../components/PersonAvatar';
+import CheckInLikeButton from '../components/CheckInLikeButton';
+import CheckInCommentButton from '../components/CheckInCommentButton';
+import CheckInCommentsSheet from '../components/CheckInCommentsSheet';
 import { VENUE_CATEGORY_ICON, VENUE_CATEGORY_LABEL } from '../utils/venueCategory';
 import { computeCheckInBadges } from '../utils/checkInBadges';
 import { computeLeaderboard, type LeaderboardEntry } from '../utils/checkInLeaderboard';
@@ -78,6 +81,7 @@ export default function MyCheckInsScreen() {
   const [friendFeedLoading, setFriendFeedLoading] = useState(false);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[] | null>(null);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
+  const [commentsSheetFor, setCommentsSheetFor] = useState<string | null>(null);
 
   const badges = useMemo(() => computeCheckInBadges(myCheckIns), [myCheckIns]);
   const sections = useMemo(() => groupByDay(myCheckIns), [myCheckIns]);
@@ -196,24 +200,32 @@ export default function MyCheckInsScreen() {
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={styles.list}
                 renderItem={({ item }) => (
-                  <View style={styles.feedRow}>
-                    <PersonAvatar avatarUrl={item.user?.avatarUrl} size={40} />
-                    <View style={styles.rowTextWrap}>
-                      <Text style={styles.rowName}>
-                        <Text style={styles.feedActorName}>{item.user?.name ?? 'صديق'}</Text> سجّل وصوله في {item.venueName}
-                      </Text>
-                      {item.note ? <Text style={styles.feedNote}>{item.note}</Text> : null}
-                      <Text style={styles.rowMeta}>
-                        {VENUE_CATEGORY_LABEL[item.category]} · {timeAgo(item.createdAt)}
-                      </Text>
-                    </View>
-                    {item.photoUrl ? (
-                      <Image source={{ uri: item.photoUrl }} style={styles.feedPhoto} resizeMode="cover" />
-                    ) : (
-                      <View style={styles.feedIcon}>
-                        <Ionicons name={VENUE_CATEGORY_ICON[item.category]} size={18} color={colors.primary} />
+                  <View style={styles.feedCard}>
+                    <View style={styles.feedRow}>
+                      <PersonAvatar avatarUrl={item.user?.avatarUrl} size={40} />
+                      <View style={styles.rowTextWrap}>
+                        <Text style={styles.rowName}>
+                          <Text style={styles.feedActorName}>{item.user?.name ?? 'صديق'}</Text> سجّل وصوله في {item.venueName}
+                        </Text>
+                        {item.note ? <Text style={styles.feedNote}>{item.note}</Text> : null}
+                        <Text style={styles.rowMeta}>
+                          {VENUE_CATEGORY_LABEL[item.category]} · {timeAgo(item.createdAt)}
+                        </Text>
                       </View>
-                    )}
+                      {item.photoUrl ? (
+                        <Image source={{ uri: item.photoUrl }} style={styles.feedPhoto} resizeMode="cover" />
+                      ) : (
+                        <View style={styles.feedIcon}>
+                          <Ionicons name={VENUE_CATEGORY_ICON[item.category]} size={18} color={colors.primary} />
+                        </View>
+                      )}
+                    </View>
+                    {profile ? (
+                      <View style={styles.actionsRow}>
+                        <CheckInLikeButton checkInId={item.id} meId={profile.id} />
+                        <CheckInCommentButton checkInId={item.id} onPress={() => setCommentsSheetFor(item.id)} />
+                      </View>
+                    ) : null}
                   </View>
                 )}
               />
@@ -290,36 +302,53 @@ export default function MyCheckInsScreen() {
               }
               renderSectionHeader={({ section }) => <Text style={styles.sectionHeader}>{section.title}</Text>}
               renderItem={({ item }) => (
-                <View style={styles.row}>
-                  {item.photoUrl ? (
-                    <Image source={{ uri: item.photoUrl }} style={styles.rowPhoto} resizeMode="cover" />
-                  ) : (
-                    <View style={styles.rowIcon}>
-                      <Ionicons name={VENUE_CATEGORY_ICON[item.category]} size={20} color={colors.primary} />
-                    </View>
-                  )}
-                  <View style={styles.rowTextWrap}>
-                    <View style={styles.rowNameWrap}>
-                      <Text style={styles.rowName}>{item.venueName}</Text>
-                      {item.isPrivate ? (
-                        <Ionicons name="lock-closed" size={11} color={colors.textFaint} />
+                <View style={styles.rowCard}>
+                  <View style={styles.row}>
+                    {item.photoUrl ? (
+                      <Image source={{ uri: item.photoUrl }} style={styles.rowPhoto} resizeMode="cover" />
+                    ) : (
+                      <View style={styles.rowIcon}>
+                        <Ionicons name={VENUE_CATEGORY_ICON[item.category]} size={20} color={colors.primary} />
+                      </View>
+                    )}
+                    <View style={styles.rowTextWrap}>
+                      <View style={styles.rowNameWrap}>
+                        <Text style={styles.rowName}>{item.venueName}</Text>
+                        {item.isPrivate ? (
+                          <Ionicons name="lock-closed" size={11} color={colors.textFaint} />
+                        ) : null}
+                      </View>
+                      {item.note ? (
+                        <Text style={styles.feedNote} numberOfLines={1}>{item.note}</Text>
                       ) : null}
+                      <Text style={styles.rowMeta} numberOfLines={1}>
+                        {VENUE_CATEGORY_LABEL[item.category]}
+                        {item.venueAddress ? ` · ${item.venueAddress}` : ''}
+                      </Text>
                     </View>
-                    {item.note ? (
-                      <Text style={styles.feedNote} numberOfLines={1}>{item.note}</Text>
-                    ) : null}
-                    <Text style={styles.rowMeta} numberOfLines={1}>
-                      {VENUE_CATEGORY_LABEL[item.category]}
-                      {item.venueAddress ? ` · ${item.venueAddress}` : ''}
-                    </Text>
+                    <Text style={styles.rowDate}>{formatTime(item.createdAt)}</Text>
                   </View>
-                  <Text style={styles.rowDate}>{formatTime(item.createdAt)}</Text>
+                  {profile ? (
+                    <View style={styles.actionsRow}>
+                      <CheckInLikeButton checkInId={item.id} meId={profile.id} />
+                      <CheckInCommentButton checkInId={item.id} onPress={() => setCommentsSheetFor(item.id)} />
+                    </View>
+                  ) : null}
                 </View>
               )}
             />
           )}
         </>
       )}
+
+      {profile ? (
+        <CheckInCommentsSheet
+          visible={!!commentsSheetFor}
+          checkInId={commentsSheetFor}
+          meId={profile.id}
+          onClose={() => setCommentsSheetFor(null)}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -401,15 +430,18 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.md,
     marginBottom: spacing.xs,
   },
-  row: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: spacing.sm,
+  rowCard: {
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.lg,
     padding: spacing.md,
+    gap: spacing.xs,
+  },
+  row: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
   },
   rowIcon: {
     width: 40,
@@ -424,16 +456,25 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   rowName: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
   rowMeta: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
   rowDate: { color: colors.textFaint, fontSize: 11, fontWeight: '600' },
-  feedRow: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: spacing.sm,
+  feedCard: {
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.lg,
     padding: spacing.md,
     marginBottom: spacing.sm,
+    gap: spacing.xs,
+  },
+  feedRow: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  actionsRow: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginTop: 2,
   },
   feedActorName: { color: colors.primary, fontWeight: '700' },
   feedNote: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
