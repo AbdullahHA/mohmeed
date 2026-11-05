@@ -15,6 +15,8 @@ import CommunityRequests from './pages/CommunityRequests';
 import CommunityReports from './pages/CommunityReports';
 import Users from './pages/Users';
 import Notifications from './pages/Notifications';
+import Events from './pages/Events';
+import EventEdit from './pages/EventEdit';
 import FeatureFlags from './pages/FeatureFlags';
 import Account from './pages/Account';
 import Team from './pages/Team';
@@ -70,6 +72,8 @@ function Router() {
         <Route path="community-reports" element={<RequireRole page="/community-reports"><CommunityReports /></RequireRole>} />
         <Route path="users" element={<RequireRole page="/users"><Users /></RequireRole>} />
         <Route path="notifications" element={<RequireRole page="/notifications"><Notifications /></RequireRole>} />
+        <Route path="events" element={<RequireRole page="/events"><Events /></RequireRole>} />
+        <Route path="events/:id" element={<RequireRole page="/events"><EventEdit /></RequireRole>} />
         <Route path="flags" element={<RequireRole page="/flags"><FeatureFlags /></RequireRole>} />
         <Route path="team" element={<RequireRole page="/team"><Team /></RequireRole>} />
         <Route path="audit" element={<RequireRole page="/audit"><Audit /></RequireRole>} />

@@ -153,6 +153,9 @@ export default function DiscoverScreen() {
               >
                 <Ionicons name={viewMode === 'list' ? 'map-outline' : 'list-outline'} size={18} color={colors.text} />
               </TouchableOpacity>
+              <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => navigation.navigate('Events')}>
+                <Ionicons name="calendar-outline" size={18} color={colors.text} />
+              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.iconBtn}
                 activeOpacity={0.8}

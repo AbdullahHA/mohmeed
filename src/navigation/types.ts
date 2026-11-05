@@ -31,6 +31,8 @@ export type RootStackParamList = {
   AddFriend: undefined;
   Friends: undefined;
   Notifications: undefined;
+  Events: undefined;
+  EventDetail: { eventId: string };
   SavedPlaces: undefined;
   FriendChat: { friendId: string };
   LocationShare: { friendId: string };

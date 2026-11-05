@@ -24,7 +24,7 @@ const NAV_GROUPS: { label: string; items: { to: PageKey; label: string; end?: bo
       { to: '/users', label: 'المستخدمون' },
     ],
   },
-  { label: 'النمو', items: [{ to: '/notifications', label: 'الإشعارات' }] },
+  { label: 'النمو', items: [{ to: '/notifications', label: 'الإشعارات' }, { to: '/events', label: 'الفعاليات' }] },
   {
     label: 'النظام',
     items: [
