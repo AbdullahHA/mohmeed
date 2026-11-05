@@ -6,6 +6,7 @@ import Gauge from '../components/Gauge';
 import WeekdayBarChart from '../components/WeekdayBarChart';
 import KpiTile from '../components/KpiTile';
 import RankedBarList from '../components/RankedBarList';
+import SystemStatusStrip from '../components/SystemStatusStrip';
 import { UsersIcon, RouteIcon, PinIcon, BellIcon } from '../components/icons';
 
 const TREND_DAYS = 30;
@@ -318,6 +319,7 @@ export default function Dashboard() {
         ) : null}
         {weekdayActivity ? <WeekdayBarChart title="أكثر أيام الأسبوع نشاطًا (رحلات آخر 90 يوم)" data={weekdayActivity} /> : null}
         {topDestinations ? <RankedBarList title="أكثر الوجهات تخطيطًا" items={topDestinations} /> : null}
+        <SystemStatusStrip />
       </div>
 
       <h2 className="mb-3 text-sm font-bold text-foreground">استخدام دليل السفر الذكي (آخر 30 يوم)</h2>

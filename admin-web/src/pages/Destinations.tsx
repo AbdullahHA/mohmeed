@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { downloadCsv } from '../lib/csv';
+import DataTable, { type DataTableColumn } from '../components/DataTable';
 
 type Row = { id: string; name: string; country: string; tagline: string; image_url: string };
 
 export default function Destinations() {
+  const navigate = useNavigate();
   const [rows, setRows] = useState<Row[] | null>(null);
 
   const load = async () => {
@@ -19,6 +21,21 @@ export default function Destinations() {
   useEffect(() => {
     load();
   }, []);
+
+  const columns: DataTableColumn<Row>[] = [
+    {
+      key: 'name',
+      label: 'الوجهة',
+      render: (d) => (
+        <div className="flex items-center gap-3">
+          <img src={d.image_url} alt="" className="h-10 w-10 shrink-0 rounded-md object-cover" />
+          <span className="font-bold text-foreground">{d.name}</span>
+        </div>
+      ),
+    },
+    { key: 'country', label: 'الدولة', render: (d) => d.country },
+    { key: 'tagline', label: 'الوصف القصير', className: 'text-muted-foreground', render: (d) => d.tagline },
+  ];
 
   return (
     <div>
@@ -43,28 +60,21 @@ export default function Destinations() {
           >
             تصدير CSV
           </button>
-          <Link to="/destinations/new" className="rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground">
+          <button
+            onClick={() => navigate('/destinations/new')}
+            className="rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground"
+          >
             + وجهة جديدة
-          </Link>
+          </button>
         </div>
       </div>
-      <div className="surface-card divide-y divide-border">
-        {rows === null ? (
-          <div className="p-4 text-sm text-muted-foreground">جاري التحميل...</div>
-        ) : rows.length === 0 ? (
-          <div className="p-4 text-sm text-muted-foreground">ما فيه وجهات بعد</div>
-        ) : (
-          rows.map((d) => (
-            <Link key={d.id} to={`/destinations/${d.id}`} className="flex items-center gap-3 p-3 hover:bg-muted">
-              <img src={d.image_url} alt="" className="h-12 w-12 rounded-md object-cover" />
-              <div className="flex-1">
-                <div className="text-sm font-bold text-foreground">{d.name}</div>
-                <div className="text-xs text-muted-foreground">{d.country} · {d.tagline}</div>
-              </div>
-            </Link>
-          ))
-        )}
-      </div>
+      <DataTable
+        columns={columns}
+        rows={rows}
+        rowKey={(d) => d.id}
+        onRowClick={(d) => navigate(`/destinations/${d.id}`)}
+        emptyMessage="ما فيه وجهات بعد"
+      />
     </div>
   );
 }

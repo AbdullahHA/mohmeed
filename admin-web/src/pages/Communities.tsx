@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import DataTable, { type DataTableColumn } from '../components/DataTable';
 
 type Row = { id: string; name: string; tagline: string; emoji: string; color: string; base_member_count: number };
 
@@ -67,6 +68,45 @@ export default function Communities() {
     load();
   };
 
+  const columns: DataTableColumn<Row>[] = [
+    {
+      key: 'name',
+      label: 'المجتمع',
+      render: (c) => (
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-base" style={{ backgroundColor: `${c.color}22` }}>
+            {c.emoji}
+          </div>
+          <div>
+            <div className="font-bold text-foreground">{c.name}</div>
+            <div className="text-xs text-muted-foreground">{c.tagline}</div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'members',
+      label: 'الأعضاء',
+      className: 'num',
+      render: (c) => `${(counts[c.id] ?? 0) + c.base_member_count} عضو`,
+    },
+    {
+      key: 'actions',
+      label: '',
+      render: (c) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDelete(c);
+          }}
+          className="text-xs font-semibold text-destructive"
+        >
+          حذف
+        </button>
+      ),
+    },
+  ];
+
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -129,29 +169,7 @@ export default function Communities() {
         </div>
       ) : null}
 
-      <div className="surface-card divide-y divide-border">
-        {rows === null ? (
-          <div className="p-4 text-sm text-muted-foreground">جاري التحميل...</div>
-        ) : rows.length === 0 ? (
-          <div className="p-4 text-sm text-muted-foreground">ما فيه مجتمعات بعد</div>
-        ) : (
-          rows.map((c) => (
-            <div key={c.id} className="flex items-center gap-3 p-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg" style={{ backgroundColor: `${c.color}22` }}>
-                {c.emoji}
-              </div>
-              <div className="flex-1 cursor-pointer" onClick={() => openEdit(c)}>
-                <div className="text-sm font-bold text-foreground">{c.name}</div>
-                <div className="text-xs text-muted-foreground">{c.tagline}</div>
-              </div>
-              <div className="num text-xs text-muted-foreground">{(counts[c.id] ?? 0) + c.base_member_count} عضو</div>
-              <button onClick={() => handleDelete(c)} className="text-xs font-semibold text-destructive">
-                حذف
-              </button>
-            </div>
-          ))
-        )}
-      </div>
+      <DataTable columns={columns} rows={rows} rowKey={(c) => c.id} onRowClick={openEdit} emptyMessage="ما فيه مجتمعات بعد" />
     </div>
   );
 }

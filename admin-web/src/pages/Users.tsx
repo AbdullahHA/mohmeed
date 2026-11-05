@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { downloadCsv } from '../lib/csv';
 import Drawer from '../components/Drawer';
+import DataTable, { type DataTableColumn } from '../components/DataTable';
 
 type Row = { id: string; name: string; username: string; emoji: string; is_admin: boolean; created_at: string };
 
@@ -47,6 +48,31 @@ export default function Users() {
     return r.name.toLowerCase().includes(q) || r.username.toLowerCase().includes(q);
   });
 
+  const columns: DataTableColumn<Row>[] = [
+    {
+      key: 'name',
+      label: 'المستخدم',
+      render: (u) => (
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary text-base">{u.emoji}</div>
+          <div>
+            <div className="font-bold text-foreground">
+              {u.name}
+              {u.is_admin ? <span className="mr-1 rounded bg-gold-soft px-1.5 py-0.5 text-[10px] font-bold text-gold-ink">مدير</span> : null}
+            </div>
+            <div className="text-xs text-muted-foreground" dir="ltr">@{u.username}</div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'created_at',
+      label: 'تاريخ الانضمام',
+      className: 'num text-xs text-muted-foreground',
+      render: (u) => new Date(u.created_at).toLocaleDateString('ar-SA'),
+    },
+  ];
+
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
@@ -87,28 +113,13 @@ export default function Users() {
         (service role) غير متاحة بأمان من لوحة ويب عامة.
       </div>
 
-      <div className="surface-card divide-y divide-border">
-        {filtered.length === 0 ? (
-          <div className="p-4 text-sm text-muted-foreground">{rows === null ? 'جاري التحميل...' : 'ما فيه نتائج'}</div>
-        ) : (
-          filtered.map((u) => (
-            <button
-              key={u.id}
-              onClick={() => openUser(u)}
-              className="flex w-full items-center gap-3 p-3 text-right hover:bg-muted"
-            >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary text-base">{u.emoji}</div>
-              <div className="flex-1">
-                <div className="text-sm font-bold text-foreground">
-                  {u.name} {u.is_admin ? <span className="mr-1 rounded bg-gold-soft px-1.5 py-0.5 text-[10px] font-bold text-gold-ink">مدير</span> : null}
-                </div>
-                <div className="text-xs text-muted-foreground" dir="ltr">@{u.username}</div>
-              </div>
-              <div className="text-xs text-muted-foreground">{new Date(u.created_at).toLocaleDateString('ar-SA')}</div>
-            </button>
-          ))
-        )}
-      </div>
+      <DataTable
+        columns={columns}
+        rows={rows === null ? null : filtered}
+        rowKey={(u) => u.id}
+        onRowClick={openUser}
+        emptyMessage="ما فيه نتائج"
+      />
 
       <Drawer open={selected != null} onClose={() => setSelected(null)} title={selected?.name ?? ''}>
         {selected ? (

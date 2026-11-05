@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import Drawer from '../components/Drawer';
+import DataTable, { type DataTableColumn } from '../components/DataTable';
 
 type Row = {
   id: string;
@@ -45,38 +46,38 @@ export default function Audit() {
     })();
   }, []);
 
+  const columns: DataTableColumn<Row>[] = [
+    {
+      key: 'type',
+      label: 'النوع',
+      render: (r) => (
+        <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold text-primary-ink">
+          {TYPE_LABELS[r.type] ?? r.type}
+        </span>
+      ),
+    },
+    { key: 'action', label: 'العملية', render: (r) => <span className="font-semibold text-foreground">{r.action}</span> },
+    { key: 'target', label: 'الهدف', className: 'text-xs text-muted-foreground', render: (r) => r.target },
+    {
+      key: 'actor',
+      label: 'العضو',
+      className: 'text-xs text-muted-foreground',
+      render: (r) => <span dir="ltr">{r.actor_name ?? r.actor_id.slice(0, 8)}</span>,
+    },
+    {
+      key: 'at',
+      label: 'الوقت',
+      className: 'num text-xs text-muted-foreground',
+      render: (r) => new Date(r.at).toLocaleString('ar-SA'),
+    },
+  ];
+
   return (
     <div>
       <h1 className="mb-1 text-xl font-bold text-foreground">سجل العمليات</h1>
       <p className="mb-6 text-sm text-muted-foreground">كل تغيير يسجَّل ولا يُنحذف. للقراءة فقط، حق للمالك.</p>
 
-      <div className="surface-card divide-y divide-border">
-        {rows === null ? (
-          <div className="p-4 text-sm text-muted-foreground">جاري التحميل...</div>
-        ) : rows.length === 0 ? (
-          <div className="p-4 text-sm text-muted-foreground">ما فيه عمليات مسجّلة بعد</div>
-        ) : (
-          rows.map((r) => (
-            <button
-              key={r.id}
-              onClick={() => setSelected(r)}
-              className="flex w-full items-center gap-3 p-3 text-right hover:bg-muted"
-            >
-              <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold text-primary-ink">
-                {TYPE_LABELS[r.type] ?? r.type}
-              </span>
-              <span className="flex-1 text-sm font-semibold text-foreground">{r.action}</span>
-              <span className="text-xs text-muted-foreground">{r.target}</span>
-              <span className="text-xs text-muted-foreground" dir="ltr">
-                {r.actor_name ?? r.actor_id.slice(0, 8)}
-              </span>
-              <span className="num text-xs text-muted-foreground">
-                {new Date(r.at).toLocaleString('ar-SA')}
-              </span>
-            </button>
-          ))
-        )}
-      </div>
+      <DataTable columns={columns} rows={rows} rowKey={(r) => r.id} onRowClick={setSelected} emptyMessage="ما فيه عمليات مسجّلة بعد" />
 
       <Drawer open={selected != null} onClose={() => setSelected(null)} title="تفاصيل العملية">
         {selected ? (

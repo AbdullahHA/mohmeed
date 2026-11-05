@@ -68,10 +68,6 @@ export default function Layout() {
         </button>
       </div>
 
-      <div className="px-2">
-        <CommandPalette items={allVisibleItems} />
-      </div>
-
       {visibleGroups.map((group) => (
         <div key={group.label} className="mb-1">
           <div className="px-3 pb-1 pt-2 text-[11px] font-bold text-muted-foreground">{group.label}</div>
@@ -151,6 +147,9 @@ export default function Layout() {
       </aside>
 
       <main className="min-w-0 flex-1 overflow-y-auto p-4 pt-20 md:p-6 md:pt-6">
+        <div className="mb-6 max-w-xl">
+          <CommandPalette items={allVisibleItems} />
+        </div>
         <Outlet />
       </main>
     </div>

@@ -89,7 +89,7 @@ export default function CommandPalette({ items }: { items: Item[] }) {
         className="mb-4 flex w-full items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-xs text-muted-foreground hover:bg-muted"
       >
         <SearchIcon />
-        <span className="flex-1 text-right">ابحث عن صفحة، مستخدم، أو مكان...</span>
+        <span className="flex-1 text-right">ابحث عن مكان، مستخدم، أو أمر...</span>
         <kbd className="hidden rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] md:inline">⌘K</kbd>
       </button>
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { ROLE_LABELS, effectiveRole, type AdminRole } from '../lib/roles';
+import DataTable, { type DataTableColumn } from '../components/DataTable';
 
 type Row = { id: string; name: string; username: string; admin_role: string | null };
 
@@ -18,6 +19,37 @@ export default function Team() {
     })();
   }, []);
 
+  const columns: DataTableColumn<Row>[] = [
+    {
+      key: 'name',
+      label: 'العضو',
+      render: (r) => (
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-bold text-primary-ink">
+            {r.name.charAt(0)}
+          </div>
+          <div>
+            <div className="font-bold text-foreground">{r.name}</div>
+            <div className="text-xs text-muted-foreground" dir="ltr">@{r.username}</div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'role',
+      label: 'الدور',
+      render: (r) => {
+        const role = effectiveRole(r.admin_role) as AdminRole;
+        return (
+          <span className="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-primary-ink">
+            {ROLE_LABELS[role]}
+            {!r.admin_role ? ' (افتراضي)' : ''}
+          </span>
+        );
+      },
+    },
+  ];
+
   return (
     <div>
       <h1 className="mb-1 text-xl font-bold text-foreground">الفريق والصلاحيات</h1>
@@ -34,32 +66,7 @@ export default function Team() {
         </code>
       </div>
 
-      <div className="surface-card divide-y divide-border">
-        {rows === null ? (
-          <div className="p-4 text-sm text-muted-foreground">جاري التحميل...</div>
-        ) : rows.length === 0 ? (
-          <div className="p-4 text-sm text-muted-foreground">ما فيه أعضاء فريق بعد</div>
-        ) : (
-          rows.map((r) => {
-            const role = effectiveRole(r.admin_role) as AdminRole;
-            return (
-              <div key={r.id} className="flex items-center gap-3 p-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-bold text-primary-ink">
-                  {r.name.charAt(0)}
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm font-bold text-foreground">{r.name}</div>
-                  <div className="text-xs text-muted-foreground" dir="ltr">@{r.username}</div>
-                </div>
-                <span className="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-primary-ink">
-                  {ROLE_LABELS[role]}
-                  {!r.admin_role ? ' (افتراضي)' : ''}
-                </span>
-              </div>
-            );
-          })
-        )}
-      </div>
+      <DataTable columns={columns} rows={rows} rowKey={(r) => r.id} emptyMessage="ما فيه أعضاء فريق بعد" />
     </div>
   );
 }

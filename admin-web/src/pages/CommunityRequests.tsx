@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { logAction } from '../lib/auditLog';
+import DataTable, { type DataTableColumn } from '../components/DataTable';
 
 type Row = {
   id: string;
@@ -106,6 +107,79 @@ export default function CommunityRequests() {
   const pending = (rows ?? []).filter((r) => r.status === 'pending');
   const reviewed = (rows ?? []).filter((r) => r.status !== 'pending');
 
+  const pendingColumns: DataTableColumn<Row>[] = [
+    {
+      key: 'name',
+      label: 'المجتمع',
+      render: (r) => (
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary text-base">{r.emoji}</div>
+          <div>
+            <div className="font-bold text-foreground">{r.name}</div>
+            <div className="text-xs text-muted-foreground">{r.tagline}</div>
+          </div>
+        </div>
+      ),
+    },
+    { key: 'reason', label: 'السبب', className: 'text-xs text-muted-foreground', render: (r) => r.reason },
+    {
+      key: 'requester',
+      label: 'الطالب',
+      className: 'text-xs text-muted-foreground',
+      render: (r) => `${r.requester_name ?? r.requester_id} · ${new Date(r.created_at).toLocaleDateString('ar')}`,
+    },
+    {
+      key: 'actions',
+      label: '',
+      render: (r) => (
+        <div className="flex gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              approve(r);
+            }}
+            disabled={busyId === r.id}
+            className="rounded-md bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground disabled:opacity-50"
+          >
+            موافقة
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              reject(r);
+            }}
+            disabled={busyId === r.id}
+            className="rounded-md border border-border px-3 py-1.5 text-xs font-bold text-destructive disabled:opacity-50"
+          >
+            رفض
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  const reviewedColumns: DataTableColumn<Row>[] = [
+    {
+      key: 'name',
+      label: 'المجتمع',
+      render: (r) => (
+        <div className="flex items-center gap-2">
+          <span>{r.emoji}</span>
+          <span className="font-semibold text-foreground">{r.name}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'status',
+      label: 'الحالة',
+      render: (r) => (
+        <span className={`text-xs font-semibold ${r.status === 'approved' ? 'text-primary' : 'text-destructive'}`}>
+          {r.status === 'approved' ? 'تمت الموافقة' : 'مرفوض'}
+        </span>
+      ),
+    },
+  ];
+
   return (
     <div>
       <div className="mb-6">
@@ -117,58 +191,14 @@ export default function CommunityRequests() {
 
       {error ? <p className="mb-4 text-sm text-destructive">{error}</p> : null}
 
-      <div className="surface-card mb-6 divide-y divide-border">
-        {rows === null ? (
-          <div className="p-4 text-sm text-muted-foreground">جاري التحميل...</div>
-        ) : pending.length === 0 ? (
-          <div className="p-4 text-sm text-muted-foreground">ما فيه طلبات قيد المراجعة</div>
-        ) : (
-          pending.map((r) => (
-            <div key={r.id} className="flex items-start gap-3 p-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary text-lg">{r.emoji}</div>
-              <div className="flex-1">
-                <div className="text-sm font-bold text-foreground">{r.name}</div>
-                <div className="text-xs text-muted-foreground">{r.tagline}</div>
-                <div className="mt-1 text-xs text-muted-foreground">السبب: {r.reason}</div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  من: {r.requester_name ?? r.requester_id} · {new Date(r.created_at).toLocaleDateString('ar')}
-                </div>
-              </div>
-              <div className="flex shrink-0 flex-col gap-2">
-                <button
-                  onClick={() => approve(r)}
-                  disabled={busyId === r.id}
-                  className="rounded-md bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground disabled:opacity-50"
-                >
-                  موافقة
-                </button>
-                <button
-                  onClick={() => reject(r)}
-                  disabled={busyId === r.id}
-                  className="rounded-md border border-border px-4 py-1.5 text-xs font-bold text-destructive disabled:opacity-50"
-                >
-                  رفض
-                </button>
-              </div>
-            </div>
-          ))
-        )}
+      <div className="mb-6">
+        <DataTable columns={pendingColumns} rows={rows === null ? null : pending} rowKey={(r) => r.id} emptyMessage="ما فيه طلبات قيد المراجعة" />
       </div>
 
       {reviewed.length > 0 ? (
         <>
           <h2 className="mb-3 text-sm font-bold text-foreground">طلبات سابقة</h2>
-          <div className="surface-card divide-y divide-border">
-            {reviewed.map((r) => (
-              <div key={r.id} className="flex items-center gap-3 p-3">
-                <span className="text-lg">{r.emoji}</span>
-                <div className="flex-1 text-sm text-foreground">{r.name}</div>
-                <span className={`text-xs font-semibold ${r.status === 'approved' ? 'text-primary' : 'text-destructive'}`}>
-                  {r.status === 'approved' ? 'تمت الموافقة' : 'مرفوض'}
-                </span>
-              </div>
-            ))}
-          </div>
+          <DataTable columns={reviewedColumns} rows={reviewed} rowKey={(r) => r.id} />
         </>
       ) : null}
     </div>
