@@ -163,6 +163,51 @@ export async function searchNearbyPlaces(
   return ((data.places ?? []) as any[]).map(mapResult);
 }
 
+export type CitySuggestion = {
+  id: string;
+  name: string;
+  region: string; // country/state, as returned by Google, for display and filtering
+};
+
+/**
+ * Autocompletes city/locality names worldwide (not biased to any location),
+ * used by the travel-passport "add a city stamp" flow. Excludes any result
+ * whose region text names Israel — this app never lists it as a place.
+ */
+export async function searchCities(query: string): Promise<CitySuggestion[]> {
+  if (!API_KEY) return [];
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const response = await fetch(`${BASE_URL}/places:autocomplete`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': API_KEY,
+    },
+    body: JSON.stringify({
+      input: trimmed,
+      includedPrimaryTypes: ['locality'],
+      languageCode: 'ar',
+    }),
+  });
+  if (!response.ok) return [];
+  const data = await response.json();
+  const suggestions = (data.suggestions ?? []) as any[];
+  return suggestions
+    .map((s) => {
+      const p = s.placePrediction;
+      if (!p) return null;
+      return {
+        id: p.placeId as string,
+        name: p.structuredFormat?.mainText?.text ?? p.text?.text ?? '',
+        region: p.structuredFormat?.secondaryText?.text ?? '',
+      };
+    })
+    .filter((c): c is CitySuggestion => !!c && !!c.name)
+    .filter((c) => !/israel|إسرائيل/i.test(c.region));
+}
+
 export function getPlacePhotoUrl(photoName: string, maxWidthPx = 800): string | null {
   if (!API_KEY) return null;
   return `${BASE_URL}/${photoName}/media?maxWidthPx=${maxWidthPx}&key=${API_KEY}`;

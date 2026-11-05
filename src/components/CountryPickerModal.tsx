@@ -11,6 +11,11 @@ import Text from './Text';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { COUNTRIES } from '../data/countries';
+import { COUNTRY_OPTIONS } from '../data/countryFlags';
+
+const FLAG_BY_NAME: Record<string, string> = Object.fromEntries(
+  COUNTRY_OPTIONS.map((c) => [c.name, c.flag])
+);
 
 type Props = {
   visible: boolean;
@@ -62,6 +67,7 @@ export default function CountryPickerModal({ visible, title, onSelect, onClose }
                   handleClose();
                 }}
               >
+                <Text style={styles.rowFlag}>{FLAG_BY_NAME[item] ?? '🏳️'}</Text>
                 <Text style={styles.rowText}>{item}</Text>
               </Pressable>
             )}
@@ -114,6 +120,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.lg,
   },
   row: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.sm,
     borderBottomWidth: 1,
@@ -122,6 +131,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   rowPressed: {
     backgroundColor: colors.surfaceAlt,
   },
+  rowFlag: { fontSize: 18 },
   rowText: {
     color: colors.text,
     fontSize: 14,
