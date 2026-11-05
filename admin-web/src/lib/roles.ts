@@ -31,6 +31,7 @@ export type PageKey =
   | '/flags'
   | '/team'
   | '/audit'
+  | '/system-health'
   | '/account';
 
 export const PAGE_ROLES: Record<PageKey, AdminRole[] | '*'> = {
@@ -46,6 +47,7 @@ export const PAGE_ROLES: Record<PageKey, AdminRole[] | '*'> = {
   '/flags': ['owner'],
   '/team': ['owner'],
   '/audit': ['owner'],
+  '/system-health': ['owner', 'analyst'],
   '/account': '*',
 };
 
