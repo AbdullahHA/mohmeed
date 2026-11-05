@@ -58,6 +58,7 @@ export type RootStackParamList = {
   OnboardingQuiz: undefined;
   CountrySetting: undefined;
   CurrencySetting: undefined;
+  CurrencyConverter: undefined;
   AppearanceSetting: undefined;
   About: undefined;
   Terms: undefined;

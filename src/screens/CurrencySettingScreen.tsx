@@ -53,6 +53,12 @@ export default function CurrencySettingScreen() {
 
       <Text style={styles.hint}>يغيّر رمز العملة الظاهر بميزانيات رحلاتك فقط، بدون تحويل سعر صرف فعلي</Text>
 
+      <TouchableOpacity style={styles.converterLink} activeOpacity={0.8} onPress={() => navigation.navigate('CurrencyConverter')}>
+        <Ionicons name="chevron-back" size={16} color={colors.primary} />
+        <Text style={styles.converterLinkText}>تبي تحوّل مبلغ بين عملتين؟ افتح حاسبة التحويل</Text>
+        <Ionicons name="calculator-outline" size={18} color={colors.primary} />
+      </TouchableOpacity>
+
       <FlatList
         data={CURRENCIES}
         keyExtractor={(item) => item.code}
@@ -76,6 +82,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
   hint: { color: colors.textFaint, fontSize: 11, textAlign: 'right', padding: spacing.lg, paddingBottom: 0, lineHeight: 16 },
+  converterLink: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.md,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+    padding: spacing.md,
+  },
+  converterLinkText: { flex: 1, color: colors.primaryDark, fontSize: 12.5, fontWeight: '600', textAlign: 'right' },
   list: { padding: spacing.lg },
   row: {
     flexDirection: 'row-reverse',

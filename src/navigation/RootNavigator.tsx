@@ -53,6 +53,7 @@ import SettingsScreen from '../screens/SettingsScreen';
 import OnboardingQuizScreen from '../screens/OnboardingQuizScreen';
 import CountrySettingScreen from '../screens/CountrySettingScreen';
 import CurrencySettingScreen from '../screens/CurrencySettingScreen';
+import CurrencyConverterScreen from '../screens/CurrencyConverterScreen';
 import AppearanceSettingScreen from '../screens/AppearanceSettingScreen';
 import AboutScreen from '../screens/AboutScreen';
 import TermsScreen from '../screens/TermsScreen';
@@ -155,6 +156,7 @@ export default function RootNavigator() {
       <Stack.Screen name="OnboardingQuiz" component={OnboardingQuizScreen} options={{ presentation: 'fullScreenModal' }} />
       <Stack.Screen name="CountrySetting" component={CountrySettingScreen} options={{ presentation: 'fullScreenModal' }} />
       <Stack.Screen name="CurrencySetting" component={CurrencySettingScreen} options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="CurrencyConverter" component={CurrencyConverterScreen} options={{ presentation: 'fullScreenModal' }} />
       <Stack.Screen name="AppearanceSetting" component={AppearanceSettingScreen} options={{ presentation: 'fullScreenModal' }} />
       <Stack.Screen name="About" component={AboutScreen} />
       <Stack.Screen name="Terms" component={TermsScreen} />
