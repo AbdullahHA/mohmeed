@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../context/ToastContext';
+import { logAction } from '../lib/auditLog';
 
 type Flag = { key: string; enabled: boolean; updated_at: string };
 
@@ -40,6 +41,7 @@ export default function FeatureFlags() {
     }
     const label = LABELS[key]?.title ?? key;
     showToast(`${enabled ? 'تفعيل' : 'إيقاف'} «${label}»`, () => toggle(key, !enabled));
+    logAction({ type: 'settings', action: enabled ? 'تفعيل ميزة' : 'إيقاف ميزة', target: label });
     load();
   };
 

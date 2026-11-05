@@ -30,6 +30,7 @@ const NAV_GROUPS: { label: string; items: { to: PageKey; label: string; end?: bo
     items: [
       { to: '/flags', label: 'مفاتيح الميزات' },
       { to: '/team', label: 'الفريق والصلاحيات' },
+      { to: '/audit', label: 'سجل العمليات' },
     ],
   },
 ];

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../context/ToastContext';
+import { logAction } from '../lib/auditLog';
 
 type Row = {
   id: string;
@@ -60,6 +61,12 @@ export default function CommunityReports() {
     showToast('تمت مراجعة البلاغ', async () => {
       await supabase.from('community_reports').update({ status: 'open' }).eq('id', row.id);
       load();
+    });
+    logAction({
+      type: 'mod',
+      action: 'مراجعة بلاغ مجتمع',
+      target: `${row.community_name ?? row.community_id} — ${row.reason}`,
+      diff: { status: { before: 'open', after: 'reviewed' } },
     });
     load();
   };

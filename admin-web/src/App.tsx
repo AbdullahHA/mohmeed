@@ -18,6 +18,7 @@ import Notifications from './pages/Notifications';
 import FeatureFlags from './pages/FeatureFlags';
 import Account from './pages/Account';
 import Team from './pages/Team';
+import Audit from './pages/Audit';
 import RequireRole from './components/RequireRole';
 
 function Gate({ children }: { children: React.ReactNode }) {
@@ -70,6 +71,7 @@ function Router() {
         <Route path="notifications" element={<RequireRole page="/notifications"><Notifications /></RequireRole>} />
         <Route path="flags" element={<RequireRole page="/flags"><FeatureFlags /></RequireRole>} />
         <Route path="team" element={<RequireRole page="/team"><Team /></RequireRole>} />
+        <Route path="audit" element={<RequireRole page="/audit"><Audit /></RequireRole>} />
         <Route path="account" element={<Account />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

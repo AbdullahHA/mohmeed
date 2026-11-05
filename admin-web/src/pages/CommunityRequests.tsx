@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { logAction } from '../lib/auditLog';
 
 type Row = {
   id: string;
@@ -86,6 +87,7 @@ export default function CommunityRequests() {
       .update({ status: 'approved', community_id: communityId, reviewed_by: me.user?.id, reviewed_at: new Date().toISOString() })
       .eq('id', row.id);
     setBusyId(null);
+    logAction({ type: 'mod', action: 'موافقة على طلب إنشاء مجتمع', target: row.name });
     load();
   };
 
@@ -97,6 +99,7 @@ export default function CommunityRequests() {
       .update({ status: 'rejected', reviewed_by: me.user?.id, reviewed_at: new Date().toISOString() })
       .eq('id', row.id);
     setBusyId(null);
+    logAction({ type: 'mod', action: 'رفض طلب إنشاء مجتمع', target: row.name });
     load();
   };
 
