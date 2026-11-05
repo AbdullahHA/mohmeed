@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { useToast } from '../context/ToastContext';
 
 type Row = {
   id: string;
@@ -18,6 +19,7 @@ type Row = {
 export default function CommunityReports() {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   const load = async () => {
     const { data } = await supabase
@@ -55,6 +57,10 @@ export default function CommunityReports() {
     setBusyId(row.id);
     await supabase.from('community_reports').update({ status: 'reviewed' }).eq('id', row.id);
     setBusyId(null);
+    showToast('تمت مراجعة البلاغ', async () => {
+      await supabase.from('community_reports').update({ status: 'open' }).eq('id', row.id);
+      load();
+    });
     load();
   };
 

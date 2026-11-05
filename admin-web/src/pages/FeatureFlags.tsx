@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { useToast } from '../context/ToastContext';
 
 type Flag = { key: string; enabled: boolean; updated_at: string };
 
@@ -12,6 +13,7 @@ const LABELS: Record<string, { title: string; desc: string }> = {
 export default function FeatureFlags() {
   const [flags, setFlags] = useState<Flag[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   const load = async () => {
     const { data, error: loadError } = await supabase.from('app_flags').select('key,enabled,updated_at').order('key');
@@ -36,6 +38,8 @@ export default function FeatureFlags() {
       setError(updateError.message);
       return;
     }
+    const label = LABELS[key]?.title ?? key;
+    showToast(`${enabled ? 'تفعيل' : 'إيقاف'} «${label}»`, () => toggle(key, !enabled));
     load();
   };
 

@@ -5,6 +5,7 @@ import TrendChart from '../components/TrendChart';
 import Gauge from '../components/Gauge';
 import WeekdayBarChart from '../components/WeekdayBarChart';
 import KpiTile from '../components/KpiTile';
+import RankedBarList from '../components/RankedBarList';
 import { UsersIcon, RouteIcon, PinIcon, BellIcon } from '../components/icons';
 
 const TREND_DAYS = 30;
@@ -84,6 +85,7 @@ export default function Dashboard() {
   const [weekdayActivity, setWeekdayActivity] = useState<{ label: string; value: number }[] | null>(null);
   const [topPlaces, setTopPlaces] = useState<TopPlace[] | null>(null);
   const [guideUsage, setGuideUsage] = useState<GuideUsage | null>(null);
+  const [topDestinations, setTopDestinations] = useState<{ label: string; value: number }[] | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -169,6 +171,18 @@ export default function Dashboard() {
       since90.setDate(since90.getDate() - 90);
       const { data } = await supabase.from('trips').select('created_at').gte('created_at', since90.toISOString());
       setWeekdayActivity(bucketByWeekday((data ?? []).map((r) => r.created_at)));
+    })();
+
+    (async () => {
+      const { data } = await supabase.from('trips').select('destination');
+      const tally: Record<string, number> = {};
+      for (const r of data ?? []) tally[r.destination] = (tally[r.destination] ?? 0) + 1;
+      setTopDestinations(
+        Object.entries(tally)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 6)
+          .map(([label, value]) => ({ label, value }))
+      );
     })();
 
     (async () => {
@@ -285,7 +299,7 @@ export default function Dashboard() {
         </div>
       ) : null}
 
-      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {satisfaction ? (
           <Gauge
             percent={satisfaction.percent}
@@ -294,6 +308,7 @@ export default function Dashboard() {
           />
         ) : null}
         {weekdayActivity ? <WeekdayBarChart title="أكثر أيام الأسبوع نشاطًا (رحلات آخر 90 يوم)" data={weekdayActivity} /> : null}
+        {topDestinations ? <RankedBarList title="أكثر الوجهات تخطيطًا" items={topDestinations} /> : null}
       </div>
 
       <h2 className="mb-3 text-sm font-bold text-foreground">استخدام دليل السفر الذكي (آخر 30 يوم)</h2>
