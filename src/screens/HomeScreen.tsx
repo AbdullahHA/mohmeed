@@ -315,7 +315,7 @@ export default function HomeScreen() {
           <TouchableOpacity
             style={styles.qactItem}
             activeOpacity={0.85}
-            onPress={() => requireAccount('checkIn', () => navigation.navigate('CheckInSearch'))}
+            onPress={() => navigation.navigate('CheckInSearch')}
           >
             <View style={styles.qactIcon}><Ionicons name="location-outline" size={20} color={colors.primary} /></View>
             <Text style={styles.qactText}>سجّل وصول</Text>
