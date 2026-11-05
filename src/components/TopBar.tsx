@@ -1,11 +1,7 @@
 import React, { useMemo } from 'react';
-import {
-  View,
-  Image,
-  StyleSheet,
-} from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import Text from './Text';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import PersonAvatar from './PersonAvatar';
@@ -17,11 +13,6 @@ export default function TopBar() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.brandRow}>
-        <Image source={require('../../assets/icon.png')} style={styles.brandIcon} resizeMode="contain" />
-        <Text style={styles.brandText}>يلا نسافر</Text>
-      </View>
-
       <View style={styles.welcomeRow}>
         <Text style={styles.welcomeText}>أهلاً {currentUser.name}</Text>
         <PersonAvatar avatarUrl={currentUser.avatarUrl} size={34} />
@@ -34,25 +25,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
     paddingBottom: spacing.md,
-  },
-  brandRow: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  brandIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.md,
-  },
-  brandText: {
-    color: colors.primary,
-    fontSize: 17,
-    fontWeight: '700',
   },
   welcomeRow: {
     flexDirection: 'row-reverse',
