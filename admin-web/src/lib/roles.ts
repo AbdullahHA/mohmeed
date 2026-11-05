@@ -29,6 +29,7 @@ export type PageKey =
   | '/users'
   | '/notifications'
   | '/events'
+  | '/support'
   | '/flags'
   | '/team'
   | '/audit'
@@ -46,6 +47,7 @@ export const PAGE_ROLES: Record<PageKey, AdminRole[] | '*'> = {
   '/users': ['owner', 'mod', 'support'],
   '/notifications': ['owner', 'editor'],
   '/events': ['owner', 'editor', 'mod'],
+  '/support': ['owner', 'mod', 'support'],
   '/flags': ['owner'],
   '/team': ['owner'],
   '/audit': ['owner'],

@@ -301,6 +301,8 @@ export default function SettingsScreen() {
 
         <Text style={styles.sectionTitle}>معلومات ومساعدة</Text>
         <View style={styles.card}>
+          <MenuRow icon="chatbubbles-outline" label="تواصل مع الدعم" onPress={() => navigation.navigate('Support')} />
+          <Divider />
           <MenuRow icon="information-circle-outline" label="من نحن" onPress={() => navigation.navigate('About')} />
           <Divider />
           <MenuRow icon="document-text-outline" label="الشروط والأحكام" onPress={() => navigation.navigate('Terms')} />

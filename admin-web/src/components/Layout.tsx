@@ -22,6 +22,7 @@ const NAV_GROUPS: { label: string; items: { to: PageKey; label: string; end?: bo
       { to: '/community-requests', label: 'طلبات إنشاء مجتمعات' },
       { to: '/community-reports', label: 'بلاغات المجتمعات' },
       { to: '/users', label: 'المستخدمون' },
+      { to: '/support', label: 'الدعم والملاحظات' },
     ],
   },
   { label: 'النمو', items: [{ to: '/notifications', label: 'الإشعارات' }, { to: '/events', label: 'الفعاليات' }] },
