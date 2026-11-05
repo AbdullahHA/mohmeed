@@ -20,6 +20,7 @@ export type Profile = {
   interests: string[];
   email: string | null;
   avatarUrl: string | null;
+  coverUrl: string | null;
   phone: string | null;
   title: string | null;
   firstName: string | null;
@@ -38,6 +39,7 @@ export type ProfileUpdateFields = {
   emoji?: string;
   color?: string;
   avatar_url?: string | null;
+  cover_url?: string | null;
   phone?: string | null;
   title?: string | null;
   first_name?: string | null;
@@ -87,6 +89,7 @@ function mapProfileRow(row: any, email: string | null): Profile {
     interests: row.interests ?? [],
     email,
     avatarUrl: row.avatar_url ?? null,
+    coverUrl: row.cover_url ?? null,
     phone: row.phone ?? null,
     title: row.title ?? null,
     firstName: row.first_name ?? null,

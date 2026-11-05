@@ -27,6 +27,7 @@ import { useContent } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import { computeXp, computeTravelerLevel, nextLevelThreshold } from '../utils/travelerStats';
+import { pickAndUploadCoverPhoto } from '../lib/coverPhoto';
 import { formatTripDate, formatTripDateRange } from '../lib/tripDates';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -90,8 +91,22 @@ export default function ProfileScreen() {
     meetupMatches,
   } = useAppState();
   const { destinations, places } = useContent();
-  const { profile, session, signOut, exitGuestMode } = useAuth();
+  const { profile, session, signOut, exitGuestMode, updateProfile } = useAuth();
   const { requireAccount } = useRequireAccount();
+  const [coverUploading, setCoverUploading] = useState(false);
+
+  const handlePickCover = async () => {
+    if (!profile || coverUploading) return;
+    setCoverUploading(true);
+    try {
+      const url = await pickAndUploadCoverPhoto(profile.id);
+      if (url) await updateProfile({ cover_url: url });
+    } catch {
+      Alert.alert('تعذّر رفع صورة الغلاف', 'حاول مرة ثانية.');
+    } finally {
+      setCoverUploading(false);
+    }
+  };
 
   const visitedDestinations = visitedStamps
     .map((stamp) => {
@@ -191,14 +206,15 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <DesertHero style={styles.cover}>
+        <DesertHero style={styles.cover} imageUri={profile?.coverUrl} dark={!!profile?.coverUrl}>
           {profile ? (
             <TouchableOpacity
               style={styles.editHeroButton}
               activeOpacity={0.8}
-              onPress={() => navigation.navigate('EditProfile')}
+              onPress={handlePickCover}
+              disabled={coverUploading}
             >
-              <Ionicons name="pencil-outline" size={16} color="#fff" />
+              <Ionicons name={coverUploading ? 'hourglass-outline' : 'camera-outline'} size={16} color="#fff" />
             </TouchableOpacity>
           ) : null}
           <TouchableOpacity

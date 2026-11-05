@@ -1,17 +1,21 @@
 import React from 'react';
-import { View, StyleSheet, type ViewStyle } from 'react-native';
+import { View, Image, StyleSheet, type ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 // The warm desert-dune backdrop used throughout yalla-handoff's mockups
 // (auth screen, city hero, profile cover) — the app's one recurring
-// decorative motif. Pure gradient + shapes, no fabricated photo/data.
+// decorative motif. Pure gradient + shapes, no fabricated photo/data —
+// except on the profile cover, the one place a real per-user photo can
+// replace it, via `imageUri`.
 export default function DesertHero({
   style,
   dark = false,
+  imageUri,
   children,
 }: {
   style?: ViewStyle;
   dark?: boolean;
+  imageUri?: string | null;
   children?: React.ReactNode;
 }) {
   return (
@@ -24,6 +28,7 @@ export default function DesertHero({
       <View style={[styles.dune, styles.dune1]} />
       <View style={[styles.dune, styles.dune2]} />
       <View style={[styles.dune, styles.dune3]} />
+      {imageUri ? <Image source={{ uri: imageUri }} style={StyleSheet.absoluteFill} resizeMode="cover" /> : null}
       {dark ? (
         <LinearGradient
           colors={['rgba(10,14,30,0.1)', 'rgba(10,14,30,0.62)', 'rgba(10,14,30,0.92)']}

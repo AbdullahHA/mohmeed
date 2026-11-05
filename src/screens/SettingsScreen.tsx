@@ -250,6 +250,12 @@ export default function SettingsScreen() {
             onPress={() => navigation.navigate('CurrencySetting')}
           />
           <Divider />
+          <MenuRow
+            icon="swap-horizontal-outline"
+            label="تحويل العملة"
+            onPress={() => navigation.navigate('CurrencyConverter')}
+          />
+          <Divider />
           <View style={styles.switchRow}>
             <Switch
               value={hijriEnabled}

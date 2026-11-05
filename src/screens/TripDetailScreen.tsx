@@ -516,16 +516,6 @@ export default function TripDetailScreen() {
 
           {activeTab === 'budget' ? (
             <View style={styles.budgetCard}>
-              <TouchableOpacity
-                style={styles.converterLink}
-                activeOpacity={0.8}
-                onPress={() => navigation.navigate('CurrencyConverter')}
-              >
-                <Ionicons name="chevron-back" size={14} color={colors.primary} />
-                <Text style={styles.converterLinkText}>حوّل مبلغ لعملة ثانية</Text>
-                <Ionicons name="calculator-outline" size={16} color={colors.primary} />
-              </TouchableOpacity>
-
               {trip.budgetTotal > 0 && categoryBreakdown.length > 0 ? (
                 <View style={styles.donutRow}>
                   <View style={styles.donutLegend}>
@@ -911,17 +901,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.md,
   },
-  converterLink: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: spacing.xs,
-    backgroundColor: colors.primarySoft,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  converterLinkText: { flex: 1, color: colors.primaryDark, fontSize: 11.5, fontWeight: '600', textAlign: 'right' },
   budgetHeaderRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', marginBottom: spacing.xs },
   budgetSpent: { color: colors.text, fontSize: 13, fontWeight: '700' },
   budgetPerPerson: { color: colors.accentDark, fontSize: 12, fontWeight: '600' },
