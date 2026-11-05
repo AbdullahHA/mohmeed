@@ -99,6 +99,31 @@ export default function Dashboard() {
           );
         })}
       </div>
+
+      <h2 className="mb-3 mt-8 text-sm font-bold text-foreground">تحميلات التطبيق (App Store + Google Play)</h2>
+      <div className="surface-card divide-y divide-border">
+        <div className="flex items-center justify-between p-4">
+          <div>
+            <div className="text-sm font-bold text-foreground">iOS</div>
+            <div className="text-xs text-muted-foreground">متوفر حاليًا على TestFlight (تجريبي) فقط — ما نُشر بعد على App Store رسميًا</div>
+          </div>
+          <div className="num text-lg font-bold text-foreground">0</div>
+        </div>
+        <div className="flex items-center justify-between p-4">
+          <div>
+            <div className="text-sm font-bold text-foreground">أندرويد</div>
+            <div className="text-xs text-muted-foreground">ما فيه نسخة أندرويد مبنية بعد</div>
+          </div>
+          <div className="num text-lg font-bold text-foreground">0</div>
+        </div>
+        <div className="flex items-center justify-between p-4">
+          <div className="text-sm font-bold text-foreground">الإجمالي</div>
+          <div className="num text-lg font-bold text-primary-ink">0</div>
+        </div>
+      </div>
+      <p className="mt-2 text-xs text-muted-foreground">
+        هذا رقم حقيقي وليس تقديريًا — التطبيق لسه ما نُشر للعموم على أي من المتجرين، فمافيه تحميلات فعلية يتم قياسها حاليًا. لما يُنشر، هذا القسم يحتاج ربط حقيقي بـ App Store Connect و Google Play Console API لعرض الأرقام الفعلية.
+      </p>
     </div>
   );
 }
