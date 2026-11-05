@@ -293,6 +293,9 @@ export type CheckInRecord = {
   lat: number | null;
   lng: number | null;
   isPrivate: boolean;
+  note: string;
+  photoUrl: string | null;
+  taggedIds: string[];
   createdAt: number;
   user?: {
     id: string;

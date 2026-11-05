@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   SectionList,
   FlatList,
+  Image,
   ActivityIndicator,
   Platform,
 } from 'react-native';
@@ -201,13 +202,18 @@ export default function MyCheckInsScreen() {
                       <Text style={styles.rowName}>
                         <Text style={styles.feedActorName}>{item.user?.name ?? 'صديق'}</Text> سجّل وصوله في {item.venueName}
                       </Text>
+                      {item.note ? <Text style={styles.feedNote}>{item.note}</Text> : null}
                       <Text style={styles.rowMeta}>
                         {VENUE_CATEGORY_LABEL[item.category]} · {timeAgo(item.createdAt)}
                       </Text>
                     </View>
-                    <View style={styles.feedIcon}>
-                      <Ionicons name={VENUE_CATEGORY_ICON[item.category]} size={18} color={colors.primary} />
-                    </View>
+                    {item.photoUrl ? (
+                      <Image source={{ uri: item.photoUrl }} style={styles.feedPhoto} resizeMode="cover" />
+                    ) : (
+                      <View style={styles.feedIcon}>
+                        <Ionicons name={VENUE_CATEGORY_ICON[item.category]} size={18} color={colors.primary} />
+                      </View>
+                    )}
                   </View>
                 )}
               />
@@ -285,9 +291,13 @@ export default function MyCheckInsScreen() {
               renderSectionHeader={({ section }) => <Text style={styles.sectionHeader}>{section.title}</Text>}
               renderItem={({ item }) => (
                 <View style={styles.row}>
-                  <View style={styles.rowIcon}>
-                    <Ionicons name={VENUE_CATEGORY_ICON[item.category]} size={20} color={colors.primary} />
-                  </View>
+                  {item.photoUrl ? (
+                    <Image source={{ uri: item.photoUrl }} style={styles.rowPhoto} resizeMode="cover" />
+                  ) : (
+                    <View style={styles.rowIcon}>
+                      <Ionicons name={VENUE_CATEGORY_ICON[item.category]} size={20} color={colors.primary} />
+                    </View>
+                  )}
                   <View style={styles.rowTextWrap}>
                     <View style={styles.rowNameWrap}>
                       <Text style={styles.rowName}>{item.venueName}</Text>
@@ -295,6 +305,9 @@ export default function MyCheckInsScreen() {
                         <Ionicons name="lock-closed" size={11} color={colors.textFaint} />
                       ) : null}
                     </View>
+                    {item.note ? (
+                      <Text style={styles.feedNote} numberOfLines={1}>{item.note}</Text>
+                    ) : null}
                     <Text style={styles.rowMeta} numberOfLines={1}>
                       {VENUE_CATEGORY_LABEL[item.category]}
                       {item.venueAddress ? ` · ${item.venueAddress}` : ''}
@@ -423,6 +436,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.sm,
   },
   feedActorName: { color: colors.primary, fontWeight: '700' },
+  feedNote: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
   feedIcon: {
     width: 32,
     height: 32,
@@ -431,6 +445,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  feedPhoto: { width: 48, height: 48, borderRadius: radius.sm, backgroundColor: colors.surfaceAlt },
+  rowPhoto: { width: 40, height: 40, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt },
   rankRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

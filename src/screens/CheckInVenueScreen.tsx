@@ -2,7 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
+  Image,
   StyleSheet,
+  TextInput,
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
@@ -20,9 +22,13 @@ import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import PersonAvatar from '../components/PersonAvatar';
+import RtlScrollRow from '../components/RtlScrollRow';
 import { VENUE_CATEGORY_ICON, VENUE_CATEGORY_LABEL } from '../utils/venueCategory';
+import { pickAndUploadCheckInPhoto } from '../lib/checkInPhoto';
 import type { CheckInRecord } from '../types';
 import type { RootStackParamList } from '../navigation/types';
+
+const NOTE_MAX = 160;
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type Route = RouteProp<RootStackParamList, 'CheckInVenue'>;
@@ -33,13 +39,17 @@ export default function CheckInVenueScreen() {
   const { venue } = params;
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { loadVenueCheckIns, checkInToVenue } = useAppState();
+  const { loadVenueCheckIns, checkInToVenue, friends } = useAppState();
   const { profile } = useAuth();
   const { requireAccount } = useRequireAccount();
   const [peers, setPeers] = useState<CheckInRecord[]>([]);
   const [peersLoading, setPeersLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [isPrivate, setIsPrivate] = useState(false);
+  const [note, setNote] = useState('');
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [taggedIds, setTaggedIds] = useState<string[]>([]);
 
   const mayor = useMemo(() => {
     if (peers.length === 0) return null;
@@ -77,10 +87,27 @@ export default function CheckInVenueScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [venue.id]);
 
+  const handlePickPhoto = async () => {
+    if (!profile || uploadingPhoto) return;
+    setUploadingPhoto(true);
+    try {
+      const url = await pickAndUploadCheckInPhoto(profile.id);
+      if (url) setPhotoUrl(url);
+    } catch {
+      Alert.alert('تعذّر رفع الصورة', 'حاول مرة ثانية.');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
+  const toggleTag = (friendId: string) => {
+    setTaggedIds((prev) => (prev.includes(friendId) ? prev.filter((id) => id !== friendId) : [...prev, friendId]));
+  };
+
   const handleCheckIn = () => {
     requireAccount('checkIn', async () => {
       setSubmitting(true);
-      const { error } = await checkInToVenue(venue, isPrivate);
+      const { error } = await checkInToVenue(venue, isPrivate, { note: note.trim(), photoUrl, taggedIds });
       setSubmitting(false);
       if (error) {
         Alert.alert('تعذّر تسجيل الوصول', error);
@@ -123,6 +150,66 @@ export default function CheckInVenueScreen() {
           ) : null}
         </View>
 
+        <TextInput
+          style={styles.noteInput}
+          placeholder="شو أخبارك؟"
+          placeholderTextColor={colors.textFaint}
+          value={note}
+          onChangeText={(t) => setNote(t.slice(0, NOTE_MAX))}
+          multiline
+          textAlign="right"
+        />
+        <Text style={styles.noteCounter}>{note.length}/{NOTE_MAX}</Text>
+
+        {photoUrl ? (
+          <View style={styles.photoPreviewWrap}>
+            <Image source={{ uri: photoUrl }} style={styles.photoPreview} resizeMode="cover" />
+            <TouchableOpacity style={styles.photoRemoveButton} onPress={() => setPhotoUrl(null)} hitSlop={8}>
+              <Ionicons name="close-circle" size={22} color={colors.text} />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity style={styles.addPhotoButton} activeOpacity={0.8} onPress={handlePickPhoto} disabled={uploadingPhoto}>
+            {uploadingPhoto ? (
+              <ActivityIndicator color={colors.primary} />
+            ) : (
+              <>
+                <Ionicons name="add" size={16} color={colors.text} />
+                <Text style={styles.addPhotoText}>أضف صورة</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        )}
+
+        {friends.length > 0 ? (
+          <>
+            <Text style={styles.sectionTitle}>تحقّق مع</Text>
+            <RtlScrollRow contentContainerStyle={styles.friendsRow}>
+              {friends.map((f) => {
+                const tagged = taggedIds.includes(f.id);
+                return (
+                  <TouchableOpacity
+                    key={f.id}
+                    style={styles.friendChip}
+                    activeOpacity={0.8}
+                    onPress={() => toggleTag(f.id)}
+                  >
+                    <View style={[styles.friendAvatarWrap, tagged && styles.friendAvatarWrapActive]}>
+                      <PersonAvatar avatarUrl={f.avatarUrl} size={48} />
+                      {tagged ? (
+                        <View style={styles.friendCheckBadge}>
+                          <Ionicons name="checkmark" size={12} color={colors.textOnPrimary} />
+                        </View>
+                      ) : null}
+                    </View>
+                    <Text style={styles.friendChipName} numberOfLines={1}>{f.name}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </RtlScrollRow>
+          </>
+        ) : null}
+
         <Text style={styles.sectionTitle}>من تشك هنا من أصدقائك</Text>
         {peersLoading ? (
           <ActivityIndicator color={colors.primary} style={{ marginTop: spacing.lg }} />
@@ -133,7 +220,13 @@ export default function CheckInVenueScreen() {
             {peers.map((peer) => (
               <View key={peer.id} style={styles.peerRow}>
                 <PersonAvatar avatarUrl={peer.user?.avatarUrl} size={36} />
-                <Text style={styles.peerName}>{peer.user?.name ?? 'مستخدم'}</Text>
+                <View style={styles.peerTextWrap}>
+                  <Text style={styles.peerName}>{peer.user?.name ?? 'مستخدم'}</Text>
+                  {peer.note ? <Text style={styles.peerNote} numberOfLines={1}>{peer.note}</Text> : null}
+                </View>
+                {peer.photoUrl ? (
+                  <Image source={{ uri: peer.photoUrl }} style={styles.peerPhoto} resizeMode="cover" />
+                ) : null}
               </View>
             ))}
           </View>
@@ -219,7 +312,64 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   emptyPeers: { color: colors.textFaint, fontSize: 12, textAlign: 'center', paddingVertical: spacing.lg },
   peersList: { gap: spacing.sm },
   peerRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
+  peerTextWrap: { flex: 1 },
   peerName: { color: colors.text, fontSize: 13, fontWeight: '600' },
+  peerNote: { color: colors.textMuted, fontSize: 11.5, marginTop: 2, textAlign: 'right' },
+  peerPhoto: { width: 40, height: 40, borderRadius: radius.sm, backgroundColor: colors.surfaceAlt },
+  noteInput: {
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    color: colors.text,
+    fontSize: 14,
+    textAlign: 'right',
+    minHeight: 72,
+    marginBottom: 2,
+  },
+  noteCounter: { color: colors.textFaint, fontSize: 10.5, textAlign: 'left', marginBottom: spacing.md },
+  addPhotoButton: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.pill,
+    paddingVertical: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  addPhotoText: { color: colors.text, fontSize: 13, fontWeight: '600' },
+  photoPreviewWrap: { marginBottom: spacing.lg },
+  photoPreview: { width: '100%', height: 160, borderRadius: radius.md, backgroundColor: colors.surfaceAlt },
+  photoRemoveButton: {
+    position: 'absolute',
+    top: spacing.xs,
+    left: spacing.xs,
+    backgroundColor: colors.surface,
+    borderRadius: radius.pill,
+  },
+  friendsRow: { flexDirection: 'row-reverse', gap: spacing.md, paddingBottom: spacing.lg },
+  friendChip: { alignItems: 'center', width: 60 },
+  friendAvatarWrap: { borderRadius: radius.pill, padding: 2 },
+  friendAvatarWrapActive: { backgroundColor: colors.primarySoft, borderWidth: 2, borderColor: colors.primary },
+  friendCheckBadge: {
+    position: 'absolute',
+    bottom: -2,
+    left: -2,
+    width: 18,
+    height: 18,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primary,
+    borderWidth: 2,
+    borderColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  friendChipName: { color: colors.text, fontSize: 10.5, fontWeight: '600', marginTop: 4, textAlign: 'center' },
   footer: {
     padding: spacing.lg,
     borderTopWidth: 1,
