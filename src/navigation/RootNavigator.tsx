@@ -87,47 +87,47 @@ export default function RootNavigator() {
       <Stack.Screen name="DestinationDetail" component={DestinationDetailScreen} />
       <Stack.Screen name="Results" component={ResultsScreen} />
       <Stack.Screen name="TripDetail" component={TripDetailScreen} />
-      <Stack.Screen name="CreateTrip" component={CreateTripScreen} options={{ presentation: 'modal' }} />
-      <Stack.Screen name="TripDatesVote" component={TripDatesVoteScreen} options={{ presentation: 'modal' }} />
-      <Stack.Screen name="TripSummary" component={TripSummaryScreen} options={{ presentation: 'modal' }} />
-      <Stack.Screen name="DayMap" component={DayMapScreen} options={{ presentation: 'modal' }} />
-      <Stack.Screen name="Documents" component={DocumentsScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="CreateTrip" component={CreateTripScreen} options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="TripDatesVote" component={TripDatesVoteScreen} options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="TripSummary" component={TripSummaryScreen} options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="DayMap" component={DayMapScreen} options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="Documents" component={DocumentsScreen} options={{ presentation: 'fullScreenModal' }} />
       <Stack.Screen name="DocumentView" component={DocumentViewScreen} options={{ presentation: 'fullScreenModal' }} />
-      <Stack.Screen name="JoinTrip" component={JoinTripScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="JoinTrip" component={JoinTripScreen} options={{ presentation: 'fullScreenModal' }} />
       <Stack.Screen name="GroupChat" component={GroupChatScreen} />
       <Stack.Screen name="GuideChat" component={GuideChatScreen} />
       <Stack.Screen name="CommunityChat" component={CommunityChatScreen} />
       <Stack.Screen name="CommunityRequest" component={CommunityRequestScreen} />
       <Stack.Screen name="PublishedTrip" component={PublishedTripScreen} />
-      <Stack.Screen name="AddFriend" component={AddFriendScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="AddFriend" component={AddFriendScreen} options={{ presentation: 'fullScreenModal' }} />
       <Stack.Screen name="Friends" component={FriendsScreen} />
       <Stack.Screen name="Notifications" component={NotificationsScreen} />
       <Stack.Screen name="SavedPlaces" component={SavedPlacesScreen} />
       <Stack.Screen name="FriendChat" component={FriendChatScreen} />
-      <Stack.Screen name="LocationShare" component={LocationShareScreen} options={{ presentation: 'modal' }} />
-      <Stack.Screen name="LocationView" component={LocationViewScreen} options={{ presentation: 'modal' }} />
-      <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="LocationShare" component={LocationShareScreen} options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="LocationView" component={LocationViewScreen} options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ presentation: 'fullScreenModal' }} />
       <Stack.Screen name="Passport" component={PassportScreen} />
       <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
       <Stack.Screen
         name="AddLoyaltyMembership"
         component={AddLoyaltyMembershipScreen}
-        options={{ presentation: 'modal' }}
+        options={{ presentation: 'fullScreenModal' }}
       />
       <Stack.Screen
         name="AddWishlistItem"
         component={AddWishlistItemScreen}
-        options={{ presentation: 'modal' }}
+        options={{ presentation: 'fullScreenModal' }}
       />
       <Stack.Screen
         name="AddVisitedPlace"
         component={AddVisitedPlaceScreen}
-        options={{ presentation: 'modal' }}
+        options={{ presentation: 'fullScreenModal' }}
       />
       <Stack.Screen
         name="CheckInSearch"
         component={CheckInSearchScreen}
-        options={{ presentation: 'modal' }}
+        options={{ presentation: 'fullScreenModal' }}
       />
       <Stack.Screen name="CheckInVenue" component={CheckInVenueScreen} />
       <Stack.Screen name="MyCheckIns" component={MyCheckInsScreen} />
@@ -136,14 +136,14 @@ export default function RootNavigator() {
       <Stack.Screen
         name="AddTravelPost"
         component={AddTravelPostScreen}
-        options={{ presentation: 'modal' }}
+        options={{ presentation: 'fullScreenModal' }}
       />
       <Stack.Screen name="Wallet" component={WalletScreen} />
-      <Stack.Screen name="Settings" component={SettingsScreen} options={{ presentation: 'modal' }} />
-      <Stack.Screen name="OnboardingQuiz" component={OnboardingQuizScreen} options={{ presentation: 'modal' }} />
-      <Stack.Screen name="CountrySetting" component={CountrySettingScreen} options={{ presentation: 'modal' }} />
-      <Stack.Screen name="CurrencySetting" component={CurrencySettingScreen} options={{ presentation: 'modal' }} />
-      <Stack.Screen name="AppearanceSetting" component={AppearanceSettingScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="Settings" component={SettingsScreen} options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="OnboardingQuiz" component={OnboardingQuizScreen} options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="CountrySetting" component={CountrySettingScreen} options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="CurrencySetting" component={CurrencySettingScreen} options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="AppearanceSetting" component={AppearanceSettingScreen} options={{ presentation: 'fullScreenModal' }} />
       <Stack.Screen name="About" component={AboutScreen} />
       <Stack.Screen name="Terms" component={TermsScreen} />
       <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
@@ -152,7 +152,7 @@ export default function RootNavigator() {
       <Stack.Screen
         name="CreateTripTemplate"
         component={CreateTripTemplateScreen}
-        options={{ presentation: 'modal' }}
+        options={{ presentation: 'fullScreenModal' }}
       />
       <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
       <Stack.Screen name="AdminEditDestination" component={AdminEditDestinationScreen} />
