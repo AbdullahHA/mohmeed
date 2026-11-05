@@ -19,6 +19,9 @@ export default function KpiTile({
 }) {
   const hasDelta = deltaPercent != null && Number.isFinite(deltaPercent);
   const isUp = hasDelta && deltaPercent! >= 0;
+  const magnitude = hasDelta ? Math.abs(deltaPercent!) : 0;
+  const capped = magnitude > 999;
+  const displayMagnitude = capped ? 999 : magnitude;
 
   return (
     <div className="surface-card p-5">
@@ -33,7 +36,8 @@ export default function KpiTile({
             }`}
           >
             {isUp ? <ArrowUp /> : <ArrowDown />}
-            {Math.abs(deltaPercent!).toFixed(0)}%
+            {capped ? '+' : ''}
+            {displayMagnitude.toFixed(0)}%
           </span>
         ) : null}
       </div>

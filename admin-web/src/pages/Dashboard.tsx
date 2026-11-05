@@ -45,7 +45,7 @@ function countInWindow(timestamps: string[], start: Date, end: Date): number {
 }
 
 function percentDelta(curr: number, prev: number): number | null {
-  if (prev === 0) return curr > 0 ? null : 0;
+  if (prev === 0) return null;
   return ((curr - prev) / prev) * 100;
 }
 
