@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import Sparkline from './Sparkline';
 
 export default function KpiTile({
   icon,
@@ -8,6 +9,7 @@ export default function KpiTile({
   value,
   deltaPercent,
   deltaLabel,
+  trend,
 }: {
   icon: ReactNode;
   iconBg: string;
@@ -16,6 +18,8 @@ export default function KpiTile({
   value: number | null;
   deltaPercent: number | null;
   deltaLabel: string;
+  /** Optional daily values (oldest → newest) rendered as a small trend line in the tile. */
+  trend?: number[];
 }) {
   const hasDelta = deltaPercent != null && Number.isFinite(deltaPercent);
   const isUp = hasDelta && deltaPercent! >= 0;
@@ -42,6 +46,11 @@ export default function KpiTile({
         ) : null}
       </div>
       <div className="num text-2xl font-bold text-foreground">{value ?? '—'}</div>
+      {trend && trend.length > 1 ? (
+        <div className="mt-2">
+          <Sparkline data={trend} color={iconColor} />
+        </div>
+      ) : null}
       <div className="mt-1 text-sm text-muted-foreground">{label}</div>
       {hasDelta ? <div className="mt-0.5 text-[11px] text-muted-foreground">{deltaLabel}</div> : null}
     </div>

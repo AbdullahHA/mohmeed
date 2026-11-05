@@ -65,10 +65,10 @@ type PendingCounts = {
 };
 
 type Kpis = {
-  users: { curr: number; prev: number };
-  trips: { curr: number; prev: number };
-  checkIns: { curr: number; prev: number };
-  pushTokens: { curr: number; prev: number };
+  users: { curr: number; prev: number; trend: number[] };
+  trips: { curr: number; prev: number; trend: number[] };
+  checkIns: { curr: number; prev: number; trend: number[] };
+  pushTokens: { curr: number; prev: number; trend: number[] };
 };
 
 type TopPlace = { id: string; name: string; rating: number; recommendCount: number };
@@ -145,9 +145,14 @@ export default function Dashboard() {
         supabase.from('push_tokens').select('created_at').gte('created_at', start14.toISOString()),
       ]);
 
+      const days14 = lastNDays(14);
       const makeWindowCounts = (rows: { created_at: string }[] | null) => {
         const ts = (rows ?? []).map((r) => r.created_at);
-        return { curr: countInWindow(ts, start7, now), prev: countInWindow(ts, start14, start7) };
+        return {
+          curr: countInWindow(ts, start7, now),
+          prev: countInWindow(ts, start14, start7),
+          trend: bucketByDay(ts, days14).map((d) => d.value),
+        };
       };
 
       setKpis({
@@ -262,6 +267,7 @@ export default function Dashboard() {
           value={kpis?.users.curr ?? null}
           deltaPercent={kpis ? percentDelta(kpis.users.curr, kpis.users.prev) : null}
           deltaLabel="مقابل الأسبوع اللي قبله"
+          trend={kpis?.users.trend}
         />
         <KpiTile
           icon={<RouteIcon />}
@@ -271,6 +277,7 @@ export default function Dashboard() {
           value={kpis?.trips.curr ?? null}
           deltaPercent={kpis ? percentDelta(kpis.trips.curr, kpis.trips.prev) : null}
           deltaLabel="مقابل الأسبوع اللي قبله"
+          trend={kpis?.trips.trend}
         />
         <KpiTile
           icon={<PinIcon />}
@@ -280,6 +287,7 @@ export default function Dashboard() {
           value={kpis?.checkIns.curr ?? null}
           deltaPercent={kpis ? percentDelta(kpis.checkIns.curr, kpis.checkIns.prev) : null}
           deltaLabel="مقابل الأسبوع اللي قبله"
+          trend={kpis?.checkIns.trend}
         />
         <KpiTile
           icon={<BellIcon />}
@@ -289,6 +297,7 @@ export default function Dashboard() {
           value={kpis?.pushTokens.curr ?? null}
           deltaPercent={kpis ? percentDelta(kpis.pushTokens.curr, kpis.pushTokens.prev) : null}
           deltaLabel="مقابل الأسبوع اللي قبله"
+          trend={kpis?.pushTokens.trend}
         />
       </div>
 
