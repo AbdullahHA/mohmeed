@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { downloadCsv } from '../lib/csv';
+import { logAction } from '../lib/auditLog';
 import DataTable, { type DataTableColumn } from '../components/DataTable';
+import ImportFromGooglePlaces from '../components/ImportFromGooglePlaces';
+import { findDuplicates, mergePlaces, type DupPair } from '../lib/placeDuplicates';
 
 type Row = {
   id: string;
@@ -12,6 +15,8 @@ type Row = {
   type: string;
   rating: number;
   updated_at: string;
+  latitude: number;
+  longitude: number;
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -29,22 +34,39 @@ export default function Places() {
   const navigate = useNavigate();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [destNames, setDestNames] = useState<Record<string, string>>({});
+  const [importOpen, setImportOpen] = useState(false);
+  const [merging, setMerging] = useState<string | null>(null);
+
+  const load = async () => {
+    const [{ data }, { data: destinations }] = await Promise.all([
+      supabase
+        .from('places')
+        .select('id,name,image_url,destination_id,type,rating,updated_at,latitude,longitude')
+        .order('updated_at', { ascending: false }),
+      supabase.from('destinations').select('id,name'),
+    ]);
+    const names: Record<string, string> = {};
+    (destinations ?? []).forEach((d: any) => (names[d.id] = d.name));
+    setDestNames(names);
+    setRows(data ?? []);
+  };
 
   useEffect(() => {
-    (async () => {
-      const [{ data }, { data: destinations }] = await Promise.all([
-        supabase
-          .from('places')
-          .select('id,name,image_url,destination_id,type,rating,updated_at')
-          .order('updated_at', { ascending: false }),
-        supabase.from('destinations').select('id,name'),
-      ]);
-      const names: Record<string, string> = {};
-      (destinations ?? []).forEach((d: any) => (names[d.id] = d.name));
-      setDestNames(names);
-      setRows(data ?? []);
-    })();
+    load();
   }, []);
+
+  const duplicates = useMemo(() => (rows ? findDuplicates(rows) : []), [rows]);
+
+  const merge = async (pair: DupPair, keep: 'a' | 'b') => {
+    const keeper = keep === 'a' ? pair.a : pair.b;
+    const loser = keep === 'a' ? pair.b : pair.a;
+    if (!confirm(`دمج "${loser.name}" داخل "${keeper.name}"؟ ما ينرجع.`)) return;
+    setMerging(pair.a.id + pair.b.id);
+    await mergePlaces(keeper.id, loser.id);
+    logAction({ type: 'content', action: 'دمج مكانين مكررين', target: `${loser.name} ← ${keeper.name}` });
+    setMerging(null);
+    load();
+  };
 
   const columns: DataTableColumn<Row>[] = [
     {
@@ -102,6 +124,12 @@ export default function Places() {
             تصدير CSV
           </button>
           <button
+            onClick={() => setImportOpen(true)}
+            className="rounded-md border border-border px-4 py-2 text-xs font-bold text-foreground hover:bg-muted"
+          >
+            استيراد من Google Places
+          </button>
+          <button
             onClick={() => navigate('/places/new')}
             className="rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground"
           >
@@ -109,6 +137,41 @@ export default function Places() {
           </button>
         </div>
       </div>
+
+      {duplicates.length > 0 ? (
+        <div className="mb-6 rounded-md border border-gold/40 bg-gold-soft p-4">
+          <div className="mb-2 text-xs font-bold text-gold-ink">{duplicates.length} تكرارات محتملة (نفس الاسم ونفس الوجهة وأقل من 150م)</div>
+          <div className="flex flex-col gap-2">
+            {duplicates.map((pair) => {
+              const busy = merging === pair.a.id + pair.b.id;
+              return (
+                <div key={pair.a.id + pair.b.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-card p-2.5 text-xs">
+                  <span className="text-foreground">
+                    {pair.a.name} <span className="text-muted-foreground">({destNames[pair.a.destination_id]})</span> — متباعدين {pair.distanceM}م
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => merge(pair, 'a')}
+                      disabled={busy}
+                      className="rounded-md border border-border px-2.5 py-1 font-bold text-foreground hover:bg-muted disabled:opacity-50"
+                    >
+                      الاحتفاظ بالأول
+                    </button>
+                    <button
+                      onClick={() => merge(pair, 'b')}
+                      disabled={busy}
+                      className="rounded-md border border-border px-2.5 py-1 font-bold text-foreground hover:bg-muted disabled:opacity-50"
+                    >
+                      الاحتفاظ بالثاني
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
       <DataTable
         columns={columns}
         rows={rows}
@@ -116,6 +179,8 @@ export default function Places() {
         onRowClick={(p) => navigate(`/places/${p.id}`)}
         emptyMessage="ما فيه أماكن بعد"
       />
+
+      {importOpen ? <ImportFromGooglePlaces onClose={() => setImportOpen(false)} /> : null}
     </div>
   );
 }

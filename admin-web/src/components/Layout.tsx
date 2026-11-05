@@ -13,6 +13,7 @@ const NAV_GROUPS: { label: string; items: { to: PageKey; label: string; end?: bo
       { to: '/destinations', label: 'الوجهات' },
       { to: '/country-info', label: 'معلومات الدول' },
       { to: '/places', label: 'الأماكن' },
+      { to: '/curated-lists', label: 'المختارات والمواسم' },
     ],
   },
   {

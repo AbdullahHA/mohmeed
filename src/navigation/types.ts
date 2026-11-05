@@ -36,6 +36,7 @@ export type RootStackParamList = {
   Support: undefined;
   NewSupportTicket: undefined;
   SupportTicket: { ticketId: string };
+  CuratedList: { listId: string; title: string };
   SavedPlaces: undefined;
   FriendChat: { friendId: string };
   LocationShare: { friendId: string };

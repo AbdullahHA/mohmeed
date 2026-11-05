@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 
 type Destination = { id: string; name: string };
@@ -38,7 +38,9 @@ export default function PlaceEdit() {
   const { id } = useParams();
   const isNew = id === 'new';
   const navigate = useNavigate();
-  const [form, setForm] = useState<FormState>(EMPTY);
+  const location = useLocation();
+  const importedState = isNew ? (location.state as Partial<FormState> | null) : null;
+  const [form, setForm] = useState<FormState>(importedState ? { ...EMPTY, ...importedState } : EMPTY);
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
@@ -118,7 +120,12 @@ export default function PlaceEdit() {
 
   return (
     <div className="max-w-xl">
-      <h1 className="mb-6 text-xl font-bold text-foreground">{isNew ? 'مكان جديد' : form.name}</h1>
+      <h1 className="mb-2 text-xl font-bold text-foreground">{isNew ? 'مكان جديد' : form.name}</h1>
+      {importedState ? (
+        <p className="mb-4 text-xs text-muted-foreground">
+          الاسم والموقع والنوع مُعبّاة تلقائيًا من Google Places — راجعها، وأضف الصورة والوصف والسعر يدويًا.
+        </p>
+      ) : null}
       <div className="surface-card flex flex-col gap-4 p-5">
         {isNew ? (
           <Field label="المعرّف (بالإنجليزي، فريد)">

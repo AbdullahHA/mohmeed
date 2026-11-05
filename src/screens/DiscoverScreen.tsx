@@ -25,6 +25,7 @@ import { useUserLocation } from '../hooks/useUserLocation';
 import { haversineDistanceKm } from '../lib/geo';
 import { PLACE_TYPE_LABELS, type Place, type PlaceType } from '../data/places';
 import { useContent } from '../context/ContentContext';
+import { supabase } from '../lib/supabase';
 import type { RootStackParamList } from '../navigation/types';
 
 const CITY_STORAGE_KEY = 'yalla-nsafer:discover-city';
@@ -57,11 +58,27 @@ export default function DiscoverScreen() {
   const [manualCityId, setManualCityId] = useState<string | null>(null);
   const [cityPickerVisible, setCityPickerVisible] = useState(false);
   const { coords, requestLocation } = useUserLocation();
+  const [curatedLists, setCuratedLists] = useState<{ id: string; title: string; icon: string }[]>([]);
 
   useEffect(() => {
     AsyncStorage.getItem(CITY_STORAGE_KEY).then((saved) => {
       if (saved) setManualCityId(saved);
     });
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from('curated_lists')
+        .select('id,title,icon,method,season_start,season_end')
+        .eq('is_published', true)
+        .order('sort_order', { ascending: true });
+      const today = new Date().toISOString().slice(0, 10);
+      const visible = (data ?? []).filter(
+        (l) => l.method === 'manual' || ((!l.season_start || l.season_start <= today) && (!l.season_end || l.season_end >= today))
+      );
+      setCuratedLists(visible.map((l) => ({ id: l.id, title: l.title, icon: l.icon })));
+    })();
   }, []);
 
   // Honest "current city": a manual pick always wins; otherwise the nearest
@@ -218,6 +235,27 @@ export default function DiscoverScreen() {
                 );
               })}
             </View>
+
+            {curatedLists.length > 0 ? (
+              <View style={styles.sec}>
+                <View style={styles.secTitle}>
+                  <Text style={styles.secTitleText}>المختارات</Text>
+                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.curatedRow}>
+                  {curatedLists.map((l) => (
+                    <TouchableOpacity
+                      key={l.id}
+                      style={styles.curatedCard}
+                      activeOpacity={0.85}
+                      onPress={() => navigation.navigate('CuratedList', { listId: l.id, title: l.title })}
+                    >
+                      <Text style={styles.curatedEmoji}>{l.icon}</Text>
+                      <Text style={styles.curatedTitle} numberOfLines={2}>{l.title}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            ) : null}
 
             <View style={styles.sec}>
               <View style={styles.secTitle}>
@@ -457,6 +495,20 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   sec: { marginTop: spacing.xl, paddingHorizontal: spacing.lg },
   secTitle: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: spacing.sm },
   secTitleText: { color: colors.text, fontSize: 15, fontWeight: '700' },
+  curatedRow: { flexDirection: 'row-reverse', gap: spacing.sm },
+  curatedCard: {
+    width: 92,
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xs,
+  },
+  curatedEmoji: { fontSize: 26 },
+  curatedTitle: { color: colors.text, fontSize: 11.5, fontWeight: '700', textAlign: 'center' },
   pgrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.md },
   pcard: { width: '47%', gap: spacing.xs },
   pcardImageWrap: { width: '100%', height: 130, borderRadius: radius.lg, overflow: 'hidden' },
