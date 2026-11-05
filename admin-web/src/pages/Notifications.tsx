@@ -33,7 +33,7 @@ export default function Notifications() {
     setSending(true);
     setError(null);
 
-    const { data: pushResult, error: pushError } = await supabase.functions.invoke('send-notification', {
+    const { data: pushResult, error: pushError } = await supabase.functions.invoke('smart-api', {
       body: { title: title.trim(), body: body.trim() },
     });
     if (pushError) {
