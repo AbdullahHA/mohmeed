@@ -72,6 +72,8 @@ type Kpis = {
 
 type TopPlace = { id: string; name: string; rating: number; recommendCount: number };
 
+type GuideUsage = { messages: number; uniqueUsers: number };
+
 export default function Dashboard() {
   const [counts, setCounts] = useState<Counts | null>(null);
   const [pending, setPending] = useState<PendingCounts | null>(null);
@@ -81,6 +83,7 @@ export default function Dashboard() {
   const [satisfaction, setSatisfaction] = useState<{ percent: number; total: number } | null>(null);
   const [weekdayActivity, setWeekdayActivity] = useState<{ label: string; value: number }[] | null>(null);
   const [topPlaces, setTopPlaces] = useState<TopPlace[] | null>(null);
+  const [guideUsage, setGuideUsage] = useState<GuideUsage | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -166,6 +169,18 @@ export default function Dashboard() {
       since90.setDate(since90.getDate() - 90);
       const { data } = await supabase.from('trips').select('created_at').gte('created_at', since90.toISOString());
       setWeekdayActivity(bucketByWeekday((data ?? []).map((r) => r.created_at)));
+    })();
+
+    (async () => {
+      const since30 = new Date();
+      since30.setDate(since30.getDate() - 30);
+      const { data } = await supabase
+        .from('guide_messages')
+        .select('profile_id')
+        .eq('from_id', 'me')
+        .gte('at', since30.toISOString());
+      const rows = data ?? [];
+      setGuideUsage({ messages: rows.length, uniqueUsers: new Set(rows.map((r) => r.profile_id)).size });
     })();
 
     (async () => {
@@ -279,6 +294,18 @@ export default function Dashboard() {
           />
         ) : null}
         {weekdayActivity ? <WeekdayBarChart title="أكثر أيام الأسبوع نشاطًا (رحلات آخر 90 يوم)" data={weekdayActivity} /> : null}
+      </div>
+
+      <h2 className="mb-3 text-sm font-bold text-foreground">استخدام دليل السفر الذكي (آخر 30 يوم)</h2>
+      <div className="surface-card mb-6 grid grid-cols-2 divide-x divide-x-reverse divide-border">
+        <div className="p-4">
+          <div className="num text-2xl font-bold text-foreground">{guideUsage?.messages ?? '—'}</div>
+          <div className="mt-1 text-sm text-muted-foreground">رسالة أُرسلت</div>
+        </div>
+        <div className="p-4">
+          <div className="num text-2xl font-bold text-foreground">{guideUsage?.uniqueUsers ?? '—'}</div>
+          <div className="mt-1 text-sm text-muted-foreground">مستخدم استخدمه</div>
+        </div>
       </div>
 
       <h2 className="mb-3 text-sm font-bold text-foreground">الأماكن الأكثر إعجابًا</h2>

@@ -16,6 +16,8 @@ import Users from './pages/Users';
 import Notifications from './pages/Notifications';
 import FeatureFlags from './pages/FeatureFlags';
 import Account from './pages/Account';
+import Team from './pages/Team';
+import RequireRole from './components/RequireRole';
 
 function Gate({ children }: { children: React.ReactNode }) {
   const { session, profile, loading } = useAuth();
@@ -55,17 +57,18 @@ function Router() {
         }
       >
         <Route index element={<Dashboard />} />
-        <Route path="destinations" element={<Destinations />} />
-        <Route path="destinations/:id" element={<DestinationEdit />} />
-        <Route path="country-info" element={<CountryInfo />} />
-        <Route path="places" element={<Places />} />
-        <Route path="places/:id" element={<PlaceEdit />} />
-        <Route path="communities" element={<Communities />} />
-        <Route path="community-requests" element={<CommunityRequests />} />
-        <Route path="community-reports" element={<CommunityReports />} />
-        <Route path="users" element={<Users />} />
-        <Route path="notifications" element={<Notifications />} />
-        <Route path="flags" element={<FeatureFlags />} />
+        <Route path="destinations" element={<RequireRole page="/destinations"><Destinations /></RequireRole>} />
+        <Route path="destinations/:id" element={<RequireRole page="/destinations"><DestinationEdit /></RequireRole>} />
+        <Route path="country-info" element={<RequireRole page="/country-info"><CountryInfo /></RequireRole>} />
+        <Route path="places" element={<RequireRole page="/places"><Places /></RequireRole>} />
+        <Route path="places/:id" element={<RequireRole page="/places"><PlaceEdit /></RequireRole>} />
+        <Route path="communities" element={<RequireRole page="/communities"><Communities /></RequireRole>} />
+        <Route path="community-requests" element={<RequireRole page="/community-requests"><CommunityRequests /></RequireRole>} />
+        <Route path="community-reports" element={<RequireRole page="/community-reports"><CommunityReports /></RequireRole>} />
+        <Route path="users" element={<RequireRole page="/users"><Users /></RequireRole>} />
+        <Route path="notifications" element={<RequireRole page="/notifications"><Notifications /></RequireRole>} />
+        <Route path="flags" element={<RequireRole page="/flags"><FeatureFlags /></RequireRole>} />
+        <Route path="team" element={<RequireRole page="/team"><Team /></RequireRole>} />
         <Route path="account" element={<Account />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

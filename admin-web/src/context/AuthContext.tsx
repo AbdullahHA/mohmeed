@@ -7,6 +7,7 @@ export type AdminProfile = {
   name: string;
   username: string;
   isAdmin: boolean;
+  adminRole: string | null;
 };
 
 type AuthState = {
@@ -23,11 +24,11 @@ const AuthContext = createContext<AuthState | undefined>(undefined);
 async function loadProfile(userId: string): Promise<AdminProfile | null> {
   const { data } = await supabase
     .from('profiles')
-    .select('id,name,username,is_admin')
+    .select('id,name,username,is_admin,admin_role')
     .eq('id', userId)
     .single();
   if (!data) return null;
-  return { id: data.id, name: data.name, username: data.username, isAdmin: data.is_admin };
+  return { id: data.id, name: data.name, username: data.username, isAdmin: data.is_admin, adminRole: data.admin_role };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
