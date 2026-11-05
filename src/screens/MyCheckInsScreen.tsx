@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
   StyleSheet,
   TouchableOpacity,
   SectionList,
+  FlatList,
   ActivityIndicator,
   Platform,
 } from 'react-native';
@@ -15,20 +16,33 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
+import { useAuth } from '../context/AuthContext';
 import EmptyState from '../components/EmptyState';
 import RtlScrollRow from '../components/RtlScrollRow';
+import PersonAvatar from '../components/PersonAvatar';
 import { VENUE_CATEGORY_ICON, VENUE_CATEGORY_LABEL } from '../utils/venueCategory';
 import { computeCheckInBadges } from '../utils/checkInBadges';
+import { computeLeaderboard, type LeaderboardEntry } from '../utils/checkInLeaderboard';
 import { lightMapStyle } from '../theme/mapStyle';
 import { MapView, Marker } from '../components/mapModule';
 import type { CheckInRecord } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
-type ViewMode = 'list' | 'map';
+type ViewMode = 'list' | 'map' | 'friends' | 'leaderboard';
 
 function formatTime(ts: number) {
   return new Date(ts).toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit' });
+}
+
+function timeAgo(ts: number): string {
+  const diffMin = Math.max(0, Math.round((Date.now() - ts) / 60000));
+  if (diffMin < 1) return 'الآن';
+  if (diffMin < 60) return `قبل ${diffMin} ${diffMin === 1 ? 'دقيقة' : 'دقائق'}`;
+  const diffHr = Math.round(diffMin / 60);
+  if (diffHr < 24) return `قبل ${diffHr} ${diffHr === 1 ? 'ساعة' : 'ساعات'}`;
+  const diffDay = Math.round(diffHr / 24);
+  return `قبل ${diffDay} ${diffDay === 1 ? 'يوم' : 'أيام'}`;
 }
 
 function dateHeading(ts: number) {
@@ -56,8 +70,13 @@ export default function MyCheckInsScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { myCheckIns, myCheckInsLoading } = useAppState();
+  const { myCheckIns, myCheckInsLoading, loadFriendsCheckInFeed, loadWeeklyCheckIns } = useAppState();
+  const { profile } = useAuth();
   const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [friendFeed, setFriendFeed] = useState<CheckInRecord[] | null>(null);
+  const [friendFeedLoading, setFriendFeedLoading] = useState(false);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[] | null>(null);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
 
   const badges = useMemo(() => computeCheckInBadges(myCheckIns), [myCheckIns]);
   const sections = useMemo(() => groupByDay(myCheckIns), [myCheckIns]);
@@ -65,6 +84,24 @@ export default function MyCheckInsScreen() {
     () => myCheckIns.filter((c) => c.lat != null && c.lng != null),
     [myCheckIns]
   );
+
+  useEffect(() => {
+    if (viewMode === 'friends' && friendFeed === null) {
+      setFriendFeedLoading(true);
+      loadFriendsCheckInFeed().then((list) => {
+        setFriendFeed(list);
+        setFriendFeedLoading(false);
+      });
+    }
+    if (viewMode === 'leaderboard' && leaderboard === null && profile) {
+      setLeaderboardLoading(true);
+      loadWeeklyCheckIns().then((list) => {
+        setLeaderboard(computeLeaderboard(list, profile.id, profile.name));
+        setLeaderboardLoading(false);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewMode]);
 
   const mapRegion = useMemo(() => {
     if (pins.length === 0) return null;
@@ -98,14 +135,6 @@ export default function MyCheckInsScreen() {
         <View style={styles.centerState}>
           <ActivityIndicator color={colors.primary} />
         </View>
-      ) : myCheckIns.length === 0 ? (
-        <EmptyState
-          icon="location-outline"
-          title="لا توجد عمليات تسجيل وصول"
-          subtitle="سجّل وصولك لأول مكان عشان يبدأ سجلك يتكوّن هنا"
-          actionLabel="دوّر على مكان"
-          onAction={() => navigation.navigate('CheckInSearch')}
-        />
       ) : (
         <>
           <RtlScrollRow contentContainerStyle={styles.badgesRow}>
@@ -122,7 +151,7 @@ export default function MyCheckInsScreen() {
             ))}
           </RtlScrollRow>
 
-          <View style={styles.viewToggle}>
+          <RtlScrollRow contentContainerStyle={styles.viewToggle}>
             <TouchableOpacity
               style={[styles.toggleBtn, viewMode === 'list' && styles.toggleBtnActive]}
               activeOpacity={0.8}
@@ -137,9 +166,80 @@ export default function MyCheckInsScreen() {
             >
               <Text style={[styles.toggleText, viewMode === 'map' && styles.toggleTextActive]}>خريطة</Text>
             </TouchableOpacity>
-          </View>
+            <TouchableOpacity
+              style={[styles.toggleBtn, viewMode === 'friends' && styles.toggleBtnActive]}
+              activeOpacity={0.8}
+              onPress={() => setViewMode('friends')}
+            >
+              <Text style={[styles.toggleText, viewMode === 'friends' && styles.toggleTextActive]}>الأصدقاء</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.toggleBtn, viewMode === 'leaderboard' && styles.toggleBtnActive]}
+              activeOpacity={0.8}
+              onPress={() => setViewMode('leaderboard')}
+            >
+              <Text style={[styles.toggleText, viewMode === 'leaderboard' && styles.toggleTextActive]}>المتصدرين</Text>
+            </TouchableOpacity>
+          </RtlScrollRow>
 
-          {viewMode === 'map' ? (
+          {viewMode === 'friends' ? (
+            friendFeedLoading ? (
+              <View style={styles.centerState}>
+                <ActivityIndicator color={colors.primary} />
+              </View>
+            ) : !friendFeed || friendFeed.length === 0 ? (
+              <Text style={styles.emptyMapText}>ما فيه نشاط من أصدقائك لين الحين</Text>
+            ) : (
+              <FlatList
+                data={friendFeed}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={styles.list}
+                renderItem={({ item }) => (
+                  <View style={styles.feedRow}>
+                    <PersonAvatar avatarUrl={item.user?.avatarUrl} size={40} />
+                    <View style={styles.rowTextWrap}>
+                      <Text style={styles.rowName}>
+                        <Text style={styles.feedActorName}>{item.user?.name ?? 'صديق'}</Text> سجّل وصوله في {item.venueName}
+                      </Text>
+                      <Text style={styles.rowMeta}>
+                        {VENUE_CATEGORY_LABEL[item.category]} · {timeAgo(item.createdAt)}
+                      </Text>
+                    </View>
+                    <View style={styles.feedIcon}>
+                      <Ionicons name={VENUE_CATEGORY_ICON[item.category]} size={18} color={colors.primary} />
+                    </View>
+                  </View>
+                )}
+              />
+            )
+          ) : viewMode === 'leaderboard' ? (
+            leaderboardLoading ? (
+              <View style={styles.centerState}>
+                <ActivityIndicator color={colors.primary} />
+              </View>
+            ) : !leaderboard || leaderboard.every((e) => e.count === 0) ? (
+              <Text style={styles.emptyMapText}>ما فيه تسجيلات وصول هالأسبوع — ابدأها إنت!</Text>
+            ) : (
+              <FlatList
+                data={leaderboard}
+                keyExtractor={(item) => item.userId}
+                contentContainerStyle={styles.list}
+                renderItem={({ item, index }) => (
+                  <View style={[styles.rankRow, item.userId === profile?.id && styles.rankRowMine]}>
+                    <View style={styles.rankBadge}>
+                      <Text style={styles.rankBadgeText}>{index === 0 ? '👑' : `#${index + 1}`}</Text>
+                    </View>
+                    <PersonAvatar avatarUrl={item.avatarUrl} size={40} />
+                    <View style={styles.rowTextWrap}>
+                      <Text style={styles.rowName}>{item.userId === profile?.id ? 'أنت' : item.name}</Text>
+                      <Text style={styles.rowMeta}>{item.distinctVenues} {item.distinctVenues === 1 ? 'مكان' : 'أماكن'} مختلفة</Text>
+                    </View>
+                    <Text style={styles.rankPoints}>{item.count}</Text>
+                  </View>
+                )}
+              />
+            )
+          ) : viewMode === 'map' ? (
             pins.length === 0 ? (
               <Text style={styles.emptyMapText}>ما فيه مواقع محفوظة لتسجيلات الوصول عشان تظهر بالخريطة</Text>
             ) : Platform.OS === 'web' || !MapView || !Marker ? (
@@ -173,6 +273,15 @@ export default function MyCheckInsScreen() {
               sections={sections}
               keyExtractor={(item) => item.id}
               contentContainerStyle={styles.list}
+              ListEmptyComponent={
+                <EmptyState
+                  icon="location-outline"
+                  title="لا توجد عمليات تسجيل وصول"
+                  subtitle="سجّل وصولك لأول مكان عشان يبدأ سجلك يتكوّن هنا"
+                  actionLabel="دوّر على مكان"
+                  onAction={() => navigation.navigate('CheckInSearch')}
+                />
+              }
               renderSectionHeader={({ section }) => <Text style={styles.sectionHeader}>{section.title}</Text>}
               renderItem={({ item }) => (
                 <View style={styles.row}>
@@ -302,4 +411,39 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   rowName: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
   rowMeta: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
   rowDate: { color: colors.textFaint, fontSize: 11, fontWeight: '600' },
+  feedRow: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  feedActorName: { color: colors.primary, fontWeight: '700' },
+  feedIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rankRow: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  rankRowMine: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
+  rankBadge: { width: 32, alignItems: 'center' },
+  rankBadgeText: { color: colors.textMuted, fontSize: 15, fontWeight: '800' },
+  rankPoints: { color: colors.primary, fontSize: 18, fontWeight: '800' },
 });

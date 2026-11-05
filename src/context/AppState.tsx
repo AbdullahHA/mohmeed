@@ -169,6 +169,8 @@ type AppStateValue = {
   checkInToVenue: (venue: PlaceSearchResult, isPrivate?: boolean) => Promise<{ error: string | null }>;
   loadVenueCheckIns: (venueId: string) => Promise<CheckInRecord[]>;
   loadDestinationCheckIns: (destinationId: string) => Promise<CheckInRecord[]>;
+  loadFriendsCheckInFeed: () => Promise<CheckInRecord[]>;
+  loadWeeklyCheckIns: () => Promise<CheckInRecord[]>;
   followersCount: number;
   followingCount: number;
   followingIds: string[];
@@ -1675,6 +1677,49 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Friends' activity feed: RLS on check_ins already limits rows to the
+  // caller's own + friends' non-private check-ins, so an unfiltered query
+  // ordered by time is already the correct "people I follow" feed — we
+  // just exclude the caller's own rows client-side (those live in "My
+  // check-ins" already).
+  const loadFriendsCheckInFeed = async (): Promise<CheckInRecord[]> => {
+    if (!profile) return [];
+    try {
+      const { data } = await supabase
+        .from('check_ins')
+        .select(
+          'id,venue_id,venue_name,venue_address,venue_category,lat,lng,is_private,created_at,user:profiles!check_ins_user_id_fkey(id,name,emoji,color,avatar_url)'
+        )
+        .neq('user_id', profile.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      return (data ?? []).map(mapCheckInRow);
+    } catch {
+      return [];
+    }
+  };
+
+  // Last 7 days of check-ins visible to the caller (own + friends', same
+  // RLS scope as above) — the raw data a weekly leaderboard is computed
+  // from client-side in utils/checkInLeaderboard.ts.
+  const loadWeeklyCheckIns = async (): Promise<CheckInRecord[]> => {
+    if (!profile) return [];
+    try {
+      const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const { data } = await supabase
+        .from('check_ins')
+        .select(
+          'id,venue_id,venue_name,venue_address,venue_category,lat,lng,is_private,created_at,user:profiles!check_ins_user_id_fkey(id,name,emoji,color,avatar_url)'
+        )
+        .gte('created_at', since)
+        .order('created_at', { ascending: false })
+        .limit(300);
+      return (data ?? []).map(mapCheckInRow);
+    } catch {
+      return [];
+    }
+  };
+
   const value = useMemo<AppStateValue>(
     () => ({
       currentUser,
@@ -1754,6 +1799,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       checkInToVenue,
       loadVenueCheckIns,
       loadDestinationCheckIns,
+      loadFriendsCheckInFeed,
+      loadWeeklyCheckIns,
       followersCount,
       followingCount,
       followingIds,
