@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { title, body } = await req.json();
+    const { title, body, profileIds } = await req.json();
     if (!title?.trim() || !body?.trim()) {
       return new Response(JSON.stringify({ error: "missing_title_or_body" }), {
         status: 400,
@@ -59,7 +59,14 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { data: tokenRows } = await admin.from("push_tokens").select("expo_push_token");
+    // profileIds narrows delivery to a real audience segment computed by
+    // the caller (e.g. "signed up this week", "has a trip") — omit it for
+    // the original broadcast-to-everyone behavior.
+    let tokenQuery = admin.from("push_tokens").select("expo_push_token");
+    if (Array.isArray(profileIds) && profileIds.length > 0) {
+      tokenQuery = tokenQuery.in("profile_id", profileIds);
+    }
+    const { data: tokenRows } = await tokenQuery;
     const tokens = Array.from(new Set((tokenRows ?? []).map((r) => r.expo_push_token).filter(Boolean)));
 
     let delivered = 0;

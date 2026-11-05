@@ -20,6 +20,8 @@ import EventEdit from './pages/EventEdit';
 import Support from './pages/Support';
 import CuratedLists from './pages/CuratedLists';
 import CuratedListEdit from './pages/CuratedListEdit';
+import PostsReviews from './pages/PostsReviews';
+import Analytics from './pages/Analytics';
 import FeatureFlags from './pages/FeatureFlags';
 import Account from './pages/Account';
 import Team from './pages/Team';
@@ -80,6 +82,8 @@ function Router() {
         <Route path="support" element={<RequireRole page="/support"><Support /></RequireRole>} />
         <Route path="curated-lists" element={<RequireRole page="/curated-lists"><CuratedLists /></RequireRole>} />
         <Route path="curated-lists/:id" element={<RequireRole page="/curated-lists"><CuratedListEdit /></RequireRole>} />
+        <Route path="posts-reviews" element={<RequireRole page="/posts-reviews"><PostsReviews /></RequireRole>} />
+        <Route path="analytics" element={<RequireRole page="/analytics"><Analytics /></RequireRole>} />
         <Route path="flags" element={<RequireRole page="/flags"><FeatureFlags /></RequireRole>} />
         <Route path="team" element={<RequireRole page="/team"><Team /></RequireRole>} />
         <Route path="audit" element={<RequireRole page="/audit"><Audit /></RequireRole>} />

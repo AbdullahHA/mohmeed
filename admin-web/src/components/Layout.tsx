@@ -22,11 +22,19 @@ const NAV_GROUPS: { label: string; items: { to: PageKey; label: string; end?: bo
       { to: '/communities', label: 'المجتمعات' },
       { to: '/community-requests', label: 'طلبات إنشاء مجتمعات' },
       { to: '/community-reports', label: 'بلاغات المجتمعات' },
+      { to: '/posts-reviews', label: 'المنشورات والتقييمات' },
       { to: '/users', label: 'المستخدمون' },
       { to: '/support', label: 'الدعم والملاحظات' },
     ],
   },
-  { label: 'النمو', items: [{ to: '/notifications', label: 'الإشعارات' }, { to: '/events', label: 'الفعاليات' }] },
+  {
+    label: 'النمو',
+    items: [
+      { to: '/notifications', label: 'الإشعارات' },
+      { to: '/events', label: 'الفعاليات' },
+      { to: '/analytics', label: 'التحليلات' },
+    ],
+  },
   {
     label: 'النظام',
     items: [
