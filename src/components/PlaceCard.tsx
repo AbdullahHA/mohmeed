@@ -6,11 +6,12 @@ import {
   TouchableOpacity,
   Linking,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { radius, spacing, fixedColors, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
@@ -86,6 +87,11 @@ export default function PlaceCard({ place, onPress }: Props) {
     <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={onPress}>
       <View style={styles.imageWrap}>
         <Image source={place.image} style={styles.image} />
+        <LinearGradient
+          colors={['transparent', `${fixedColors.category[place.type]}66`]}
+          style={StyleSheet.absoluteFill}
+          pointerEvents="none"
+        />
         <View style={styles.typeBadge}>
           <Text style={styles.typeBadgeText}>{PLACE_TYPE_LABELS[place.type]}</Text>
         </View>

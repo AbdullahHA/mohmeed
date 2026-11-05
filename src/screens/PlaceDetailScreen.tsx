@@ -9,11 +9,12 @@ import {
   Linking,
   Share,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { radius, spacing, fixedColors, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import PlaceMiniMap from '../components/PlaceMiniMap';
 import AddToTripSheet from '../components/AddToTripSheet';
@@ -28,7 +29,7 @@ import { useAuth } from '../context/AuthContext';
 import { useContent } from '../context/ContentContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import { supabase } from '../lib/supabase';
-import { PLACE_TYPE_LABELS } from '../data/places';
+import { PLACE_TYPE_LABELS, PLACE_TYPE_ICONS } from '../data/places';
 import type { Trip, ItinerarySlot, PlaceQuickRating, QuickRateTag } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -170,6 +171,11 @@ export default function PlaceDetailScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <View style={styles.imageWrap}>
           <Image source={place.image} style={styles.image} />
+          <LinearGradient
+            colors={['transparent', `${fixedColors.category[place.type]}59`]}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
           <View style={styles.imageHeader}>
             <TouchableOpacity style={styles.glassButton} onPress={() => navigation.goBack()} activeOpacity={0.85}>
               <Ionicons name="chevron-forward" size={20} color="#fff" />
@@ -249,7 +255,7 @@ export default function PlaceDetailScreen() {
               <Text style={styles.factValue}>{place.category}</Text>
             </View>
             <View style={styles.factCard}>
-              <Ionicons name="apps-outline" size={18} color={colors.textMuted} />
+              <Ionicons name={PLACE_TYPE_ICONS[place.type]} size={18} color={colors.textMuted} />
               <Text style={styles.factLabel}>النوع</Text>
               <Text style={styles.factValue}>{PLACE_TYPE_LABELS[place.type]}</Text>
             </View>

@@ -23,7 +23,7 @@ import { useAppState } from '../context/AppState';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import { useUserLocation } from '../hooks/useUserLocation';
 import { haversineDistanceKm } from '../lib/geo';
-import { PLACE_TYPE_LABELS, type Place, type PlaceType } from '../data/places';
+import { PLACE_TYPE_LABELS, PLACE_TYPE_ICONS, type Place, type PlaceType } from '../data/places';
 import { useContent } from '../context/ContentContext';
 import { supabase } from '../lib/supabase';
 import type { RootStackParamList } from '../navigation/types';
@@ -33,16 +33,10 @@ const CITY_STORAGE_KEY = 'yalla-nsafer:discover-city';
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type ViewMode = 'list' | 'map';
 
-const TYPE_FILTERS: Array<{ value: PlaceType; icon: keyof typeof Ionicons.glyphMap; color: string }> = [
-  { value: 'experiences', icon: 'sparkles-outline', color: fixedColors.category.experiences },
-  { value: 'events', icon: 'calendar-outline', color: fixedColors.category.events },
-  { value: 'cafe', icon: 'cafe-outline', color: fixedColors.category.cafe },
-  { value: 'food', icon: 'restaurant-outline', color: fixedColors.category.food },
-  { value: 'shopping', icon: 'bag-outline', color: fixedColors.category.shopping },
-  { value: 'nature', icon: 'leaf-outline', color: fixedColors.category.nature },
-  { value: 'landmarks', icon: 'flag-outline', color: fixedColors.category.landmarks },
-  { value: 'hotels', icon: 'bed-outline', color: fixedColors.category.hotels },
-];
+const TYPE_FILTER_ORDER: PlaceType[] = ['experiences', 'events', 'cafe', 'food', 'shopping', 'nature', 'landmarks', 'hotels'];
+const TYPE_FILTERS: Array<{ value: PlaceType; icon: keyof typeof Ionicons.glyphMap; color: string }> = TYPE_FILTER_ORDER.map(
+  (value) => ({ value, icon: PLACE_TYPE_ICONS[value], color: fixedColors.category[value] })
+);
 
 export default function DiscoverScreen() {
   const navigation = useNavigation<Nav>();

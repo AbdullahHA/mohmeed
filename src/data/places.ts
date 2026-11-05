@@ -1,4 +1,5 @@
 import type { ImageSourcePropType } from 'react-native';
+import type { Ionicons } from '@expo/vector-icons';
 
 export type PlaceType = 'food' | 'cafe' | 'events' | 'experiences' | 'shopping' | 'nature' | 'landmarks' | 'hotels';
 
@@ -11,6 +12,20 @@ export const PLACE_TYPE_LABELS: Record<PlaceType, string> = {
   nature: 'طبيعة',
   landmarks: 'معالم',
   hotels: 'فنادق',
+};
+
+// Single source of truth for the per-type icon, shared by the Discover
+// category grid/filter chips and the place-detail "النوع" fact card so
+// they never drift apart.
+export const PLACE_TYPE_ICONS: Record<PlaceType, keyof typeof Ionicons.glyphMap> = {
+  food: 'restaurant-outline',
+  cafe: 'cafe-outline',
+  events: 'calendar-outline',
+  experiences: 'sparkles-outline',
+  shopping: 'bag-outline',
+  nature: 'leaf-outline',
+  landmarks: 'flag-outline',
+  hotels: 'bed-outline',
 };
 
 export type Place = {
