@@ -249,6 +249,21 @@ export type TripMessage = {
   at: number;
 };
 
+export type TripMessagePoll = {
+  id: string;
+  tripId: string;
+  createdBy: string;
+  question: string;
+  options: string[];
+  allowMultiple: boolean;
+};
+
+export type TripPollVote = {
+  pollId: string;
+  voterId: string;
+  optionIndex: number;
+};
+
 export type CheckInPeer = {
   id: string;
   name: string;

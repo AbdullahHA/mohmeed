@@ -9,6 +9,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Image,
+  Alert,
 } from 'react-native';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,9 +23,19 @@ import { useAuth } from '../context/AuthContext';
 import { useRegion } from '../context/RegionContext';
 import { supabase } from '../lib/supabase';
 import LogExpenseSheet from '../components/LogExpenseSheet';
+import CreatePollSheet from '../components/CreatePollSheet';
+import PollMessageCard from '../components/PollMessageCard';
 import { BUDGET_CATEGORY_LABELS, type BudgetCategory, type ItinerarySlot, type TripMessage } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 import { formatIsoDate } from '../components/DayPicker';
+import {
+  encodeImageMessage,
+  encodePollMessage,
+  parseImageMessage,
+  parsePollMessage,
+  pickAndUploadChatImage,
+  signChatImagePaths,
+} from '../lib/tripChatMedia';
 
 type Route = RouteProp<RootStackParamList, 'GroupChat'>;
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -65,6 +77,9 @@ export default function GroupChatScreen() {
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [expenseSheetVisible, setExpenseSheetVisible] = useState(false);
+  const [pollSheetVisible, setPollSheetVisible] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
   const listRef = useRef<FlatList<TripMessage>>(null);
 
   useEffect(() => {
@@ -104,6 +119,20 @@ export default function GroupChatScreen() {
       supabase.removeChannel(channel);
     };
   }, [tripId, trip?.memberIds.join(',')]);
+
+  useEffect(() => {
+    const paths = messages
+      .map((m) => parseImageMessage(m.text)?.path)
+      .filter((p): p is string => !!p && !imageUrls[p]);
+    if (paths.length === 0) return;
+    let cancelled = false;
+    signChatImagePaths(paths).then((map) => {
+      if (!cancelled) setImageUrls((prev) => ({ ...prev, ...map }));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [messages]);
 
   if (!trip) {
     return (
@@ -159,6 +188,46 @@ export default function GroupChatScreen() {
       .select()
       .single();
     setSending(false);
+    if (!error && data) {
+      setMessages((prev) => (prev.some((m) => m.id === data.id) ? prev : [...prev, mapRow(data)]));
+    }
+  };
+
+  const sendImage = async () => {
+    if (!meId || uploadingImage) return;
+    setUploadingImage(true);
+    try {
+      const path = await pickAndUploadChatImage(tripId, meId);
+      if (!path) return;
+      const { data, error } = await supabase
+        .from('trip_messages')
+        .insert({ trip_id: tripId, from_id: meId, text: encodeImageMessage(path) })
+        .select()
+        .single();
+      if (!error && data) {
+        setMessages((prev) => (prev.some((m) => m.id === data.id) ? prev : [...prev, mapRow(data)]));
+      }
+    } catch {
+      Alert.alert('تعذّر إرسال الصورة', 'حاول مرة ثانية.');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const sendPoll = async (question: string, options: string[], allowMultiple: boolean) => {
+    if (!meId) return;
+    setPollSheetVisible(false);
+    const { data: pollRow, error: pollError } = await supabase
+      .from('trip_message_polls')
+      .insert({ trip_id: tripId, created_by: meId, question, options, allow_multiple: allowMultiple })
+      .select()
+      .single();
+    if (pollError || !pollRow) return;
+    const { data, error } = await supabase
+      .from('trip_messages')
+      .insert({ trip_id: tripId, from_id: meId, text: encodePollMessage(pollRow.id) })
+      .select()
+      .single();
     if (!error && data) {
       setMessages((prev) => (prev.some((m) => m.id === data.id) ? prev : [...prev, mapRow(data)]));
     }
@@ -232,6 +301,31 @@ export default function GroupChatScreen() {
             }
             renderItem={({ item }) => {
               const mine = item.fromId === meId;
+              const pollRef = parsePollMessage(item.text);
+              if (pollRef) {
+                return (
+                  <View style={styles.pollWrap}>
+                    <Text style={styles.senderName}>{senderName(item.fromId)}</Text>
+                    <PollMessageCard pollId={pollRef.pollId} meId={meId ?? ''} />
+                  </View>
+                );
+              }
+              const imageRef = parseImageMessage(item.text);
+              if (imageRef) {
+                const url = imageUrls[imageRef.path];
+                return (
+                  <View style={[styles.imageBubbleWrap, mine && styles.imageBubbleWrapMine]}>
+                    {!mine ? <Text style={styles.senderName}>{senderName(item.fromId)}</Text> : null}
+                    {url ? (
+                      <Image source={{ uri: url }} style={styles.chatImage} resizeMode="cover" />
+                    ) : (
+                      <View style={styles.chatImagePlaceholder}>
+                        <ActivityIndicator color={colors.primary} />
+                      </View>
+                    )}
+                  </View>
+                );
+              }
               return (
                 <View style={[styles.bubble, mine ? styles.bubbleMe : styles.bubbleOther]}>
                   {!mine ? <Text style={styles.senderName}>{senderName(item.fromId)}</Text> : null}
@@ -255,6 +349,16 @@ export default function GroupChatScreen() {
             onSubmitEditing={send}
             textAlign="right"
           />
+          <TouchableOpacity style={styles.attachButton} onPress={() => setPollSheetVisible(true)} activeOpacity={0.8} hitSlop={6}>
+            <Ionicons name="bar-chart-outline" size={20} color={colors.textMuted} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.attachButton} onPress={sendImage} activeOpacity={0.8} disabled={uploadingImage} hitSlop={6}>
+            {uploadingImage ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <Ionicons name="image-outline" size={20} color={colors.textMuted} />
+            )}
+          </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
 
@@ -262,6 +366,11 @@ export default function GroupChatScreen() {
         visible={expenseSheetVisible}
         onClose={() => setExpenseSheetVisible(false)}
         onSubmit={handleLogExpense}
+      />
+      <CreatePollSheet
+        visible={pollSheetVisible}
+        onClose={() => setPollSheetVisible(false)}
+        onSubmit={sendPoll}
       />
     </SafeAreaView>
   );
@@ -302,6 +411,24 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   senderName: { color: colors.primary, fontSize: 11, fontWeight: '700', textAlign: 'right', marginBottom: 2 },
   bubbleText: { color: colors.text, fontSize: 14, textAlign: 'right', lineHeight: 20 },
   bubbleTextMe: { color: colors.textOnPrimary },
+  pollWrap: { alignItems: 'flex-start', marginBottom: spacing.sm },
+  imageBubbleWrap: { alignSelf: 'flex-start', marginBottom: spacing.sm, maxWidth: '70%' },
+  imageBubbleWrapMine: { alignSelf: 'flex-end' },
+  chatImage: { width: 200, height: 200, borderRadius: radius.md, backgroundColor: colors.surfaceAlt },
+  chatImagePlaceholder: {
+    width: 200,
+    height: 200,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  attachButton: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   inputRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
