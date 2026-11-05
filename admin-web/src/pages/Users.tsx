@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { downloadCsv } from '../lib/csv';
 import Drawer from '../components/Drawer';
@@ -12,6 +13,8 @@ export default function Users() {
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<Row | null>(null);
   const [stats, setStats] = useState<UserStats | null>(null);
+  const location = useLocation();
+  const openUserId = (location.state as { openUserId?: string } | null)?.openUserId;
 
   const openUser = async (u: Row) => {
     setSelected(u);
@@ -31,6 +34,10 @@ export default function Users() {
         .select('id,name,username,emoji,is_admin,created_at')
         .order('created_at', { ascending: false });
       setRows(data ?? []);
+      if (openUserId) {
+        const match = (data ?? []).find((r) => r.id === openUserId);
+        if (match) openUser(match);
+      }
     })();
   }, []);
 

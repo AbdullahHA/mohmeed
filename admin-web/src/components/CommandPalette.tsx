@@ -1,12 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 
 type Item = { to: string; label: string };
+type Result = { key: string; group: string; label: string; sub?: string; go: () => void };
 
 export default function CommandPalette({ items }: { items: Item[] }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [entityResults, setEntityResults] = useState<Result[]>([]);
+  const [searching, setSearching] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,14 +26,61 @@ export default function CommandPalette({ items }: { items: Item[] }) {
   }, []);
 
   useEffect(() => {
-    if (!open) setQuery('');
+    if (!open) {
+      setQuery('');
+      setEntityResults([]);
+    }
   }, [open]);
 
-  const filtered = useMemo(() => {
+  const pageResults: Result[] = useMemo(() => {
     const q = query.trim();
-    if (!q) return items;
-    return items.filter((i) => i.label.includes(q));
-  }, [items, query]);
+    const matches = q ? items.filter((i) => i.label.includes(q)) : items;
+    return matches.map((i) => ({ key: `page-${i.to}`, group: 'الصفحات', label: i.label, go: () => navigate(i.to) }));
+  }, [items, query, navigate]);
+
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setEntityResults([]);
+      return;
+    }
+    setSearching(true);
+    const timer = setTimeout(async () => {
+      const [{ data: destinations }, { data: places }, { data: users }] = await Promise.all([
+        supabase.from('destinations').select('id,name,country').ilike('name', `%${q}%`).limit(5),
+        supabase.from('places').select('id,name,destination_id').ilike('name', `%${q}%`).limit(5),
+        supabase.from('profiles').select('id,name,username').or(`name.ilike.%${q}%,username.ilike.%${q}%`).limit(5),
+      ]);
+      const results: Result[] = [
+        ...(destinations ?? []).map((d) => ({
+          key: `dest-${d.id}`,
+          group: 'الوجهات',
+          label: d.name,
+          sub: d.country,
+          go: () => navigate(`/destinations/${d.id}`),
+        })),
+        ...(places ?? []).map((p) => ({
+          key: `place-${p.id}`,
+          group: 'الأماكن',
+          label: p.name,
+          go: () => navigate(`/places/${p.id}`),
+        })),
+        ...(users ?? []).map((u) => ({
+          key: `user-${u.id}`,
+          group: 'المستخدمون',
+          label: u.name,
+          sub: `@${u.username}`,
+          go: () => navigate('/users', { state: { openUserId: u.id } }),
+        })),
+      ];
+      setEntityResults(results);
+      setSearching(false);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [query, navigate]);
+
+  const allResults = [...pageResults, ...entityResults];
+  const groups = Array.from(new Set(allResults.map((r) => r.group)));
 
   return (
     <>
@@ -38,7 +89,7 @@ export default function CommandPalette({ items }: { items: Item[] }) {
         className="mb-4 flex w-full items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-xs text-muted-foreground hover:bg-muted"
       >
         <SearchIcon />
-        <span className="flex-1 text-right">ابحث عن صفحة...</span>
+        <span className="flex-1 text-right">ابحث عن صفحة، مستخدم، أو مكان...</span>
         <kbd className="hidden rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] md:inline">⌘K</kbd>
       </button>
 
@@ -53,24 +104,32 @@ export default function CommandPalette({ items }: { items: Item[] }) {
                   autoFocus
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="اكتب اسم صفحة..."
+                  placeholder="اكتب اسم صفحة، مستخدم، أو مكان..."
                   className="w-full border-0 border-b border-border bg-transparent px-4 py-3 text-sm text-foreground outline-none"
                 />
                 <div className="max-h-80 overflow-y-auto p-2">
-                  {filtered.length === 0 ? (
-                    <div className="p-3 text-sm text-muted-foreground">ما فيه نتائج</div>
+                  {allResults.length === 0 ? (
+                    <div className="p-3 text-sm text-muted-foreground">{searching ? 'جاري البحث...' : 'ما فيه نتائج'}</div>
                   ) : (
-                    filtered.map((i) => (
-                      <button
-                        key={i.to}
-                        onClick={() => {
-                          navigate(i.to);
-                          setOpen(false);
-                        }}
-                        className="block w-full rounded-md px-3 py-2 text-right text-sm font-semibold text-foreground hover:bg-muted"
-                      >
-                        {i.label}
-                      </button>
+                    groups.map((group) => (
+                      <div key={group} className="mb-1">
+                        <div className="px-3 pb-1 pt-2 text-[11px] font-bold text-muted-foreground">{group}</div>
+                        {allResults
+                          .filter((r) => r.group === group)
+                          .map((r) => (
+                            <button
+                              key={r.key}
+                              onClick={() => {
+                                r.go();
+                                setOpen(false);
+                              }}
+                              className="flex w-full items-center justify-between rounded-md px-3 py-2 text-right text-sm font-semibold text-foreground hover:bg-muted"
+                            >
+                              <span>{r.label}</span>
+                              {r.sub ? <span className="text-xs font-normal text-muted-foreground" dir="ltr">{r.sub}</span> : null}
+                            </button>
+                          ))}
+                      </div>
                     ))
                   )}
                 </div>
