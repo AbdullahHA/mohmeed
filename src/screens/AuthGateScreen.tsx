@@ -249,7 +249,7 @@ export default function AuthGateScreen() {
                 <View style={styles.passwordRow}>
                   <TextInput
                     style={[styles.input, styles.passwordInput]}
-                    placeholder="••••••••"
+                    placeholder="كلمة المرور"
                     placeholderTextColor={colors.textFaint}
                     value={newPassword}
                     onChangeText={setNewPassword}
@@ -372,7 +372,7 @@ export default function AuthGateScreen() {
           <View style={styles.passwordRow}>
             <TextInput
               style={[styles.input, styles.passwordInput]}
-              placeholder="••••••••"
+              placeholder="كلمة المرور"
               placeholderTextColor={colors.textFaint}
               value={password}
               onChangeText={setPassword}

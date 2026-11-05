@@ -50,7 +50,7 @@ export default function PrayerTimesCard({ coordinate }: Props) {
         {PRAYER_ORDER.map((p) => (
           <View key={p} style={[styles.timeCell, p === next.name && styles.timeCellActive]}>
             <Text style={[styles.timeLabel, p === next.name && styles.timeLabelActive]}>{PRAYER_LABELS[p]}</Text>
-            <Text style={[styles.timeValue, p === next.name && styles.timeLabelActive]}>{formatTime(todayTimes[p])}</Text>
+            <Text style={[styles.timeValue, p === next.name && styles.timeLabelActive]}>{formatTime(todayTimes[p], coordinate)}</Text>
           </View>
         ))}
       </View>

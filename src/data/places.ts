@@ -35,7 +35,7 @@ export type Place = {
   image: ImageSourcePropType;
   rating: number;
   priceLevel: 1 | 2 | 3;
-  category: 'هادئ الآن' | 'Hot Spot' | 'الافتراضي';
+  category: 'هادئ الآن' | 'مزدحم الآن' | 'الافتراضي';
   type: PlaceType;
   coordinate: { latitude: number; longitude: number };
   website?: string;
@@ -51,7 +51,7 @@ export const places: Place[] = [
     image: require('../assets/images/kimpton-hotel.png'),
     rating: 4.9,
     priceLevel: 3,
-    category: 'Hot Spot',
+    category: 'مزدحم الآن',
     type: 'hotels',
     coordinate: { latitude: 24.7743, longitude: 46.6389 },
     website: 'https://www.ihg.com',
@@ -91,7 +91,7 @@ export const places: Place[] = [
     image: require('../assets/images/diriyah.png'),
     rating: 4.9,
     priceLevel: 2,
-    category: 'Hot Spot',
+    category: 'مزدحم الآن',
     type: 'landmarks',
     coordinate: { latitude: 24.7332, longitude: 46.5750 },
     destinationId: 'riyadh',
@@ -143,7 +143,7 @@ export const places: Place[] = [
     image: require('../assets/images/alula.png'),
     rating: 4.8,
     priceLevel: 2,
-    category: 'Hot Spot',
+    category: 'مزدحم الآن',
     type: 'landmarks',
     coordinate: { latitude: 26.7191, longitude: 37.8661 },
     website: 'https://www.maraya.sa',
@@ -170,7 +170,7 @@ export const places: Place[] = [
     image: require('../assets/images/alula.png'),
     rating: 4.8,
     priceLevel: 3,
-    category: 'Hot Spot',
+    category: 'مزدحم الآن',
     type: 'hotels',
     coordinate: { latitude: 26.7322, longitude: 37.8494 },
     website: 'https://ourhabitas.com/alula',
@@ -211,7 +211,7 @@ export const places: Place[] = [
     image: require('../assets/images/alula.png'),
     rating: 4.9,
     priceLevel: 3,
-    category: 'Hot Spot',
+    category: 'مزدحم الآن',
     type: 'experiences',
     coordinate: { latitude: 26.6300, longitude: 37.9000 },
     destinationId: 'alula',

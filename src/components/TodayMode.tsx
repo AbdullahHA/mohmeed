@@ -230,7 +230,7 @@ export default function TodayMode({ trip, navigation }: Props) {
           {nextPrayer ? (
             <>
               <Text style={styles.infoCardMain}>{PRAYER_LABELS[nextPrayer.name]}</Text>
-              <Text style={styles.infoCardSub}>{formatTime(nextPrayer.at)} · {formatCountdown(nextPrayer.at.getTime() - now.getTime())}</Text>
+              <Text style={styles.infoCardSub}>{formatTime(nextPrayer.at, coordinate ?? undefined)} · {formatCountdown(nextPrayer.at.getTime() - now.getTime())}</Text>
             </>
           ) : (
             <Text style={styles.infoCardSub}>غير متوفر</Text>

@@ -51,8 +51,9 @@ export function getQiblaBearing(coord: Coordinate): number {
   return Qibla(new Coordinates(coord.latitude, coord.longitude));
 }
 
-export function formatTime(date: Date): string {
-  return date.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit', hour12: true });
+export function formatTime(date: Date, coord?: Coordinate): string {
+  const timeZone = coord && isInSaudiArabia(coord) ? 'Asia/Riyadh' : undefined;
+  return date.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone });
 }
 
 export function formatCountdown(ms: number): string {
