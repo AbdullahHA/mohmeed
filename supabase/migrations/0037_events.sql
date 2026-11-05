@@ -21,7 +21,7 @@ create table if not exists public.events (
   category text not null,
   starts_at timestamptz not null,
   ends_at timestamptz not null,
-  place_id uuid references public.places(id) on delete set null,
+  place_id text references public.places(id) on delete set null,
   official_url text,
   audience text not null default 'public' check (audience in ('public', 'internal', 'kids', 'women_only')),
   is_draft boolean not null default true,
