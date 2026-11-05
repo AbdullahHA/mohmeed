@@ -2,8 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import TrendChart from '../components/TrendChart';
+import Gauge from '../components/Gauge';
+import WeekdayBarChart from '../components/WeekdayBarChart';
+import KpiTile from '../components/KpiTile';
+import { UsersIcon, RouteIcon, PinIcon, BellIcon } from '../components/icons';
 
 const TREND_DAYS = 30;
+const WEEKDAY_LABELS = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
 
 function lastNDays(n: number): string[] {
   const out: string[] = [];
@@ -26,6 +31,24 @@ function bucketByDay(timestamps: string[], days: string[]): { date: string; valu
   return days.map((date) => ({ date, value: counts[date] }));
 }
 
+function bucketByWeekday(timestamps: string[]): { label: string; value: number }[] {
+  const counts = new Array(7).fill(0);
+  for (const ts of timestamps) counts[new Date(ts).getDay()] += 1;
+  return WEEKDAY_LABELS.map((label, i) => ({ label, value: counts[i] }));
+}
+
+function countInWindow(timestamps: string[], start: Date, end: Date): number {
+  return timestamps.filter((ts) => {
+    const t = new Date(ts).getTime();
+    return t >= start.getTime() && t < end.getTime();
+  }).length;
+}
+
+function percentDelta(curr: number, prev: number): number | null {
+  if (prev === 0) return curr > 0 ? null : 0;
+  return ((curr - prev) / prev) * 100;
+}
+
 type Counts = {
   destinations: number;
   places: number;
@@ -40,11 +63,24 @@ type PendingCounts = {
   openReports: number;
 };
 
+type Kpis = {
+  users: { curr: number; prev: number };
+  trips: { curr: number; prev: number };
+  checkIns: { curr: number; prev: number };
+  pushTokens: { curr: number; prev: number };
+};
+
+type TopPlace = { id: string; name: string; rating: number; recommendCount: number };
+
 export default function Dashboard() {
   const [counts, setCounts] = useState<Counts | null>(null);
   const [pending, setPending] = useState<PendingCounts | null>(null);
   const [userTrend, setUserTrend] = useState<{ date: string; value: number }[] | null>(null);
   const [tripTrend, setTripTrend] = useState<{ date: string; value: number }[] | null>(null);
+  const [kpis, setKpis] = useState<Kpis | null>(null);
+  const [satisfaction, setSatisfaction] = useState<{ percent: number; total: number } | null>(null);
+  const [weekdayActivity, setWeekdayActivity] = useState<{ label: string; value: number }[] | null>(null);
+  const [topPlaces, setTopPlaces] = useState<TopPlace[] | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -59,6 +95,7 @@ export default function Dashboard() {
       setUserTrend(bucketByDay((profileRows ?? []).map((r) => r.created_at), days));
       setTripTrend(bucketByDay((tripRows ?? []).map((r) => r.created_at), days));
     })();
+
     (async () => {
       const [destinations, places, users, trips, communities, pushTokens] = await Promise.all([
         supabase.from('destinations').select('id', { count: 'exact', head: true }),
@@ -77,6 +114,7 @@ export default function Dashboard() {
         pushTokens: pushTokens.count ?? 0,
       });
     })();
+
     (async () => {
       const [communityRequests, openReports] = await Promise.all([
         supabase.from('community_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
@@ -86,6 +124,70 @@ export default function Dashboard() {
         communityRequests: communityRequests.count ?? 0,
         openReports: openReports.count ?? 0,
       });
+    })();
+
+    (async () => {
+      const now = new Date();
+      const start14 = new Date(now);
+      start14.setDate(start14.getDate() - 14);
+      const start7 = new Date(now);
+      start7.setDate(start7.getDate() - 7);
+
+      const [{ data: profileRows }, { data: tripRows }, { data: checkInRows }, { data: pushRows }] = await Promise.all([
+        supabase.from('profiles').select('created_at').gte('created_at', start14.toISOString()),
+        supabase.from('trips').select('created_at').gte('created_at', start14.toISOString()),
+        supabase.from('check_ins').select('created_at').gte('created_at', start14.toISOString()),
+        supabase.from('push_tokens').select('created_at').gte('created_at', start14.toISOString()),
+      ]);
+
+      const makeWindowCounts = (rows: { created_at: string }[] | null) => {
+        const ts = (rows ?? []).map((r) => r.created_at);
+        return { curr: countInWindow(ts, start7, now), prev: countInWindow(ts, start14, start7) };
+      };
+
+      setKpis({
+        users: makeWindowCounts(profileRows),
+        trips: makeWindowCounts(tripRows),
+        checkIns: makeWindowCounts(checkInRows),
+        pushTokens: makeWindowCounts(pushRows),
+      });
+    })();
+
+    (async () => {
+      const { data } = await supabase.from('feedback').select('rating');
+      const rows = data ?? [];
+      const total = rows.length;
+      const loved = rows.filter((r) => r.rating === 'loved').length;
+      setSatisfaction({ percent: total > 0 ? (loved / total) * 100 : 0, total });
+    })();
+
+    (async () => {
+      const since90 = new Date();
+      since90.setDate(since90.getDate() - 90);
+      const { data } = await supabase.from('trips').select('created_at').gte('created_at', since90.toISOString());
+      setWeekdayActivity(bucketByWeekday((data ?? []).map((r) => r.created_at)));
+    })();
+
+    (async () => {
+      const { data: recs } = await supabase.from('recommended_places').select('place_id');
+      const tally: Record<string, number> = {};
+      for (const r of recs ?? []) tally[r.place_id] = (tally[r.place_id] ?? 0) + 1;
+      const topIds = Object.entries(tally)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([id]) => id);
+      if (topIds.length === 0) {
+        setTopPlaces([]);
+        return;
+      }
+      const { data: places } = await supabase.from('places').select('id,name,rating').in('id', topIds);
+      const byId: Record<string, { name: string; rating: number }> = {};
+      for (const p of places ?? []) byId[p.id] = { name: p.name, rating: p.rating };
+      setTopPlaces(
+        topIds
+          .filter((id) => byId[id])
+          .map((id) => ({ id, name: byId[id].name, rating: byId[id].rating, recommendCount: tally[id] }))
+      );
     })();
   }, []);
 
@@ -121,6 +223,46 @@ export default function Dashboard() {
         </div>
       ) : null}
 
+      {/* مؤشرات سلوك المستخدم — آخر 7 أيام مقابل الأسبوع اللي قبله */}
+      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <KpiTile
+          icon={<UsersIcon />}
+          iconBg="var(--color-secondary)"
+          iconColor="var(--color-primary-ink)"
+          label="مستخدمون جدد"
+          value={kpis?.users.curr ?? null}
+          deltaPercent={kpis ? percentDelta(kpis.users.curr, kpis.users.prev) : null}
+          deltaLabel="مقابل الأسبوع اللي قبله"
+        />
+        <KpiTile
+          icon={<RouteIcon />}
+          iconBg="var(--color-gold-soft)"
+          iconColor="var(--color-gold-ink)"
+          label="رحلات جديدة"
+          value={kpis?.trips.curr ?? null}
+          deltaPercent={kpis ? percentDelta(kpis.trips.curr, kpis.trips.prev) : null}
+          deltaLabel="مقابل الأسبوع اللي قبله"
+        />
+        <KpiTile
+          icon={<PinIcon />}
+          iconBg="var(--color-success-soft)"
+          iconColor="var(--color-success-ink)"
+          label="تسجيلات حضور"
+          value={kpis?.checkIns.curr ?? null}
+          deltaPercent={kpis ? percentDelta(kpis.checkIns.curr, kpis.checkIns.prev) : null}
+          deltaLabel="مقابل الأسبوع اللي قبله"
+        />
+        <KpiTile
+          icon={<BellIcon />}
+          iconBg="var(--color-secondary)"
+          iconColor="var(--color-primary-ink)"
+          label="تفعيلات إشعارات"
+          value={kpis?.pushTokens.curr ?? null}
+          deltaPercent={kpis ? percentDelta(kpis.pushTokens.curr, kpis.pushTokens.prev) : null}
+          deltaLabel="مقابل الأسبوع اللي قبله"
+        />
+      </div>
+
       {userTrend && tripTrend ? (
         <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
           <TrendChart title="مستخدمون جدد (آخر 30 يوم)" data={userTrend} />
@@ -128,6 +270,40 @@ export default function Dashboard() {
         </div>
       ) : null}
 
+      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+        {satisfaction ? (
+          <Gauge
+            percent={satisfaction.percent}
+            label="نسبة الرضا"
+            sublabel={satisfaction.total > 0 ? `من ${satisfaction.total} تقييم` : 'ما فيه تقييمات بعد'}
+          />
+        ) : null}
+        {weekdayActivity ? <WeekdayBarChart title="أكثر أيام الأسبوع نشاطًا (رحلات آخر 90 يوم)" data={weekdayActivity} /> : null}
+      </div>
+
+      <h2 className="mb-3 text-sm font-bold text-foreground">الأماكن الأكثر إعجابًا</h2>
+      <div className="surface-card mb-6 divide-y divide-border">
+        {topPlaces === null ? (
+          <div className="p-4 text-sm text-muted-foreground">جاري التحميل...</div>
+        ) : topPlaces.length === 0 ? (
+          <div className="p-4 text-sm text-muted-foreground">ما فيه إعجابات على الأماكن بعد</div>
+        ) : (
+          topPlaces.map((p, i) => (
+            <div key={p.id} className="flex items-center gap-3 p-3">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-bold text-primary-ink">
+                {i + 1}
+              </div>
+              <div className="flex-1 text-sm font-bold text-foreground">{p.name}</div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <span className="num">{p.rating}</span>★
+              </div>
+              <div className="num text-sm font-bold text-foreground">{p.recommendCount} إعجاب</div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <h2 className="mb-3 text-sm font-bold text-foreground">إجمالي المحتوى</h2>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         {cards.map((card) => {
           const inner = (
