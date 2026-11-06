@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -15,11 +15,12 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useContent } from '../context/ContentContext';
 import { INTEREST_TAGS } from '../data/destinations';
+import { getNotificationPermissionStatus, registerForPushNotifications } from '../lib/pushNotifications';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
-const TOTAL_STEPS = 2;
+const TOTAL_STEPS = 3;
 
 export default function OnboardingQuizScreen() {
   const navigation = useNavigation<Nav>();
@@ -32,6 +33,12 @@ export default function OnboardingQuizScreen() {
   const [selectedInterests, setSelectedInterests] = useState<string[]>(profile?.interests ?? []);
   const [startDestinationId, setStartDestinationId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [notifDecided, setNotifDecided] = useState(false);
+  const [enablingNotifs, setEnablingNotifs] = useState(false);
+
+  useEffect(() => {
+    getNotificationPermissionStatus().then((status) => setNotifDecided(status === 'granted' || status === 'denied'));
+  }, []);
 
   const toggleInterest = (tag: string) => {
     setSelectedInterests((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
@@ -40,10 +47,28 @@ export default function OnboardingQuizScreen() {
   const handleSkip = () => navigation.goBack();
 
   const handleNext = () => {
+    // Already decided on a previous install/screen (granted or denied) —
+    // the OS won't show the dialog again, so asking here would be a dead
+    // screen with no effect.
+    if (step === TOTAL_STEPS - 1 && notifDecided) {
+      handleFinish();
+      return;
+    }
     if (step < TOTAL_STEPS) {
       setStep(step + 1);
       return;
     }
+    handleFinish();
+  };
+
+  const handleEnableNotifications = async () => {
+    if (!profile) {
+      handleFinish();
+      return;
+    }
+    setEnablingNotifs(true);
+    await registerForPushNotifications(profile.id);
+    setEnablingNotifs(false);
     handleFinish();
   };
 
@@ -93,7 +118,7 @@ export default function OnboardingQuizScreen() {
               })}
             </View>
           </>
-        ) : (
+        ) : step === 2 ? (
           <>
             <Text style={styles.title}>من أي وجهة نبدأ؟</Text>
             <Text style={styles.subtitle}>خطوة أخيرة — تقدر تغيّرها لاحقًا.</Text>
@@ -114,20 +139,30 @@ export default function OnboardingQuizScreen() {
               })}
             </View>
           </>
+        ) : (
+          <View style={styles.notifStep}>
+            <View style={styles.notifBadge}>
+              <Ionicons name="notifications" size={30} color={colors.accentDark} />
+            </View>
+            <Text style={[styles.title, styles.notifCenterText]}>خلك على اطلاع</Text>
+            <Text style={[styles.subtitle, styles.notifCenterText]}>
+              فعّل الإشعارات عشان توصلك تذكيرات رحلتك، طلبات الأصدقاء، والردود — بدون ما تفوتك.
+            </Text>
+          </View>
         )}
 
         <View style={styles.footer}>
           <TouchableOpacity
-            style={[styles.nextButton, saving && styles.nextButtonDisabled]}
+            style={[styles.nextButton, (saving || enablingNotifs) && styles.nextButtonDisabled]}
             activeOpacity={0.85}
-            disabled={saving}
-            onPress={handleNext}
+            disabled={saving || enablingNotifs}
+            onPress={step === TOTAL_STEPS ? handleEnableNotifications : handleNext}
           >
-            {saving ? (
+            {saving || enablingNotifs ? (
               <ActivityIndicator color={colors.textOnPrimary} />
             ) : (
               <Text style={styles.nextButtonText}>
-                {step < TOTAL_STEPS ? 'التالي' : 'جهّز تجربتي ✨'}
+                {step < TOTAL_STEPS ? 'التالي' : 'تفعيل الإشعارات'}
               </Text>
             )}
           </TouchableOpacity>
@@ -137,7 +172,7 @@ export default function OnboardingQuizScreen() {
             </TouchableOpacity>
           ) : null}
         </View>
-        <TouchableOpacity activeOpacity={0.7} onPress={handleSkip}>
+        <TouchableOpacity activeOpacity={0.7} onPress={step === TOTAL_STEPS ? handleFinish : handleSkip}>
           <Text style={styles.laterText}>لاحقًا</Text>
         </TouchableOpacity>
       </View>
@@ -170,6 +205,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   title: { color: colors.text, fontSize: 20, fontWeight: '700', textAlign: 'right' },
   subtitle: { color: colors.textMuted, fontSize: 13, textAlign: 'right', marginTop: spacing.xs, marginBottom: spacing.xl },
   chipsWrap: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm },
+  notifStep: { alignItems: 'center', paddingTop: spacing.xl },
+  notifBadge: {
+    width: 72,
+    height: 72,
+    borderRadius: radius.pill,
+    backgroundColor: colors.accentSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.lg,
+  },
+  notifCenterText: { textAlign: 'center' },
   chip: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

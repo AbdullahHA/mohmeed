@@ -6,6 +6,7 @@ import { heroDestination, type Destination } from '../data/destinations';
 import { useContent } from './ContentContext';
 import { useAuth } from './AuthContext';
 import { supabase } from '../lib/supabase';
+import { registerForPushNotifications } from '../lib/pushNotifications';
 import { colors } from '../theme/colors';
 import { useTheme } from './ThemeContext';
 import type {
@@ -919,6 +920,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     loadFriends();
     loadBlocked();
     loadVisitedPlaces();
+    if (profile) registerForPushNotifications(profile.id);
     loadFriendRequests();
     loadNotifications();
     loadMyCheckIns();

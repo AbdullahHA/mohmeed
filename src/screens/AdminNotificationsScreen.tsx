@@ -62,11 +62,19 @@ export default function AdminNotificationsScreen() {
   const handleSend = async () => {
     if (!canSubmit || !profile) return;
     setSending(true);
+    const { data: pushResult, error: pushError } = await supabase.functions.invoke('smart-api', {
+      body: { title: title.trim(), body: body.trim() },
+    });
+    if (pushError) {
+      setSending(false);
+      Alert.alert('تعذّر إرسال الإشعار', pushError.message);
+      return;
+    }
     const { error } = await supabase.from('notifications_log').insert({
       sent_by: profile.id,
       title: title.trim(),
       body: body.trim(),
-      recipient_count: tokenCount ?? 0,
+      recipient_count: pushResult?.delivered ?? 0,
     });
     setSending(false);
     if (error) {
@@ -92,9 +100,8 @@ export default function AdminNotificationsScreen() {
         <View style={styles.noticeBox}>
           <Ionicons name="information-circle-outline" size={18} color={colors.primary} />
           <Text style={styles.noticeText}>
-            هذا يسجل الإشعار فعلياً في قاعدة البيانات. التوصيل الفعلي لإشعارات الجوال (Push)
-            يحتاج إعداد إضافي لاحقاً (تسجيل أجهزة المستخدمين + دالة إرسال). حالياً عدد الأجهزة
-            المسجلة: <Text style={styles.noticeCount}>{tokenCount ?? '...'}</Text>
+            الإرسال هنا فعلي ويوصل كإشعار Push حقيقي عبر خدمة Expo. عدد الأجهزة المسجّلة حاليًا:{' '}
+            <Text style={styles.noticeCount}>{tokenCount ?? '...'}</Text>
           </Text>
         </View>
 
