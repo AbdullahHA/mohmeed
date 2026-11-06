@@ -241,7 +241,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.md,
   },
   cityText: { color: colors.text, fontSize: 13, fontWeight: '700' },
-  chipsRow: { paddingHorizontal: spacing.lg, gap: spacing.sm, paddingBottom: spacing.md },
+  chipsRow: { flexDirection: 'row-reverse', paddingHorizontal: spacing.lg, gap: spacing.sm, paddingBottom: spacing.md },
   chip: {
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
