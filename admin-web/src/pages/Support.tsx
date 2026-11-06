@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { logAction } from '../lib/auditLog';
 import Drawer from '../components/Drawer';
 import DataTable, { type DataTableColumn } from '../components/DataTable';
+import { useToast } from '../context/ToastContext';
 
 type Ticket = {
   id: string;
@@ -58,6 +59,7 @@ export default function Support() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
+  const { showToast } = useToast();
 
   const load = async () => {
     const { data } = await supabase
@@ -97,14 +99,25 @@ export default function Support() {
       setSending(false);
       return;
     }
-    await supabase.from('support_messages').insert({
+    const { error: insertError } = await supabase.from('support_messages').insert({
       ticket_id: selected.id,
       author_id: actorId,
       from_admin: true,
       text: reply.trim(),
     });
+    if (insertError) {
+      setSending(false);
+      showToast(`تعذّر إرسال الرد: ${insertError.message}`);
+      return;
+    }
     if (selected.status === 'open') {
-      await supabase.from('support_tickets').update({ status: 'in_progress' }).eq('id', selected.id);
+      const { error: statusError } = await supabase
+        .from('support_tickets')
+        .update({ status: 'in_progress' })
+        .eq('id', selected.id);
+      if (statusError) {
+        showToast(`أُرسل الرد لكن تعذّر تحديث حالة التذكرة: ${statusError.message}`);
+      }
     }
     logAction({ type: 'mod', action: 'ردّ على تذكرة دعم', target: selected.subject });
     setReply('');
@@ -115,7 +128,11 @@ export default function Support() {
 
   const setStatus = async (status: Ticket['status']) => {
     if (!selected) return;
-    await supabase.from('support_tickets').update({ status }).eq('id', selected.id);
+    const { error } = await supabase.from('support_tickets').update({ status }).eq('id', selected.id);
+    if (error) {
+      showToast(`تعذّر تغيير حالة التذكرة: ${error.message}`);
+      return;
+    }
     logAction({
       type: 'mod',
       action: 'تغيير حالة تذكرة',

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import Drawer from '../components/Drawer';
 import DataTable, { type DataTableColumn } from '../components/DataTable';
+import { useToast } from '../context/ToastContext';
 
 type Row = {
   country: string;
@@ -44,6 +45,7 @@ export default function CountryInfo() {
   const [rows, setRows] = useState<Record<string, Row>>({});
   const [editing, setEditing] = useState<Row | null>(null);
   const [saving, setSaving] = useState(false);
+  const { showToast } = useToast();
 
   const load = async () => {
     const [destRes, infoRes] = await Promise.all([
@@ -73,8 +75,12 @@ export default function CountryInfo() {
   const handleSave = async () => {
     if (!editing) return;
     setSaving(true);
-    await supabase.from('country_info').upsert(editing, { onConflict: 'country' });
+    const { error } = await supabase.from('country_info').upsert(editing, { onConflict: 'country' });
     setSaving(false);
+    if (error) {
+      showToast(`تعذّر حفظ بيانات الدولة: ${error.message}`);
+      return;
+    }
     setEditing(null);
     load();
   };

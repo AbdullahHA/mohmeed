@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { logAction } from '../lib/auditLog';
+import { useToast } from '../context/ToastContext';
 import DataTable, { type DataTableColumn } from '../components/DataTable';
 
 type Post = {
@@ -31,6 +32,7 @@ export default function PostsReviews() {
   const [tab, setTab] = useState<Tab>('posts');
   const [posts, setPosts] = useState<Post[] | null>(null);
   const [reviews, setReviews] = useState<Review[] | null>(null);
+  const { showToast } = useToast();
 
   const loadPosts = async () => {
     const { data } = await supabase
@@ -72,27 +74,43 @@ export default function PostsReviews() {
   }, []);
 
   const toggleHiddenPost = async (p: Post) => {
-    await supabase.from('travel_posts').update({ hidden: !p.hidden }).eq('id', p.id);
+    const { error } = await supabase.from('travel_posts').update({ hidden: !p.hidden }).eq('id', p.id);
+    if (error) {
+      showToast(`تعذّر تحديث المنشور: ${error.message}`);
+      return;
+    }
     logAction({ type: 'mod', action: p.hidden ? 'إظهار منشور' : 'إخفاء منشور', target: p.caption || p.id });
     loadPosts();
   };
 
   const deletePost = async (p: Post) => {
     if (!confirm('حذف هذا المنشور نهائيًا؟')) return;
-    await supabase.from('travel_posts').delete().eq('id', p.id);
+    const { error } = await supabase.from('travel_posts').delete().eq('id', p.id);
+    if (error) {
+      showToast(`تعذّر حذف المنشور: ${error.message}`);
+      return;
+    }
     logAction({ type: 'mod', action: 'حذف منشور', target: p.caption || p.id });
     loadPosts();
   };
 
   const toggleHiddenReview = async (r: Review) => {
-    await supabase.from('place_quick_ratings').update({ hidden: !r.hidden }).eq('id', r.id);
+    const { error } = await supabase.from('place_quick_ratings').update({ hidden: !r.hidden }).eq('id', r.id);
+    if (error) {
+      showToast(`تعذّر تحديث التقييم: ${error.message}`);
+      return;
+    }
     logAction({ type: 'mod', action: r.hidden ? 'إظهار تقييم' : 'إخفاء تقييم', target: r.place_name ?? r.place_id });
     loadReviews();
   };
 
   const deleteReview = async (r: Review) => {
     if (!confirm('حذف هذا التقييم نهائيًا؟')) return;
-    await supabase.from('place_quick_ratings').delete().eq('id', r.id);
+    const { error } = await supabase.from('place_quick_ratings').delete().eq('id', r.id);
+    if (error) {
+      showToast(`تعذّر حذف التقييم: ${error.message}`);
+      return;
+    }
     logAction({ type: 'mod', action: 'حذف تقييم', target: r.place_name ?? r.place_id });
     loadReviews();
   };

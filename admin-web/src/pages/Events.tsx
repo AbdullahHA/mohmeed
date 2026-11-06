@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { downloadCsv } from '../lib/csv';
 import { logAction } from '../lib/auditLog';
+import { useToast } from '../context/ToastContext';
 import DataTable, { type DataTableColumn } from '../components/DataTable';
 
 type Row = {
@@ -61,6 +62,7 @@ export default function Events() {
   const navigate = useNavigate();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [tab, setTab] = useState<Tab>('all');
+  const { showToast } = useToast();
 
   const load = async () => {
     const { data } = await supabase
@@ -79,7 +81,11 @@ export default function Events() {
 
   const remove = async (row: Row) => {
     if (!confirm(`حذف فعالية "${row.name}" نهائيًا؟`)) return;
-    await supabase.from('events').delete().eq('id', row.id);
+    const { error } = await supabase.from('events').delete().eq('id', row.id);
+    if (error) {
+      showToast(`تعذّر حذف الفعالية: ${error.message}`);
+      return;
+    }
     logAction({ type: 'content', action: 'حذف فعالية', target: row.name });
     load();
   };

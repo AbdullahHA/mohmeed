@@ -146,8 +146,12 @@ export default function CommunityReports() {
 
   const markGroupReviewed = async (group: Group) => {
     setBusyKey(group.targetKey);
-    await supabase.from('community_reports').update({ status: 'reviewed' }).in('id', group.reportIds);
+    const { error } = await supabase.from('community_reports').update({ status: 'reviewed' }).in('id', group.reportIds);
     setBusyKey(null);
+    if (error) {
+      showToast(`تعذّرت مراجعة البلاغات: ${error.message}`);
+      return;
+    }
     showToast(`تمت مراجعة ${group.reportIds.length} بلاغ`, async () => {
       await supabase.from('community_reports').update({ status: 'open' }).in('id', group.reportIds);
       load();
@@ -165,9 +169,21 @@ export default function CommunityReports() {
     if (!group.reported_message_id) return;
     if (!confirm('حذف هذي الرسالة نهائيًا وإغلاق البلاغات المرتبطة بها؟')) return;
     setBusyKey(group.targetKey);
-    await supabase.from('community_messages').delete().eq('id', group.reported_message_id);
-    await supabase.from('community_reports').update({ status: 'reviewed' }).in('id', group.reportIds);
+    const { error: deleteError } = await supabase.from('community_messages').delete().eq('id', group.reported_message_id);
+    if (deleteError) {
+      setBusyKey(null);
+      showToast(`تعذّر حذف الرسالة: ${deleteError.message}`);
+      return;
+    }
+    const { error: statusError } = await supabase
+      .from('community_reports')
+      .update({ status: 'reviewed' })
+      .in('id', group.reportIds);
     setBusyKey(null);
+    if (statusError) {
+      showToast(`حُذفت الرسالة لكن تعذّر إغلاق البلاغات: ${statusError.message}`);
+      return;
+    }
     logAction({
       type: 'mod',
       action: 'حذف رسالة مُبلَّغ عنها',
