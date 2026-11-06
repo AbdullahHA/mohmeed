@@ -55,7 +55,7 @@ export default function SettingsScreen() {
   const navigation = useNavigation<Nav>();
   const { colors, mode, setMode } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { profile, deleteAccount } = useAuth();
+  const { profile, deleteAccount, exitGuestMode } = useAuth();
   const { country, currency } = useRegion();
   const { recommendedPlaceIds, followersCount } = useAppState();
   const [deleting, setDeleting] = useState(false);
@@ -231,7 +231,14 @@ export default function SettingsScreen() {
             </View>
           </>
         ) : (
-          <Text style={styles.guestNote}>سجّل دخولك عشان تقدر تعدّل معلومات حسابك</Text>
+          <TouchableOpacity style={styles.guestCard} activeOpacity={0.85} onPress={() => exitGuestMode()}>
+            <Ionicons name="chevron-back" size={16} color={colors.primary} />
+            <View style={styles.guestCardTextWrap}>
+              <Text style={styles.guestCardTitle}>سجّل دخول أو أنشئ حساب</Text>
+              <Text style={styles.guestCardSubtitle}>عشان تقدر تعدّل معلومات حسابك وتحفظ بياناتك</Text>
+            </View>
+            <Ionicons name="log-in-outline" size={20} color={colors.primary} />
+          </TouchableOpacity>
         )}
 
         <Text style={styles.sectionTitle}>التفضيلات</Text>
@@ -375,6 +382,18 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   profileTextWrap: { flex: 1, alignItems: 'flex-end' },
   profileName: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right' },
   profileMeta: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
+  guestCard: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    marginBottom: spacing.xl,
+  },
+  guestCardTextWrap: { flex: 1, alignItems: 'flex-end' },
+  guestCardTitle: { color: colors.text, fontSize: 14.5, fontWeight: '700', textAlign: 'right' },
+  guestCardSubtitle: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right', marginTop: 2, lineHeight: 16 },
   appearanceRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginBottom: spacing.xl },
   appearanceOption: { flex: 1, alignItems: 'center', gap: spacing.xs },
   appearanceFrame: {
@@ -444,7 +463,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   switchTextWrap: { flex: 1 },
   switchLabel: { color: colors.text, fontSize: 14, fontWeight: '600', textAlign: 'right' },
   switchHint: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: 2, lineHeight: 16 },
-  guestNote: { color: colors.textMuted, fontSize: 13, textAlign: 'center', marginTop: spacing.lg, lineHeight: 20 },
   preferenceBlock: { padding: spacing.lg },
   preferenceLabel: { color: colors.text, fontSize: 14, fontWeight: '600', textAlign: 'right', marginBottom: spacing.sm },
   chipsRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm },
