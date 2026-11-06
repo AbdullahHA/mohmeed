@@ -153,6 +153,7 @@ export async function searchNearbyPlaces(
     body: JSON.stringify({
       includedTypes: [includedType],
       maxResultCount: 10,
+      languageCode: 'ar',
       locationRestriction: {
         circle: { center: { latitude: center.latitude, longitude: center.longitude }, radius: radiusMeters },
       },

@@ -32,6 +32,7 @@ import SupportScreen from '../screens/SupportScreen';
 import NewSupportTicketScreen from '../screens/NewSupportTicketScreen';
 import SupportTicketScreen from '../screens/SupportTicketScreen';
 import CuratedListScreen from '../screens/CuratedListScreen';
+import TrendingScreen from '../screens/TrendingScreen';
 import SavedPlacesScreen from '../screens/SavedPlacesScreen';
 import FriendChatScreen from '../screens/FriendChatScreen';
 import LocationShareScreen from '../screens/LocationShareScreen';
@@ -118,6 +119,7 @@ export default function RootNavigator() {
       <Stack.Screen name="NewSupportTicket" component={NewSupportTicketScreen} options={{ presentation: 'fullScreenModal' }} />
       <Stack.Screen name="SupportTicket" component={SupportTicketScreen} />
       <Stack.Screen name="CuratedList" component={CuratedListScreen} />
+      <Stack.Screen name="Trending" component={TrendingScreen} options={{ presentation: 'fullScreenModal' }} />
       <Stack.Screen name="SavedPlaces" component={SavedPlacesScreen} />
       <Stack.Screen name="FriendChat" component={FriendChatScreen} />
       <Stack.Screen name="LocationShare" component={LocationShareScreen} options={{ presentation: 'fullScreenModal' }} />

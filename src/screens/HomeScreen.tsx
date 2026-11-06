@@ -287,10 +287,10 @@ export default function HomeScreen() {
           <TouchableOpacity
             style={styles.qactItem}
             activeOpacity={0.85}
-            onPress={() => navigation.navigate('MainTabs', { screen: 'Discover' })}
+            onPress={() => navigation.navigate('Trending')}
           >
-            <View style={styles.qactIcon}><Ionicons name="search" size={20} color={colors.primary} /></View>
-            <Text style={styles.qactText}>اكتشف</Text>
+            <View style={styles.qactIcon}><Ionicons name="flame-outline" size={20} color={colors.primary} /></View>
+            <Text style={styles.qactText}>الأكثر طلبًا</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.qactItem}
