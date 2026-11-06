@@ -37,6 +37,9 @@ import FriendChatScreen from '../screens/FriendChatScreen';
 import LocationShareScreen from '../screens/LocationShareScreen';
 import LocationViewScreen from '../screens/LocationViewScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
+import TravelPreferencesScreen from '../screens/TravelPreferencesScreen';
+import InterestsScreen from '../screens/InterestsScreen';
+import FavoriteDestinationsScreen from '../screens/FavoriteDestinationsScreen';
 import PassportScreen from '../screens/PassportScreen';
 import PersonalInfoScreen from '../screens/PersonalInfoScreen';
 import AddLoyaltyMembershipScreen from '../screens/AddLoyaltyMembershipScreen';
@@ -120,6 +123,9 @@ export default function RootNavigator() {
       <Stack.Screen name="LocationShare" component={LocationShareScreen} options={{ presentation: 'fullScreenModal' }} />
       <Stack.Screen name="LocationView" component={LocationViewScreen} options={{ presentation: 'fullScreenModal' }} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="TravelPreferences" component={TravelPreferencesScreen} />
+      <Stack.Screen name="Interests" component={InterestsScreen} />
+      <Stack.Screen name="FavoriteDestinations" component={FavoriteDestinationsScreen} />
       <Stack.Screen name="Passport" component={PassportScreen} />
       <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
       <Stack.Screen

@@ -159,7 +159,7 @@ export default function SettingsScreen() {
                 <Text style={styles.tileValue}>{recommendedPlaceIds.length}</Text>
                 <Text style={styles.tileLabel}>مفضلاتي</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.tile} activeOpacity={0.85} onPress={() => navigation.navigate('EditProfile')}>
+              <TouchableOpacity style={styles.tile} activeOpacity={0.85} onPress={() => navigation.navigate('TravelPreferences')}>
                 <View style={[styles.tileIconWrap, { backgroundColor: colors.primarySoft }]}>
                   <Ionicons name="heart-outline" size={18} color={colors.primary} />
                 </View>

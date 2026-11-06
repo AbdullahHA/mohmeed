@@ -653,10 +653,18 @@ export default function ProfileScreen() {
           <>
             <View style={styles.sectionHeaderRow}>
               <Text style={styles.sectionTitle}>وجهاتي المفضلة</Text>
+              <TouchableOpacity
+                style={styles.linkButton}
+                activeOpacity={0.85}
+                onPress={() => navigation.navigate('FavoriteDestinations')}
+              >
+                <Ionicons name="add" size={14} color={colors.primary} />
+                <Text style={styles.linkButtonText}>أضف</Text>
+              </TouchableOpacity>
             </View>
             {favoriteDestinations.length === 0 ? (
               <Text style={styles.emptyMuted}>
-                ما ضفت وجهات مفضلة بعد — اضغط على أيقونة القلب بصفحة أي وجهة عشان تضيفها هنا
+                ما ضفت وجهات مفضلة بعد — اضغط على "أضف" أو على أيقونة القلب بصفحة أي وجهة
               </Text>
             ) : (
               <View style={styles.favoriteDestRow}>

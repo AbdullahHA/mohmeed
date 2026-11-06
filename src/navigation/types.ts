@@ -42,6 +42,9 @@ export type RootStackParamList = {
   LocationShare: { friendId: string };
   LocationView: { channel: string; friendId: string; expiresAtMs: number };
   EditProfile: undefined;
+  TravelPreferences: undefined;
+  Interests: undefined;
+  FavoriteDestinations: undefined;
   Passport: undefined;
   PersonalInfo: undefined;
   AddLoyaltyMembership: undefined;
