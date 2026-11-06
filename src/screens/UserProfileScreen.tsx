@@ -20,6 +20,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
+import { useContent } from '../context/ContentContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
 import { supabase } from '../lib/supabase';
 import PersonAvatar from '../components/PersonAvatar';
@@ -44,10 +45,12 @@ export default function UserProfileScreen() {
     blockUser,
     reportUser,
     loadPublicProfile,
+    loadUserVisitedPlaces,
     loadFollowers,
     loadFollowing,
     loadUserPosts,
   } = useAppState();
+  const { destinations } = useContent();
   const { requireAccount } = useRequireAccount();
 
   const [profile, setProfile] = useState<PublicProfile | null>(null);
@@ -55,6 +58,8 @@ export default function UserProfileScreen() {
   const [publishedTrips, setPublishedTrips] = useState<{ id: string; title: string; destination: string }[]>([]);
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
+  const [countriesVisited, setCountriesVisited] = useState(0);
+  const [citiesVisited, setCitiesVisited] = useState(0);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
@@ -70,17 +75,23 @@ export default function UserProfileScreen() {
       loadUserPosts(params.userId),
       loadFollowers(params.userId),
       loadFollowing(params.userId),
+      loadUserVisitedPlaces(params.userId),
       supabase
         .from('trips')
         .select('id,title,destination')
         .eq('owner_id', params.userId)
         .eq('is_published', true),
-    ]).then(([p, userPosts, followers, following, publishedTripsResult]) => {
+    ]).then(([p, userPosts, followers, following, visited, publishedTripsResult]) => {
       if (!active) return;
       setProfile(p);
       setPosts(userPosts);
       setFollowersCount(followers.length);
       setFollowingCount(following.length);
+      const visitedDestinations = visited.stamps
+        .map((stamp) => destinations.find((d) => d.id === stamp.destinationId))
+        .filter((d): d is (typeof destinations)[number] => Boolean(d));
+      setCitiesVisited(visitedDestinations.length);
+      setCountriesVisited(new Set(visitedDestinations.map((d) => d.country)).size);
       setPublishedTrips((publishedTripsResult.data ?? []) as { id: string; title: string; destination: string }[]);
       setLoading(false);
     });
@@ -194,6 +205,12 @@ export default function UserProfileScreen() {
           <PersonAvatar avatarUrl={profile.avatarUrl} size={80} style={styles.avatarMargin} />
           <Text style={styles.name}>{profile.name}</Text>
           <Text style={styles.username}>@{profile.username}</Text>
+          {countriesVisited > 0 || citiesVisited > 0 ? (
+            <View style={styles.travelStatsRow}>
+              <Ionicons name="earth-outline" size={13} color={colors.textMuted} />
+              <Text style={styles.travelStatsText}>{countriesVisited} دولة · {citiesVisited} مدينة</Text>
+            </View>
+          ) : null}
           {profile.bio ? <Text style={styles.bio}>{profile.bio}</Text> : null}
 
           {profile.interests.length > 0 ? (
@@ -337,6 +354,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   avatarMargin: { marginBottom: spacing.sm, borderWidth: 3, borderColor: colors.background, borderRadius: 999 },
   name: { color: colors.text, fontSize: 18, fontWeight: '700' },
   username: { color: colors.textFaint, fontSize: 13, marginTop: 2 },
+  travelStatsRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4, marginTop: spacing.sm },
+  travelStatsText: { color: colors.textMuted, fontSize: 12, fontWeight: '600' },
   bio: { color: colors.textMuted, fontSize: 13, textAlign: 'center', marginTop: spacing.sm, lineHeight: 20 },
   interestsRow: {
     flexDirection: 'row-reverse',

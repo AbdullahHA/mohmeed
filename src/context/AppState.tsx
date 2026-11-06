@@ -52,12 +52,10 @@ const WELCOME_MESSAGE: ChatMessage = {
 type PersistedState = {
   guideMessages: ChatMessage[];
   feedback: Feedback | null;
-  visitedStamps: VisitedStamp[];
   recommendedPlaceIds: string[];
   favoriteDestinationIds: string[];
   loyaltyMemberships: LoyaltyMembership[];
   wishlist: WishlistItem[];
-  manualVisitedPlaces: ManualVisitedPlace[];
   tripTemplates: TripTemplate[];
   myCheckIn: string | null;
 };
@@ -150,15 +148,15 @@ type AppStateValue = {
   reportCommunityMember: (communityId: string, memberId: string, reason: string) => Promise<{ error: string | null }>;
   reportUser: (userId: string, reason: string) => Promise<{ error: string | null }>;
   setFeedback: (value: Feedback | null) => void;
-  toggleVisited: (destinationId: string) => void;
+  toggleVisited: (destinationId: string) => Promise<void>;
   toggleRecommended: (placeId: string) => void;
   toggleFavoriteDestination: (destinationId: string) => void;
   addLoyaltyMembership: (input: Omit<LoyaltyMembership, 'id'>) => void;
   removeLoyaltyMembership: (id: string) => void;
   addWishlistItem: (name: string) => void;
   removeWishlistItem: (id: string) => void;
-  addManualVisitedPlace: (name: string) => void;
-  removeManualVisitedPlace: (id: string) => void;
+  addManualVisitedPlace: (name: string) => Promise<void>;
+  removeManualVisitedPlace: (id: string) => Promise<void>;
   addTripTemplate: (input: NewTripTemplateInput) => TripTemplate;
   removeTripTemplate: (id: string) => void;
   applyTripTemplate: (templateId: string) => Promise<Trip | null>;
@@ -182,6 +180,7 @@ type AppStateValue = {
   followUser: (userId: string) => Promise<{ error: string | null }>;
   unfollowUser: (userId: string) => Promise<{ error: string | null }>;
   loadPublicProfile: (userId: string) => Promise<PublicProfile | null>;
+  loadUserVisitedPlaces: (userId: string) => Promise<{ stamps: VisitedStamp[]; manual: ManualVisitedPlace[] }>;
   loadFollowers: (userId: string) => Promise<Friend[]>;
   loadFollowing: (userId: string) => Promise<Friend[]>;
   myPosts: TravelPost[];
@@ -311,10 +310,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
             setFeedbackState(parsed.feedback);
             loadedFromStorage = true;
           }
-          if (Array.isArray(parsed.visitedStamps)) {
-            setVisitedStamps(parsed.visitedStamps);
-            loadedFromStorage = true;
-          }
           if (Array.isArray(parsed.recommendedPlaceIds)) {
             setRecommendedPlaceIds(parsed.recommendedPlaceIds);
             loadedFromStorage = true;
@@ -329,10 +324,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
           }
           if (Array.isArray(parsed.wishlist)) {
             setWishlist(parsed.wishlist);
-            loadedFromStorage = true;
-          }
-          if (Array.isArray(parsed.manualVisitedPlaces)) {
-            setManualVisitedPlaces(parsed.manualVisitedPlaces);
             loadedFromStorage = true;
           }
           if (Array.isArray(parsed.tripTemplates)) {
@@ -363,12 +354,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     const payload: PersistedState = {
       guideMessages,
       feedback,
-      visitedStamps,
       recommendedPlaceIds,
       favoriteDestinationIds,
       loyaltyMemberships,
       wishlist,
-      manualVisitedPlaces,
       tripTemplates,
       myCheckIn,
     };
@@ -376,12 +365,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   }, [
     guideMessages,
     feedback,
-    visitedStamps,
     recommendedPlaceIds,
     favoriteDestinationIds,
     loyaltyMemberships,
     wishlist,
-    manualVisitedPlaces,
     tripTemplates,
     myCheckIn,
   ]);
@@ -477,6 +464,48 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     }
     const { data } = await supabase.from('blocked_users').select('blocked_id').eq('blocker_id', profile.id);
     setBlockedUserIds((data ?? []).map((r: any) => r.blocked_id));
+  };
+
+  const loadVisitedPlaces = async () => {
+    if (!profile) {
+      setVisitedStamps([]);
+      setManualVisitedPlaces([]);
+      return;
+    }
+    const [stampsRes, manualRes] = await Promise.all([
+      supabase.from('visited_stamps').select('destination_id,visited_at').eq('user_id', profile.id),
+      supabase.from('manual_visited_places').select('id,name,visited_at').eq('user_id', profile.id),
+    ]);
+    setVisitedStamps(
+      (stampsRes.data ?? []).map((r: any) => ({
+        destinationId: r.destination_id,
+        visitedAt: new Date(r.visited_at).getTime(),
+      }))
+    );
+    setManualVisitedPlaces(
+      (manualRes.data ?? []).map((r: any) => ({
+        id: r.id,
+        name: r.name,
+        visitedAt: new Date(r.visited_at).getTime(),
+      }))
+    );
+  };
+
+  const loadUserVisitedPlaces = async (userId: string) => {
+    const [stampsRes, manualRes] = await Promise.all([
+      supabase.from('visited_stamps').select('destination_id,visited_at').eq('user_id', userId),
+      supabase.from('manual_visited_places').select('id,name,visited_at').eq('user_id', userId),
+    ]);
+    const stamps: VisitedStamp[] = (stampsRes.data ?? []).map((r: any) => ({
+      destinationId: r.destination_id,
+      visitedAt: new Date(r.visited_at).getTime(),
+    }));
+    const manual: ManualVisitedPlace[] = (manualRes.data ?? []).map((r: any) => ({
+      id: r.id,
+      name: r.name,
+      visitedAt: new Date(r.visited_at).getTime(),
+    }));
+    return { stamps, manual };
   };
 
   const mapRequestRow = (row: any, key: 'sender' | 'recipient'): Friend => {
@@ -889,6 +918,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     loadFriends();
     loadBlocked();
+    loadVisitedPlaces();
     loadFriendRequests();
     loadNotifications();
     loadMyCheckIns();
@@ -1513,12 +1543,25 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setFeedbackState(value);
   };
 
-  const toggleVisited = (destinationId: string) => {
-    setVisitedStamps((prev) =>
-      prev.some((s) => s.destinationId === destinationId)
-        ? prev.filter((s) => s.destinationId !== destinationId)
-        : [...prev, { destinationId, visitedAt: Date.now() }]
-    );
+  const toggleVisited = async (destinationId: string) => {
+    if (!profile) return;
+    const already = visitedStamps.some((s) => s.destinationId === destinationId);
+    if (already) {
+      setVisitedStamps((prev) => prev.filter((s) => s.destinationId !== destinationId));
+      await supabase
+        .from('visited_stamps')
+        .delete()
+        .eq('user_id', profile.id)
+        .eq('destination_id', destinationId);
+    } else {
+      const visitedAt = Date.now();
+      setVisitedStamps((prev) => [...prev, { destinationId, visitedAt }]);
+      await supabase.from('visited_stamps').insert({
+        user_id: profile.id,
+        destination_id: destinationId,
+        visited_at: new Date(visitedAt).toISOString(),
+      });
+    }
   };
 
   const toggleRecommended = (placeId: string) => {
@@ -1551,14 +1594,26 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setWishlist((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const addManualVisitedPlace = (name: string) => {
+  const addManualVisitedPlace = async (name: string) => {
+    if (!profile) return;
     const trimmed = name.trim();
     if (!trimmed) return;
-    setManualVisitedPlaces((prev) => [{ id: uid('visited'), name: trimmed, visitedAt: Date.now() }, ...prev]);
+    const { data } = await supabase
+      .from('manual_visited_places')
+      .insert({ user_id: profile.id, name: trimmed })
+      .select('id,name,visited_at')
+      .single();
+    if (!data) return;
+    setManualVisitedPlaces((prev) => [
+      { id: data.id, name: data.name, visitedAt: new Date(data.visited_at).getTime() },
+      ...prev,
+    ]);
   };
 
-  const removeManualVisitedPlace = (id: string) => {
+  const removeManualVisitedPlace = async (id: string) => {
+    if (!profile) return;
     setManualVisitedPlaces((prev) => prev.filter((item) => item.id !== id));
+    await supabase.from('manual_visited_places').delete().eq('id', id).eq('user_id', profile.id);
   };
 
   const addTripTemplate = (input: NewTripTemplateInput): TripTemplate => {
@@ -1834,6 +1889,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       followUser,
       unfollowUser,
       loadPublicProfile,
+      loadUserVisitedPlaces,
       loadFollowers,
       loadFollowing,
       myPosts,
