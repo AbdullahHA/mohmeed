@@ -473,8 +473,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     const [stampsRes, manualRes] = await Promise.all([
-      supabase.from('visited_stamps').select('destination_id,visited_at').eq('user_id', profile.id),
-      supabase.from('manual_visited_places').select('id,name,visited_at').eq('user_id', profile.id),
+      supabase.from('visited_stamps').select('destination_id,visited_at').eq('profile_id', profile.id),
+      supabase.from('manual_visited_places').select('id,name,visited_at').eq('profile_id', profile.id),
     ]);
     setVisitedStamps(
       (stampsRes.data ?? []).map((r: any) => ({
@@ -493,8 +493,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 
   const loadUserVisitedPlaces = async (userId: string) => {
     const [stampsRes, manualRes] = await Promise.all([
-      supabase.from('visited_stamps').select('destination_id,visited_at').eq('user_id', userId),
-      supabase.from('manual_visited_places').select('id,name,visited_at').eq('user_id', userId),
+      supabase.from('visited_stamps').select('destination_id,visited_at').eq('profile_id', userId),
+      supabase.from('manual_visited_places').select('id,name,visited_at').eq('profile_id', userId),
     ]);
     const stamps: VisitedStamp[] = (stampsRes.data ?? []).map((r: any) => ({
       destinationId: r.destination_id,
@@ -1551,13 +1551,13 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       await supabase
         .from('visited_stamps')
         .delete()
-        .eq('user_id', profile.id)
+        .eq('profile_id', profile.id)
         .eq('destination_id', destinationId);
     } else {
       const visitedAt = Date.now();
       setVisitedStamps((prev) => [...prev, { destinationId, visitedAt }]);
       await supabase.from('visited_stamps').insert({
-        user_id: profile.id,
+        profile_id: profile.id,
         destination_id: destinationId,
         visited_at: new Date(visitedAt).toISOString(),
       });
@@ -1600,7 +1600,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     if (!trimmed) return;
     const { data } = await supabase
       .from('manual_visited_places')
-      .insert({ user_id: profile.id, name: trimmed })
+      .insert({ profile_id: profile.id, name: trimmed })
       .select('id,name,visited_at')
       .single();
     if (!data) return;
@@ -1613,7 +1613,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const removeManualVisitedPlace = async (id: string) => {
     if (!profile) return;
     setManualVisitedPlaces((prev) => prev.filter((item) => item.id !== id));
-    await supabase.from('manual_visited_places').delete().eq('id', id).eq('user_id', profile.id);
+    await supabase.from('manual_visited_places').delete().eq('id', id).eq('profile_id', profile.id);
   };
 
   const addTripTemplate = (input: NewTripTemplateInput): TripTemplate => {
