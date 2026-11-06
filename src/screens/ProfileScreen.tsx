@@ -410,7 +410,7 @@ export default function ProfileScreen() {
           <Ionicons name="chevron-back" size={16} color="rgba(255,255,255,0.8)" />
         </TouchableOpacity>
 
-        <View style={styles.sectionHeaderRow}>
+        <View style={[styles.sectionHeaderRow, styles.sectionHeaderRowTight]}>
           <TouchableOpacity style={styles.linkButton} activeOpacity={0.85} onPress={() => navigation.navigate('Passport')}>
             <Text style={styles.linkButtonText}>الكل ({combinedStamps.length})</Text>
           </TouchableOpacity>
@@ -905,7 +905,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.md,
     backgroundColor: colors.primaryDark,
     borderRadius: radius.lg,
-    padding: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     marginHorizontal: spacing.lg,
   },
   ringPercent: { color: '#fff', fontSize: 16, fontWeight: '700' },
@@ -924,6 +925,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.md,
     marginTop: spacing.xl,
   },
+  sectionHeaderRowTight: { marginTop: spacing.lg },
   sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '700' },
   emptyMuted: {
     color: colors.textFaint,
