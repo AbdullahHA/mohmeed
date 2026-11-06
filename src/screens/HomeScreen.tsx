@@ -46,10 +46,7 @@ const GUIDE_SUGGESTIONS = ['ويكند قريب من الرياض', 'رحلة ب
 
 function greeting() {
   const hour = new Date().getHours();
-  if (hour < 5) return 'مساء الخير';
-  if (hour < 12) return 'صباح الخير';
-  if (hour < 17) return 'نهارك سعيد';
-  return 'مساء الخير';
+  return hour >= 5 && hour < 12 ? 'صباح الخير' : 'مساء الخير';
 }
 
 export default function HomeScreen() {
