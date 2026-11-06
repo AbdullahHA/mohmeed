@@ -8,9 +8,12 @@ import {
   Image,
   ActivityIndicator,
   FlatList,
+  Share,
 } from 'react-native';
 import Text from '../components/Text';
 import RtlScrollRow from '../components/RtlScrollRow';
+import ReportSheet from '../components/ReportSheet';
+import { Alert } from '../lib/alert';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -38,6 +41,8 @@ export default function UserProfileScreen() {
     followingIds,
     followUser,
     unfollowUser,
+    blockUser,
+    reportUser,
     loadPublicProfile,
     loadFollowers,
     loadFollowing,
@@ -52,6 +57,7 @@ export default function UserProfileScreen() {
   const [followingCount, setFollowingCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   const isFollowing = followingIds.includes(params.userId);
   const isFriend = friends.some((f) => f.id === params.userId);
@@ -98,6 +104,52 @@ export default function UserProfileScreen() {
     });
   };
 
+  const handleShare = () => {
+    if (!profile) return;
+    Share.share({ message: `شوف ملف ${profile.name} على يلا نسافر: @${profile.username}` }).catch(() => {});
+  };
+
+  const handleBlock = () => {
+    if (!profile) return;
+    requireAccount('block', () => {
+      Alert.alert(
+        `حظر ${profile.name}؟`,
+        'ما بيقدر يتابعك أو يراسلك أو يشوف ملفك مرة ثانية.',
+        [
+          { text: 'إلغاء', style: 'cancel' },
+          {
+            text: 'حظر',
+            style: 'destructive',
+            onPress: async () => {
+              if (isFollowing) await unfollowUser(params.userId);
+              const { error } = await blockUser(params.userId);
+              if (error) {
+                Alert.alert('صار خطأ', error);
+                return;
+              }
+              navigation.goBack();
+            },
+          },
+        ]
+      );
+    });
+  };
+
+  const handleOptions = () => {
+    if (!profile) return;
+    Alert.alert(profile.name, undefined, [
+      { text: 'إبلاغ عن المستخدم', onPress: () => requireAccount('report', () => setReportOpen(true)) },
+      { text: 'حظر المستخدم', style: 'destructive', onPress: handleBlock },
+      { text: 'إلغاء', style: 'cancel' },
+    ]);
+  };
+
+  const handleSubmitReport = async (reason: string) => {
+    setReportOpen(false);
+    const { error } = await reportUser(params.userId, reason);
+    Alert.alert(error ? 'صار خطأ' : 'تم الإرسال', error ?? 'وصل بلاغك، بنراجعه قريبًا.');
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -128,6 +180,14 @@ export default function UserProfileScreen() {
           <TouchableOpacity style={styles.backButton} activeOpacity={0.8} onPress={() => navigation.goBack()}>
             <Ionicons name="chevron-forward" size={18} color="#fff" />
           </TouchableOpacity>
+          <View style={styles.heroActions}>
+            <TouchableOpacity style={styles.heroActionButton} activeOpacity={0.8} onPress={handleOptions}>
+              <Ionicons name="ellipsis-horizontal" size={18} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.heroActionButton} activeOpacity={0.8} onPress={handleShare}>
+              <Ionicons name="share-outline" size={18} color="#fff" />
+            </TouchableOpacity>
+          </View>
         </DesertHero>
 
         <View style={styles.profileCard}>
@@ -232,6 +292,13 @@ export default function UserProfileScreen() {
           />
         )}
       </ScrollView>
+
+      <ReportSheet
+        visible={reportOpen}
+        title={`إبلاغ عن ${profile.name}`}
+        onClose={() => setReportOpen(false)}
+        onSubmit={handleSubmitReport}
+      />
     </SafeAreaView>
   );
 }
@@ -244,6 +311,21 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     position: 'absolute',
     top: spacing.md,
     right: spacing.lg,
+    width: 34,
+    height: 34,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heroActions: {
+    position: 'absolute',
+    top: spacing.md,
+    left: spacing.lg,
+    flexDirection: 'row-reverse',
+    gap: spacing.sm,
+  },
+  heroActionButton: {
     width: 34,
     height: 34,
     borderRadius: radius.pill,

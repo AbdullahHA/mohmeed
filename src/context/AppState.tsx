@@ -148,6 +148,7 @@ type AppStateValue = {
   submitCommunityRequest: (input: NewCommunityRequestInput) => Promise<{ error: string | null }>;
   reportCommunityMessage: (communityId: string, messageId: string, reason: string) => Promise<{ error: string | null }>;
   reportCommunityMember: (communityId: string, memberId: string, reason: string) => Promise<{ error: string | null }>;
+  reportUser: (userId: string, reason: string) => Promise<{ error: string | null }>;
   setFeedback: (value: Feedback | null) => void;
   toggleVisited: (destinationId: string) => void;
   toggleRecommended: (placeId: string) => void;
@@ -1497,6 +1498,17 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     return { error: null };
   };
 
+  const reportUser = async (userId: string, reason: string): Promise<{ error: string | null }> => {
+    if (!profile) return { error: 'سجّل دخولك أولاً' };
+    const { error } = await supabase.from('user_reports').insert({
+      reporter_id: profile.id,
+      reported_user_id: userId,
+      reason: reason.trim() || 'غير محدد',
+    });
+    if (error) return { error: 'تعذّر إرسال البلاغ' };
+    return { error: null };
+  };
+
   const setFeedback = (value: Feedback | null) => {
     setFeedbackState(value);
   };
@@ -1792,6 +1804,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       submitCommunityRequest,
       reportCommunityMessage,
       reportCommunityMember,
+      reportUser,
       setFeedback,
       toggleVisited,
       toggleRecommended,
