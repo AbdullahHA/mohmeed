@@ -15,7 +15,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import DesertHero from '../components/DesertHero';
-import TodayMode from '../components/TodayMode';
 import SectionHeader from '../components/SectionHeader';
 import DestinationCard from '../components/DestinationCard';
 import FilterChip from '../components/FilterChip';
@@ -147,14 +146,6 @@ export default function HomeScreen() {
     setQuery('');
     navigation.navigate('GuideChat');
   };
-
-  if (ongoingTrip) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <TodayMode trip={ongoingTrip} navigation={navigation} />
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.container}>
