@@ -245,8 +245,9 @@ export default function ProfileScreen() {
           </View>
 
           <Text style={styles.name}>{currentUser.name}</Text>
-          <TouchableOpacity activeOpacity={0.6} onPress={handleCopyUsername}>
+          <TouchableOpacity style={styles.usernameRow} activeOpacity={0.6} onPress={handleCopyUsername}>
             <Text style={styles.username}>@{currentUser.username}</Text>
+            <Ionicons name="copy-outline" size={13} color={colors.textFaint} />
           </TouchableOpacity>
           {usernameCopied ? (
             <View style={styles.copyToast}>
@@ -809,7 +810,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   levelPillText: { color: colors.accentDark, fontSize: 11.5, fontWeight: '700' },
   name: { color: colors.text, fontSize: 20, fontWeight: '700', textAlign: 'right', marginTop: spacing.sm },
-  username: { color: colors.textMuted, fontSize: 13, textAlign: 'right', marginTop: 2 },
+  usernameRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4, marginTop: 2 },
+  username: { color: colors.textMuted, fontSize: 13, textAlign: 'right' },
   copyToast: {
     alignSelf: 'flex-end',
     backgroundColor: colors.text,
