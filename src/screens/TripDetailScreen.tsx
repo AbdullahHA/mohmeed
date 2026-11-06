@@ -12,6 +12,7 @@ import {
 import Text from '../components/Text';
 import RtlScrollRow from '../components/RtlScrollRow';
 import { Ionicons } from '@expo/vector-icons';
+import * as Clipboard from 'expo-clipboard';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
@@ -89,6 +90,7 @@ export default function TripDetailScreen() {
 
   const [activeTab, setActiveTab] = useState<Tab>('schedule');
   const [showInvite, setShowInvite] = useState(false);
+  const [shareCodeCopied, setShareCodeCopied] = useState(false);
   const [members, setMembers] = useState<MemberProfile[]>([]);
   const [memberRoles, setMemberRoles] = useState<Record<string, TripMemberRole>>({});
   const [hijriEnabled, setHijriEnabled] = useState(false);
@@ -386,10 +388,21 @@ export default function TripDetailScreen() {
                   </TouchableOpacity>
                 ))
               )}
-              <View style={styles.shareCodeCard}>
+              <TouchableOpacity
+                style={styles.shareCodeCard}
+                activeOpacity={0.7}
+                onPress={async () => {
+                  await Clipboard.setStringAsync(trip.shareCode);
+                  setShareCodeCopied(true);
+                  setTimeout(() => setShareCodeCopied(false), 1500);
+                }}
+              >
                 <Ionicons name="key-outline" size={16} color={colors.primary} />
-                <Text style={styles.shareCodeText}>رمز دعوة الرحلة: {trip.shareCode}</Text>
-              </View>
+                <Text style={styles.shareCodeText}>
+                  {shareCodeCopied ? 'تم نسخ رمز الدعوة' : `رمز دعوة الرحلة: ${trip.shareCode}`}
+                </Text>
+                <Ionicons name={shareCodeCopied ? 'checkmark' : 'copy-outline'} size={15} color={colors.primary} />
+              </TouchableOpacity>
             </View>
           ) : null}
 
@@ -1069,5 +1082,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.md,
   },
-  shareCodeText: { color: colors.primaryDark, fontSize: 12, fontWeight: '700' },
+  shareCodeText: { flex: 1, color: colors.primaryDark, fontSize: 12, fontWeight: '700', textAlign: 'right' },
 });

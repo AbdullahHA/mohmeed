@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
+import * as Clipboard from 'expo-clipboard';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { radius, spacing, type ThemeColors } from '../theme/colors';
@@ -29,6 +30,13 @@ export default function WalletScreen() {
   const { profile } = useAuth();
   const { currency } = useRegion();
   const { requireAccount } = useRequireAccount();
+  const [copiedMembershipId, setCopiedMembershipId] = useState<string | null>(null);
+
+  const handleCopyMembership = async (id: string, number: string) => {
+    await Clipboard.setStringAsync(number);
+    setCopiedMembershipId(id);
+    setTimeout(() => setCopiedMembershipId((prev) => (prev === id ? null : prev)), 1500);
+  };
 
   // Real per-trip settlement balance — same math TripDetailScreen's budget
   // tab already uses and shows live, just summed across every trip instead
@@ -128,8 +136,21 @@ export default function WalletScreen() {
               <Ionicons name="star-outline" size={16} color={colors.accent} />
               <View style={styles.textWrap}>
                 <Text style={styles.airline}>{membership.airline}</Text>
-                <Text style={styles.number}>{membership.memberNumber}</Text>
+                <Text style={styles.number}>
+                  {copiedMembershipId === membership.id ? 'تم نسخ الرقم' : membership.memberNumber}
+                </Text>
               </View>
+              <TouchableOpacity
+                onPress={() => handleCopyMembership(membership.id, membership.memberNumber)}
+                activeOpacity={0.7}
+                hitSlop={6}
+              >
+                <Ionicons
+                  name={copiedMembershipId === membership.id ? 'checkmark' : 'copy-outline'}
+                  size={16}
+                  color={colors.textFaint}
+                />
+              </TouchableOpacity>
               <TouchableOpacity onPress={() => removeLoyaltyMembership(membership.id)} activeOpacity={0.7}>
                 <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
               </TouchableOpacity>
