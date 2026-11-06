@@ -230,10 +230,10 @@ export default function ChatScreen() {
 
         <View style={styles.filterRow}>
           {([
-            ['direct', 'خاص'],
-            ['communities', 'المجتمعات'],
-            ['trips', 'الرحلات'],
             ['all', 'الكل'],
+            ['trips', 'الرحلات'],
+            ['communities', 'المجتمعات'],
+            ['direct', 'خاص'],
           ] as const).map(([key, label]) => {
             const count = key === 'trips' ? tripRows.length : key === 'communities' ? communityRows.length : key === 'direct' ? directRows.length : 0;
             const active = filter === key;

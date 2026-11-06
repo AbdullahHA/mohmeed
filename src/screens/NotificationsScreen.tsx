@@ -117,9 +117,9 @@ export default function NotificationsScreen() {
 
       <View style={styles.filterRow}>
         {([
-          ['friends', 'الأصدقاء'],
-          ['trips', 'رحلاتي'],
           ['all', 'الكل'],
+          ['trips', 'رحلاتي'],
+          ['friends', 'الأصدقاء'],
         ] as const).map(([key, label]) => (
           <TouchableOpacity
             key={key}
