@@ -102,16 +102,28 @@ export default function UserProfileScreen() {
   }, [params.userId]);
 
   const handleToggleFollow = () => {
-    requireAccount('follow', async () => {
-      setBusy(true);
-      if (isFollowing) {
-        await unfollowUser(params.userId);
-        setFollowersCount((c) => Math.max(0, c - 1));
-      } else {
-        await followUser(params.userId);
-        setFollowersCount((c) => c + 1);
+    requireAccount('follow', () => {
+      if (!isFollowing) {
+        setBusy(true);
+        followUser(params.userId).then(() => {
+          setFollowersCount((c) => c + 1);
+          setBusy(false);
+        });
+        return;
       }
-      setBusy(false);
+      Alert.alert(`إلغاء متابعة ${profile?.name ?? 'المستخدم'}؟`, 'بتقدر تتابعه من جديد بأي وقت.', [
+        { text: 'إلغاء', style: 'cancel' },
+        {
+          text: 'إلغاء المتابعة',
+          style: 'destructive',
+          onPress: async () => {
+            setBusy(true);
+            await unfollowUser(params.userId);
+            setFollowersCount((c) => Math.max(0, c - 1));
+            setBusy(false);
+          },
+        },
+      ]);
     });
   };
 
