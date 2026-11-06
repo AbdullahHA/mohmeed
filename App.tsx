@@ -1,28 +1,132 @@
+import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { NavigationContainer, DarkTheme } from '@react-navigation/native';
+import { ActivityIndicator, I18nManager, View } from 'react-native';
+import * as Sentry from '@sentry/react-native';
+import * as SplashScreen from 'expo-splash-screen';
+import * as SystemUI from 'expo-system-ui';
+import {
+  IBMPlexSansArabic_400Regular,
+  IBMPlexSansArabic_500Medium,
+  IBMPlexSansArabic_600SemiBold,
+  IBMPlexSansArabic_700Bold,
+  useFonts,
+} from '@expo-google-fonts/ibm-plex-sans-arabic';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
-import { colors } from './src/theme/colors';
+import { AppStateProvider } from './src/context/AppState';
+import { ContentProvider } from './src/context/ContentContext';
+import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+import { RegionProvider } from './src/context/RegionContext';
+import AuthGateScreen from './src/screens/AuthGateScreen';
+import AppIntro from './src/components/AppIntro';
+import BiometricLockGate from './src/components/BiometricLockGate';
+import WebAlertHost from './src/components/WebAlertHost';
 
-const navigationTheme = {
-  ...DarkTheme,
-  colors: {
-    ...DarkTheme.colors,
-    background: colors.background,
-    card: colors.background,
-    text: colors.text,
-    border: colors.border,
-    primary: colors.gold,
-  },
-};
+const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
+if (sentryDsn) {
+  Sentry.init({
+    dsn: sentryDsn,
+    tracesSampleRate: 0.2,
+    enableAutoSessionTracking: true,
+  });
+}
 
-export default function App() {
+// The whole app is laid out by hand for RTL (row-reverse + right-aligned
+// text in every screen), not by native RTL. React Native auto-flips to
+// native RTL on its own when the device's language is Arabic unless this
+// is locked out explicitly — when it does, every manual row-reverse gets
+// flipped back to LTR, which is exactly what "التطبيق صاير معكوس" was.
+I18nManager.allowRTL(false);
+I18nManager.forceRTL(false);
+
+void SplashScreen.preventAutoHideAsync();
+
+function Gate() {
+  const { session, guestMode, loading } = useAuth();
+  const { colors, scheme } = useTheme();
+
+  const navigationTheme = {
+    ...(scheme === 'dark' ? DarkTheme : DefaultTheme),
+    colors: {
+      ...(scheme === 'dark' ? DarkTheme.colors : DefaultTheme.colors),
+      background: colors.background,
+      card: colors.surface,
+      text: colors.text,
+      border: colors.border,
+      primary: colors.primary,
+    },
+  };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
+        <ActivityIndicator color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (!session && !guestMode) {
+    return <AuthGateScreen />;
+  }
+
+  return (
+    <ContentProvider>
+      <AppStateProvider>
+        <NavigationContainer theme={navigationTheme}>
+          <RootNavigator />
+        </NavigationContainer>
+      </AppStateProvider>
+    </ContentProvider>
+  );
+}
+
+function AppShell() {
+  const [showIntro, setShowIntro] = useState(true);
+  const { scheme, colors } = useTheme();
+
+  useEffect(() => {
+    // Matches the native background to the current theme so there's no
+    // white flash on launch or screen transitions (Android especially).
+    void SystemUI.setBackgroundColorAsync(colors.background);
+  }, [colors.background]);
+
   return (
     <SafeAreaProvider>
-      <NavigationContainer theme={navigationTheme}>
-        <RootNavigator />
-      </NavigationContainer>
-      <StatusBar style="light" />
+      <AuthProvider>
+        <BiometricLockGate>
+          <Gate />
+        </BiometricLockGate>
+      </AuthProvider>
+      {showIntro && <AppIntro onDone={() => setShowIntro(false)} />}
+      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+      <WebAlertHost />
     </SafeAreaProvider>
   );
 }
+
+function App() {
+  const [fontsLoaded] = useFonts({
+    IBMPlexSansArabic_400Regular,
+    IBMPlexSansArabic_500Medium,
+    IBMPlexSansArabic_600SemiBold,
+    IBMPlexSansArabic_700Bold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) void SplashScreen.hideAsync();
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
+
+  return (
+    <ThemeProvider>
+      <RegionProvider>
+        <AppShell />
+      </RegionProvider>
+    </ThemeProvider>
+  );
+}
+
+export default sentryDsn ? Sentry.wrap(App) : App;
