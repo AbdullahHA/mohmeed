@@ -407,7 +407,7 @@ export default function ProfileScreen() {
                 : 'وصلت لأعلى مستوى 🏆'}
             </Text>
           </View>
-          <Ionicons name="chevron-back" size={16} color="rgba(255,255,255,0.8)" style={styles.passportGo} />
+          <Ionicons name="chevron-back" size={16} color="rgba(255,255,255,0.8)" />
         </TouchableOpacity>
 
         <View style={styles.sectionHeaderRow}>
@@ -908,7 +908,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.lg,
     marginHorizontal: spacing.lg,
   },
-  passportGo: { transform: [{ rotate: '180deg' }] },
   ringPercent: { color: '#fff', fontSize: 16, fontWeight: '700' },
   ringCaption: { color: 'rgba(255,255,255,0.75)', fontSize: 9 },
   passportTextWrap: { flex: 1, gap: 4 },
