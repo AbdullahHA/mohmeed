@@ -280,10 +280,6 @@ export default function ProfileScreen() {
                 <Text style={styles.metaText}>{profile.countryOfResidence}</Text>
               </View>
             ) : null}
-            <View style={styles.metaItem}>
-              <Ionicons name="globe-outline" size={13} color={colors.textMuted} />
-              <Text style={styles.metaText}>عربي</Text>
-            </View>
             {memberSinceYear ? (
               <View style={styles.metaItem}>
                 <Ionicons name="calendar-outline" size={13} color={colors.textMuted} />
