@@ -18,11 +18,11 @@ import {
 } from '../lib/prayerTimes';
 import type { Coordinate } from '../lib/geo';
 
-type Props = { coordinate: Coordinate };
+type Props = { coordinate: Coordinate; timezone?: string };
 
 const PRAYER_ORDER: PrayerName[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 
-export default function PrayerTimesCard({ coordinate }: Props) {
+export default function PrayerTimesCard({ coordinate, timezone }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [now, setNow] = useState(new Date());
@@ -50,7 +50,7 @@ export default function PrayerTimesCard({ coordinate }: Props) {
         {PRAYER_ORDER.map((p) => (
           <View key={p} style={[styles.timeCell, p === next.name && styles.timeCellActive]}>
             <Text style={[styles.timeLabel, p === next.name && styles.timeLabelActive]}>{PRAYER_LABELS[p]}</Text>
-            <Text style={[styles.timeValue, p === next.name && styles.timeLabelActive]}>{formatTime(todayTimes[p], coordinate)}</Text>
+            <Text style={[styles.timeValue, p === next.name && styles.timeLabelActive]}>{formatTime(todayTimes[p], timezone)}</Text>
           </View>
         ))}
       </View>

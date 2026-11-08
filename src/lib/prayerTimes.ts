@@ -51,8 +51,12 @@ export function getQiblaBearing(coord: Coordinate): number {
   return Qibla(new Coordinates(coord.latitude, coord.longitude));
 }
 
-export function formatTime(date: Date, coord?: Coordinate): string {
-  const timeZone = coord && isInSaudiArabia(coord) ? 'Asia/Riyadh' : undefined;
+// `timeZone` should be the IANA name of wherever these times are FOR (a
+// destination's own timezone), not the device's. Omit it only when the
+// times already belong to wherever the device physically is (live GPS) —
+// the OS keeps the device clock in sync with real location, so the
+// device's own timezone is correct there.
+export function formatTime(date: Date, timeZone?: string): string {
   return date.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone });
 }
 

@@ -14,6 +14,7 @@ export type Destination = {
   interests: string[];
   latitude?: number;
   longitude?: number;
+  timezone?: string;
 };
 
 export const INTEREST_TAGS = ['مغامرة', 'شواطئ', 'ثقافة', 'عائلي', 'رومانسي', 'طبيعة'] as const;
@@ -33,6 +34,7 @@ export const destinations: Destination[] = [
     interests: ['مغامرة', 'ثقافة'],
     latitude: 26.6097,
     longitude: 37.9154,
+    timezone: 'Asia/Riyadh',
   },
   {
     id: 'redsea',
@@ -47,6 +49,7 @@ export const destinations: Destination[] = [
     interests: ['شواطئ', 'مغامرة'],
     latitude: 25.0167,
     longitude: 37.2667,
+    timezone: 'Asia/Riyadh',
   },
   {
     id: 'marbella',
@@ -61,6 +64,7 @@ export const destinations: Destination[] = [
     interests: ['شواطئ', 'رومانسي'],
     latitude: 36.5099,
     longitude: -4.8863,
+    timezone: 'Europe/Madrid',
   },
   {
     id: 'riyadh',
@@ -75,6 +79,7 @@ export const destinations: Destination[] = [
     interests: ['ثقافة', 'عائلي'],
     latitude: 24.7136,
     longitude: 46.6753,
+    timezone: 'Asia/Riyadh',
   },
   {
     id: 'jeddah',
@@ -89,6 +94,7 @@ export const destinations: Destination[] = [
     interests: ['شواطئ', 'عائلي'],
     latitude: 21.4858,
     longitude: 39.1925,
+    timezone: 'Asia/Riyadh',
   },
   {
     id: 'abha',
@@ -103,6 +109,7 @@ export const destinations: Destination[] = [
     interests: ['طبيعة', 'مغامرة'],
     latitude: 18.2164,
     longitude: 42.5053,
+    timezone: 'Asia/Riyadh',
   },
 ];
 

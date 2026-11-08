@@ -309,7 +309,10 @@ export default function DestinationDetailScreen() {
           ) : null}
 
           {destination.latitude && destination.longitude ? (
-            <PrayerTimesCard coordinate={{ latitude: destination.latitude, longitude: destination.longitude }} />
+            <PrayerTimesCard
+              coordinate={{ latitude: destination.latitude, longitude: destination.longitude }}
+              timezone={destination.timezone}
+            />
           ) : null}
 
           <View style={styles.tabsRow}>

@@ -72,6 +72,10 @@ export default function TodayMode({ trip, navigation }: Props) {
     : destination?.latitude != null && destination?.longitude != null
     ? { latitude: destination.latitude, longitude: destination.longitude }
     : null;
+  // Only override with the destination's timezone when we're NOT using live
+  // GPS — if liveCoords is set, the device's own clock already tracks real
+  // location, so the device timezone is correct there.
+  const prayerTimeZone = liveCoords ? undefined : destination?.timezone;
 
   const tripDays = tripDateRange(trip.startDate, trip.endDate);
   const todayIso = formatIsoDate(now);
@@ -230,7 +234,7 @@ export default function TodayMode({ trip, navigation }: Props) {
           {nextPrayer ? (
             <>
               <Text style={styles.infoCardMain}>{PRAYER_LABELS[nextPrayer.name]}</Text>
-              <Text style={styles.infoCardSub}>{formatTime(nextPrayer.at, coordinate ?? undefined)} · {formatCountdown(nextPrayer.at.getTime() - now.getTime())}</Text>
+              <Text style={styles.infoCardSub}>{formatTime(nextPrayer.at, prayerTimeZone)} · {formatCountdown(nextPrayer.at.getTime() - now.getTime())}</Text>
             </>
           ) : (
             <Text style={styles.infoCardSub}>غير متوفر</Text>
