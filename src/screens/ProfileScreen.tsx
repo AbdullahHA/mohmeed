@@ -885,7 +885,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.md,
   },
   guestBannerText: { flex: 1, color: colors.text, fontSize: 12, textAlign: 'right', lineHeight: 18 },
-  highlights: { flexDirection: 'row-reverse', gap: spacing.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.lg },
+  highlights: { flexDirection: 'row-reverse', gap: spacing.md, paddingHorizontal: spacing.lg, paddingTop: spacing.lg },
   highlightItem: { alignItems: 'center', gap: spacing.xs, width: 64 },
   highlightImage: { width: 60, height: 60, borderRadius: 30, borderWidth: 2, borderColor: colors.surface },
   highlightAdd: {
@@ -908,6 +908,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     marginHorizontal: spacing.lg,
+    marginTop: spacing.lg,
   },
   ringPercent: { color: '#fff', fontSize: 16, fontWeight: '700' },
   ringCaption: { color: 'rgba(255,255,255,0.75)', fontSize: 9 },
