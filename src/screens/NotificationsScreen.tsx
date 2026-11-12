@@ -7,6 +7,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
+import EmptyState from '../components/EmptyState';
 import type { AppNotification, NotificationType } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -132,11 +133,15 @@ export default function NotificationsScreen() {
         ))}
       </View>
 
+      {visible.length === 0 ? (
+        <EmptyState
+          icon="notifications-outline"
+          title="ما فيه إشعارات بعد"
+          subtitle="إشعارات طلبات الأصدقاء ورحلاتك بتظهر هنا أول ما تصير."
+        />
+      ) : (
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
-        {visible.length === 0 ? (
-          <Text style={styles.emptyText}>ما فيه إشعارات بعد</Text>
-        ) : (
-          groups.map((group) => (
+          {groups.map((group) => (
             <View key={group.label}>
               <Text style={styles.groupHeading}>{group.label}</Text>
               {group.items.map((item) => (
@@ -186,9 +191,9 @@ export default function NotificationsScreen() {
                 </TouchableOpacity>
               ))}
             </View>
-          ))
-        )}
+          ))}
       </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
@@ -226,7 +231,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   filterChipTextActive: { color: colors.background },
   list: { padding: spacing.lg, paddingTop: 0, paddingBottom: spacing.xxl },
   groupHeading: { color: colors.textMuted, fontSize: fontSize.base, fontWeight: '700', textAlign: 'right', marginTop: spacing.md, marginBottom: spacing.sm },
-  emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
   row: {
     flexDirection: 'row-reverse',
     alignItems: 'flex-start',

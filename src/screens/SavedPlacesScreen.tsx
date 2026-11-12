@@ -8,6 +8,7 @@ import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
+import EmptyState from '../components/EmptyState';
 import { PLACE_TYPE_LABELS } from '../data/places';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -36,11 +37,17 @@ export default function SavedPlacesScreen() {
         <View style={{ width: 20 }} />
       </View>
 
+      {savedPlaces.length === 0 ? (
+        <EmptyState
+          icon="heart-outline"
+          title="ما حفظت أي مكان بعد"
+          subtitle="اضغط على القلب بأي مكان عشان يظهر هنا."
+          actionLabel="اكتشف أماكن"
+          onAction={() => navigation.navigate('MainTabs', { screen: 'Discover' })}
+        />
+      ) : (
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
-        {savedPlaces.length === 0 ? (
-          <Text style={styles.emptyText}>ما حفظت أي مكان بعد — اضغط على القلب بأي مكان عشان يظهر هنا</Text>
-        ) : (
-          savedPlaces.map((place) => (
+          {savedPlaces.map((place) => (
             <TouchableOpacity
               key={place.id}
               style={styles.row}
@@ -62,9 +69,9 @@ export default function SavedPlacesScreen() {
                 <Ionicons name="heart" size={20} color={colors.heart} />
               </TouchableOpacity>
             </TouchableOpacity>
-          ))
-        )}
+          ))}
       </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
@@ -82,7 +89,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   list: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl },
-  emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl, lineHeight: 20 },
   row: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

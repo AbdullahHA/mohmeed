@@ -21,6 +21,7 @@ import { PLACE_TYPE_LABELS, type Place, type PlaceType } from '../data/places';
 import { useContent } from '../context/ContentContext';
 import { supabase } from '../lib/supabase';
 import PlacesMapView from '../components/PlacesMapView';
+import EmptyState from '../components/EmptyState';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'Results'>;
@@ -172,14 +173,13 @@ export default function ResultsScreen() {
           onMarkerPress={(place) => navigation.navigate('PlaceDetail', { placeId: place.id })}
         />
       ) : results.length === 0 ? (
-        <View style={styles.emptyWrap}>
-          <Text style={styles.emptyText}>ما لقينا شي بهالفلاتر</Text>
-          {priceFilter.size > 0 ? (
-            <TouchableOpacity activeOpacity={0.8} onPress={() => setPriceFilter(new Set())}>
-              <Text style={styles.emptyClear}>امسح الفلاتر</Text>
-            </TouchableOpacity>
-          ) : null}
-        </View>
+        <EmptyState
+          icon="search-outline"
+          title="ما لقينا شي بهالفلاتر"
+          subtitle="جرّب تمسح الفلاتر أو تبدّل التصنيف."
+          actionLabel={priceFilter.size > 0 ? 'امسح الفلاتر' : undefined}
+          onAction={priceFilter.size > 0 ? () => setPriceFilter(new Set()) : undefined}
+        />
       ) : (
         <FlatList
           data={results}
@@ -305,7 +305,4 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   cardName: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right' },
   cardDestination: { color: colors.textFaint, fontSize: fontSize.base, textAlign: 'right' },
   friendsLine: { color: colors.primaryDark, fontSize: fontSize.base, fontWeight: '600', textAlign: 'right', marginTop: 2 },
-  emptyWrap: { alignItems: 'center', paddingTop: spacing.xxl, gap: spacing.sm },
-  emptyText: { color: colors.textMuted, fontSize: fontSize.body },
-  emptyClear: { color: colors.primary, fontSize: fontSize.body, fontWeight: '700' },
 });

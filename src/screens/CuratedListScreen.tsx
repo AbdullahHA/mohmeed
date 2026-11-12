@@ -9,6 +9,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useContent } from '../context/ContentContext';
 import { supabase } from '../lib/supabase';
 import PlaceCard from '../components/PlaceCard';
+import EmptyState from '../components/EmptyState';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -49,17 +50,17 @@ export default function CuratedListScreen() {
         <View style={{ width: 20 }} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.body}>
-        {placeIds === null ? (
-          <Text style={styles.emptyText}>جاري التحميل...</Text>
-        ) : listPlaces.length === 0 ? (
-          <Text style={styles.emptyText}>القائمة فاضية حاليًا</Text>
-        ) : (
-          listPlaces.map((place) => (
+      {placeIds === null ? (
+        <Text style={styles.emptyText}>جاري التحميل...</Text>
+      ) : listPlaces.length === 0 ? (
+        <EmptyState icon="list-outline" title="القائمة فاضية حاليًا" subtitle="ما أضفنا أماكن لهذي القائمة بعد." />
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.body}>
+          {listPlaces.map((place) => (
             <PlaceCard key={place.id} place={place} onPress={() => navigation.navigate('PlaceDetail', { placeId: place.id })} />
-          ))
-        )}
-      </ScrollView>
+          ))}
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
