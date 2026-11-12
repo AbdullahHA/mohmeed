@@ -7,6 +7,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import EmptyState from '../components/EmptyState';
 import { supabase } from '../lib/supabase';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -64,23 +65,23 @@ export default function SupportScreen() {
         </TouchableOpacity>
       </View>
 
+      {tickets === null ? (
+        <Text style={styles.emptyText}>جاري التحميل...</Text>
+      ) : tickets.length === 0 ? (
+        <EmptyState
+          icon="chatbubbles-outline"
+          title="ما عندك تذاكر دعم"
+          subtitle="تواجه مشكلة أو عندك اقتراح؟ تواصل معنا وبنرد عليك."
+          actionLabel="تواصل مع الدعم"
+          onAction={() => navigation.navigate('NewSupportTicket')}
+        />
+      ) : (
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
       >
-        {tickets === null ? (
-          <Text style={styles.emptyText}>جاري التحميل...</Text>
-        ) : tickets.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="chatbubbles-outline" size={32} color={colors.textFaint} />
-            <Text style={styles.emptyText}>ما عندك تذاكر دعم. تواجه مشكلة أو عندك اقتراح؟</Text>
-            <TouchableOpacity style={styles.newBtn} activeOpacity={0.85} onPress={() => navigation.navigate('NewSupportTicket')}>
-              <Text style={styles.newBtnText}>تواصل مع الدعم</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          tickets.map((t) => (
+          {tickets.map((t) => (
             <TouchableOpacity
               key={t.id}
               style={styles.row}
@@ -93,9 +94,9 @@ export default function SupportScreen() {
               </View>
               <Ionicons name="chevron-back" size={16} color={colors.textMuted} />
             </TouchableOpacity>
-          ))
-        )}
+          ))}
       </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
@@ -114,9 +115,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   list: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl, flexGrow: 1 },
   emptyText: { color: colors.textMuted, textAlign: 'center', lineHeight: 20 },
-  emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md, paddingVertical: spacing.xxl },
-  newBtn: { backgroundColor: colors.primary, borderRadius: radius.md, paddingHorizontal: 20, paddingVertical: 11 },
-  newBtnText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, fontWeight: '700' },
   row: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

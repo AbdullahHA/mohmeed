@@ -201,7 +201,7 @@ export default function CommunityChatScreen() {
 
         {community.joined ? (
           <View style={styles.inputRow}>
-            <TouchableOpacity style={styles.sendButton} onPress={send} activeOpacity={0.8}>
+            <TouchableOpacity style={styles.sendButton} onPress={send} activeOpacity={0.8} disabled={sending}>
               <Ionicons name="send" size={16} color={colors.textOnPrimary} />
             </TouchableOpacity>
             <TextInput

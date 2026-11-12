@@ -22,6 +22,7 @@ import { haversineDistanceKm } from '../lib/geo';
 import { getMultiStopMapsUrl } from '../utils/place';
 import { lightMapStyle } from '../theme/mapStyle';
 import { MapView, Marker, Polyline } from '../components/mapModule';
+import EmptyState from '../components/EmptyState';
 import type { RootStackParamList } from '../navigation/types';
 
 type Route = RouteProp<RootStackParamList, 'DayMap'>;
@@ -150,10 +151,14 @@ export default function DayMapScreen() {
         )
       ) : null}
 
+      {stops.length === 0 ? (
+        <EmptyState
+          icon="map-outline"
+          title="ما فيه أماكن بجدول هذا اليوم"
+          subtitle="أضف أماكن لجدول هذا اليوم عشان تظهر هنا على الخريطة."
+        />
+      ) : (
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
-        {stops.length === 0 ? (
-          <Text style={styles.emptyMuted}>ما فيه أماكن بجدول هذا اليوم</Text>
-        ) : (
           <>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryText}>{stops.length} أماكن</Text>
@@ -179,8 +184,8 @@ export default function DayMapScreen() {
               </TouchableOpacity>
             ) : null}
           </>
-        )}
       </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
@@ -226,7 +231,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   numberedPinText: { color: colors.textOnPrimary, fontSize: fontSize.base, fontWeight: '700' },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  emptyMuted: { color: colors.textFaint, fontSize: fontSize.body, textAlign: 'center', paddingVertical: spacing.xxl },
   summaryRow: { flexDirection: 'row-reverse', gap: spacing.xs, marginBottom: spacing.md },
   summaryText: { color: colors.textMuted, fontSize: fontSize.body, fontWeight: '600' },
   stopRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },

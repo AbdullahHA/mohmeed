@@ -13,6 +13,7 @@ import { haversineDistanceKm } from '../lib/geo';
 import { searchNearbyPlaces, cacheGooglePlace, type GooglePlaceResult } from '../lib/googlePlaces';
 import { PLACE_TYPE_LABELS } from '../data/places';
 import RtlScrollRow from '../components/RtlScrollRow';
+import EmptyState from '../components/EmptyState';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -134,13 +135,19 @@ export default function TrendingScreen() {
         ))}
       </RtlScrollRow>
 
+      {loading ? (
+        <ActivityIndicator color={colors.primary} style={{ marginTop: spacing.xl }} />
+      ) : results.length === 0 ? (
+        <EmptyState
+          icon="flame-outline"
+          title="ما لقينا نتائج بهذي المدينة حاليًا"
+          subtitle="جرّب تغيّر المدينة أو الفئة."
+          actionLabel="غيّر المدينة"
+          onAction={() => setCityPickerVisible(true)}
+        />
+      ) : (
       <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
-        {loading ? (
-          <ActivityIndicator color={colors.primary} style={{ marginTop: spacing.xl }} />
-        ) : results.length === 0 ? (
-          <Text style={styles.emptyText}>ما لقينا نتائج بهذي المدينة حاليًا</Text>
-        ) : (
-          results.map((r, index) => (
+          {results.map((r, index) => (
             <TouchableOpacity
               key={r.id}
               style={styles.row}
@@ -171,9 +178,9 @@ export default function TrendingScreen() {
                 </View>
               ) : null}
             </TouchableOpacity>
-          ))
-        )}
+          ))}
       </ScrollView>
+      )}
 
       <Modal visible={cityPickerVisible} transparent animationType="fade" onRequestClose={() => setCityPickerVisible(false)}>
         <Pressable style={styles.cityBackdrop} onPress={() => setCityPickerVisible(false)}>
