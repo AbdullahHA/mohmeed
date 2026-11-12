@@ -6,7 +6,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import Text from './Text';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import type { Destination } from '../data/destinations';
 
@@ -77,7 +77,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   badgeText: {
     color: colors.textOnPrimary,
-    fontSize: 10,
+    fontSize: fontSize.tiny,
     fontWeight: '700',
   },
   textWrap: {
@@ -85,13 +85,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   name: {
     color: colors.textOnPrimary,
-    fontSize: 16,
+    fontSize: fontSize.subtitle,
     fontWeight: '700',
     textAlign: 'right',
   },
   tagline: {
     color: 'rgba(255,255,255,0.85)',
-    fontSize: 11,
+    fontSize: fontSize.small,
     textAlign: 'right',
     marginTop: 2,
   },

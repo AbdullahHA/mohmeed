@@ -14,7 +14,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { PLACE_TYPE_LABELS, type PlaceType } from '../data/places';
 import PlaceCard from '../components/PlaceCard';
@@ -565,7 +565,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: 4,
   },
-  countryBadgeText: { color: colors.textOnPrimary, fontSize: 11, fontWeight: '700' },
+  countryBadgeText: { color: colors.textOnPrimary, fontSize: fontSize.small, fontWeight: '700' },
   stampButton: {
     alignSelf: 'flex-end',
     flexDirection: 'row-reverse',
@@ -580,12 +580,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   stampButtonActive: {
     backgroundColor: colors.primary,
   },
-  stampButtonText: { color: colors.primaryDark, fontSize: 11, fontWeight: '700' },
+  stampButtonText: { color: colors.primaryDark, fontSize: fontSize.small, fontWeight: '700' },
   stampButtonTextActive: { color: colors.textOnPrimary },
   body: { padding: spacing.xl },
-  name: { color: colors.text, fontSize: 24, fontWeight: '700', textAlign: 'right' },
-  tagline: { color: colors.textMuted, fontSize: 14, textAlign: 'right', marginTop: 4 },
-  whyVisit: { color: colors.text, fontSize: 14, lineHeight: 22, textAlign: 'right', marginTop: spacing.lg, marginBottom: spacing.xl },
+  name: { color: colors.text, fontSize: fontSize.heading, fontWeight: '700', textAlign: 'right' },
+  tagline: { color: colors.textMuted, fontSize: fontSize.bodyLg, textAlign: 'right', marginTop: 4 },
+  whyVisit: { color: colors.text, fontSize: fontSize.bodyLg, lineHeight: 22, textAlign: 'right', marginTop: spacing.lg, marginBottom: spacing.xl },
   statsRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginTop: spacing.lg },
   statCard: {
     flex: 1,
@@ -596,11 +596,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.md,
     alignItems: 'flex-end',
   },
-  statLabel: { color: colors.textMuted, fontSize: 11, marginBottom: 4 },
+  statLabel: { color: colors.textMuted, fontSize: fontSize.small, marginBottom: 4 },
   statValueRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
   statIcon: { transform: [{ scaleX: -1 }] },
-  statValue: { color: colors.text, fontSize: 15, fontWeight: '700' },
-  sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right', marginBottom: spacing.sm },
+  statValue: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
+  sectionTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right', marginBottom: spacing.sm },
   monthsChart: {
     flexDirection: 'row-reverse',
     alignItems: 'flex-end',
@@ -613,9 +613,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   monthBarGood: { backgroundColor: colors.success },
   monthBarMuted: { backgroundColor: colors.surfaceAlt },
   monthBarCurrent: { borderWidth: 1.5, borderColor: colors.primary },
-  monthLabel: { color: colors.textFaint, fontSize: 9 },
+  monthLabel: { color: colors.textFaint, fontSize: fontSize.tiny },
   monthLabelCurrent: { color: colors.primaryDark, fontWeight: '700' },
-  monthsVerdict: { color: colors.successDark, fontSize: 12, fontWeight: '700', textAlign: 'right', marginBottom: spacing.xl },
+  monthsVerdict: { color: colors.successDark, fontSize: fontSize.base, fontWeight: '700', textAlign: 'right', marginBottom: spacing.xl },
   tabsRow: {
     flexDirection: 'row-reverse',
     gap: spacing.sm,
@@ -628,7 +628,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.surfaceAlt,
   },
   tabButtonActive: { backgroundColor: colors.text },
-  tabText: { color: colors.text, fontSize: 13, fontWeight: '700' },
+  tabText: { color: colors.text, fontSize: fontSize.body, fontWeight: '700' },
   tabTextActive: { color: colors.background },
   typeFiltersScroll: {
     flexGrow: 0,
@@ -653,7 +653,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   typeFilterText: {
     color: colors.text,
-    fontSize: 12,
+    fontSize: fontSize.base,
     fontWeight: '600',
   },
   typeFilterTextActive: {
@@ -661,7 +661,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   emptyPlacesText: {
     color: colors.textMuted,
-    fontSize: 13,
+    fontSize: fontSize.body,
     textAlign: 'center',
     marginBottom: spacing.lg,
     paddingVertical: spacing.md,
@@ -683,7 +683,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.sm,
     marginBottom: spacing.sm,
   },
-  googleSearchInput: { flex: 1, color: colors.text, fontSize: 13 },
+  googleSearchInput: { flex: 1, color: colors.text, fontSize: fontSize.body },
   googleResultsList: { gap: spacing.sm },
   googleResultCard: {
     flexDirection: 'row-reverse',
@@ -698,11 +698,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   googleResultImage: { width: 48, height: 48, borderRadius: radius.sm },
   googleResultImagePlaceholder: { backgroundColor: colors.surfaceAlt, alignItems: 'center', justifyContent: 'center' },
   googleResultTextWrap: { flex: 1 },
-  googleResultName: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
-  googleResultAddress: { color: colors.textMuted, fontSize: 11, textAlign: 'right', marginTop: 1 },
+  googleResultName: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
+  googleResultAddress: { color: colors.textMuted, fontSize: fontSize.small, textAlign: 'right', marginTop: 1 },
   googleResultRatingRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 3, marginTop: 2 },
-  googleResultRatingText: { color: colors.accentDark, fontSize: 11, fontWeight: '700' },
-  googleResultRatingCount: { color: colors.textFaint, fontSize: 10 },
+  googleResultRatingText: { color: colors.accentDark, fontSize: fontSize.small, fontWeight: '700' },
+  googleResultRatingCount: { color: colors.textFaint, fontSize: fontSize.tiny },
   postsGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 2, marginBottom: spacing.lg },
   postTile: { width: '32.5%', aspectRatio: 4 / 5 },
   postImage: { width: '100%', height: '100%', borderRadius: radius.sm },
@@ -719,7 +719,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
-  postAuthorName: { color: colors.textOnPrimary, fontSize: 9, fontWeight: '600', flexShrink: 1 },
+  postAuthorName: { color: colors.textOnPrimary, fontSize: fontSize.tiny, fontWeight: '600', flexShrink: 1 },
   guideLink: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -727,7 +727,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.xs,
     marginTop: spacing.sm,
   },
-  guideLinkText: { color: colors.primaryDark, fontWeight: '600', fontSize: 13 },
+  guideLinkText: { color: colors.primaryDark, fontWeight: '600', fontSize: fontSize.body },
   stickyBar: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -756,7 +756,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  planTripButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
+  planTripButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.bodyLg },
   checkInCard: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -771,7 +771,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.sm,
   },
-  checkInEmpty: { color: colors.textFaint, fontSize: 12, textAlign: 'center', paddingVertical: spacing.sm },
+  checkInEmpty: { color: colors.textFaint, fontSize: fontSize.base, textAlign: 'center', paddingVertical: spacing.sm },
   checkInPeersRow: {
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
@@ -780,7 +780,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   checkInPeer: { alignItems: 'center', width: 52 },
   checkInAvatarMargin: { marginBottom: 2 },
-  checkInName: { color: colors.textMuted, fontSize: 10, fontWeight: '600', textAlign: 'center' },
+  checkInName: { color: colors.textMuted, fontSize: fontSize.tiny, fontWeight: '600', textAlign: 'center' },
   checkInButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -795,6 +795,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.primary,
   },
-  checkInButtonText: { color: colors.textOnPrimary, fontSize: 12, fontWeight: '700' },
+  checkInButtonText: { color: colors.textOnPrimary, fontSize: fontSize.base, fontWeight: '700' },
   checkInButtonTextActive: { color: colors.primaryDark },
 });

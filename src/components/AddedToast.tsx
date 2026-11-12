@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 
 type Props = {
@@ -58,8 +58,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     elevation: 6,
   },
   row: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, flex: 1 },
-  text: { color: colors.text, fontSize: 13, fontWeight: '700', flexShrink: 1 },
+  text: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', flexShrink: 1 },
   actions: { flexDirection: 'row-reverse', gap: spacing.md },
-  undoText: { color: colors.textMuted, fontSize: 12, fontWeight: '700' },
-  viewText: { color: colors.primary, fontSize: 12, fontWeight: '700' },
+  undoText: { color: colors.textMuted, fontSize: fontSize.base, fontWeight: '700' },
+  viewText: { color: colors.primary, fontSize: fontSize.base, fontWeight: '700' },
 });

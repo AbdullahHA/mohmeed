@@ -17,7 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PlacesMapView from '../components/PlacesMapView';
-import { radius, spacing, fixedColors, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, fixedColors, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useRequireAccount } from '../hooks/useRequireAccount';
@@ -422,9 +422,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.md,
   },
   topRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' },
-  topTitle: { color: colors.text, fontSize: 20, fontWeight: '700' },
+  topTitle: { color: colors.text, fontSize: fontSize.title, fontWeight: '700' },
   topIcons: { flexDirection: 'row-reverse', gap: spacing.sm },
-  cityKicker: { color: colors.textMuted, fontSize: 11, textAlign: 'right' },
+  cityKicker: { color: colors.textMuted, fontSize: fontSize.small, textAlign: 'right' },
   cityRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
   cityBackdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
   citySheet: {
@@ -434,7 +434,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.xl,
     maxHeight: '70%',
   },
-  citySheetTitle: { color: colors.text, fontSize: 16, fontWeight: '800', textAlign: 'right', marginBottom: spacing.md },
+  citySheetTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '800', textAlign: 'right', marginBottom: spacing.md },
   cityList: { marginTop: spacing.xs },
   cityOption: {
     flexDirection: 'row-reverse',
@@ -444,8 +444,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  cityOptionText: { color: colors.text, fontSize: 14, fontWeight: '600' },
-  cityOptionTextPrimary: { color: colors.primary, fontSize: 14, fontWeight: '700' },
+  cityOptionText: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '600' },
+  cityOptionTextPrimary: { color: colors.primary, fontSize: fontSize.bodyLg, fontWeight: '700' },
   iconBtn: {
     width: 36,
     height: 36,
@@ -467,7 +467,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     height: 48,
     paddingHorizontal: spacing.lg,
   },
-  searchInput: { flex: 1, color: colors.text, fontSize: 13.5 },
+  searchInput: { flex: 1, color: colors.text, fontSize: fontSize.bodyLg },
   cats: {
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
@@ -485,10 +485,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  catLabel: { color: colors.text, fontSize: 11, fontWeight: '500' },
+  catLabel: { color: colors.text, fontSize: fontSize.small, fontWeight: '500' },
   sec: { marginTop: spacing.xl, paddingHorizontal: spacing.lg },
   secTitle: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: spacing.sm },
-  secTitleText: { color: colors.text, fontSize: 15, fontWeight: '700' },
+  secTitleText: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   curatedRow: { flexDirection: 'row-reverse', gap: spacing.sm },
   curatedCard: {
     width: 92,
@@ -501,8 +501,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xs,
   },
-  curatedEmoji: { fontSize: 26 },
-  curatedTitle: { color: colors.text, fontSize: 11.5, fontWeight: '700', textAlign: 'center' },
+  curatedEmoji: { fontSize: fontSize.hero },
+  curatedTitle: { color: colors.text, fontSize: fontSize.base, fontWeight: '700', textAlign: 'center' },
   pgrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.md },
   pcard: { width: '47%', gap: spacing.xs },
   pcardImageWrap: { width: '100%', height: 130, borderRadius: radius.lg, overflow: 'hidden' },
@@ -527,23 +527,23 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 3,
   },
-  pcardWhyText: { color: '#141a2b', fontSize: 10.5, fontWeight: '600' },
-  pcardName: { color: colors.text, fontSize: 13.5, fontWeight: '700', textAlign: 'right' },
+  pcardWhyText: { color: '#141a2b', fontSize: fontSize.small, fontWeight: '600' },
+  pcardName: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
   pcardMeta: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
-  pcardMetaText: { color: colors.textMuted, fontSize: 11.5 },
+  pcardMetaText: { color: colors.textMuted, fontSize: fontSize.base },
   rows: { gap: spacing.md },
   row: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.md },
   rowImage: { width: 64, height: 64, borderRadius: radius.md },
   rowBody: { flex: 1, gap: 3 },
-  rowTitle: { color: colors.text, fontSize: 13.5, fontWeight: '700', textAlign: 'right' },
-  rowSubtitle: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right' },
+  rowTitle: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+  rowSubtitle: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right' },
   rowRating: { flexDirection: 'row-reverse', alignItems: 'center', gap: 3 },
-  rowRatingText: { color: colors.accentDark, fontSize: 12, fontWeight: '700' },
-  rowPrice: { color: colors.primary, fontSize: 12, fontWeight: '700' },
+  rowRatingText: { color: colors.accentDark, fontSize: fontSize.base, fontWeight: '700' },
+  rowPrice: { color: colors.primary, fontSize: fontSize.base, fontWeight: '700' },
   dgrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm },
   dtile: { width: '31.5%', aspectRatio: 0.75, borderRadius: radius.md, overflow: 'hidden', justifyContent: 'flex-end' },
   dtileImage: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' },
   dtileOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: colors.overlay },
-  dtileName: { color: '#fff', fontSize: 12.5, fontWeight: '700', textAlign: 'center', paddingVertical: spacing.sm },
+  dtileName: { color: '#fff', fontSize: fontSize.body, fontWeight: '700', textAlign: 'center', paddingVertical: spacing.sm },
   emptyText: { color: colors.textMuted, textAlign: 'center', paddingVertical: spacing.lg },
 });

@@ -4,7 +4,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
@@ -95,7 +95,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  headerTitle: { flex: 1, color: colors.text, fontSize: 18, fontWeight: '700', textAlign: 'center' },
+  headerTitle: { flex: 1, color: colors.text, fontSize: fontSize.title, fontWeight: '700', textAlign: 'center' },
   backButton: {
     width: 36,
     height: 36,
@@ -118,7 +118,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginHorizontal: spacing.lg,
     marginBottom: spacing.md,
   },
-  searchInput: { flex: 1, color: colors.text, fontSize: 13.5, paddingVertical: spacing.sm + 2 },
+  searchInput: { flex: 1, color: colors.text, fontSize: fontSize.bodyLg, paddingVertical: spacing.sm + 2 },
   list: { padding: spacing.lg, paddingTop: 0, gap: spacing.md, paddingBottom: spacing.xxl },
   emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
   row: {
@@ -133,6 +133,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   rowImage: { width: 56, height: 56, borderRadius: radius.md },
   rowBody: { flex: 1, gap: 3 },
-  rowTitle: { color: colors.text, fontSize: 13.5, fontWeight: '700', textAlign: 'right' },
-  rowSubtitle: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right' },
+  rowTitle: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+  rowSubtitle: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right' },
 });

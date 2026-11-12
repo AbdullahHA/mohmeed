@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Modal, Pressable, View, StyleSheet, TextInput, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { supabase } from '../lib/supabase';
 import PersonAvatar from './PersonAvatar';
@@ -163,14 +163,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.xl,
     maxHeight: '75%',
   },
-  title: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right', marginBottom: spacing.md },
-  empty: { color: colors.textFaint, fontSize: 12.5, textAlign: 'center', paddingVertical: spacing.xl },
+  title: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right', marginBottom: spacing.md },
+  empty: { color: colors.textFaint, fontSize: fontSize.body, textAlign: 'center', paddingVertical: spacing.xl },
   list: { maxHeight: 320, marginBottom: spacing.md },
   commentRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginBottom: spacing.md },
   commentTextWrap: { flex: 1 },
-  commentName: { color: colors.text, fontSize: 12.5, fontWeight: '700', textAlign: 'right' },
-  commentText: { color: colors.text, fontSize: 13.5, textAlign: 'right', marginTop: 2, lineHeight: 19 },
-  commentTime: { color: colors.textFaint, fontSize: 10.5, textAlign: 'right', marginTop: 2 },
+  commentName: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
+  commentText: { color: colors.text, fontSize: fontSize.bodyLg, textAlign: 'right', marginTop: 2, lineHeight: 19 },
+  commentTime: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'right', marginTop: 2 },
   inputRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
   input: {
     flex: 1,

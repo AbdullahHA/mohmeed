@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { supabase } from '../lib/supabase';
 import PersonAvatar from './PersonAvatar';
@@ -199,10 +199,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   headerRow: { flexDirection: 'row-reverse', alignItems: 'flex-start', gap: spacing.sm, marginBottom: spacing.md },
   headerTextWrap: { flex: 1 },
-  title: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right' },
-  subtitle: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
+  title: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right' },
+  subtitle: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right', marginTop: 2 },
   scroll: { marginBottom: spacing.sm },
-  sectionLabel: { color: colors.textMuted, fontSize: 12, fontWeight: '700', textAlign: 'right', marginTop: spacing.md, marginBottom: spacing.sm },
+  sectionLabel: { color: colors.textMuted, fontSize: fontSize.base, fontWeight: '700', textAlign: 'right', marginTop: spacing.md, marginBottom: spacing.sm },
   tripList: { gap: spacing.sm },
   tripRow: {
     flexDirection: 'row-reverse',
@@ -216,8 +216,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   tripRowActive: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
   tripRowTextWrap: { flex: 1 },
-  tripRowTitle: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
-  tripRowMeta: { color: colors.textMuted, fontSize: 11, textAlign: 'right', marginTop: 2 },
+  tripRowTitle: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+  tripRowMeta: { color: colors.textMuted, fontSize: fontSize.small, textAlign: 'right', marginTop: 2 },
   newTripRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -228,8 +228,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.md,
   },
-  newTripText: { color: colors.primary, fontSize: 13, fontWeight: '700' },
-  noDaysHint: { color: colors.textMuted, fontSize: 12, textAlign: 'right' },
+  newTripText: { color: colors.primary, fontSize: fontSize.body, fontWeight: '700' },
+  noDaysHint: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right' },
   notifyRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -240,7 +240,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.md,
   },
   notifyTextWrap: { flex: 1, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' },
-  notifyTitle: { color: colors.text, fontSize: 13, fontWeight: '700' },
+  notifyTitle: { color: colors.text, fontSize: fontSize.body, fontWeight: '700' },
   memberFaces: { flexDirection: 'row-reverse', gap: -8 },
   submitButton: {
     backgroundColor: colors.primary,
@@ -249,5 +249,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
   },
   submitDisabled: { opacity: 0.5 },
-  submitText: { color: colors.textOnPrimary, fontSize: 14, fontWeight: '700' },
+  submitText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, fontWeight: '700' },
 });

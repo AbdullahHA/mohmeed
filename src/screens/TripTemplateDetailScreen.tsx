@@ -11,7 +11,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { heroDestination } from '../data/destinations';
 import { useAppState } from '../context/AppState';
@@ -128,9 +128,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   body: { padding: spacing.xl },
-  title: { color: colors.text, fontSize: 22, fontWeight: '700', textAlign: 'right' },
-  subtitle: { color: colors.textMuted, fontSize: 13, textAlign: 'right', marginTop: 4 },
-  sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right', marginBottom: spacing.sm },
+  title: { color: colors.text, fontSize: fontSize.heading, fontWeight: '700', textAlign: 'right' },
+  subtitle: { color: colors.textMuted, fontSize: fontSize.body, textAlign: 'right', marginTop: 4 },
+  sectionTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right', marginBottom: spacing.sm },
   itemsCard: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -141,8 +141,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.xl,
   },
   itemRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
-  itemText: { color: colors.text, fontSize: 13, textAlign: 'right', flex: 1 },
-  itemCategory: { color: colors.textFaint, fontSize: 11 },
+  itemText: { color: colors.text, fontSize: fontSize.body, textAlign: 'right', flex: 1 },
+  itemCategory: { color: colors.textFaint, fontSize: fontSize.small },
   useButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -152,7 +152,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.pill,
     paddingVertical: spacing.md,
   },
-  useButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
+  useButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.bodyLg },
   deleteButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -161,5 +161,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.lg,
     paddingVertical: spacing.sm,
   },
-  deleteButtonText: { color: colors.red, fontSize: 12, fontWeight: '700' },
+  deleteButtonText: { color: colors.red, fontSize: fontSize.base, fontWeight: '700' },
 });

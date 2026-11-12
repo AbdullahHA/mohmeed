@@ -91,6 +91,27 @@ export const spacing = {
   xxl: 32,
 };
 
+// Named fontSize steps for screens that set raw `fontSize` inline (most of
+// them, historically) instead of spreading a full `type.*` variant from
+// theme/typography.ts. Before this existed, screens invented their own
+// numbers freely — a grep across src/ turned up 23 distinct values,
+// several a hair apart (9.5, 10.5, 11.5, 12.5, 13.5) for no reason tied to
+// hierarchy. These 9 steps consolidate that spread; where a step's value
+// matches one of theme/typography.ts's `type` variants (11=badge,
+// 12=caption, 14=body/bodyStrong, 22=title, 28=display) it's the same
+// pixel size on purpose, so the two systems never drift apart.
+export const fontSize = {
+  tiny: 10,
+  small: 11,
+  base: 12,
+  body: 13,
+  bodyLg: 14,
+  subtitle: 16,
+  title: 18,
+  heading: 22,
+  hero: 28,
+};
+
 // Matches yalla-handoff/theme/native/tokens.ts's `radius` scale exactly:
 // sm = small chips, md = buttons, lg = small cards, card = standard
 // cards, xl = large rounded corners, sheet = bottom-sheet modals.

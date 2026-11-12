@@ -12,7 +12,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import PersonAvatar from '../components/PersonAvatar';
@@ -175,7 +175,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
   avatarMargin: { alignSelf: 'center', marginBottom: spacing.xl },
   avatarCameraBadge: {
@@ -192,11 +192,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarHint: { color: colors.textFaint, fontSize: 11, textAlign: 'center', marginTop: -spacing.lg, marginBottom: spacing.sm },
-  avatarRemoveLink: { color: colors.red, fontSize: 12, fontWeight: '600', textAlign: 'center', marginBottom: spacing.sm },
+  avatarHint: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'center', marginTop: -spacing.lg, marginBottom: spacing.sm },
+  avatarRemoveLink: { color: colors.red, fontSize: fontSize.base, fontWeight: '600', textAlign: 'center', marginBottom: spacing.sm },
   label: {
     color: colors.textMuted,
-    fontSize: 13,
+    fontSize: fontSize.body,
     fontWeight: '600',
     textAlign: 'right',
     marginBottom: spacing.xs,
@@ -210,12 +210,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     textAlign: 'right',
   },
-  usernameHint: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: spacing.xs, lineHeight: 16 },
+  usernameHint: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'right', marginTop: spacing.xs, lineHeight: 16 },
   bioInput: { minHeight: 70, textAlignVertical: 'top', paddingTop: spacing.md },
-  error: { color: colors.red, fontSize: 12, textAlign: 'right', marginTop: spacing.lg },
+  error: { color: colors.red, fontSize: fontSize.base, textAlign: 'right', marginTop: spacing.lg },
   submitButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.pill,
@@ -224,5 +224,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.xl,
   },
   submitDisabled: { opacity: 0.5 },
-  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
+  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.bodyLg },
 });

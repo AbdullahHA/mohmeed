@@ -15,7 +15,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
@@ -277,8 +277,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.sm,
   },
   headerTextWrap: { flex: 1, marginHorizontal: spacing.sm, alignItems: 'flex-end' },
-  headerTitle: { color: colors.text, fontSize: 15, fontWeight: '700' },
-  headerSubtitle: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
+  headerSubtitle: { color: colors.textMuted, fontSize: fontSize.small, marginTop: 2 },
   headerIcon: {
     width: 36,
     height: 36,
@@ -286,7 +286,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerEmoji: { fontSize: 16 },
+  headerEmoji: { fontSize: fontSize.subtitle },
   taglineRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -296,7 +296,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  tagline: { color: colors.textMuted, fontSize: 12, flex: 1, textAlign: 'right', marginLeft: spacing.sm },
+  tagline: { color: colors.textMuted, fontSize: fontSize.base, flex: 1, textAlign: 'right', marginLeft: spacing.sm },
   joinButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.pill,
@@ -308,15 +308,15 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.primary,
   },
-  joinButtonText: { color: colors.textOnPrimary, fontSize: 12, fontWeight: '700' },
+  joinButtonText: { color: colors.textOnPrimary, fontSize: fontSize.base, fontWeight: '700' },
   joinedButtonText: { color: colors.primaryDark },
   list: { padding: spacing.lg, gap: spacing.md },
   emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xl },
   bubble: { maxWidth: '80%', padding: spacing.md, borderRadius: radius.md, marginBottom: spacing.sm },
   bubbleOther: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, alignSelf: 'flex-start' },
   bubbleMe: { backgroundColor: colors.primary, alignSelf: 'flex-end' },
-  senderName: { color: colors.primary, fontSize: 11, fontWeight: '700', textAlign: 'right', marginBottom: 2 },
-  bubbleText: { color: colors.text, fontSize: 14, textAlign: 'right', lineHeight: 20 },
+  senderName: { color: colors.primary, fontSize: fontSize.small, fontWeight: '700', textAlign: 'right', marginBottom: 2 },
+  bubbleText: { color: colors.text, fontSize: fontSize.bodyLg, textAlign: 'right', lineHeight: 20 },
   bubbleTextMe: { color: colors.textOnPrimary },
   inputRow: {
     flexDirection: 'row-reverse',
@@ -351,7 +351,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderTopColor: colors.border,
     backgroundColor: colors.primarySoft,
   },
-  joinToPostText: { color: colors.primaryDark, fontSize: 13, fontWeight: '700' },
+  joinToPostText: { color: colors.primaryDark, fontSize: fontSize.body, fontWeight: '700' },
   menuBackdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
   menuSheet: {
     backgroundColor: colors.surface,
@@ -360,7 +360,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.xl,
     maxHeight: '60%',
   },
-  menuTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'center', marginBottom: spacing.lg },
+  menuTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'center', marginBottom: spacing.lg },
   memberRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -369,5 +369,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  memberName: { color: colors.text, fontSize: 13, fontWeight: '600' },
+  memberName: { color: colors.text, fontSize: fontSize.body, fontWeight: '600' },
 });

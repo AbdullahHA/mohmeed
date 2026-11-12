@@ -8,7 +8,7 @@ import {
   FlatList,
 } from 'react-native';
 import Text from './Text';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { COUNTRIES } from '../data/countries';
 import { COUNTRY_OPTIONS } from '../data/countryFlags';
@@ -96,7 +96,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   title: {
     color: colors.text,
-    fontSize: 15,
+    fontSize: fontSize.subtitle,
     fontWeight: '700',
     textAlign: 'right',
     marginBottom: spacing.md,
@@ -107,7 +107,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     marginBottom: spacing.sm,
   },
   list: {
@@ -115,7 +115,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   emptyText: {
     color: colors.textFaint,
-    fontSize: 13,
+    fontSize: fontSize.body,
     textAlign: 'center',
     paddingVertical: spacing.lg,
   },
@@ -131,10 +131,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   rowPressed: {
     backgroundColor: colors.surfaceAlt,
   },
-  rowFlag: { fontSize: 18 },
+  rowFlag: { fontSize: fontSize.title },
   rowText: {
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     fontWeight: '600',
     textAlign: 'right',
   },
@@ -145,7 +145,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   cancelText: {
     color: colors.textMuted,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     fontWeight: '600',
   },
 });

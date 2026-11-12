@@ -10,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
@@ -192,10 +192,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { flex: 1, alignItems: 'center', padding: spacing.xl, paddingTop: spacing.xxl, gap: spacing.sm },
-  title: { color: colors.text, fontSize: 17, fontWeight: '700', textAlign: 'center' },
-  subtitle: { color: colors.textMuted, fontSize: 12.5, textAlign: 'center', marginBottom: spacing.lg },
+  title: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'center' },
+  subtitle: { color: colors.textMuted, fontSize: fontSize.body, textAlign: 'center', marginBottom: spacing.lg },
   durationsRow: { flexDirection: 'row-reverse', gap: spacing.md },
   durationButton: {
     backgroundColor: colors.primary,
@@ -203,7 +203,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
   },
-  durationButtonText: { color: colors.textOnPrimary, fontSize: 14, fontWeight: '700' },
+  durationButtonText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, fontWeight: '700' },
   activeBar: {
     width: '100%',
     backgroundColor: colors.successSoft,
@@ -212,8 +212,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
   },
-  activeText: { color: colors.successDark, fontSize: 12.5, fontWeight: '700', textAlign: 'center' },
+  activeText: { color: colors.successDark, fontSize: fontSize.body, fontWeight: '700', textAlign: 'center' },
   stopButton: { backgroundColor: colors.red, borderRadius: radius.pill, paddingHorizontal: spacing.xl, paddingVertical: spacing.sm },
-  stopButtonText: { color: '#fff', fontSize: 13, fontWeight: '700' },
-  errorText: { color: colors.red, fontSize: 12.5, textAlign: 'center' },
+  stopButtonText: { color: '#fff', fontSize: fontSize.body, fontWeight: '700' },
+  errorText: { color: colors.red, fontSize: fontSize.body, textAlign: 'center' },
 });

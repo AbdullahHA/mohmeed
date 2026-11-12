@@ -6,7 +6,7 @@ import {
   View,
 } from 'react-native';
 import Text from './Text';
-import { type ThemeColors } from '../theme/colors';
+import { fontSize, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 
 const LOGO_HEIGHT = 64;
@@ -116,13 +116,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   nameAr: {
     color: colors.primary,
-    fontSize: 34,
+    fontSize: fontSize.hero,
     fontWeight: '900',
     lineHeight: 42,
   },
   nameEn: {
     color: colors.primary,
-    fontSize: 15,
+    fontSize: fontSize.subtitle,
     fontWeight: '700',
     letterSpacing: 1,
   },

@@ -7,7 +7,7 @@ import {
   TextInput,
 } from 'react-native';
 import Text from './Text';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useRegion } from '../context/RegionContext';
 import { BUDGET_CATEGORY_LABELS, type BudgetCategory } from '../types';
@@ -96,8 +96,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderTopRightRadius: radius.sheet,
     padding: spacing.xl,
   },
-  title: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right' },
-  subtitle: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2, marginBottom: spacing.lg },
+  title: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right' },
+  subtitle: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right', marginTop: 2, marginBottom: spacing.lg },
   chipsRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.md },
   chip: {
     paddingHorizontal: spacing.lg,
@@ -108,7 +108,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
   },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.text, fontSize: 12, fontWeight: '600' },
+  chipText: { color: colors.text, fontSize: fontSize.base, fontWeight: '600' },
   chipTextActive: { color: colors.textOnPrimary },
   input: {
     backgroundColor: colors.surfaceAlt,
@@ -118,7 +118,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     textAlign: 'right',
     marginBottom: spacing.md,
   },
@@ -130,5 +130,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.sm,
   },
   submitDisabled: { opacity: 0.5 },
-  submitText: { color: colors.textOnPrimary, fontSize: 14, fontWeight: '700' },
+  submitText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, fontWeight: '700' },
 });

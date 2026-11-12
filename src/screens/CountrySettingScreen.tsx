@@ -10,7 +10,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useRegion } from '../context/RegionContext';
 import { REGION_COUNTRIES, type RegionCountry } from '../data/regionCountries';
@@ -81,7 +81,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   infoBox: {
     flexDirection: 'row-reverse',
     alignItems: 'flex-start',
@@ -92,7 +92,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.md,
     borderRadius: radius.md,
   },
-  infoText: { flex: 1, color: colors.text, fontSize: 12, textAlign: 'right', lineHeight: 18 },
+  infoText: { flex: 1, color: colors.text, fontSize: fontSize.base, textAlign: 'right', lineHeight: 18 },
   list: { padding: spacing.lg },
   row: {
     flexDirection: 'row-reverse',
@@ -102,8 +102,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  rowFlag: { fontSize: 20 },
-  rowName: { flex: 1, color: colors.text, fontSize: 14, fontWeight: '600', textAlign: 'right' },
+  rowFlag: { fontSize: fontSize.title },
+  rowName: { flex: 1, color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '600', textAlign: 'right' },
   radio: {
     width: 20,
     height: 20,
@@ -122,5 +122,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     margin: spacing.lg,
   },
-  saveButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
+  saveButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.bodyLg },
 });

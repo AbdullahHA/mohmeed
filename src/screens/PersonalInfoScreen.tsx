@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import CountryPickerModal from '../components/CountryPickerModal';
@@ -242,11 +242,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
   label: {
     color: colors.textMuted,
-    fontSize: 13,
+    fontSize: fontSize.body,
     fontWeight: '600',
     textAlign: 'right',
     marginBottom: spacing.xs,
@@ -260,7 +260,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     textAlign: 'right',
   },
   readonlyRow: {
@@ -269,11 +269,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  readonlyText: { color: colors.textMuted, fontSize: 14, textAlign: 'right' },
-  dateValue: { color: colors.text, fontSize: 14, textAlign: 'right' },
-  datePlaceholder: { color: colors.textFaint, fontSize: 14, textAlign: 'right' },
+  readonlyText: { color: colors.textMuted, fontSize: fontSize.bodyLg, textAlign: 'right' },
+  dateValue: { color: colors.text, fontSize: fontSize.bodyLg, textAlign: 'right' },
+  datePlaceholder: { color: colors.textFaint, fontSize: fontSize.bodyLg, textAlign: 'right' },
   pickerDoneButton: { alignSelf: 'flex-end', paddingVertical: spacing.sm, paddingHorizontal: spacing.md },
-  pickerDoneText: { color: colors.primary, fontSize: 14, fontWeight: '700' },
+  pickerDoneText: { color: colors.primary, fontSize: fontSize.bodyLg, fontWeight: '700' },
   chipsRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm },
   chip: {
     borderWidth: 1,
@@ -283,10 +283,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.text, fontSize: 13, fontWeight: '600' },
+  chipText: { color: colors.text, fontSize: fontSize.body, fontWeight: '600' },
   chipTextActive: { color: colors.textOnPrimary },
-  error: { color: colors.red, fontSize: 12, textAlign: 'right', marginTop: spacing.md },
-  savedText: { color: colors.success, fontSize: 12, fontWeight: '700', textAlign: 'right', marginTop: spacing.md },
+  error: { color: colors.red, fontSize: fontSize.base, textAlign: 'right', marginTop: spacing.md },
+  savedText: { color: colors.success, fontSize: fontSize.base, fontWeight: '700', textAlign: 'right', marginTop: spacing.md },
   saveButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.pill,
@@ -295,5 +295,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.lg,
   },
   saveButtonDisabled: { opacity: 0.6 },
-  saveButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
+  saveButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.bodyLg },
 });

@@ -5,7 +5,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import Text from './Text';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import type { ItinerarySlot } from '../types';
 
@@ -63,6 +63,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
   },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.text, fontSize: 11.5, fontWeight: '700' },
+  chipText: { color: colors.text, fontSize: fontSize.base, fontWeight: '700' },
   chipTextActive: { color: colors.textOnPrimary },
 });

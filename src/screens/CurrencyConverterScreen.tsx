@@ -14,7 +14,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useRegion } from '../context/RegionContext';
 import { CURRENCIES, type Currency } from '../data/currencies';
@@ -187,7 +187,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { padding: spacing.lg },
   card: {
     flexDirection: 'row-reverse',
@@ -209,10 +209,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
-  currencyFlag: { fontSize: 18 },
-  currencyCode: { color: colors.text, fontSize: 14, fontWeight: '700' },
-  amountInput: { flex: 1, minWidth: 0, color: colors.text, fontSize: 22, fontWeight: '700' },
-  amountResult: { flex: 1, minWidth: 0, color: colors.primary, fontSize: 22, fontWeight: '700', textAlign: 'right' },
+  currencyFlag: { fontSize: fontSize.title },
+  currencyCode: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700' },
+  amountInput: { flex: 1, minWidth: 0, color: colors.text, fontSize: fontSize.heading, fontWeight: '700' },
+  amountResult: { flex: 1, minWidth: 0, color: colors.primary, fontSize: fontSize.heading, fontWeight: '700', textAlign: 'right' },
   swapButton: {
     alignSelf: 'center',
     width: 40,
@@ -224,9 +224,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginVertical: spacing.sm,
   },
   footerInfo: { marginTop: spacing.lg, alignItems: 'center', gap: 4 },
-  rateText: { color: colors.textMuted, fontSize: 13, fontWeight: '600' },
-  updatedText: { color: colors.textFaint, fontSize: 11 },
-  errorText: { color: colors.red, fontSize: 12.5, textAlign: 'center', marginTop: spacing.lg, lineHeight: 18 },
+  rateText: { color: colors.textMuted, fontSize: fontSize.body, fontWeight: '600' },
+  updatedText: { color: colors.textFaint, fontSize: fontSize.small },
+  errorText: { color: colors.red, fontSize: fontSize.body, textAlign: 'center', marginTop: spacing.lg, lineHeight: 18 },
   backdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.surface,
@@ -235,7 +235,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.xl,
     maxHeight: '70%',
   },
-  sheetTitle: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right', marginBottom: spacing.md },
+  sheetTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right', marginBottom: spacing.md },
   sheetList: { maxHeight: 420 },
   sheetRow: {
     flexDirection: 'row-reverse',
@@ -245,7 +245,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  sheetRowFlag: { fontSize: 20 },
-  sheetRowName: { flex: 1, color: colors.text, fontSize: 14, fontWeight: '600', textAlign: 'right' },
-  sheetRowCode: { color: colors.textFaint, fontSize: 12 },
+  sheetRowFlag: { fontSize: fontSize.title },
+  sheetRowName: { flex: 1, color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '600', textAlign: 'right' },
+  sheetRowCode: { color: colors.textFaint, fontSize: fontSize.base },
 });

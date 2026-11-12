@@ -11,7 +11,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import type { RootStackParamList } from '../navigation/types';
@@ -90,11 +90,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { padding: spacing.lg },
-  label: { color: colors.textMuted, fontSize: 13, fontWeight: '600', textAlign: 'right', marginBottom: spacing.xs },
-  hint: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: spacing.xs },
-  error: { color: colors.red, fontSize: 12, textAlign: 'right', marginTop: spacing.sm },
+  label: { color: colors.textMuted, fontSize: fontSize.body, fontWeight: '600', textAlign: 'right', marginBottom: spacing.xs },
+  hint: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'right', marginTop: spacing.xs },
+  error: { color: colors.red, fontSize: fontSize.base, textAlign: 'right', marginTop: spacing.sm },
   input: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -103,7 +103,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     textAlign: 'right',
   },
   submitButton: {
@@ -114,5 +114,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.xl,
   },
   submitDisabled: { opacity: 0.5 },
-  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
+  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.bodyLg },
 });

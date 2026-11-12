@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { authenticateWithBiometrics, getBiometricLockEnabled, isBiometricAvailable } from '../lib/biometric';
 
@@ -79,8 +79,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   logoBadge: { width: 64, height: 64, borderRadius: radius.lg, overflow: 'hidden', marginBottom: spacing.lg },
   logo: { width: '100%', height: '100%' },
   lockIcon: { marginBottom: spacing.sm },
-  title: { color: colors.text, fontSize: 18, fontWeight: '700' },
-  subtitle: { color: colors.textMuted, fontSize: 13, marginTop: spacing.xs, marginBottom: spacing.xl },
+  title: { color: colors.text, fontSize: fontSize.title, fontWeight: '700' },
+  subtitle: { color: colors.textMuted, fontSize: fontSize.body, marginTop: spacing.xs, marginBottom: spacing.xl },
   unlockButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -90,5 +90,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
   },
-  unlockText: { color: colors.textOnPrimary, fontSize: 14, fontWeight: '700' },
+  unlockText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, fontWeight: '700' },
 });

@@ -11,7 +11,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
@@ -189,10 +189,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { padding: spacing.xl, paddingBottom: spacing.xxl },
-  heroTitle: { color: colors.text, fontSize: 22, fontWeight: '700', textAlign: 'center' },
-  heroSubtitle: { color: colors.textMuted, fontSize: 13, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl },
+  heroTitle: { color: colors.text, fontSize: fontSize.heading, fontWeight: '700', textAlign: 'center' },
+  heroSubtitle: { color: colors.textMuted, fontSize: fontSize.body, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xl },
   statsGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm },
   statCard: {
     width: '47%',
@@ -203,8 +203,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.lg,
     alignItems: 'center',
   },
-  statValue: { color: colors.primary, fontSize: 24, fontWeight: '700' },
-  statLabel: { color: colors.textMuted, fontSize: 12, marginTop: 4 },
+  statValue: { color: colors.primary, fontSize: fontSize.heading, fontWeight: '700' },
+  statLabel: { color: colors.textMuted, fontSize: fontSize.base, marginTop: 4 },
   budgetCard: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -214,7 +214,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.md,
     marginTop: spacing.lg,
   },
-  budgetText: { color: colors.text, fontSize: 13, fontWeight: '600' },
+  budgetText: { color: colors.text, fontSize: fontSize.body, fontWeight: '600' },
   primaryButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -225,7 +225,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
     marginTop: spacing.xl,
   },
-  primaryButtonText: { color: colors.textOnPrimary, fontSize: 14, fontWeight: '700' },
+  primaryButtonText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, fontWeight: '700' },
   secondaryButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -238,5 +238,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
     marginTop: spacing.sm,
   },
-  secondaryButtonText: { color: colors.text, fontSize: 14, fontWeight: '700' },
+  secondaryButtonText: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700' },
 });

@@ -14,7 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import CircularProgress from '../components/CircularProgress';
 import DestinationsMapView from '../components/DestinationsMapView';
-import { radius, spacing, fixedColors, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, fixedColors, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
@@ -214,7 +214,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
     backgroundColor: colors.primaryDark,
   },
-  headerTitle: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: '#fff', fontSize: fontSize.subtitle, fontWeight: '700' },
   scrollContent: { paddingBottom: 120 },
   navyCard: {
     backgroundColor: colors.primaryDark,
@@ -223,17 +223,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     gap: spacing.sm,
   },
-  ringPercent: { color: '#fff', fontSize: 18, fontWeight: '700' },
-  ringCaption: { color: 'rgba(255,255,255,0.75)', fontSize: 10 },
-  levelText: { color: colors.accent, fontSize: 15, fontWeight: '700', marginTop: spacing.xs },
+  ringPercent: { color: '#fff', fontSize: fontSize.title, fontWeight: '700' },
+  ringCaption: { color: 'rgba(255,255,255,0.75)', fontSize: fontSize.tiny },
+  levelText: { color: colors.accent, fontSize: fontSize.subtitle, fontWeight: '700', marginTop: spacing.xs },
   xpTrack: { width: '70%', height: 6, borderRadius: radius.pill, backgroundColor: 'rgba(255,255,255,0.18)', overflow: 'hidden' },
   xpFill: { height: '100%', borderRadius: radius.pill, backgroundColor: colors.accent },
-  caption: { color: 'rgba(255,255,255,0.75)', fontSize: 11, fontWeight: '600' },
+  caption: { color: 'rgba(255,255,255,0.75)', fontSize: fontSize.small, fontWeight: '600' },
   statsRow: { flexDirection: 'row-reverse', gap: spacing.xxl, marginTop: spacing.md },
   statCell: { alignItems: 'center' },
   statDivider: { width: 1, backgroundColor: 'rgba(255,255,255,0.25)' },
-  statValue: { color: '#fff', fontSize: 20, fontWeight: '700' },
-  statLabel: { color: 'rgba(255,255,255,0.75)', fontSize: 11 },
+  statValue: { color: '#fff', fontSize: fontSize.title, fontWeight: '700' },
+  statLabel: { color: 'rgba(255,255,255,0.75)', fontSize: fontSize.small },
   mapWrap: { height: 180, margin: spacing.lg, borderRadius: radius.md, overflow: 'hidden' },
   sectionHeaderRow: {
     flexDirection: 'row-reverse',
@@ -243,10 +243,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.xl,
     marginBottom: spacing.md,
   },
-  sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '700' },
+  sectionTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   linkButton: { flexDirection: 'row-reverse', alignItems: 'center', gap: 2 },
-  linkButtonText: { color: colors.primary, fontSize: 12, fontWeight: '700' },
-  emptyMuted: { color: colors.textFaint, fontSize: 12, textAlign: 'center', paddingVertical: spacing.lg },
+  linkButtonText: { color: colors.primary, fontSize: fontSize.base, fontWeight: '700' },
+  emptyMuted: { color: colors.textFaint, fontSize: fontSize.base, textAlign: 'center', paddingVertical: spacing.lg },
   grid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.md, paddingHorizontal: spacing.lg },
   gridCell: { width: '29%', alignItems: 'center' },
   stampRing: {
@@ -260,6 +260,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.surfaceAlt,
   },
   stampImage: { width: '100%', height: '100%' },
-  stampName: { color: colors.text, fontSize: 11, fontWeight: '700', textAlign: 'center', marginTop: spacing.xs },
-  stampDate: { color: colors.textFaint, fontSize: 9.5, fontWeight: '600', textAlign: 'center' },
+  stampName: { color: colors.text, fontSize: fontSize.small, fontWeight: '700', textAlign: 'center', marginTop: spacing.xs },
+  stampDate: { color: colors.textFaint, fontSize: fontSize.tiny, fontWeight: '600', textAlign: 'center' },
 });

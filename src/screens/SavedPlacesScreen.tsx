@@ -4,7 +4,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
@@ -80,7 +80,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   list: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl },
   emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl, lineHeight: 20 },
   row: {
@@ -95,8 +95,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   rowImage: { width: 56, height: 56, borderRadius: radius.md },
   rowBody: { flex: 1, gap: 3 },
-  rowTitle: { color: colors.text, fontSize: 13.5, fontWeight: '700', textAlign: 'right' },
-  rowSubtitle: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right' },
+  rowTitle: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+  rowSubtitle: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right' },
   rowMeta: { flexDirection: 'row-reverse', alignItems: 'center', gap: 3 },
-  rowMetaText: { color: colors.accentDark, fontSize: 11.5, fontWeight: '700' },
+  rowMetaText: { color: colors.accentDark, fontSize: fontSize.base, fontWeight: '700' },
 });

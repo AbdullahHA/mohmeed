@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
@@ -273,7 +273,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { padding: spacing.lg },
   venueCard: {
     alignItems: 'center',
@@ -293,9 +293,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
     marginBottom: spacing.sm,
   },
-  venueName: { color: colors.text, fontSize: 17, fontWeight: '700', textAlign: 'center' },
-  venueMeta: { color: colors.primary, fontSize: 12, fontWeight: '600', marginTop: 4 },
-  venueAddress: { color: colors.textMuted, fontSize: 12, textAlign: 'center', marginTop: spacing.xs },
+  venueName: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'center' },
+  venueMeta: { color: colors.primary, fontSize: fontSize.base, fontWeight: '600', marginTop: 4 },
+  venueAddress: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'center', marginTop: spacing.xs },
   mayorBadge: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -306,15 +306,15 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: 4,
     marginTop: spacing.sm,
   },
-  mayorBadgeText: { color: colors.accentDark, fontSize: 11.5, fontWeight: '700' },
-  myVisitsText: { color: colors.textMuted, fontSize: 11.5, marginTop: spacing.xs },
-  sectionTitle: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right', marginBottom: spacing.sm },
-  emptyPeers: { color: colors.textFaint, fontSize: 12, textAlign: 'center', paddingVertical: spacing.lg },
+  mayorBadgeText: { color: colors.accentDark, fontSize: fontSize.base, fontWeight: '700' },
+  myVisitsText: { color: colors.textMuted, fontSize: fontSize.base, marginTop: spacing.xs },
+  sectionTitle: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right', marginBottom: spacing.sm },
+  emptyPeers: { color: colors.textFaint, fontSize: fontSize.base, textAlign: 'center', paddingVertical: spacing.lg },
   peersList: { gap: spacing.sm },
   peerRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
   peerTextWrap: { flex: 1 },
-  peerName: { color: colors.text, fontSize: 13, fontWeight: '600' },
-  peerNote: { color: colors.textMuted, fontSize: 11.5, marginTop: 2, textAlign: 'right' },
+  peerName: { color: colors.text, fontSize: fontSize.body, fontWeight: '600' },
+  peerNote: { color: colors.textMuted, fontSize: fontSize.base, marginTop: 2, textAlign: 'right' },
   peerPhoto: { width: 40, height: 40, borderRadius: radius.sm, backgroundColor: colors.surfaceAlt },
   noteInput: {
     backgroundColor: colors.surfaceAlt,
@@ -324,12 +324,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     textAlign: 'right',
     minHeight: 72,
     marginBottom: 2,
   },
-  noteCounter: { color: colors.textFaint, fontSize: 10.5, textAlign: 'left', marginBottom: spacing.md },
+  noteCounter: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'left', marginBottom: spacing.md },
   addPhotoButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -342,7 +342,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.sm,
     marginBottom: spacing.lg,
   },
-  addPhotoText: { color: colors.text, fontSize: 13, fontWeight: '600' },
+  addPhotoText: { color: colors.text, fontSize: fontSize.body, fontWeight: '600' },
   photoPreviewWrap: { marginBottom: spacing.lg },
   photoPreview: { width: '100%', height: 160, borderRadius: radius.md, backgroundColor: colors.surfaceAlt },
   photoRemoveButton: {
@@ -369,7 +369,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  friendChipName: { color: colors.text, fontSize: 10.5, fontWeight: '600', marginTop: 4, textAlign: 'center' },
+  friendChipName: { color: colors.text, fontSize: fontSize.small, fontWeight: '600', marginTop: 4, textAlign: 'center' },
   footer: {
     padding: spacing.lg,
     borderTopWidth: 1,
@@ -382,8 +382,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.md,
   },
   privateTextWrap: { flex: 1 },
-  privateLabel: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
-  privateHint: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: 2 },
+  privateLabel: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
+  privateHint: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'right', marginTop: 2 },
   checkInButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.pill,
@@ -391,5 +391,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
   },
   checkInButtonDisabled: { opacity: 0.6 },
-  checkInButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
+  checkInButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.bodyLg },
 });

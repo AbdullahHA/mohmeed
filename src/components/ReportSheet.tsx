@@ -7,7 +7,7 @@ import {
   TextInput,
 } from 'react-native';
 import Text from './Text';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 
 const REASONS = ['محتوى غير مناسب', 'إزعاج أو سبام', 'تحرش', 'معلومات مضللة', 'أخرى'];
@@ -77,7 +77,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderTopRightRadius: radius.sheet,
     padding: spacing.xl,
   },
-  title: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'center', marginBottom: spacing.lg },
+  title: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'center', marginBottom: spacing.lg },
   reasonsWrap: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm, justifyContent: 'center', marginBottom: spacing.md },
   chip: {
     paddingHorizontal: spacing.lg,
@@ -88,7 +88,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
   },
   chipActive: { backgroundColor: colors.red, borderColor: colors.red },
-  chipText: { color: colors.text, fontSize: 12, fontWeight: '600' },
+  chipText: { color: colors.text, fontSize: fontSize.base, fontWeight: '600' },
   chipTextActive: { color: '#fff' },
   noteInput: {
     width: '100%',
@@ -100,7 +100,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text,
-    fontSize: 13,
+    fontSize: fontSize.body,
     textAlign: 'right',
     marginBottom: spacing.lg,
   },
@@ -112,5 +112,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
   },
   submitDisabled: { opacity: 0.5 },
-  submitText: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  submitText: { color: '#fff', fontSize: fontSize.bodyLg, fontWeight: '700' },
 });

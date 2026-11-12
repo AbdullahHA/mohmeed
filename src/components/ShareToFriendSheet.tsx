@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import PersonAvatar from './PersonAvatar';
 import type { Friend } from '../types';
@@ -64,7 +64,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     maxHeight: '70%',
   },
   headerRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
-  title: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right', flex: 1 },
+  title: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right', flex: 1 },
   emptyText: { color: colors.textMuted, textAlign: 'center', paddingVertical: spacing.xl },
   scroll: { gap: spacing.sm },
   friendRow: {
@@ -75,5 +75,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  friendName: { flex: 1, color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
+  friendName: { flex: 1, color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
 });

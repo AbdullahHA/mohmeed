@@ -10,7 +10,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { supabase } from '../lib/supabase';
@@ -103,10 +103,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl, gap: spacing.sm },
-  title: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'center' },
-  subtitle: { color: colors.textMuted, fontSize: 12.5, textAlign: 'center' },
+  title: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'center' },
+  subtitle: { color: colors.textMuted, fontSize: fontSize.body, textAlign: 'center' },
   openMapsButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -117,5 +117,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
     marginTop: spacing.lg,
   },
-  openMapsText: { color: colors.textOnPrimary, fontSize: 13.5, fontWeight: '700' },
+  openMapsText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, fontWeight: '700' },
 });

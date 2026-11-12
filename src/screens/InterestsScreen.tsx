@@ -4,7 +4,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
@@ -88,7 +88,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  headerTitle: { flex: 1, color: colors.text, fontSize: 18, fontWeight: '700', textAlign: 'center' },
+  headerTitle: { flex: 1, color: colors.text, fontSize: fontSize.title, fontWeight: '700', textAlign: 'center' },
   backButton: {
     width: 36,
     height: 36,
@@ -100,7 +100,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  subtitle: { color: colors.textMuted, fontSize: 13, textAlign: 'right', lineHeight: 20, marginBottom: spacing.xl },
+  subtitle: { color: colors.textMuted, fontSize: fontSize.body, textAlign: 'right', lineHeight: 20, marginBottom: spacing.xl },
   chipsWrap: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm },
   chip: {
     borderWidth: 1,
@@ -111,7 +111,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.sm + 2,
   },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.text, fontSize: 13.5, fontWeight: '600' },
+  chipText: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '600' },
   chipTextActive: { color: colors.textOnPrimary },
   submitButton: {
     backgroundColor: colors.primary,
@@ -121,5 +121,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.xxl,
   },
   submitDisabled: { opacity: 0.5 },
-  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
+  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.bodyLg },
 });

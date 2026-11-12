@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { supabase } from '../lib/supabase';
 import type { TripMessagePoll, TripPollVote } from '../types';
@@ -151,7 +151,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.sm,
   },
   questionRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.xs },
-  question: { flex: 1, color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
+  question: { flex: 1, color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
   optionRow: { marginTop: 2 },
   optionBarWrap: {
     borderRadius: radius.sm,
@@ -175,9 +175,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.sm,
     gap: spacing.sm,
   },
-  optionText: { flex: 1, color: colors.text, fontSize: 13, fontWeight: '600', textAlign: 'right' },
+  optionText: { flex: 1, color: colors.text, fontSize: fontSize.body, fontWeight: '600', textAlign: 'right' },
   optionTextMine: { color: colors.primaryDark },
   optionMeta: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
-  optionCount: { color: colors.textMuted, fontSize: 11, fontWeight: '600' },
-  footer: { color: colors.textFaint, fontSize: 10.5, textAlign: 'right', marginTop: 2 },
+  optionCount: { color: colors.textMuted, fontSize: fontSize.small, fontWeight: '600' },
+  footer: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'right', marginTop: 2 },
 });

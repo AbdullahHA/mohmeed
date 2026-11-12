@@ -10,7 +10,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useContent } from '../context/ContentContext';
@@ -197,13 +197,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepCounter: { color: colors.textMuted, fontSize: 12, fontWeight: '600' },
+  stepCounter: { color: colors.textMuted, fontSize: fontSize.base, fontWeight: '600' },
   progressRow: { flex: 1, flexDirection: 'row-reverse', gap: spacing.xs },
   progressBar: { flex: 1, height: 3, borderRadius: 2, backgroundColor: colors.border },
   progressBarActive: { backgroundColor: colors.accent },
   body: { flex: 1, padding: spacing.lg, paddingTop: spacing.xl },
-  title: { color: colors.text, fontSize: 20, fontWeight: '700', textAlign: 'right' },
-  subtitle: { color: colors.textMuted, fontSize: 13, textAlign: 'right', marginTop: spacing.xs, marginBottom: spacing.xl },
+  title: { color: colors.text, fontSize: fontSize.title, fontWeight: '700', textAlign: 'right' },
+  subtitle: { color: colors.textMuted, fontSize: fontSize.body, textAlign: 'right', marginTop: spacing.xs, marginBottom: spacing.xl },
   chipsWrap: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm },
   notifStep: { alignItems: 'center', paddingTop: spacing.xl },
   notifBadge: {
@@ -228,7 +228,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.sm + 2,
   },
   chipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
-  chipText: { color: colors.text, fontSize: 13, fontWeight: '600' },
+  chipText: { color: colors.text, fontSize: fontSize.body, fontWeight: '600' },
   chipTextActive: { color: colors.textOnPrimary },
   footer: { flexDirection: 'row-reverse', gap: spacing.sm, marginTop: spacing.xxl },
   nextButton: {
@@ -239,7 +239,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
   },
   nextButtonDisabled: { opacity: 0.6 },
-  nextButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
+  nextButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.bodyLg },
   backButton: {
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.pill,
@@ -247,6 +247,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.xl,
     alignItems: 'center',
   },
-  backButtonText: { color: colors.text, fontWeight: '700', fontSize: 14 },
-  laterText: { color: colors.textFaint, fontSize: 12, fontWeight: '600', textAlign: 'center', marginTop: spacing.md },
+  backButtonText: { color: colors.text, fontWeight: '700', fontSize: fontSize.bodyLg },
+  laterText: { color: colors.textFaint, fontSize: fontSize.base, fontWeight: '600', textAlign: 'center', marginTop: spacing.md },
 });

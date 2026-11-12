@@ -13,7 +13,7 @@ import { Alert } from '../lib/alert';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import type { RootStackParamList } from '../navigation/types';
@@ -129,7 +129,7 @@ export default function CommunityRequestScreen() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <View style={{ marginBottom: spacing.lg }}>
-      <Text style={{ fontSize: 12, fontWeight: '700', textAlign: 'right', marginBottom: spacing.xs }}>{label}</Text>
+      <Text style={{ fontSize: fontSize.base, fontWeight: '700', textAlign: 'right', marginBottom: spacing.xs }}>{label}</Text>
       {children}
     </View>
   );
@@ -144,9 +144,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  headerTitle: { color: colors.text, fontSize: 15, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  intro: { color: colors.textMuted, fontSize: 12, textAlign: 'right', lineHeight: 18, marginBottom: spacing.lg },
+  intro: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right', lineHeight: 18, marginBottom: spacing.lg },
   input: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -155,7 +155,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
   },
   multiline: { minHeight: 80, textAlignVertical: 'top' },
   submitButton: {
@@ -166,7 +166,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.sm,
   },
   submitDisabled: { opacity: 0.5 },
-  submitText: { color: colors.textOnPrimary, fontSize: 14, fontWeight: '700' },
+  submitText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, fontWeight: '700' },
   requestsList: { marginBottom: spacing.lg, gap: spacing.sm },
   requestRow: {
     flexDirection: 'row-reverse',
@@ -178,9 +178,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.md,
   },
-  requestEmoji: { fontSize: 16 },
-  requestName: { flex: 1, color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
-  requestStatus: { color: colors.accentDark, fontSize: 11, fontWeight: '700' },
+  requestEmoji: { fontSize: fontSize.subtitle },
+  requestName: { flex: 1, color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
+  requestStatus: { color: colors.accentDark, fontSize: fontSize.small, fontWeight: '700' },
   requestStatusApproved: { color: colors.success },
   requestStatusRejected: { color: colors.red },
   pendingNotice: {
@@ -190,5 +190,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.md,
   },
-  pendingNoticeText: { color: colors.accentDark, fontSize: 12, textAlign: 'right', lineHeight: 18 },
+  pendingNoticeText: { color: colors.accentDark, fontSize: fontSize.base, textAlign: 'right', lineHeight: 18 },
 });

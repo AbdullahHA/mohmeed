@@ -11,7 +11,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useRequireAccount } from '../hooks/useRequireAccount';
@@ -261,8 +261,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   headerTextWrap: { flex: 1, alignItems: 'flex-end' },
-  headerTitle: { color: colors.text, fontSize: 17, fontWeight: '700' },
-  headerCount: { color: colors.textMuted, fontSize: 12, marginTop: 2 },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
+  headerCount: { color: colors.textMuted, fontSize: fontSize.base, marginTop: 2 },
   filterBar: {
     flexDirection: 'row-reverse',
     gap: spacing.sm,
@@ -280,7 +280,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.xs,
   },
   filterChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  filterChipText: { color: colors.text, fontSize: 12, fontWeight: '700' },
+  filterChipText: { color: colors.text, fontSize: fontSize.base, fontWeight: '700' },
   filterChipTextActive: { color: colors.textOnPrimary },
   list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.lg },
   card: { borderRadius: radius.lg, overflow: 'hidden', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
@@ -300,12 +300,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   cardBody: { padding: spacing.md, gap: 3 },
   cardMetaRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center' },
   ratingRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 3 },
-  ratingText: { color: colors.accentDark, fontSize: 12.5, fontWeight: '700' },
-  cardMetaText: { color: colors.textMuted, fontSize: 11.5 },
-  cardName: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right' },
-  cardDestination: { color: colors.textFaint, fontSize: 11.5, textAlign: 'right' },
-  friendsLine: { color: colors.primaryDark, fontSize: 11.5, fontWeight: '600', textAlign: 'right', marginTop: 2 },
+  ratingText: { color: colors.accentDark, fontSize: fontSize.body, fontWeight: '700' },
+  cardMetaText: { color: colors.textMuted, fontSize: fontSize.base },
+  cardName: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right' },
+  cardDestination: { color: colors.textFaint, fontSize: fontSize.base, textAlign: 'right' },
+  friendsLine: { color: colors.primaryDark, fontSize: fontSize.base, fontWeight: '600', textAlign: 'right', marginTop: 2 },
   emptyWrap: { alignItems: 'center', paddingTop: spacing.xxl, gap: spacing.sm },
-  emptyText: { color: colors.textMuted, fontSize: 13 },
-  emptyClear: { color: colors.primary, fontSize: 13, fontWeight: '700' },
+  emptyText: { color: colors.textMuted, fontSize: fontSize.body },
+  emptyClear: { color: colors.primary, fontSize: fontSize.body, fontWeight: '700' },
 });

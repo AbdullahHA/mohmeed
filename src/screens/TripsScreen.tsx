@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import EmptyState from '../components/EmptyState';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useRequireAccount } from '../hooks/useRequireAccount';
@@ -263,7 +263,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingTop: spacing.sm,
     marginBottom: spacing.md,
   },
-  headerTitle: { color: colors.text, fontSize: 22, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.heading, fontWeight: '700' },
   headerActions: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
   iconButton: {
     width: 38,
@@ -282,7 +282,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
-  newButtonText: { color: colors.textOnPrimary, fontSize: 12, fontWeight: '700' },
+  newButtonText: { color: colors.textOnPrimary, fontSize: fontSize.base, fontWeight: '700' },
   seg: {
     flexDirection: 'row-reverse',
     gap: 4,
@@ -302,11 +302,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.sm,
   },
   segItemActive: { backgroundColor: colors.surface },
-  segText: { color: colors.textMuted, fontSize: 13, fontWeight: '600' },
+  segText: { color: colors.textMuted, fontSize: fontSize.body, fontWeight: '600' },
   segTextActive: { color: colors.text, fontWeight: '700' },
   segN: { minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 4, backgroundColor: colors.border, alignItems: 'center', justifyContent: 'center' },
   segNActive: { backgroundColor: colors.primarySoft },
-  segNText: { color: colors.textMuted, fontSize: 10, fontWeight: '700' },
+  segNText: { color: colors.textMuted, fontSize: fontSize.tiny, fontWeight: '700' },
   segNTextActive: { color: colors.primary },
   list: { paddingHorizontal: spacing.lg, paddingBottom: 120 },
   card: {
@@ -329,12 +329,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
   },
-  badge2Text: { color: '#141a2b', fontSize: 10.5, fontWeight: '700' },
+  badge2Text: { color: '#141a2b', fontSize: fontSize.small, fontWeight: '700' },
   badge2Muted: { backgroundColor: colors.accentSoft },
   badge2TextMuted: { color: colors.accentDark },
   cardTextWrap: { padding: spacing.md },
-  cardTitle: { color: '#fff', fontSize: 16, fontWeight: '700', textAlign: 'right' },
-  cardSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: 11.5, textAlign: 'right', marginTop: 2 },
+  cardTitle: { color: '#fff', fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right' },
+  cardSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: fontSize.base, textAlign: 'right', marginTop: 2 },
   cardBody: { padding: spacing.md, gap: spacing.sm },
   facesRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
   memberCount: {
@@ -345,10 +345,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  memberCountText: { color: colors.textOnPrimary, fontSize: 11, fontWeight: '700' },
+  memberCountText: { color: colors.textOnPrimary, fontSize: fontSize.small, fontWeight: '700' },
   faces: { flexDirection: 'row' },
   face: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: colors.surface, marginLeft: -7 },
-  facesText: { color: colors.textMuted, fontSize: 11.5 },
+  facesText: { color: colors.textMuted, fontSize: fontSize.base },
   datePrompt: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -358,12 +358,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.sm,
   },
-  datePromptText: { color: colors.accentDark, fontSize: 12, fontWeight: '700', flex: 1, textAlign: 'right' },
+  datePromptText: { color: colors.accentDark, fontSize: fontSize.base, fontWeight: '700', flex: 1, textAlign: 'right' },
   statsRow: { flexDirection: 'row-reverse', gap: spacing.md },
   progRow: { flex: 1, gap: 4 },
   progTop: { flexDirection: 'row-reverse', justifyContent: 'space-between' },
-  progLabel: { color: colors.textMuted, fontSize: 11 },
-  progValue: { color: colors.text, fontSize: 12, fontWeight: '700' },
+  progLabel: { color: colors.textMuted, fontSize: fontSize.small },
+  progValue: { color: colors.text, fontSize: fontSize.base, fontWeight: '700' },
   progValueWarn: { color: colors.red },
   progTrack: { height: 5, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt, overflow: 'hidden' },
   progFill: { height: '100%', borderRadius: radius.pill, backgroundColor: colors.primary },
@@ -387,6 +387,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  templatesBannerTitle: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
-  templatesBannerSubtitle: { color: colors.textMuted, fontSize: 11, textAlign: 'right', marginTop: 2 },
+  templatesBannerTitle: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
+  templatesBannerSubtitle: { color: colors.textMuted, fontSize: fontSize.small, textAlign: 'right', marginTop: 2 },
 });

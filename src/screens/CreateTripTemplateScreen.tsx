@@ -12,7 +12,7 @@ import RtlScrollRow from '../components/RtlScrollRow';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
@@ -173,11 +173,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
   label: {
     color: colors.textMuted,
-    fontSize: 13,
+    fontSize: fontSize.body,
     fontWeight: '600',
     textAlign: 'right',
     marginBottom: spacing.xs,
@@ -191,7 +191,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     textAlign: 'right',
   },
   chipsRow: { flexDirection: 'row-reverse', gap: spacing.sm },
@@ -204,7 +204,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
   },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.text, fontSize: 12, fontWeight: '600' },
+  chipText: { color: colors.text, fontSize: fontSize.base, fontWeight: '600' },
   chipTextActive: { color: colors.textOnPrimary },
   row: { flexDirection: 'row-reverse', gap: spacing.md },
   rowField: { flex: 1 },
@@ -219,8 +219,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.sm,
     marginBottom: spacing.sm,
   },
-  itemText: { color: colors.text, fontSize: 13, textAlign: 'right', flex: 1 },
-  itemCategory: { color: colors.textFaint, fontSize: 11 },
+  itemText: { color: colors.text, fontSize: fontSize.body, textAlign: 'right', flex: 1 },
+  itemCategory: { color: colors.textFaint, fontSize: fontSize.small },
   addRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, marginTop: spacing.sm },
   addButton: {
     width: 40,
@@ -239,6 +239,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.xl,
   },
   submitDisabled: { opacity: 0.5 },
-  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
-  hint: { color: colors.textFaint, fontSize: 11, textAlign: 'center', marginTop: spacing.sm },
+  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.bodyLg },
+  hint: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'center', marginTop: spacing.sm },
 });

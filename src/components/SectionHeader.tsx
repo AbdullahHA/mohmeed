@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Text from './Text';
-import { spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 
 type Props = {
@@ -39,12 +39,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   title: {
     color: colors.text,
-    fontSize: 18,
+    fontSize: fontSize.title,
     fontWeight: '700',
   },
   action: {
     color: colors.primary,
-    fontSize: 13,
+    fontSize: fontSize.body,
     fontWeight: '600',
   },
 });

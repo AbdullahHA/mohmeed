@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import type { Feedback } from '../types';
 
@@ -117,16 +117,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.lg,
     marginTop: spacing.lg,
   },
-  title: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'center' },
+  title: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'center' },
   starsRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginTop: spacing.md, marginBottom: spacing.sm },
   subtitle: {
     color: colors.textFaint,
-    fontSize: 12,
+    fontSize: fontSize.base,
     textAlign: 'center',
   },
   question: {
     color: colors.text,
-    fontSize: 13,
+    fontSize: fontSize.body,
     fontWeight: '700',
     textAlign: 'center',
     marginTop: spacing.sm,
@@ -150,7 +150,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.primary,
     backgroundColor: colors.primarySoft,
   },
-  reasonText: { color: colors.textMuted, fontSize: 12, fontWeight: '600' },
+  reasonText: { color: colors.textMuted, fontSize: fontSize.base, fontWeight: '600' },
   reasonTextSelected: { color: colors.primary },
   noteInput: {
     width: '100%',
@@ -160,7 +160,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     color: colors.text,
-    fontSize: 13,
+    fontSize: fontSize.body,
     marginTop: spacing.lg,
   },
   submitButton: {
@@ -171,5 +171,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     marginTop: spacing.md,
   },
-  submitText: { color: colors.textOnPrimary, fontSize: 14, fontWeight: '700' },
+  submitText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, fontWeight: '700' },
 });

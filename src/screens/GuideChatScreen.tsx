@@ -21,7 +21,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
@@ -431,8 +431,8 @@ const createStyles = (colors: ThemeColors) =>
       justifyContent: 'center',
     },
     headerTitleWrap: { flex: 1, alignItems: 'flex-end' },
-    headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
-    headerSubtitle: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
+    headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
+    headerSubtitle: { color: colors.textMuted, fontSize: fontSize.small, marginTop: 2 },
     headerAvatar: {
       width: 36,
       height: 36,
@@ -444,7 +444,7 @@ const createStyles = (colors: ThemeColors) =>
     list: { padding: spacing.lg, gap: spacing.md },
     bubble: { maxWidth: '82%', padding: spacing.md, borderRadius: radius.md, marginBottom: spacing.sm },
     bubbleMe: { backgroundColor: colors.primary, alignSelf: 'flex-end' },
-    bubbleTextMe: { color: '#FFFFFF', fontSize: 14, textAlign: 'right', lineHeight: 20 },
+    bubbleTextMe: { color: '#FFFFFF', fontSize: fontSize.bodyLg, textAlign: 'right', lineHeight: 20 },
     guideRow: {
       flexDirection: 'row-reverse',
       alignItems: 'flex-start',
@@ -452,7 +452,7 @@ const createStyles = (colors: ThemeColors) =>
       marginBottom: spacing.sm,
     },
     guideContentWrap: { flex: 1 },
-    guideText: { color: colors.text, fontSize: 14, textAlign: 'right', lineHeight: 21 },
+    guideText: { color: colors.text, fontSize: fontSize.bodyLg, textAlign: 'right', lineHeight: 21 },
     dayCardsWrap: { gap: spacing.sm, marginTop: spacing.sm },
     dayCard: {
       backgroundColor: colors.surface,
@@ -461,10 +461,10 @@ const createStyles = (colors: ThemeColors) =>
       borderRadius: radius.md,
       padding: spacing.md,
     },
-    dayCardLabel: { color: colors.primary, fontSize: 13, fontWeight: '700', textAlign: 'right', marginBottom: spacing.xs },
+    dayCardLabel: { color: colors.primary, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right', marginBottom: spacing.xs },
     dayCardActivityRow: { flexDirection: 'row-reverse', gap: 6, marginTop: 3 },
-    dayCardBullet: { color: colors.textFaint, fontSize: 13 },
-    dayCardActivity: { flex: 1, color: colors.text, fontSize: 13, textAlign: 'right', lineHeight: 19 },
+    dayCardBullet: { color: colors.textFaint, fontSize: fontSize.body },
+    dayCardActivity: { flex: 1, color: colors.text, fontSize: fontSize.body, textAlign: 'right', lineHeight: 19 },
     guideAvatar: {
       width: 26,
       height: 26,
@@ -490,10 +490,10 @@ const createStyles = (colors: ThemeColors) =>
       justifyContent: 'center',
       marginBottom: spacing.lg,
     },
-    emptyTitle: { color: colors.text, fontSize: 20, fontWeight: '700', textAlign: 'center' },
+    emptyTitle: { color: colors.text, fontSize: fontSize.title, fontWeight: '700', textAlign: 'center' },
     emptySubtitle: {
       color: colors.textMuted,
-      fontSize: 13,
+      fontSize: fontSize.body,
       textAlign: 'center',
       lineHeight: 20,
       marginTop: spacing.sm,
@@ -516,7 +516,7 @@ const createStyles = (colors: ThemeColors) =>
       minHeight: 76,
       justifyContent: 'space-between',
     },
-    suggestionText: { color: colors.text, fontSize: 13, fontWeight: '600', textAlign: 'right', lineHeight: 18 },
+    suggestionText: { color: colors.text, fontSize: fontSize.body, fontWeight: '600', textAlign: 'right', lineHeight: 18 },
     actionsStrip: { paddingHorizontal: spacing.lg, paddingBottom: spacing.sm, gap: spacing.sm },
     chipRow: { flexDirection: 'row-reverse', alignSelf: 'flex-end', gap: spacing.sm },
     shareChip: {
@@ -530,7 +530,7 @@ const createStyles = (colors: ThemeColors) =>
       paddingHorizontal: spacing.md,
       paddingVertical: 6,
     },
-    shareChipText: { color: colors.primary, fontSize: 12, fontWeight: '700' },
+    shareChipText: { color: colors.primary, fontSize: fontSize.base, fontWeight: '700' },
     convertChip: {
       flexDirection: 'row-reverse',
       alignItems: 'center',
@@ -540,7 +540,7 @@ const createStyles = (colors: ThemeColors) =>
       paddingHorizontal: spacing.md,
       paddingVertical: 6,
     },
-    convertChipText: { color: '#FFFFFF', fontSize: 12, fontWeight: '700' },
+    convertChipText: { color: '#FFFFFF', fontSize: fontSize.base, fontWeight: '700' },
     followupRow: { flexDirection: 'row-reverse', gap: spacing.sm },
     followupChip: {
       backgroundColor: colors.surfaceAlt,
@@ -550,7 +550,7 @@ const createStyles = (colors: ThemeColors) =>
       paddingHorizontal: spacing.md,
       paddingVertical: 8,
     },
-    followupText: { color: colors.text, fontSize: 12, fontWeight: '600' },
+    followupText: { color: colors.text, fontSize: fontSize.base, fontWeight: '600' },
     inputRow: {
       flexDirection: 'row-reverse',
       alignItems: 'center',
@@ -565,7 +565,7 @@ const createStyles = (colors: ThemeColors) =>
       paddingHorizontal: spacing.lg,
       paddingVertical: spacing.md,
       color: colors.text,
-      fontSize: 14,
+      fontSize: fontSize.bodyLg,
     },
     sendButton: {
       width: 40,
@@ -583,8 +583,8 @@ const createStyles = (colors: ThemeColors) =>
       padding: spacing.lg,
       maxHeight: '70%',
     },
-    sheetTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right', marginBottom: spacing.md },
-    sheetEmpty: { color: colors.textMuted, fontSize: 13, textAlign: 'center', paddingVertical: spacing.lg },
+    sheetTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right', marginBottom: spacing.md },
+    sheetEmpty: { color: colors.textMuted, fontSize: fontSize.body, textAlign: 'center', paddingVertical: spacing.lg },
     sheetRow: {
       flexDirection: 'row-reverse',
       alignItems: 'center',
@@ -594,6 +594,6 @@ const createStyles = (colors: ThemeColors) =>
       borderBottomColor: colors.border,
     },
     sheetRowTextWrap: { flex: 1 },
-    sheetRowTitle: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
-    sheetRowMeta: { color: colors.textMuted, fontSize: 11, textAlign: 'right', marginTop: 2 },
+    sheetRowTitle: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+    sheetRowMeta: { color: colors.textMuted, fontSize: fontSize.small, textAlign: 'right', marginTop: 2 },
   });

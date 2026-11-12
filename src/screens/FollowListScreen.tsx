@@ -11,7 +11,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import PersonAvatar from '../components/PersonAvatar';
@@ -102,7 +102,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   list: { padding: spacing.lg, gap: spacing.sm },
   row: {
     flexDirection: 'row-reverse',
@@ -116,6 +116,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.sm,
   },
   textWrap: { flex: 1 },
-  name: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
-  username: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: 1 },
+  name: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+  username: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'right', marginTop: 1 },
 });

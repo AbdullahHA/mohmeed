@@ -12,7 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import TopBar from '../components/TopBar';
 import SectionHeader from '../components/SectionHeader';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
@@ -360,8 +360,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   guideTextWrap: { flex: 1 },
-  guideTitle: { color: colors.textOnPrimary, fontSize: 15, fontWeight: '700', textAlign: 'right' },
-  guideSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: 12, textAlign: 'right', marginTop: 2 },
+  guideTitle: { color: colors.textOnPrimary, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right' },
+  guideSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: fontSize.base, textAlign: 'right', marginTop: 2 },
   guideSuggRow: { flexDirection: 'row-reverse', gap: spacing.sm, flexWrap: 'wrap' },
   guideSuggChip: {
     backgroundColor: 'rgba(255,255,255,0.18)',
@@ -369,7 +369,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
   },
-  guideSuggChipText: { color: colors.textOnPrimary, fontSize: 12, fontWeight: '600' },
+  guideSuggChipText: { color: colors.textOnPrimary, fontSize: fontSize.base, fontWeight: '600' },
   filterRow: {
     flexDirection: 'row-reverse',
     gap: spacing.sm,
@@ -386,7 +386,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.surfaceAlt,
   },
   filterChipActive: { backgroundColor: colors.text },
-  filterChipText: { color: colors.text, fontSize: 12.5, fontWeight: '600' },
+  filterChipText: { color: colors.text, fontSize: fontSize.body, fontWeight: '600' },
   filterChipTextActive: { color: colors.background },
   filterChipN: {
     minWidth: 18,
@@ -398,7 +398,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   filterChipNActive: { backgroundColor: colors.surface },
-  filterChipNText: { color: colors.textOnPrimary, fontSize: 10, fontWeight: '700' },
+  filterChipNText: { color: colors.textOnPrimary, fontSize: fontSize.tiny, fontWeight: '700' },
   filterChipNTextActive: { color: colors.text },
   emptyText: {
     color: colors.textMuted,
@@ -443,9 +443,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   rowTextWrap: { flex: 1 },
-  rowTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right' },
-  rowSubtitle: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
-  rowTime: { color: colors.primary, fontSize: 11, fontWeight: '600', width: 48, textAlign: 'left' },
+  rowTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right' },
+  rowSubtitle: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right', marginTop: 2 },
+  rowTime: { color: colors.primary, fontSize: fontSize.small, fontWeight: '600', width: 48, textAlign: 'left' },
   rowTimeSpacer: { width: 48 },
   discoverRow: {
     flexDirection: 'row-reverse',
@@ -465,8 +465,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.xs,
   },
   addAvatar: { borderColor: colors.primary, borderStyle: 'dashed' },
-  discoverEmoji: { fontSize: 26 },
-  discoverLabel: { color: colors.text, fontSize: 11, fontWeight: '600', textAlign: 'center' },
+  discoverEmoji: { fontSize: fontSize.hero },
+  discoverLabel: { color: colors.text, fontSize: fontSize.small, fontWeight: '600', textAlign: 'center' },
   pendingBanner: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -479,5 +479,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginHorizontal: spacing.lg,
     marginBottom: spacing.lg,
   },
-  pendingBannerText: { flex: 1, color: colors.accentDark, fontSize: 12, fontWeight: '600', textAlign: 'right' },
+  pendingBannerText: { flex: 1, color: colors.accentDark, fontSize: fontSize.base, fontWeight: '600', textAlign: 'right' },
 });

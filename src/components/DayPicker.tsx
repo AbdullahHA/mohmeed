@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import Text from './Text';
 import RtlScrollRow from './RtlScrollRow';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 
 const WEEKDAY_SHORT = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
@@ -79,7 +79,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  chipAllText: { color: colors.text, fontSize: 13, fontWeight: '700' },
+  chipAllText: { color: colors.text, fontSize: fontSize.body, fontWeight: '700' },
   dayChip: {
     width: 58,
     paddingVertical: spacing.sm,
@@ -92,7 +92,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   chipTextActive: { color: colors.textOnPrimary },
-  dayWeekday: { color: colors.textMuted, fontSize: 10, fontWeight: '600' },
-  dayNumber: { color: colors.text, fontSize: 16, fontWeight: '700' },
-  dayMonth: { color: colors.textFaint, fontSize: 10 },
+  dayWeekday: { color: colors.textMuted, fontSize: fontSize.tiny, fontWeight: '600' },
+  dayNumber: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
+  dayMonth: { color: colors.textFaint, fontSize: fontSize.tiny },
 });

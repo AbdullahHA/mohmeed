@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -135,13 +135,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  label: { color: colors.textMuted, fontSize: 12, fontWeight: '700', marginBottom: spacing.sm, marginTop: spacing.md, textAlign: 'right' },
+  label: { color: colors.textMuted, fontSize: fontSize.base, fontWeight: '700', marginBottom: spacing.sm, marginTop: spacing.md, textAlign: 'right' },
   typeRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm },
   typeChip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt },
   typeChipActive: { backgroundColor: colors.primary },
-  typeChipText: { color: colors.textMuted, fontSize: 12.5, fontWeight: '700' },
+  typeChipText: { color: colors.textMuted, fontSize: fontSize.body, fontWeight: '700' },
   typeChipTextActive: { color: colors.textOnPrimary },
   input: {
     backgroundColor: colors.surface,
@@ -150,12 +150,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: 11,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     color: colors.text,
     textAlign: 'right',
   },
   textarea: { height: 130, textAlignVertical: 'top', paddingTop: 11 },
-  error: { color: colors.red, fontSize: 12.5, marginTop: spacing.sm, textAlign: 'right' },
+  error: { color: colors.red, fontSize: fontSize.body, marginTop: spacing.sm, textAlign: 'right' },
   submitBtn: {
     backgroundColor: colors.primary,
     borderRadius: radius.md,
@@ -164,5 +164,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.xl,
   },
   submitBtnDisabled: { opacity: 0.5 },
-  submitBtnText: { color: colors.textOnPrimary, fontSize: 14, fontWeight: '700' },
+  submitBtnText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, fontWeight: '700' },
 });

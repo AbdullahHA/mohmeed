@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 
 type Props = {
@@ -73,14 +73,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   accentDotBottom: { width: 8, height: 8, bottom: 6, left: 2 },
   title: {
     color: colors.text,
-    fontSize: 17,
+    fontSize: fontSize.subtitle,
     fontWeight: '700',
     marginBottom: spacing.sm,
     textAlign: 'center',
   },
   subtitle: {
     color: colors.textMuted,
-    fontSize: 13,
+    fontSize: fontSize.body,
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -91,5 +91,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
   },
-  actionButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 13 },
+  actionButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.body },
 });

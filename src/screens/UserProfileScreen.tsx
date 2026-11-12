@@ -17,7 +17,7 @@ import { Alert } from '../lib/alert';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
@@ -364,11 +364,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   profileCard: { alignItems: 'center', padding: spacing.xl, marginTop: -46 },
   avatarMargin: { marginBottom: spacing.sm, borderWidth: 3, borderColor: colors.background, borderRadius: 999 },
-  name: { color: colors.text, fontSize: 18, fontWeight: '700' },
-  username: { color: colors.textFaint, fontSize: 13, marginTop: 2 },
+  name: { color: colors.text, fontSize: fontSize.title, fontWeight: '700' },
+  username: { color: colors.textFaint, fontSize: fontSize.body, marginTop: 2 },
   travelStatsRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4, marginTop: spacing.sm },
-  travelStatsText: { color: colors.textMuted, fontSize: 12, fontWeight: '600' },
-  bio: { color: colors.textMuted, fontSize: 13, textAlign: 'center', marginTop: spacing.sm, lineHeight: 20 },
+  travelStatsText: { color: colors.textMuted, fontSize: fontSize.base, fontWeight: '600' },
+  bio: { color: colors.textMuted, fontSize: fontSize.body, textAlign: 'center', marginTop: spacing.sm, lineHeight: 20 },
   interestsRow: {
     flexDirection: 'row-reverse',
     flexWrap: 'wrap',
@@ -382,7 +382,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: 4,
   },
-  interestChipText: { color: colors.primary, fontSize: 11, fontWeight: '700' },
+  interestChipText: { color: colors.primary, fontSize: fontSize.small, fontWeight: '700' },
   statsRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -391,8 +391,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.lg,
   },
   statItem: { alignItems: 'center', minWidth: 56 },
-  statValue: { color: colors.text, fontSize: 17, fontWeight: '700' },
-  statLabel: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
+  statValue: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
+  statLabel: { color: colors.textMuted, fontSize: fontSize.small, marginTop: 2 },
   statDivider: { width: 1, height: 28, backgroundColor: colors.border },
   actionsRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginTop: spacing.lg, width: '100%' },
   followButton: {
@@ -407,7 +407,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  followButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 13 },
+  followButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.body },
   followButtonTextActive: { color: colors.text },
   messageButton: {
     flex: 1,
@@ -420,10 +420,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.pill,
     paddingVertical: spacing.md,
   },
-  messageButtonText: { color: colors.text, fontWeight: '700', fontSize: 13 },
+  messageButtonText: { color: colors.text, fontWeight: '700', fontSize: fontSize.body },
   sectionTitle: {
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     fontWeight: '700',
     textAlign: 'right',
     paddingHorizontal: spacing.lg,
@@ -431,7 +431,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   emptyMuted: {
     color: colors.textFaint,
-    fontSize: 12,
+    fontSize: fontSize.base,
     textAlign: 'center',
     paddingVertical: spacing.xl,
   },
@@ -444,8 +444,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.md,
   },
-  publishedTitle: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
-  publishedDestination: { color: colors.textMuted, fontSize: 11, textAlign: 'right', marginTop: 2 },
+  publishedTitle: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
+  publishedDestination: { color: colors.textMuted, fontSize: fontSize.small, textAlign: 'right', marginTop: 2 },
   grid: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl, gap: 2 },
   gridItem: { width: '33.33%', aspectRatio: 1, padding: 1 },
   gridImage: { width: '100%', height: '100%', borderRadius: radius.sm },

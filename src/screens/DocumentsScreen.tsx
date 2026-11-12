@@ -13,7 +13,7 @@ import { Alert } from '../lib/alert';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
@@ -313,7 +313,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.md },
   kindSection: {
     backgroundColor: colors.surface,
@@ -323,8 +323,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.md,
   },
   kindHeaderRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.xs },
-  kindTitle: { color: colors.text, fontSize: 14, fontWeight: '700' },
-  emptyMuted: { color: colors.textFaint, fontSize: 12, textAlign: 'center', paddingVertical: spacing.sm },
+  kindTitle: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700' },
+  emptyMuted: { color: colors.textFaint, fontSize: fontSize.base, textAlign: 'center', paddingVertical: spacing.sm },
   docCard: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -335,8 +335,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.xs,
   },
   docTextWrap: { flex: 1 },
-  docTitle: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
-  docMeta: { color: colors.textMuted, fontSize: 11, textAlign: 'right', marginTop: 2 },
+  docTitle: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
+  docMeta: { color: colors.textMuted, fontSize: fontSize.small, textAlign: 'right', marginTop: 2 },
   addForm: { gap: spacing.sm, marginTop: spacing.md },
   input: {
     backgroundColor: colors.surfaceAlt,
@@ -346,7 +346,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     color: colors.text,
-    fontSize: 13,
+    fontSize: fontSize.body,
     textAlign: 'right',
   },
   visibilityRow: { flexDirection: 'row-reverse', gap: spacing.sm },
@@ -360,12 +360,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
   },
   visChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  visChipText: { color: colors.text, fontSize: 11.5, fontWeight: '700' },
+  visChipText: { color: colors.text, fontSize: fontSize.base, fontWeight: '700' },
   visChipTextActive: { color: colors.textOnPrimary },
-  lockedHint: { color: colors.textFaint, fontSize: 11, textAlign: 'right' },
+  lockedHint: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'right' },
   imagePickButton: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.xs, alignSelf: 'flex-end' },
-  imagePickText: { color: colors.primary, fontSize: 12, fontWeight: '700' },
+  imagePickText: { color: colors.primary, fontSize: fontSize.base, fontWeight: '700' },
   saveButton: { backgroundColor: colors.primary, borderRadius: radius.pill, paddingVertical: spacing.sm, alignItems: 'center' },
   saveDisabled: { opacity: 0.5 },
-  saveButtonText: { color: colors.textOnPrimary, fontSize: 13, fontWeight: '700' },
+  saveButtonText: { color: colors.textOnPrimary, fontSize: fontSize.body, fontWeight: '700' },
 });

@@ -9,7 +9,7 @@ import {
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 
 type Section = { heading: string; body: string };
@@ -59,10 +59,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  intro: { color: colors.textMuted, fontSize: 13, lineHeight: 21, textAlign: 'right', marginBottom: spacing.lg },
+  intro: { color: colors.textMuted, fontSize: fontSize.body, lineHeight: 21, textAlign: 'right', marginBottom: spacing.lg },
   section: { marginBottom: spacing.lg },
-  heading: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right', marginBottom: spacing.xs },
-  text: { color: colors.textMuted, fontSize: 13, lineHeight: 21, textAlign: 'right' },
+  heading: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right', marginBottom: spacing.xs },
+  text: { color: colors.textMuted, fontSize: fontSize.body, lineHeight: 21, textAlign: 'right' },
 });

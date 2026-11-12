@@ -13,7 +13,7 @@ import { Alert } from '../lib/alert';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -171,7 +171,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
   noticeBox: {
     flexDirection: 'row-reverse',
@@ -181,11 +181,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.md,
     marginBottom: spacing.md,
   },
-  noticeText: { flex: 1, color: colors.text, fontSize: 12, textAlign: 'right', lineHeight: 18 },
+  noticeText: { flex: 1, color: colors.text, fontSize: fontSize.base, textAlign: 'right', lineHeight: 18 },
   noticeCount: { fontWeight: '700', color: colors.primary },
   label: {
     color: colors.textMuted,
-    fontSize: 13,
+    fontSize: fontSize.body,
     fontWeight: '600',
     textAlign: 'right',
     marginBottom: spacing.xs,
@@ -199,7 +199,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     textAlign: 'right',
   },
   multiline: { minHeight: 90, textAlignVertical: 'top' },
@@ -211,8 +211,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.xl,
   },
   submitDisabled: { opacity: 0.5 },
-  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
-  sectionTitle: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right', marginTop: spacing.xl, marginBottom: spacing.sm },
+  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.bodyLg },
+  sectionTitle: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right', marginTop: spacing.xl, marginBottom: spacing.sm },
   logRow: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -221,7 +221,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.sm,
     marginBottom: spacing.sm,
   },
-  logTitle: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
-  logBody: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
-  logMeta: { color: colors.textFaint, fontSize: 10, textAlign: 'right', marginTop: spacing.xs },
+  logTitle: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
+  logBody: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right', marginTop: 2 },
+  logMeta: { color: colors.textFaint, fontSize: fontSize.tiny, textAlign: 'right', marginTop: spacing.xs },
 });

@@ -4,7 +4,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useContent } from '../context/ContentContext';
 import { supabase } from '../lib/supabase';
@@ -75,7 +75,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700', flex: 1, textAlign: 'center' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', flex: 1, textAlign: 'center' },
   body: { paddingTop: spacing.lg, paddingBottom: spacing.xxl },
   emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
 });

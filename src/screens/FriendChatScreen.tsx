@@ -15,7 +15,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
@@ -339,8 +339,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomColor: colors.border,
   },
   headerTextWrap: { flex: 1, marginHorizontal: spacing.md, alignItems: 'flex-end' },
-  headerTitle: { color: colors.text, fontSize: 15, fontWeight: '700' },
-  headerSubtitle: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
+  headerSubtitle: { color: colors.textMuted, fontSize: fontSize.small, marginTop: 2 },
   list: { padding: spacing.lg, gap: spacing.md },
   emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xl },
   bubble: { maxWidth: '80%', padding: spacing.md, borderRadius: radius.md, marginBottom: spacing.sm },
@@ -355,15 +355,15 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   bubbleOther: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, alignSelf: 'flex-start' },
   bubbleMe: { backgroundColor: colors.primary, alignSelf: 'flex-end' },
-  bubbleText: { color: colors.text, fontSize: 14, textAlign: 'right', lineHeight: 20 },
+  bubbleText: { color: colors.text, fontSize: fontSize.bodyLg, textAlign: 'right', lineHeight: 20 },
   bubbleTextMe: { color: colors.textOnPrimary },
   placeCard: { maxWidth: '75%', borderRadius: radius.md, marginBottom: spacing.sm, overflow: 'hidden', padding: spacing.sm, gap: spacing.sm },
   placeCardTouchable: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
   placeCardImage: { width: 48, height: 48, borderRadius: radius.sm },
   placeCardTextWrap: { flex: 1 },
-  placeCardTitle: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
+  placeCardTitle: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
   placeCardRateRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 3, marginTop: 2 },
-  placeCardRateText: { color: colors.textMuted, fontSize: 11, fontWeight: '600' },
+  placeCardRateText: { color: colors.textMuted, fontSize: fontSize.small, fontWeight: '600' },
   placeCardAddButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -373,7 +373,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.pill,
     paddingVertical: spacing.xs,
   },
-  placeCardAddText: { color: colors.primary, fontSize: 12, fontWeight: '700' },
+  placeCardAddText: { color: colors.primary, fontSize: fontSize.base, fontWeight: '700' },
   inputRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

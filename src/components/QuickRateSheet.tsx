@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { QUICK_RATE_TAGS, type QuickRateTag } from '../types';
 
@@ -94,7 +94,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.xl,
     alignItems: 'center',
   },
-  title: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'center', marginBottom: spacing.lg },
+  title: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'center', marginBottom: spacing.lg },
   starsRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginBottom: spacing.lg },
   tagsRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm, justifyContent: 'center', marginBottom: spacing.md },
   chip: {
@@ -106,7 +106,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
   },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.text, fontSize: 12, fontWeight: '600' },
+  chipText: { color: colors.text, fontSize: fontSize.base, fontWeight: '600' },
   chipTextActive: { color: colors.textOnPrimary },
   noteInput: {
     width: '100%',
@@ -117,7 +117,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text,
-    fontSize: 13,
+    fontSize: fontSize.body,
     textAlign: 'right',
     marginBottom: spacing.lg,
   },
@@ -129,5 +129,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
   },
   submitDisabled: { opacity: 0.5 },
-  submitText: { color: colors.textOnPrimary, fontSize: 14, fontWeight: '700' },
+  submitText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, fontWeight: '700' },
 });

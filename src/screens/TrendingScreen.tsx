@@ -4,7 +4,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useContent } from '../context/ContentContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
@@ -227,8 +227,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
   },
   headerTitleRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6 },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
-  subtitle: { color: colors.textMuted, fontSize: 12, textAlign: 'center', paddingHorizontal: spacing.lg, marginBottom: spacing.md },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
+  subtitle: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'center', paddingHorizontal: spacing.lg, marginBottom: spacing.md },
   cityRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -240,7 +240,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.xs,
     marginBottom: spacing.md,
   },
-  cityText: { color: colors.text, fontSize: 13, fontWeight: '700' },
+  cityText: { color: colors.text, fontSize: fontSize.body, fontWeight: '700' },
   chipsRow: { flexDirection: 'row-reverse', paddingHorizontal: spacing.lg, gap: spacing.sm, paddingBottom: spacing.md },
   chip: {
     paddingHorizontal: spacing.md,
@@ -251,7 +251,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
   },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.text, fontSize: 12, fontWeight: '600' },
+  chipText: { color: colors.text, fontSize: fontSize.base, fontWeight: '600' },
   chipTextActive: { color: colors.textOnPrimary },
   list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl },
   emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
@@ -275,16 +275,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   rankBadgeTop: { backgroundColor: colors.red },
-  rankText: { color: colors.textMuted, fontSize: 12, fontWeight: '700' },
+  rankText: { color: colors.textMuted, fontSize: fontSize.base, fontWeight: '700' },
   rankTextTop: { color: '#fff' },
   rowInfo: { flex: 1 },
-  rowName: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
+  rowName: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
   rowMetaRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4, marginTop: 2 },
-  rowMeta: { color: colors.textMuted, fontSize: 11 },
-  rowDot: { color: colors.textFaint, fontSize: 11 },
+  rowMeta: { color: colors.textMuted, fontSize: fontSize.small },
+  rowDot: { color: colors.textFaint, fontSize: fontSize.small },
   ratingBadge: { flexDirection: 'row-reverse', alignItems: 'center', gap: 3 },
-  ratingText: { color: colors.text, fontSize: 12, fontWeight: '700' },
-  ratingCountText: { color: colors.textFaint, fontSize: 10.5 },
+  ratingText: { color: colors.text, fontSize: fontSize.base, fontWeight: '700' },
+  ratingCountText: { color: colors.textFaint, fontSize: fontSize.small },
   cityBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   citySheet: {
     backgroundColor: colors.surface,
@@ -301,5 +301,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  cityOptionText: { color: colors.text, fontSize: 14, fontWeight: '600' },
+  cityOptionText: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '600' },
 });

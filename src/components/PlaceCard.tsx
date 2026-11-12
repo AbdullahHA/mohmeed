@@ -11,7 +11,7 @@ import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, fixedColors, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, fixedColors, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
@@ -225,7 +225,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   typeBadgeText: {
     color: '#FFFFFF',
-    fontSize: 11,
+    fontSize: fontSize.small,
     fontWeight: '700',
   },
   priceBadge: {
@@ -239,7 +239,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   priceBadgeText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: fontSize.base,
     fontWeight: '700',
   },
   priceBadgeMuted: {
@@ -256,7 +256,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   category: {
     color: colors.textMuted,
-    fontSize: 12,
+    fontSize: fontSize.base,
     fontWeight: '600',
   },
   ratingGroup: {
@@ -267,18 +267,18 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   rating: {
     color: colors.accentDark,
     fontWeight: '700',
-    fontSize: 13,
+    fontSize: fontSize.body,
   },
   name: {
     color: colors.text,
-    fontSize: 18,
+    fontSize: fontSize.title,
     fontWeight: '700',
     textAlign: 'right',
     marginBottom: spacing.xs,
   },
   description: {
     color: colors.textMuted,
-    fontSize: 13,
+    fontSize: fontSize.body,
     textAlign: 'right',
     lineHeight: 19,
   },
@@ -298,7 +298,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   actionText: {
     color: colors.text,
-    fontSize: 12,
+    fontSize: fontSize.base,
     fontWeight: '600',
   },
 });

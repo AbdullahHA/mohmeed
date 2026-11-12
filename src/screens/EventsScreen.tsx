@@ -4,7 +4,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { supabase } from '../lib/supabase';
 import type { RootStackParamList } from '../navigation/types';
@@ -135,12 +135,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   chipsRow: { flexGrow: 0, flexShrink: 0, borderBottomWidth: 1, borderBottomColor: colors.border },
   chipsContent: { flexDirection: 'row-reverse', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
   chip: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt },
   chipActive: { backgroundColor: colors.primary },
-  chipText: { color: colors.textMuted, fontSize: 12, fontWeight: '700' },
+  chipText: { color: colors.textMuted, fontSize: fontSize.base, fontWeight: '700' },
   chipTextActive: { color: colors.textOnPrimary },
   list: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xxl },
   emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl, lineHeight: 20 },
@@ -163,6 +163,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   rowBody: { flex: 1, gap: 3 },
-  rowTitle: { color: colors.text, fontSize: 13.5, fontWeight: '700', textAlign: 'right' },
-  rowSubtitle: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right' },
+  rowTitle: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+  rowSubtitle: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right' },
 });

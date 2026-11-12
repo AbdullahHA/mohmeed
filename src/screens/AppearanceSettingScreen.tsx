@@ -9,7 +9,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme, type ThemeMode } from '../context/ThemeContext';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -122,7 +122,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { padding: spacing.lg },
   optionsRow: { flexDirection: 'row-reverse', gap: spacing.md },
   optionWrap: { flex: 1, alignItems: 'center' },
@@ -136,7 +136,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.sm,
   },
   cardFrameActive: { borderColor: colors.primary },
-  optionLabel: { color: colors.text, fontSize: 13, fontWeight: '600', marginBottom: spacing.xs },
+  optionLabel: { color: colors.text, fontSize: fontSize.body, fontWeight: '600', marginBottom: spacing.xs },
   radio: {
     width: 20,
     height: 20,

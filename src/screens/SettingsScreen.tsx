@@ -13,7 +13,7 @@ import { Alert } from '../lib/alert';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, cardShadow, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, cardShadow, type ThemeColors } from '../theme/colors';
 import { useTheme, type ThemeMode } from '../context/ThemeContext';
 import { useRegion } from '../context/RegionContext';
 import { useAuth } from '../context/AuthContext';
@@ -357,7 +357,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 18, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.title, fontWeight: '700' },
   closeButton: {
     width: 36,
     height: 36,
@@ -380,8 +380,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     ...cardShadow,
   },
   profileTextWrap: { flex: 1, alignItems: 'flex-end' },
-  profileName: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right' },
-  profileMeta: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
+  profileName: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right' },
+  profileMeta: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right', marginTop: 2 },
   guestCard: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -392,8 +392,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.xl,
   },
   guestCardTextWrap: { flex: 1, alignItems: 'flex-end' },
-  guestCardTitle: { color: colors.text, fontSize: 14.5, fontWeight: '700', textAlign: 'right' },
-  guestCardSubtitle: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right', marginTop: 2, lineHeight: 16 },
+  guestCardTitle: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+  guestCardSubtitle: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right', marginTop: 2, lineHeight: 16 },
   appearanceRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginBottom: spacing.xl },
   appearanceOption: { flex: 1, alignItems: 'center', gap: spacing.xs },
   appearanceFrame: {
@@ -406,7 +406,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: 3,
   },
   appearanceFrameActive: { borderColor: colors.primary },
-  appearanceLabel: { color: colors.textMuted, fontSize: 12, fontWeight: '600' },
+  appearanceLabel: { color: colors.textMuted, fontSize: fontSize.base, fontWeight: '600' },
   appearanceLabelActive: { color: colors.primary, fontWeight: '700' },
   tileRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginBottom: spacing.xl },
   tile: {
@@ -426,11 +426,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 2,
   },
-  tileValue: { color: colors.text, fontSize: 13, fontWeight: '700' },
-  tileLabel: { color: colors.textMuted, fontSize: 10.5, fontWeight: '600' },
+  tileValue: { color: colors.text, fontSize: fontSize.body, fontWeight: '700' },
+  tileLabel: { color: colors.textMuted, fontSize: fontSize.small, fontWeight: '600' },
   sectionTitle: {
     color: colors.text,
-    fontSize: 16,
+    fontSize: fontSize.subtitle,
     fontWeight: '800',
     textAlign: 'right',
     marginBottom: spacing.md,
@@ -450,9 +450,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.lg,
   },
-  menuRowText: { flex: 1, color: colors.text, fontSize: 14.5, fontWeight: '600', textAlign: 'right' },
+  menuRowText: { flex: 1, color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '600', textAlign: 'right' },
   menuRowTextDanger: { color: colors.red },
-  menuRowValue: { color: colors.textFaint, fontSize: 12 },
+  menuRowValue: { color: colors.textFaint, fontSize: fontSize.base },
   switchRow: {
     flexDirection: 'row-reverse',
     alignItems: 'flex-start',
@@ -461,10 +461,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.lg,
   },
   switchTextWrap: { flex: 1 },
-  switchLabel: { color: colors.text, fontSize: 14, fontWeight: '600', textAlign: 'right' },
-  switchHint: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: 2, lineHeight: 16 },
+  switchLabel: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '600', textAlign: 'right' },
+  switchHint: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'right', marginTop: 2, lineHeight: 16 },
   preferenceBlock: { padding: spacing.lg },
-  preferenceLabel: { color: colors.text, fontSize: 14, fontWeight: '600', textAlign: 'right', marginBottom: spacing.sm },
+  preferenceLabel: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '600', textAlign: 'right', marginBottom: spacing.sm },
   chipsRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm },
   chip: {
     borderWidth: 1,
@@ -474,8 +474,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.text, fontSize: 13, fontWeight: '600' },
+  chipText: { color: colors.text, fontSize: fontSize.body, fontWeight: '600' },
   chipTextActive: { color: colors.textOnPrimary },
   chipDisabled: { backgroundColor: colors.surfaceAlt, opacity: 0.7 },
-  chipTextDisabled: { color: colors.textFaint, fontSize: 13, fontWeight: '600' },
+  chipTextDisabled: { color: colors.textFaint, fontSize: fontSize.body, fontWeight: '600' },
 });

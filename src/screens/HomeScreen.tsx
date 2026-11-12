@@ -20,7 +20,7 @@ import DestinationCard from '../components/DestinationCard';
 import FilterChip from '../components/FilterChip';
 import PersonAvatar from '../components/PersonAvatar';
 import RtlScrollRow from '../components/RtlScrollRow';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { INTEREST_TAGS } from '../data/destinations';
 import { seasonalHighlights } from '../data/seasonalHighlights';
@@ -428,7 +428,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.lg,
   },
-  offlineText: { color: colors.textMuted, fontSize: 11, fontWeight: '600' },
+  offlineText: { color: colors.textMuted, fontSize: fontSize.small, fontWeight: '600' },
   returnBanner: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -439,7 +439,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.sm,
     padding: spacing.md,
   },
-  returnBannerText: { flex: 1, color: colors.accentDark, fontSize: 13, fontWeight: '700', textAlign: 'right' },
+  returnBannerText: { flex: 1, color: colors.accentDark, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
   apphead: {
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
@@ -470,8 +470,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderWidth: 1.5,
     borderColor: colors.surface,
   },
-  hiGreeting: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right' },
-  hiName: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right' },
+  hiGreeting: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right' },
+  hiName: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right' },
   nextTripWrap: { marginHorizontal: spacing.lg, marginBottom: spacing.lg },
   nextTripBg: { height: 190, borderRadius: radius.xl },
   countBadge: {
@@ -484,11 +484,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.xs,
     alignItems: 'center',
   },
-  countBadgeNum: { color: '#141a2b', fontSize: 20, fontWeight: '700' },
-  countBadgeLabel: { color: '#6b7389', fontSize: 10 },
+  countBadgeNum: { color: '#141a2b', fontSize: fontSize.title, fontWeight: '700' },
+  countBadgeLabel: { color: '#6b7389', fontSize: fontSize.tiny },
   nextTripIn: { position: 'absolute', bottom: spacing.md, right: spacing.lg, left: spacing.lg, gap: spacing.xs },
-  nextTripLbl: { color: 'rgba(255,255,255,0.9)', fontSize: 11, fontWeight: '600', textAlign: 'right' },
-  nextTripTitle: { color: '#fff', fontSize: 19, fontWeight: '700', textAlign: 'right' },
+  nextTripLbl: { color: 'rgba(255,255,255,0.9)', fontSize: fontSize.small, fontWeight: '600', textAlign: 'right' },
+  nextTripTitle: { color: '#fff', fontSize: fontSize.title, fontWeight: '700', textAlign: 'right' },
   glassRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 6 },
   glassChip: {
     flexDirection: 'row-reverse',
@@ -499,7 +499,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
   },
-  glassChipText: { color: '#fff', fontSize: 10.5, fontWeight: '600' },
+  glassChipText: { color: '#fff', fontSize: fontSize.small, fontWeight: '600' },
   planTripBtn: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -511,7 +511,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.sm,
     marginTop: spacing.xs,
   },
-  planTripBtnText: { color: '#141a2b', fontSize: 12, fontWeight: '700' },
+  planTripBtnText: { color: '#141a2b', fontSize: fontSize.base, fontWeight: '700' },
   askCard: {
     marginHorizontal: spacing.lg,
     marginBottom: spacing.lg,
@@ -531,8 +531,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  askTitle: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
-  askSubtitle: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right' },
+  askTitle: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+  askSubtitle: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right' },
   askIn: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -544,7 +544,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.sm,
     height: 44,
   },
-  askInput: { flex: 1, color: colors.text, fontSize: 13 },
+  askInput: { flex: 1, color: colors.text, fontSize: fontSize.body },
   askGo: {
     width: 32,
     height: 32,
@@ -562,7 +562,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 5,
   },
-  suggChipText: { color: colors.text, fontSize: 11 },
+  suggChipText: { color: colors.text, fontSize: fontSize.small },
   qact: {
     flexDirection: 'row-reverse',
     paddingHorizontal: spacing.lg,
@@ -578,7 +578,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  qactText: { color: colors.text, fontSize: 11, fontWeight: '600' },
+  qactText: { color: colors.text, fontSize: fontSize.small, fontWeight: '600' },
   storiesRow: { flexDirection: 'row-reverse', paddingHorizontal: spacing.lg, gap: spacing.md, marginBottom: spacing.xl },
   storyItem: { alignItems: 'center', width: 68, gap: 4 },
   storyRing: { width: 66, height: 66, borderRadius: 33, alignItems: 'center', justifyContent: 'center', padding: 2.5 },
@@ -592,11 +592,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  storyEmoji: { fontSize: 24 },
-  storyLabel: { color: colors.text, fontSize: 10.5, fontWeight: '600', textAlign: 'center' },
+  storyEmoji: { fontSize: fontSize.heading },
+  storyLabel: { color: colors.text, fontSize: fontSize.small, fontWeight: '600', textAlign: 'center' },
   destinationsRow: { flexDirection: 'row-reverse', paddingHorizontal: spacing.lg, marginBottom: spacing.xl },
   interestChipsRow: { flexDirection: 'row-reverse', paddingHorizontal: spacing.lg, marginBottom: spacing.md },
-  emptyMuted: { color: colors.textFaint, fontSize: 12, paddingHorizontal: spacing.lg, marginBottom: spacing.lg },
+  emptyMuted: { color: colors.textFaint, fontSize: fontSize.base, paddingHorizontal: spacing.lg, marginBottom: spacing.lg },
   feedCard: {
     marginHorizontal: spacing.lg,
     marginBottom: spacing.lg,
@@ -608,10 +608,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.sm,
   },
   feedWho: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
-  feedAuthor: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
-  feedWhen: { color: colors.textMuted, fontSize: 10.5, textAlign: 'right' },
+  feedAuthor: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
+  feedWhen: { color: colors.textMuted, fontSize: fontSize.small, textAlign: 'right' },
   feedImage: { width: '100%', height: 160, borderRadius: radius.md },
-  feedCaption: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
+  feedCaption: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
   banner: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -632,6 +632,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   bannerTextWrap: { flex: 1 },
-  bannerTitle: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
-  bannerSubtitle: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
+  bannerTitle: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+  bannerSubtitle: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right', marginTop: 2 },
 });

@@ -15,7 +15,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { heroDestination } from '../data/destinations';
@@ -220,10 +220,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { padding: spacing.lg },
-  label: { color: colors.textMuted, fontSize: 13, fontWeight: '600', textAlign: 'right', marginBottom: spacing.xs },
-  hint: { color: colors.textMuted, fontSize: 12, fontWeight: '600', textAlign: 'center', marginTop: spacing.lg, marginBottom: spacing.sm },
+  label: { color: colors.textMuted, fontSize: fontSize.body, fontWeight: '600', textAlign: 'right', marginBottom: spacing.xs },
+  hint: { color: colors.textMuted, fontSize: fontSize.base, fontWeight: '600', textAlign: 'center', marginTop: spacing.lg, marginBottom: spacing.sm },
   codeRow: { flexDirection: 'row-reverse', gap: spacing.xs, justifyContent: 'center' },
   codeBox: {
     width: 38,
@@ -233,26 +233,26 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.sm,
     color: colors.text,
-    fontSize: 18,
+    fontSize: fontSize.title,
     fontWeight: '700',
   },
   codeBoxFilled: { borderColor: colors.primary },
   error: {
     color: colors.red,
-    fontSize: 12,
+    fontSize: fontSize.base,
     textAlign: 'center',
     marginTop: spacing.sm,
   },
   note: {
     color: colors.textFaint,
-    fontSize: 12,
+    fontSize: fontSize.base,
     lineHeight: 18,
     textAlign: 'center',
     marginTop: spacing.lg,
   },
   lookingCard: { alignItems: 'center', paddingVertical: spacing.xl },
   previewCard: { marginBottom: spacing.sm },
-  previewInvite: { color: colors.text, fontSize: 14, textAlign: 'center', marginBottom: spacing.md },
+  previewInvite: { color: colors.text, fontSize: fontSize.bodyLg, textAlign: 'center', marginBottom: spacing.md },
   previewInviteName: { fontWeight: '700' },
   previewImage: { width: '100%', height: 140, borderRadius: radius.md, backgroundColor: colors.surfaceAlt },
   previewInfo: {
@@ -265,11 +265,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.md,
     marginTop: -2,
   },
-  previewTitle: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right' },
+  previewTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right' },
   previewMetaRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
   previewMetaChip: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
-  previewMetaText: { color: colors.textMuted, fontSize: 12 },
-  previewMembers: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: spacing.sm },
+  previewMetaText: { color: colors.textMuted, fontSize: fontSize.base },
+  previewMembers: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'right', marginTop: spacing.sm },
   submitButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.pill,
@@ -277,6 +277,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     marginTop: spacing.xl,
   },
-  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
-  changeCodeText: { color: colors.primary, fontSize: 13, fontWeight: '600', textAlign: 'center', marginTop: spacing.md },
+  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.bodyLg },
+  changeCodeText: { color: colors.primary, fontSize: fontSize.body, fontWeight: '600', textAlign: 'center', marginTop: spacing.md },
 });

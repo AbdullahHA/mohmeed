@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
-import { spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { supabase } from '../lib/supabase';
 
@@ -75,6 +75,6 @@ export default function CheckInLikeButton({ checkInId, meId }: Props) {
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   button: { flexDirection: 'row-reverse', alignItems: 'center', gap: 3, paddingVertical: 2, paddingHorizontal: spacing.xs },
-  count: { color: colors.textMuted, fontSize: 11, fontWeight: '700' },
+  count: { color: colors.textMuted, fontSize: fontSize.small, fontWeight: '700' },
   countActive: { color: colors.heart },
 });

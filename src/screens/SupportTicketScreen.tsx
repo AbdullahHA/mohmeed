@@ -4,7 +4,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -152,14 +152,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700', flex: 1, textAlign: 'center' },
-  statusLine: { color: colors.textMuted, fontSize: 11.5, textAlign: 'center', paddingVertical: spacing.sm },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', flex: 1, textAlign: 'center' },
+  statusLine: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'center', paddingVertical: spacing.sm },
   body: { padding: spacing.lg, gap: spacing.sm },
   bubble: { maxWidth: '85%', borderRadius: radius.lg, padding: 10 },
   bubbleUser: { alignSelf: 'flex-end', backgroundColor: colors.primary },
   bubbleAdmin: { alignSelf: 'flex-start', backgroundColor: colors.surfaceAlt },
-  bubbleText: { color: colors.textOnPrimary, fontSize: 13.5, textAlign: 'right' },
-  bubbleTime: { color: 'rgba(255,255,255,0.75)', fontSize: 10, marginTop: 4, textAlign: 'right' },
+  bubbleText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, textAlign: 'right' },
+  bubbleTime: { color: 'rgba(255,255,255,0.75)', fontSize: fontSize.tiny, marginTop: 4, textAlign: 'right' },
   ratingCard: {
     alignItems: 'center',
     gap: spacing.sm,
@@ -170,9 +170,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.lg,
     marginTop: spacing.md,
   },
-  ratingTitle: { color: colors.text, fontSize: 13.5, fontWeight: '700' },
+  ratingTitle: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700' },
   ratingStars: { flexDirection: 'row-reverse', gap: spacing.sm },
-  thanksText: { color: colors.textMuted, fontSize: 12.5, textAlign: 'center', marginTop: spacing.md },
+  thanksText: { color: colors.textMuted, fontSize: fontSize.body, textAlign: 'center', marginTop: spacing.md },
   replyRow: {
     flexDirection: 'row-reverse',
     alignItems: 'flex-end',
@@ -188,7 +188,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.lg,
     paddingHorizontal: spacing.md,
     paddingVertical: 10,
-    fontSize: 13.5,
+    fontSize: fontSize.bodyLg,
     color: colors.text,
     textAlign: 'right',
   },

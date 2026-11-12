@@ -4,7 +4,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Text from './Text';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 
 type Props = {
@@ -43,7 +43,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   label: {
     color: colors.text,
-    fontSize: 12,
+    fontSize: fontSize.base,
     lineHeight: 18,
     fontWeight: '600',
   },

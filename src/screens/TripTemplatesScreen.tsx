@@ -11,7 +11,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { heroDestination } from '../data/destinations';
 import { useAppState } from '../context/AppState';
@@ -95,7 +95,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   createButton: {
     width: 32,
     height: 32,
@@ -132,8 +132,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
   },
-  mineBadgeText: { color: colors.textOnPrimary, fontSize: 11, fontWeight: '700' },
+  mineBadgeText: { color: colors.textOnPrimary, fontSize: fontSize.small, fontWeight: '700' },
   cardTextWrap: { padding: spacing.md },
-  cardTitle: { color: colors.textOnPrimary, fontSize: 16, fontWeight: '700', textAlign: 'right' },
-  cardSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: 11, textAlign: 'right', marginTop: 2 },
+  cardTitle: { color: colors.textOnPrimary, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right' },
+  cardSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: fontSize.small, textAlign: 'right', marginTop: 2 },
 });

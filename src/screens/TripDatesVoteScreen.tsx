@@ -10,7 +10,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
@@ -263,13 +263,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  hint: { color: colors.textMuted, fontSize: 12.5, textAlign: 'right', marginBottom: spacing.md, lineHeight: 18 },
+  hint: { color: colors.textMuted, fontSize: fontSize.body, textAlign: 'right', marginBottom: spacing.md, lineHeight: 18 },
   monthRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.sm },
-  monthLabel: { color: colors.text, fontSize: 14, fontWeight: '700' },
+  monthLabel: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700' },
   weekdayRow: { flexDirection: 'row-reverse', marginBottom: spacing.xs },
-  weekdayText: { flex: 1, textAlign: 'center', color: colors.textFaint, fontSize: 10, fontWeight: '700' },
+  weekdayText: { flex: 1, textAlign: 'center', color: colors.textFaint, fontSize: fontSize.tiny, fontWeight: '700' },
   grid: { flexDirection: 'row-reverse', flexWrap: 'wrap' },
   dayCell: {
     width: `${100 / 7}%`,
@@ -280,8 +280,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: 2,
   },
   dayCellMine: { borderWidth: 2, borderColor: colors.primary },
-  dayNumber: { color: colors.text, fontSize: 13, fontWeight: '700' },
-  dayCount: { color: colors.successDark, fontSize: 9, fontWeight: '700' },
+  dayNumber: { color: colors.text, fontSize: fontSize.body, fontWeight: '700' },
+  dayCount: { color: colors.successDark, fontSize: fontSize.tiny, fontWeight: '700' },
   bestCard: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -292,11 +292,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.lg,
   },
   bestTextWrap: { flex: 1 },
-  bestTitle: { color: colors.accentDark, fontSize: 13, fontWeight: '700', textAlign: 'right' },
-  bestMeta: { color: colors.accentDark, fontSize: 11, textAlign: 'right', marginTop: 2 },
+  bestTitle: { color: colors.accentDark, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
+  bestMeta: { color: colors.accentDark, fontSize: fontSize.small, textAlign: 'right', marginTop: 2 },
   adoptButton: { backgroundColor: colors.accentDark, borderRadius: radius.pill, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
-  adoptButtonText: { color: '#fff', fontSize: 11.5, fontWeight: '700' },
-  sectionLabel: { color: colors.textMuted, fontSize: 12, fontWeight: '700', textAlign: 'right', marginTop: spacing.xl, marginBottom: spacing.sm },
+  adoptButtonText: { color: '#fff', fontSize: fontSize.base, fontWeight: '700' },
+  sectionLabel: { color: colors.textMuted, fontSize: fontSize.base, fontWeight: '700', textAlign: 'right', marginTop: spacing.xl, marginBottom: spacing.sm },
   membersList: { gap: spacing.sm },
   memberRow: {
     flexDirection: 'row-reverse',
@@ -308,7 +308,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.md,
   },
-  memberName: { color: colors.text, fontSize: 13, fontWeight: '700' },
-  memberCount: { color: colors.textMuted, fontSize: 12 },
-  remindText: { color: colors.primary, fontSize: 12, fontWeight: '700' },
+  memberName: { color: colors.text, fontSize: fontSize.body, fontWeight: '700' },
+  memberCount: { color: colors.textMuted, fontSize: fontSize.base },
+  remindText: { color: colors.primary, fontSize: fontSize.base, fontWeight: '700' },
 });

@@ -4,7 +4,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useAppState } from '../context/AppState';
@@ -81,7 +81,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  headerTitle: { flex: 1, color: colors.text, fontSize: 18, fontWeight: '700', textAlign: 'center' },
+  headerTitle: { flex: 1, color: colors.text, fontSize: fontSize.title, fontWeight: '700', textAlign: 'center' },
   backButton: {
     width: 36,
     height: 36,
@@ -108,7 +108,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.lg,
   },
-  menuRowText: { flex: 1, color: colors.text, fontSize: 14.5, fontWeight: '600', textAlign: 'right' },
-  menuRowValue: { color: colors.textFaint, fontSize: 12 },
-  hint: { color: colors.textFaint, fontSize: 11.5, textAlign: 'right', lineHeight: 18, marginTop: spacing.lg },
+  menuRowText: { flex: 1, color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '600', textAlign: 'right' },
+  menuRowValue: { color: colors.textFaint, fontSize: fontSize.base },
+  hint: { color: colors.textFaint, fontSize: fontSize.base, textAlign: 'right', lineHeight: 18, marginTop: spacing.lg },
 });

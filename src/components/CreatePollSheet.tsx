@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Modal, Pressable, View, StyleSheet, TextInput, ScrollView } from 'react-native';
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 
 const MAX_OPTIONS = 6;
@@ -115,8 +115,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.xl,
     maxHeight: '85%',
   },
-  title: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right' },
-  subtitle: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2, marginBottom: spacing.lg },
+  title: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right' },
+  subtitle: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right', marginTop: 2, marginBottom: spacing.lg },
   input: {
     backgroundColor: colors.surfaceAlt,
     borderWidth: 1,
@@ -125,7 +125,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     textAlign: 'right',
     marginBottom: spacing.sm,
   },
@@ -139,7 +139,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignSelf: 'flex-end',
     paddingVertical: spacing.sm,
   },
-  addOptionText: { color: colors.primary, fontSize: 13, fontWeight: '600' },
+  addOptionText: { color: colors.primary, fontSize: fontSize.body, fontWeight: '600' },
   toggleRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -157,7 +157,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   toggleOn: { backgroundColor: colors.primary, alignItems: 'flex-end' },
   toggleDot: { width: 20, height: 20, borderRadius: radius.pill, backgroundColor: colors.surface },
   toggleDotOn: {},
-  toggleLabel: { color: colors.text, fontSize: 13, fontWeight: '600' },
+  toggleLabel: { color: colors.text, fontSize: fontSize.body, fontWeight: '600' },
   submitButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.pill,
@@ -166,5 +166,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.lg,
   },
   submitDisabled: { opacity: 0.5 },
-  submitText: { color: colors.textOnPrimary, fontSize: 14, fontWeight: '700' },
+  submitText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, fontWeight: '700' },
 });

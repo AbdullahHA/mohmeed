@@ -14,7 +14,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, fixedColors, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, fixedColors, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import PlaceMiniMap from '../components/PlaceMiniMap';
 import AddToTripSheet from '../components/AddToTripSheet';
@@ -414,15 +414,15 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   chipsRow: { flexDirection: 'row-reverse', gap: 6 },
   chip: { backgroundColor: colors.surfaceAlt, borderRadius: radius.pill, paddingHorizontal: spacing.sm, paddingVertical: 4 },
-  chipText: { color: colors.textMuted, fontSize: 11, fontWeight: '600' },
+  chipText: { color: colors.textMuted, fontSize: fontSize.small, fontWeight: '600' },
   chipGold: { backgroundColor: colors.accentSoft },
-  chipGoldText: { color: colors.accentDark, fontSize: 11, fontWeight: '700' },
-  name: { color: colors.text, fontSize: 22, fontWeight: '700', textAlign: 'right' },
+  chipGoldText: { color: colors.accentDark, fontSize: fontSize.small, fontWeight: '700' },
+  name: { color: colors.text, fontSize: fontSize.heading, fontWeight: '700', textAlign: 'right' },
   subRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.xs },
   subRate: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
-  subRateText: { color: colors.accentDark, fontWeight: '700', fontSize: 13 },
+  subRateText: { color: colors.accentDark, fontWeight: '700', fontSize: fontSize.body },
   subDot: { color: colors.textFaint },
-  subText: { color: colors.textMuted, fontSize: 13 },
+  subText: { color: colors.textMuted, fontSize: fontSize.body },
   qaRow: { flexDirection: 'row-reverse', gap: spacing.sm },
   qaItem: {
     flex: 1,
@@ -434,7 +434,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.md,
     paddingVertical: spacing.sm,
   },
-  qaText: { color: colors.text, fontSize: 11, fontWeight: '600' },
+  qaText: { color: colors.text, fontSize: fontSize.small, fontWeight: '600' },
   factsRow: { flexDirection: 'row-reverse', gap: spacing.sm },
   factCard: {
     flex: 1,
@@ -446,9 +446,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.md,
     paddingVertical: spacing.md,
   },
-  factLabel: { color: colors.text, fontSize: 12, fontWeight: '700' },
-  factValue: { color: colors.textMuted, fontSize: 10.5, textAlign: 'center' },
-  sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right', marginTop: spacing.sm },
+  factLabel: { color: colors.text, fontSize: fontSize.base, fontWeight: '700' },
+  factValue: { color: colors.textMuted, fontSize: fontSize.small, textAlign: 'center' },
+  sectionTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right', marginTop: spacing.sm },
   mapWrap: { height: 150, borderRadius: radius.md, overflow: 'hidden' },
   locationCard: {
     flexDirection: 'row-reverse',
@@ -460,21 +460,21 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.md,
   },
-  locationText: { color: colors.textMuted, fontSize: 13 },
-  description: { color: colors.textMuted, fontSize: 14, lineHeight: 22, textAlign: 'right' },
+  locationText: { color: colors.textMuted, fontSize: fontSize.body },
+  description: { color: colors.textMuted, fontSize: fontSize.bodyLg, lineHeight: 22, textAlign: 'right' },
   ratingsSectionHeader: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.lg },
-  rateLink: { color: colors.primary, fontSize: 12.5, fontWeight: '700' },
-  emptyRatings: { color: colors.textFaint, fontSize: 12.5, textAlign: 'center', paddingVertical: spacing.md },
+  rateLink: { color: colors.primary, fontSize: fontSize.body, fontWeight: '700' },
+  emptyRatings: { color: colors.textFaint, fontSize: fontSize.body, textAlign: 'center', paddingVertical: spacing.md },
   ratingsList: { gap: spacing.md, marginTop: spacing.sm },
   ratingRow: { flexDirection: 'row-reverse', gap: spacing.sm, alignItems: 'flex-start' },
   ratingTextWrap: { flex: 1 },
   ratingTopRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' },
-  ratingName: { color: colors.text, fontSize: 13, fontWeight: '700' },
+  ratingName: { color: colors.text, fontSize: fontSize.body, fontWeight: '700' },
   ratingStarsRow: { flexDirection: 'row-reverse', gap: 1 },
   ratingTagsRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 6, marginTop: 4 },
   ratingTagChip: { backgroundColor: colors.surfaceAlt, borderRadius: radius.pill, paddingHorizontal: spacing.sm, paddingVertical: 2 },
-  ratingTagText: { color: colors.textMuted, fontSize: 10.5, fontWeight: '600' },
-  ratingNote: { color: colors.textMuted, fontSize: 12.5, textAlign: 'right', marginTop: 4, lineHeight: 18 },
+  ratingTagText: { color: colors.textMuted, fontSize: fontSize.small, fontWeight: '600' },
+  ratingNote: { color: colors.textMuted, fontSize: fontSize.body, textAlign: 'right', marginTop: 4, lineHeight: 18 },
   footer: {
     flexDirection: 'row-reverse',
     gap: spacing.sm,
@@ -493,7 +493,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
   },
   footerGhost: { flex: 1, borderWidth: 1, borderColor: colors.border },
-  footerGhostText: { color: colors.text, fontWeight: '700', fontSize: 13 },
+  footerGhostText: { color: colors.text, fontWeight: '700', fontSize: fontSize.body },
   footerPrimary: { flex: 1.4, backgroundColor: colors.primary },
-  footerPrimaryText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 13 },
+  footerPrimaryText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.body },
 });

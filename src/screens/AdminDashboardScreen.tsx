@@ -12,7 +12,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useContent } from '../context/ContentContext';
@@ -134,16 +134,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  notice: { color: colors.textMuted, fontSize: 13, textAlign: 'center' },
+  notice: { color: colors.textMuted, fontSize: fontSize.body, textAlign: 'center' },
   smallButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.sm,
   },
-  smallButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 13 },
+  smallButtonText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.body },
   notificationCard: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -154,8 +154,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.lg,
   },
   notificationTextWrap: { flex: 1 },
-  notificationTitle: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
-  notificationSubtitle: { color: colors.textMuted, fontSize: 11, textAlign: 'right', marginTop: 2 },
+  notificationTitle: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+  notificationSubtitle: { color: colors.textMuted, fontSize: fontSize.small, textAlign: 'right', marginTop: 2 },
   sectionHeaderRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -163,7 +163,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.md,
     marginBottom: spacing.sm,
   },
-  sectionTitle: { color: colors.text, fontSize: 14, fontWeight: '700' },
+  sectionTitle: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700' },
   row: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -177,6 +177,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   thumb: { width: 48, height: 48, borderRadius: radius.sm },
   rowTextWrap: { flex: 1 },
-  rowTitle: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
-  rowSubtitle: { color: colors.textMuted, fontSize: 11, textAlign: 'right', marginTop: 2 },
+  rowTitle: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
+  rowSubtitle: { color: colors.textMuted, fontSize: fontSize.small, textAlign: 'right', marginTop: 2 },
 });

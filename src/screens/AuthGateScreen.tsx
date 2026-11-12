@@ -14,7 +14,7 @@ import {
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import DesertHero from '../components/DesertHero';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import type { AuthResult } from '../context/AuthContext';
@@ -476,10 +476,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.xs,
   },
   heroLogo: { width: '72%', height: '72%' },
-  heroTitle: { color: '#fff', fontSize: 28, fontWeight: '700', lineHeight: 38 },
-  heroSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: 14, lineHeight: 22 },
+  heroTitle: { color: '#fff', fontSize: fontSize.hero, fontWeight: '700', lineHeight: 38 },
+  heroSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: fontSize.bodyLg, lineHeight: 22 },
   heroBottom: { paddingHorizontal: spacing.lg, gap: spacing.sm },
-  heroError: { color: '#fff', backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: radius.sm, padding: spacing.sm, fontSize: 12, textAlign: 'center', marginBottom: spacing.xs },
+  heroError: { color: '#fff', backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: radius.sm, padding: spacing.sm, fontSize: fontSize.base, textAlign: 'center', marginBottom: spacing.xs },
   sso: {
     height: 52,
     borderRadius: 16,
@@ -489,16 +489,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.sm,
   },
   ssoApple: { backgroundColor: 'rgba(255,255,255,0.5)' },
-  ssoAppleText: { color: '#5b4538', fontWeight: '600', fontSize: 15 },
+  ssoAppleText: { color: '#5b4538', fontWeight: '600', fontSize: fontSize.subtitle },
   ssoGoogle: { backgroundColor: 'rgba(255,255,255,0.14)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.25)' },
-  ssoGoogleText: { color: 'rgba(255,255,255,0.65)', fontWeight: '600', fontSize: 15 },
+  ssoGoogleText: { color: 'rgba(255,255,255,0.65)', fontWeight: '600', fontSize: fontSize.subtitle },
   ssoGoogleActive: { backgroundColor: 'rgba(255,255,255,0.14)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.5)' },
-  ssoGoogleActiveText: { color: '#fff', fontWeight: '600', fontSize: 15 },
+  ssoGoogleActiveText: { color: '#fff', fontWeight: '600', fontSize: fontSize.subtitle },
   ssoMail: { backgroundColor: 'transparent', borderWidth: 1, borderColor: 'rgba(255,255,255,0.5)' },
-  ssoMailText: { color: '#fff', fontWeight: '600', fontSize: 15 },
-  heroGuest: { textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.8)', paddingTop: spacing.xs },
+  ssoMailText: { color: '#fff', fontWeight: '600', fontSize: fontSize.subtitle },
+  heroGuest: { textAlign: 'center', fontSize: fontSize.body, color: 'rgba(255,255,255,0.8)', paddingTop: spacing.xs },
   heroGuestUnderline: { color: '#fff', textDecorationLine: 'underline' },
-  heroLegal: { textAlign: 'center', fontSize: 10.5, color: 'rgba(255,255,255,0.55)', marginTop: spacing.xs },
+  heroLegal: { textAlign: 'center', fontSize: fontSize.small, color: 'rgba(255,255,255,0.55)', marginTop: spacing.xs },
   badge: {
     alignSelf: 'center',
     width: 64,
@@ -521,17 +521,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  title: { color: colors.text, fontSize: 24, fontWeight: '700', textAlign: 'center' },
+  title: { color: colors.text, fontSize: fontSize.heading, fontWeight: '700', textAlign: 'center' },
   subtitle: {
     color: colors.textMuted,
-    fontSize: 13,
+    fontSize: fontSize.body,
     textAlign: 'center',
     marginTop: spacing.xs,
     marginBottom: spacing.xl,
   },
   label: {
     color: colors.textMuted,
-    fontSize: 13,
+    fontSize: fontSize.body,
     fontWeight: '600',
     textAlign: 'right',
     marginBottom: spacing.xs,
@@ -545,7 +545,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     textAlign: 'right',
   },
   passwordRow: {
@@ -559,11 +559,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     left: spacing.sm,
     padding: spacing.xs,
   },
-  usernameHint: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: spacing.xs, lineHeight: 16 },
-  error: { color: colors.red, fontSize: 12, textAlign: 'right', marginTop: spacing.sm },
-  info: { color: colors.success, fontSize: 12, textAlign: 'right', marginTop: spacing.sm },
+  usernameHint: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'right', marginTop: spacing.xs, lineHeight: 16 },
+  error: { color: colors.red, fontSize: fontSize.base, textAlign: 'right', marginTop: spacing.sm },
+  info: { color: colors.success, fontSize: fontSize.base, textAlign: 'right', marginTop: spacing.sm },
   forgotLink: { alignItems: 'flex-end', marginTop: spacing.sm },
-  forgotLinkText: { color: colors.primary, fontSize: 12, fontWeight: '600' },
+  forgotLinkText: { color: colors.primary, fontSize: fontSize.base, fontWeight: '600' },
   submitButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.pill,
@@ -572,9 +572,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.xl,
   },
   submitDisabled: { opacity: 0.5 },
-  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
+  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.bodyLg },
   switchModeButton: { alignItems: 'center', marginTop: spacing.lg, paddingVertical: spacing.sm },
-  switchModeText: { color: colors.primary, fontSize: 13, fontWeight: '600' },
+  switchModeText: { color: colors.primary, fontSize: fontSize.body, fontWeight: '600' },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -583,7 +583,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.md,
   },
   dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
-  dividerText: { color: colors.textFaint, fontSize: 12 },
+  dividerText: { color: colors.textFaint, fontSize: fontSize.base },
   guestButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -594,10 +594,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.pill,
     paddingVertical: spacing.md,
   },
-  guestButtonText: { color: colors.textMuted, fontSize: 13, fontWeight: '600' },
+  guestButtonText: { color: colors.textMuted, fontSize: fontSize.body, fontWeight: '600' },
   guestHint: {
     color: colors.textFaint,
-    fontSize: 11,
+    fontSize: fontSize.small,
     textAlign: 'center',
     marginTop: spacing.sm,
   },

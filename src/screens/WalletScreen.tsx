@@ -11,7 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
@@ -173,10 +173,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   privacyNote: {
     color: colors.textFaint,
-    fontSize: 11,
+    fontSize: fontSize.small,
     textAlign: 'center',
     paddingVertical: spacing.sm,
   },
@@ -187,14 +187,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: spacing.sm,
   },
-  sectionTitle: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
+  sectionTitle: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
   soonBadge: {
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.sm,
     paddingVertical: 3,
   },
-  soonBadgeText: { color: colors.textFaint, fontSize: 10.5, fontWeight: '600' },
+  soonBadgeText: { color: colors.textFaint, fontSize: fontSize.small, fontWeight: '600' },
   balanceCard: {
     backgroundColor: colors.primaryDark,
     borderRadius: radius.lg,
@@ -202,12 +202,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  balanceLabel: { color: 'rgba(255,255,255,0.8)', fontSize: 12, fontWeight: '600' },
-  balanceValue: { color: colors.success, fontSize: 24, fontWeight: '700' },
+  balanceLabel: { color: 'rgba(255,255,255,0.8)', fontSize: fontSize.base, fontWeight: '600' },
+  balanceValue: { color: colors.success, fontSize: fontSize.heading, fontWeight: '700' },
   balanceValueNegative: { color: colors.red },
-  tripNet: { color: colors.success, fontSize: 13, fontWeight: '700' },
+  tripNet: { color: colors.success, fontSize: fontSize.body, fontWeight: '700' },
   tripNetNegative: { color: colors.red },
-  emptyNote: { color: colors.textFaint, fontSize: 12, textAlign: 'center', marginTop: spacing.sm },
+  emptyNote: { color: colors.textFaint, fontSize: fontSize.base, textAlign: 'center', marginTop: spacing.sm },
   row: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -220,6 +220,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.sm,
   },
   textWrap: { flex: 1 },
-  airline: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
-  number: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 1 },
+  airline: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
+  number: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right', marginTop: 1 },
 });

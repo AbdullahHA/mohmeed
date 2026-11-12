@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Text from './Text';
-import { spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import PersonAvatar from './PersonAvatar';
@@ -37,7 +37,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   welcomeText: {
     color: colors.text,
-    fontSize: 13,
+    fontSize: fontSize.body,
     fontWeight: '600',
   },
 });

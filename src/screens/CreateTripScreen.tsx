@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
@@ -491,7 +491,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   progressRow: { flexDirection: 'row-reverse', gap: spacing.xs, paddingHorizontal: spacing.lg, marginBottom: spacing.sm },
   progressSegment: { flex: 1, height: 4, borderRadius: 2, backgroundColor: colors.border },
   progressSegmentActive: { backgroundColor: colors.primary },
@@ -504,7 +504,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.lg,
   },
   questionHeader: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.sm },
-  questionTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right' },
+  questionTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right' },
   summaryChip: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -515,7 +515,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
-  summaryChipText: { color: colors.primary, fontSize: 13, fontWeight: '700' },
+  summaryChipText: { color: colors.primary, fontSize: fontSize.body, fontWeight: '700' },
   input: {
     backgroundColor: colors.surfaceAlt,
     borderWidth: 1,
@@ -524,14 +524,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     textAlign: 'right',
     marginBottom: spacing.sm,
   },
   resultsList: { gap: spacing.xs },
   resultRow: { paddingVertical: spacing.sm, paddingHorizontal: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.border },
-  resultRowText: { color: colors.text, fontSize: 13, fontWeight: '600', textAlign: 'right' },
-  subLabel: { color: colors.textMuted, fontSize: 12, fontWeight: '600', textAlign: 'right', marginTop: spacing.sm, marginBottom: spacing.xs },
+  resultRowText: { color: colors.text, fontSize: fontSize.body, fontWeight: '600', textAlign: 'right' },
+  subLabel: { color: colors.textMuted, fontSize: fontSize.base, fontWeight: '600', textAlign: 'right', marginTop: spacing.sm, marginBottom: spacing.xs },
   chipsWrap: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm },
   chipsRowScroll: { flexDirection: 'row-reverse', gap: spacing.sm },
   chip: {
@@ -543,10 +543,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
   },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.text, fontSize: 12, fontWeight: '600' },
+  chipText: { color: colors.text, fontSize: fontSize.base, fontWeight: '600' },
   chipTextActive: { color: colors.textOnPrimary },
   helpLink: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.xs, marginTop: spacing.md, alignSelf: 'flex-end' },
-  helpLinkText: { color: colors.primary, fontSize: 12.5, fontWeight: '700' },
+  helpLinkText: { color: colors.primary, fontSize: fontSize.body, fontWeight: '700' },
   optionsRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginBottom: spacing.sm },
   optionCard: {
     flex: 1,
@@ -558,12 +558,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
   },
   optionCardActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  optionCardText: { color: colors.text, fontSize: 12, fontWeight: '700', textAlign: 'center' },
+  optionCardText: { color: colors.text, fontSize: fontSize.base, fontWeight: '700', textAlign: 'center' },
   optionCardTextActive: { color: colors.textOnPrimary },
   dateRow: { flexDirection: 'row-reverse', gap: spacing.md },
   dateField: { flex: 1 },
-  dateValue: { color: colors.text, fontSize: 14, textAlign: 'right' },
-  datePlaceholder: { color: colors.textFaint, fontSize: 14, textAlign: 'right' },
+  dateValue: { color: colors.text, fontSize: fontSize.bodyLg, textAlign: 'right' },
+  datePlaceholder: { color: colors.textFaint, fontSize: fontSize.bodyLg, textAlign: 'right' },
   pickerDoneButton: {
     alignSelf: 'flex-end',
     backgroundColor: colors.primary,
@@ -572,7 +572,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.sm,
     marginBottom: spacing.sm,
   },
-  pickerDoneText: { color: colors.textOnPrimary, fontSize: 13, fontWeight: '700' },
+  pickerDoneText: { color: colors.textOnPrimary, fontSize: fontSize.body, fontWeight: '700' },
   stepperRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.lg, alignSelf: 'flex-end' },
   stepperBtn: {
     width: 34,
@@ -584,7 +584,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepperValue: { color: colors.text, fontSize: 16, fontWeight: '700', minWidth: 28, textAlign: 'center' },
+  stepperValue: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', minWidth: 28, textAlign: 'center' },
   confirmStepButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.pill,
@@ -592,7 +592,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     marginTop: spacing.md,
   },
-  confirmStepText: { color: colors.textOnPrimary, fontSize: 13, fontWeight: '700' },
+  confirmStepText: { color: colors.textOnPrimary, fontSize: fontSize.body, fontWeight: '700' },
   whoGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm },
   whoCard: {
     width: '47%',
@@ -615,8 +615,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.sm,
   },
   friendRowActive: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
-  friendName: { flex: 1, color: colors.text, fontSize: 13, fontWeight: '600', textAlign: 'right' },
-  emptyMuted: { color: colors.textFaint, fontSize: 12, textAlign: 'center', paddingVertical: spacing.sm },
+  friendName: { flex: 1, color: colors.text, fontSize: fontSize.body, fontWeight: '600', textAlign: 'right' },
+  emptyMuted: { color: colors.textFaint, fontSize: fontSize.base, textAlign: 'center', paddingVertical: spacing.sm },
   footer: {
     padding: spacing.lg,
     borderTopWidth: 1,
@@ -624,7 +624,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.sm,
   },
   suggestRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
-  suggestText: { color: colors.text, fontSize: 13, fontWeight: '600' },
+  suggestText: { color: colors.text, fontSize: fontSize.body, fontWeight: '600' },
   submitButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.pill,
@@ -632,5 +632,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
   },
   submitDisabled: { opacity: 0.5 },
-  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
+  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.bodyLg },
 });

@@ -12,7 +12,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import CountryPickerModal from '../components/CountryPickerModal';
@@ -239,7 +239,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   modeRow: {
     flexDirection: 'row-reverse',
     gap: spacing.sm,
@@ -256,10 +256,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
   },
   modeBtnActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  modeText: { color: colors.text, fontSize: 13, fontWeight: '700' },
+  modeText: { color: colors.text, fontSize: fontSize.body, fontWeight: '700' },
   modeTextActive: { color: colors.textOnPrimary },
   body: { padding: spacing.lg },
-  label: { color: colors.textMuted, fontSize: 13, fontWeight: '600', textAlign: 'right', marginBottom: spacing.xs },
+  label: { color: colors.textMuted, fontSize: fontSize.body, fontWeight: '600', textAlign: 'right', marginBottom: spacing.xs },
   picker: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -272,9 +272,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
   },
   pickerValueRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
-  pickerFlag: { fontSize: 18 },
-  pickerValue: { color: colors.text, fontSize: 14, fontWeight: '700' },
-  pickerPlaceholder: { color: colors.textFaint, fontSize: 14 },
+  pickerFlag: { fontSize: fontSize.title },
+  pickerValue: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700' },
+  pickerPlaceholder: { color: colors.textFaint, fontSize: fontSize.bodyLg },
   searchBox: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -286,7 +286,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  searchInput: { flex: 1, minWidth: 0, color: colors.text, fontSize: 14, textAlign: 'right' },
+  searchInput: { flex: 1, minWidth: 0, color: colors.text, fontSize: fontSize.bodyLg, textAlign: 'right' },
   resultsList: { maxHeight: 280, marginTop: spacing.sm },
   resultRow: {
     flexDirection: 'row-reverse',
@@ -297,9 +297,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomColor: colors.border,
   },
   resultTextWrap: { flex: 1 },
-  resultName: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
-  resultRegion: { color: colors.textFaint, fontSize: 11.5, textAlign: 'right', marginTop: 2 },
-  noResultsText: { color: colors.textFaint, fontSize: 12.5, textAlign: 'center', marginTop: spacing.lg },
+  resultName: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+  resultRegion: { color: colors.textFaint, fontSize: fontSize.base, textAlign: 'right', marginTop: 2 },
+  noResultsText: { color: colors.textFaint, fontSize: fontSize.body, textAlign: 'center', marginTop: spacing.lg },
   selectedCityRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -310,8 +310,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
     marginTop: spacing.sm,
   },
-  selectedCityText: { color: colors.primaryDark, fontSize: 14, fontWeight: '700', textAlign: 'right' },
-  hint: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: spacing.sm, lineHeight: 16 },
+  selectedCityText: { color: colors.primaryDark, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+  hint: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'right', marginTop: spacing.sm, lineHeight: 16 },
   submitButton: {
     backgroundColor: colors.primary,
     borderRadius: radius.pill,
@@ -320,5 +320,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.xl,
   },
   submitDisabled: { opacity: 0.5 },
-  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
+  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.bodyLg },
 });

@@ -16,7 +16,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
@@ -391,8 +391,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomColor: colors.border,
   },
   headerTextWrap: { flex: 1, marginHorizontal: spacing.md, alignItems: 'flex-end' },
-  headerTitle: { color: colors.text, fontSize: 15, fontWeight: '700' },
-  headerSubtitle: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
+  headerSubtitle: { color: colors.textMuted, fontSize: fontSize.small, marginTop: 2 },
   pinnedBar: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -402,14 +402,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   pinnedBarDay: { color: colors.text, fontWeight: '700' },
-  pinnedBarText: { flex: 1, color: colors.primaryDark, fontSize: 12.5, textAlign: 'right' },
+  pinnedBarText: { flex: 1, color: colors.primaryDark, fontSize: fontSize.body, textAlign: 'right' },
   list: { padding: spacing.lg, gap: spacing.md },
   emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xl },
   bubble: { maxWidth: '80%', padding: spacing.md, borderRadius: radius.md, marginBottom: spacing.sm },
   bubbleOther: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, alignSelf: 'flex-start' },
   bubbleMe: { backgroundColor: colors.primary, alignSelf: 'flex-end' },
-  senderName: { color: colors.primary, fontSize: 11, fontWeight: '700', textAlign: 'right', marginBottom: 2 },
-  bubbleText: { color: colors.text, fontSize: 14, textAlign: 'right', lineHeight: 20 },
+  senderName: { color: colors.primary, fontSize: fontSize.small, fontWeight: '700', textAlign: 'right', marginBottom: 2 },
+  bubbleText: { color: colors.text, fontSize: fontSize.bodyLg, textAlign: 'right', lineHeight: 20 },
   bubbleTextMe: { color: colors.textOnPrimary },
   pollWrap: { alignItems: 'flex-start', marginBottom: spacing.sm },
   imageBubbleWrap: { alignSelf: 'flex-start', marginBottom: spacing.sm, maxWidth: '70%' },

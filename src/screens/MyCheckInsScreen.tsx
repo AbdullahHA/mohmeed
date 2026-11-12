@@ -14,7 +14,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
@@ -364,7 +364,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   centerState: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   badgesRow: { flexDirection: 'row-reverse', gap: spacing.sm, padding: spacing.lg, paddingBottom: spacing.sm },
   badgeChip: {
@@ -387,9 +387,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   badgeIconWrapLocked: { backgroundColor: colors.surfaceAlt },
-  badgeLabel: { color: colors.text, fontSize: 10.5, fontWeight: '700', textAlign: 'center' },
+  badgeLabel: { color: colors.text, fontSize: fontSize.small, fontWeight: '700', textAlign: 'center' },
   badgeLabelLocked: { color: colors.textFaint },
-  badgeProgress: { color: colors.textFaint, fontSize: 9.5 },
+  badgeProgress: { color: colors.textFaint, fontSize: fontSize.tiny },
   viewToggle: {
     flexDirection: 'row-reverse',
     gap: spacing.sm,
@@ -405,12 +405,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
   },
   toggleBtnActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  toggleText: { color: colors.text, fontSize: 12.5, fontWeight: '700' },
+  toggleText: { color: colors.text, fontSize: fontSize.body, fontWeight: '700' },
   toggleTextActive: { color: colors.textOnPrimary },
   map: { height: 320, marginHorizontal: spacing.lg, borderRadius: radius.md, overflow: 'hidden' },
   webFallback: { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceAlt },
-  webFallbackText: { color: colors.textMuted, fontSize: 12.5 },
-  emptyMapText: { color: colors.textFaint, fontSize: 12.5, textAlign: 'center', padding: spacing.xl },
+  webFallbackText: { color: colors.textMuted, fontSize: fontSize.body },
+  emptyMapText: { color: colors.textFaint, fontSize: fontSize.body, textAlign: 'center', padding: spacing.xl },
   mapPin: {
     width: 26,
     height: 26,
@@ -424,7 +424,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   list: { padding: spacing.lg, paddingTop: 0, gap: spacing.sm },
   sectionHeader: {
     color: colors.textMuted,
-    fontSize: 12.5,
+    fontSize: fontSize.body,
     fontWeight: '700',
     textAlign: 'right',
     marginTop: spacing.md,
@@ -453,9 +453,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   rowTextWrap: { flex: 1 },
   rowNameWrap: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
-  rowName: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
-  rowMeta: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
-  rowDate: { color: colors.textFaint, fontSize: 11, fontWeight: '600' },
+  rowName: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+  rowMeta: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right', marginTop: 2 },
+  rowDate: { color: colors.textFaint, fontSize: fontSize.small, fontWeight: '600' },
   feedCard: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -477,7 +477,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: 2,
   },
   feedActorName: { color: colors.primary, fontWeight: '700' },
-  feedNote: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
+  feedNote: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right', marginTop: 2 },
   feedIcon: {
     width: 32,
     height: 32,
@@ -501,6 +501,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   rankRowMine: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
   rankBadge: { width: 32, alignItems: 'center' },
-  rankBadgeText: { color: colors.textMuted, fontSize: 15, fontWeight: '800' },
-  rankPoints: { color: colors.primary, fontSize: 18, fontWeight: '800' },
+  rankBadgeText: { color: colors.textMuted, fontSize: fontSize.subtitle, fontWeight: '800' },
+  rankPoints: { color: colors.primary, fontSize: fontSize.title, fontWeight: '800' },
 });

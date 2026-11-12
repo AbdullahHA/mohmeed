@@ -14,7 +14,7 @@ import { Alert } from '../lib/alert';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useAuth } from '../context/AuthContext';
@@ -152,7 +152,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   body: { padding: spacing.lg },
   imagePicker: {
     height: 220,
@@ -167,10 +167,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     overflow: 'hidden',
   },
   imagePreview: { width: '100%', height: '100%' },
-  imagePickerText: { color: colors.textFaint, fontSize: 13 },
+  imagePickerText: { color: colors.textFaint, fontSize: fontSize.body },
   label: {
     color: colors.textMuted,
-    fontSize: 13,
+    fontSize: fontSize.body,
     fontWeight: '600',
     textAlign: 'right',
     marginTop: spacing.xl,
@@ -184,7 +184,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     minHeight: 80,
     textAlignVertical: 'top',
   },
@@ -198,7 +198,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   destChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  destChipText: { color: colors.text, fontSize: 12, fontWeight: '600' },
+  destChipText: { color: colors.text, fontSize: fontSize.base, fontWeight: '600' },
   destChipTextActive: { color: colors.textOnPrimary },
   submitButton: {
     backgroundColor: colors.primary,
@@ -208,5 +208,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.xl,
   },
   submitDisabled: { opacity: 0.5 },
-  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
+  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.bodyLg },
 });

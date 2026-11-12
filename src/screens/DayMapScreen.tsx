@@ -13,7 +13,7 @@ import RtlScrollRow from '../components/RtlScrollRow';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
@@ -197,7 +197,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   dayRow: { flexDirection: 'row-reverse', gap: spacing.sm, padding: spacing.lg },
   dayChip: {
     paddingHorizontal: spacing.lg,
@@ -208,12 +208,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
   },
   dayChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  dayChipText: { color: colors.text, fontSize: 12.5, fontWeight: '700' },
+  dayChipText: { color: colors.text, fontSize: fontSize.body, fontWeight: '700' },
   dayChipTextActive: { color: colors.textOnPrimary },
-  noDatesHint: { color: colors.textMuted, fontSize: 12.5, textAlign: 'center', padding: spacing.lg },
+  noDatesHint: { color: colors.textMuted, fontSize: fontSize.body, textAlign: 'center', padding: spacing.lg },
   map: { height: 220, marginHorizontal: spacing.lg, borderRadius: radius.md, overflow: 'hidden' },
   webFallback: { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceAlt },
-  webFallbackText: { color: colors.textMuted, fontSize: 12.5 },
+  webFallbackText: { color: colors.textMuted, fontSize: fontSize.body },
   numberedPin: {
     width: 26,
     height: 26,
@@ -224,11 +224,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  numberedPinText: { color: colors.textOnPrimary, fontSize: 12, fontWeight: '700' },
+  numberedPinText: { color: colors.textOnPrimary, fontSize: fontSize.base, fontWeight: '700' },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  emptyMuted: { color: colors.textFaint, fontSize: 13, textAlign: 'center', paddingVertical: spacing.xxl },
+  emptyMuted: { color: colors.textFaint, fontSize: fontSize.body, textAlign: 'center', paddingVertical: spacing.xxl },
   summaryRow: { flexDirection: 'row-reverse', gap: spacing.xs, marginBottom: spacing.md },
-  summaryText: { color: colors.textMuted, fontSize: 12.5, fontWeight: '600' },
+  summaryText: { color: colors.textMuted, fontSize: fontSize.body, fontWeight: '600' },
   stopRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
   stopNumber: {
     width: 26,
@@ -238,10 +238,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stopNumberText: { color: colors.textOnPrimary, fontSize: 12, fontWeight: '700' },
+  stopNumberText: { color: colors.textOnPrimary, fontSize: fontSize.base, fontWeight: '700' },
   stopTextWrap: { flex: 1 },
-  stopTitle: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
-  stopMeta: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right', marginTop: 2 },
+  stopTitle: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+  stopMeta: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right', marginTop: 2 },
   routeButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -252,5 +252,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: spacing.md,
     marginTop: spacing.lg,
   },
-  routeButtonText: { color: colors.textOnPrimary, fontSize: 13.5, fontWeight: '700' },
+  routeButtonText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, fontWeight: '700' },
 });

@@ -14,7 +14,7 @@ import { Alert } from '../lib/alert';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useContent } from '../context/ContentContext';
 import { supabase } from '../lib/supabase';
@@ -171,7 +171,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   notFound: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
   imageWrap: {
@@ -194,10 +194,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flexDirection: 'row-reverse',
     gap: spacing.xs,
   },
-  imageOverlayText: { color: colors.textOnPrimary, fontSize: 12, fontWeight: '700' },
+  imageOverlayText: { color: colors.textOnPrimary, fontSize: fontSize.base, fontWeight: '700' },
   label: {
     color: colors.textMuted,
-    fontSize: 13,
+    fontSize: fontSize.body,
     fontWeight: '600',
     textAlign: 'right',
     marginBottom: spacing.xs,
@@ -211,7 +211,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     textAlign: 'right',
   },
   multiline: { minHeight: 80, textAlignVertical: 'top' },
@@ -234,7 +234,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   typeChipText: {
     color: colors.text,
-    fontSize: 13,
+    fontSize: fontSize.body,
     fontWeight: '600',
   },
   typeChipTextActive: {
@@ -248,5 +248,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.xl,
   },
   submitDisabled: { opacity: 0.5 },
-  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: 14 },
+  submitText: { color: colors.textOnPrimary, fontWeight: '700', fontSize: fontSize.bodyLg },
 });

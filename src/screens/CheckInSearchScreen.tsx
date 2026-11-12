@@ -13,7 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import EmptyState from '../components/EmptyState';
@@ -227,7 +227,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   searchRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -244,7 +244,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     textAlign: 'right',
   },
   searchButton: {
@@ -259,7 +259,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   idleContent: { flex: 1, paddingHorizontal: spacing.lg },
   sectionLabel: {
     color: colors.textMuted,
-    fontSize: 13,
+    fontSize: fontSize.body,
     fontWeight: '700',
     textAlign: 'right',
     marginTop: spacing.md,
@@ -275,7 +275,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  categoryChipText: { color: colors.text, fontSize: 11, fontWeight: '600', textAlign: 'center' },
+  categoryChipText: { color: colors.text, fontSize: fontSize.small, fontWeight: '600', textAlign: 'center' },
   recentList: { gap: spacing.xs },
   recentRow: {
     flexDirection: 'row-reverse',
@@ -286,7 +286,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomColor: colors.border,
   },
   recentRowMain: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, flex: 1 },
-  recentRowText: { color: colors.text, fontSize: 13 },
+  recentRowText: { color: colors.text, fontSize: fontSize.body },
   list: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl, gap: spacing.sm },
   resultRow: {
     flexDirection: 'row-reverse',
@@ -307,6 +307,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   resultTextWrap: { flex: 1 },
-  resultName: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
-  resultMeta: { color: colors.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
+  resultName: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+  resultMeta: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right', marginTop: 2 },
 });

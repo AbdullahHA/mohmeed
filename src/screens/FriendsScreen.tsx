@@ -12,7 +12,7 @@ import { Alert } from '../lib/alert';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, cardShadow, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, cardShadow, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import PersonAvatar from '../components/PersonAvatar';
@@ -217,7 +217,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   statsRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -227,14 +227,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomColor: colors.border,
   },
   statItem: { alignItems: 'center', paddingHorizontal: spacing.lg },
-  statValue: { color: colors.primary, fontSize: 18, fontWeight: '700' },
-  statLabel: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
+  statValue: { color: colors.primary, fontSize: fontSize.title, fontWeight: '700' },
+  statLabel: { color: colors.textMuted, fontSize: fontSize.small, marginTop: 2 },
   statDivider: { width: 1, height: 28, backgroundColor: colors.border },
   loading: { marginTop: spacing.xxl },
   list: { padding: spacing.lg },
   sectionTitle: {
     color: colors.text,
-    fontSize: 14,
+    fontSize: fontSize.bodyLg,
     fontWeight: '700',
     textAlign: 'right',
     marginBottom: spacing.sm,
@@ -253,8 +253,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   rowTapArea: { flex: 1, flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
   textWrap: { flex: 1 },
-  name: { color: colors.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
-  username: { color: colors.textFaint, fontSize: 11, textAlign: 'right', marginTop: 1 },
+  name: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+  username: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'right', marginTop: 1 },
   actions: { flexDirection: 'row-reverse', alignItems: 'center', gap: 2 },
   actionButton: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center' },
   requestActions: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.xs },
@@ -275,5 +275,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  pendingLabel: { color: colors.textFaint, fontSize: 10, fontWeight: '600' },
+  pendingLabel: { color: colors.textFaint, fontSize: fontSize.tiny, fontWeight: '600' },
 });

@@ -4,7 +4,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -191,7 +191,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700', flex: 1, textAlign: 'center' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', flex: 1, textAlign: 'center' },
   body: { padding: spacing.lg, gap: spacing.sm, paddingBottom: spacing.xxl },
   emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
   soonBanner: {
@@ -205,10 +205,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: 5,
     marginBottom: spacing.sm,
   },
-  soonBannerText: { color: colors.accentDark, fontSize: 12, fontWeight: '700' },
-  title: { color: colors.text, fontSize: 19, fontWeight: '800', textAlign: 'right' },
+  soonBannerText: { color: colors.accentDark, fontSize: fontSize.base, fontWeight: '700' },
+  title: { color: colors.text, fontSize: fontSize.title, fontWeight: '800', textAlign: 'right' },
   metaRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6 },
-  metaText: { color: colors.textMuted, fontSize: 13, textAlign: 'right' },
+  metaText: { color: colors.textMuted, fontSize: fontSize.body, textAlign: 'right' },
   audienceBadge: {
     alignSelf: 'flex-end',
     backgroundColor: colors.surfaceAlt,
@@ -217,16 +217,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: 4,
     marginTop: 2,
   },
-  audienceBadgeText: { color: colors.textMuted, fontSize: 11, fontWeight: '700' },
+  audienceBadgeText: { color: colors.textMuted, fontSize: fontSize.small, fontWeight: '700' },
   endedNotice: { backgroundColor: colors.surfaceAlt, borderRadius: radius.md, padding: spacing.sm, marginTop: spacing.sm },
-  endedNoticeText: { color: colors.textMuted, fontSize: 12.5, textAlign: 'center', fontWeight: '600' },
+  endedNoticeText: { color: colors.textMuted, fontSize: fontSize.body, textAlign: 'center', fontWeight: '600' },
   disclosure: {
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.md,
     padding: spacing.md,
     marginTop: spacing.md,
   },
-  disclosureText: { color: colors.textMuted, fontSize: 11.5, lineHeight: 18, textAlign: 'right' },
+  disclosureText: { color: colors.textMuted, fontSize: fontSize.base, lineHeight: 18, textAlign: 'right' },
   officialBtn: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -237,7 +237,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: 13,
     marginTop: spacing.md,
   },
-  officialBtnText: { color: colors.textOnPrimary, fontSize: 14, fontWeight: '700' },
+  officialBtnText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, fontWeight: '700' },
   interestBtn: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -251,5 +251,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.sm,
   },
   interestBtnActive: { borderColor: colors.heart },
-  interestBtnText: { color: colors.text, fontSize: 13.5, fontWeight: '700' },
+  interestBtnText: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700' },
 });

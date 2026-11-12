@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useRegion } from '../context/RegionContext';
 import { useAppState } from '../context/AppState';
@@ -825,7 +825,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   glassGroup: { flexDirection: 'row-reverse', gap: spacing.sm },
   body: { padding: spacing.xl },
-  title: { color: colors.text, fontSize: 22, fontWeight: '700', textAlign: 'right' },
+  title: { color: colors.text, fontSize: fontSize.heading, fontWeight: '700', textAlign: 'right' },
   offlineBadge: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -837,10 +837,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: 2,
     marginTop: spacing.xs,
   },
-  offlineBadgeText: { color: colors.textMuted, fontSize: 10, fontWeight: '700' },
+  offlineBadgeText: { color: colors.textMuted, fontSize: fontSize.tiny, fontWeight: '700' },
   subtitleRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, marginTop: 4, marginBottom: spacing.md },
-  hijriSubtitle: { color: colors.textFaint, fontSize: 11.5, textAlign: 'right', marginTop: -4, marginBottom: spacing.sm },
-  subtitle: { color: colors.textMuted, fontSize: 13 },
+  hijriSubtitle: { color: colors.textFaint, fontSize: fontSize.base, textAlign: 'right', marginTop: -4, marginBottom: spacing.sm },
+  subtitle: { color: colors.textMuted, fontSize: fontSize.body },
   countdownBadge: { backgroundColor: colors.accentSoft, borderRadius: radius.pill, paddingHorizontal: spacing.sm, paddingVertical: 2 },
   summaryBanner: {
     flexDirection: 'row-reverse',
@@ -852,7 +852,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.md,
     alignSelf: 'flex-end',
   },
-  summaryBannerText: { color: colors.accentDark, fontSize: 12.5, fontWeight: '700' },
+  summaryBannerText: { color: colors.accentDark, fontSize: fontSize.body, fontWeight: '700' },
   scheduleHeaderRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
   mapButton: {
     width: 36,
@@ -864,11 +864,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  countdownText: { color: colors.accentDark, fontSize: 11, fontWeight: '700' },
+  countdownText: { color: colors.accentDark, fontSize: fontSize.small, fontWeight: '700' },
   membersRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm, alignItems: 'center', marginBottom: spacing.md },
   memberChip: { alignItems: 'center', width: 52 },
-  memberName: { color: colors.textMuted, fontSize: 10, marginTop: 4, textAlign: 'center' },
-  memberRoleText: { color: colors.textFaint, fontSize: 9, textAlign: 'center' },
+  memberName: { color: colors.textMuted, fontSize: fontSize.tiny, marginTop: 4, textAlign: 'center' },
+  memberRoleText: { color: colors.textFaint, fontSize: fontSize.tiny, textAlign: 'center' },
   inviteList: { marginBottom: spacing.md, gap: spacing.xs },
   inviteRow: {
     flexDirection: 'row-reverse',
@@ -880,8 +880,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.sm,
   },
-  inviteRowName: { color: colors.text, fontSize: 13, fontWeight: '600' },
-  emptyMuted: { color: colors.textFaint, fontSize: 12, textAlign: 'center', paddingVertical: spacing.sm },
+  inviteRowName: { color: colors.text, fontSize: fontSize.body, fontWeight: '600' },
+  emptyMuted: { color: colors.textFaint, fontSize: fontSize.base, textAlign: 'center', paddingVertical: spacing.sm },
   tabsRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginBottom: spacing.md },
   tabButton: {
     flex: 1,
@@ -894,7 +894,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: 4,
   },
   tabButtonActive: { backgroundColor: colors.text },
-  tabText: { color: colors.text, fontSize: 12.5, fontWeight: '700' },
+  tabText: { color: colors.text, fontSize: fontSize.body, fontWeight: '700' },
   tabTextActive: { color: colors.background },
   noDatesBanner: {
     flexDirection: 'row-reverse',
@@ -905,8 +905,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.md,
     marginBottom: spacing.md,
   },
-  noDatesText: { color: colors.primaryDark, fontSize: 12, fontWeight: '600', flex: 1, textAlign: 'right' },
-  slotHeading: { color: colors.text, fontSize: 12.5, fontWeight: '700', textAlign: 'right', marginTop: spacing.sm, marginBottom: 4 },
+  noDatesText: { color: colors.primaryDark, fontSize: fontSize.base, fontWeight: '600', flex: 1, textAlign: 'right' },
+  slotHeading: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right', marginTop: spacing.sm, marginBottom: 4 },
   budgetCard: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -915,16 +915,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.md,
   },
   budgetHeaderRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', marginBottom: spacing.xs },
-  budgetSpent: { color: colors.text, fontSize: 13, fontWeight: '700' },
-  budgetPerPerson: { color: colors.accentDark, fontSize: 12, fontWeight: '600' },
+  budgetSpent: { color: colors.text, fontSize: fontSize.body, fontWeight: '700' },
+  budgetPerPerson: { color: colors.accentDark, fontSize: fontSize.base, fontWeight: '600' },
   donutRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.lg, marginBottom: spacing.md },
   donutLegend: { flex: 1, gap: spacing.sm },
   legendRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
   legendDot: { width: 10, height: 10, borderRadius: 5 },
-  legendLabel: { flex: 1, color: colors.text, fontSize: 12.5, fontWeight: '600', textAlign: 'right' },
-  legendValue: { color: colors.textMuted, fontSize: 12.5, fontWeight: '700' },
-  donutCenterValue: { color: colors.text, fontSize: 17, fontWeight: '700', textAlign: 'center' },
-  donutCenterLabel: { color: colors.textMuted, fontSize: 9.5, textAlign: 'center', marginTop: 2 },
+  legendLabel: { flex: 1, color: colors.text, fontSize: fontSize.body, fontWeight: '600', textAlign: 'right' },
+  legendValue: { color: colors.textMuted, fontSize: fontSize.body, fontWeight: '700' },
+  donutCenterValue: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'center' },
+  donutCenterLabel: { color: colors.textMuted, fontSize: fontSize.tiny, textAlign: 'center', marginTop: 2 },
   settleCard: {
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.md,
@@ -932,11 +932,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     gap: spacing.sm,
     marginBottom: spacing.md,
   },
-  settleTitle: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right' },
-  settleSub: { color: colors.textMuted, fontSize: 11.5, textAlign: 'right', marginBottom: spacing.xs },
+  settleTitle: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
+  settleSub: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right', marginBottom: spacing.xs },
   settleRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
-  settleName: { flex: 1, color: colors.text, fontSize: 12.5, fontWeight: '600', textAlign: 'right' },
-  settleAmount: { color: colors.accentDark, fontSize: 13, fontWeight: '700' },
+  settleName: { flex: 1, color: colors.text, fontSize: fontSize.body, fontWeight: '600', textAlign: 'right' },
+  settleAmount: { color: colors.accentDark, fontSize: fontSize.body, fontWeight: '700' },
   settleReminderButton: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -945,8 +945,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     marginTop: spacing.xs,
   },
-  settleReminderText: { color: colors.text, fontSize: 12.5, fontWeight: '700' },
-  expensesHeading: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right', marginBottom: spacing.xs },
+  settleReminderText: { color: colors.text, fontSize: fontSize.body, fontWeight: '700' },
+  expensesHeading: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right', marginBottom: spacing.xs },
   budgetItemIcon: {
     width: 30,
     height: 30,
@@ -970,10 +970,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
-  budgetItemAmount: { color: colors.text, fontSize: 13, fontWeight: '700' },
+  budgetItemAmount: { color: colors.text, fontSize: fontSize.body, fontWeight: '700' },
   budgetItemTextWrap: { flex: 1 },
-  budgetItemLabel: { color: colors.text, fontSize: 13, textAlign: 'right' },
-  budgetItemCategory: { color: colors.textFaint, fontSize: 11, textAlign: 'right' },
+  budgetItemLabel: { color: colors.text, fontSize: fontSize.body, textAlign: 'right' },
+  budgetItemCategory: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'right' },
   chipsRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginTop: spacing.md, marginBottom: spacing.sm },
   chip: {
     paddingHorizontal: spacing.md,
@@ -984,7 +984,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.border,
   },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.text, fontSize: 11, fontWeight: '600' },
+  chipText: { color: colors.text, fontSize: fontSize.small, fontWeight: '600' },
   chipTextActive: { color: colors.textOnPrimary },
   addRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm },
   addButton: {
@@ -1003,7 +1003,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.sm,
     color: colors.text,
-    fontSize: 12,
+    fontSize: fontSize.base,
   },
   flex1: { flex: 1 },
   amountInput: { width: 90 },
@@ -1016,8 +1016,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   itineraryRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, paddingVertical: 4 },
   itineraryTextWrap: { flex: 1 },
-  itineraryTitle: { color: colors.text, fontSize: 13, fontWeight: '600', textAlign: 'right' },
-  itineraryMeta: { color: colors.textFaint, fontSize: 11, textAlign: 'right' },
+  itineraryTitle: { color: colors.text, fontSize: fontSize.body, fontWeight: '600', textAlign: 'right' },
+  itineraryMeta: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'right' },
   addItinerarySection: { gap: spacing.sm, marginTop: spacing.sm },
   checklistCard: {
     backgroundColor: colors.surface,
@@ -1028,7 +1028,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   checklistHeaderWrap: { gap: 6, marginBottom: spacing.md },
   checklistHeaderRow: { flexDirection: 'row-reverse' },
-  checklistHeaderCount: { color: colors.text, fontSize: 13, fontWeight: '700' },
+  checklistHeaderCount: { color: colors.text, fontSize: fontSize.body, fontWeight: '700' },
   checklistProgressTrack: { height: 6, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt, overflow: 'hidden' },
   checklistProgressFill: { height: '100%', borderRadius: radius.pill, backgroundColor: colors.success },
   suggestCard: {
@@ -1048,8 +1048,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  suggestTitle: { color: colors.text, fontSize: 12.5, fontWeight: '700', textAlign: 'right' },
-  suggestSubtitle: { color: colors.textMuted, fontSize: 11, textAlign: 'right', marginTop: 1 },
+  suggestTitle: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
+  suggestSubtitle: { color: colors.textMuted, fontSize: fontSize.small, textAlign: 'right', marginTop: 1 },
   checklistGroupWrap: { marginBottom: spacing.sm },
   checklistRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, paddingVertical: 6 },
   checklistRow2: {
@@ -1061,7 +1061,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderTopColor: colors.border,
   },
   checklistTextWrap2: { flex: 1 },
-  checklistDueDate: { color: colors.textFaint, fontSize: 10.5, textAlign: 'right', marginTop: 1 },
+  checklistDueDate: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'right', marginTop: 1 },
   checklistAssignee: {
     width: 22,
     height: 22,
@@ -1072,7 +1072,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     justifyContent: 'center',
   },
   checklistAssigneeDot: { width: 22, height: 22, borderRadius: 11 },
-  checklistTitle: { color: colors.text, fontSize: 13, textAlign: 'right', flex: 1 },
+  checklistTitle: { color: colors.text, fontSize: fontSize.body, textAlign: 'right', flex: 1 },
   checklistTitleDone: { color: colors.textFaint, textDecorationLine: 'line-through' },
   shareCodeCard: {
     flexDirection: 'row-reverse',
@@ -1082,5 +1082,5 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.md,
   },
-  shareCodeText: { flex: 1, color: colors.primaryDark, fontSize: 12, fontWeight: '700', textAlign: 'right' },
+  shareCodeText: { flex: 1, color: colors.primaryDark, fontSize: fontSize.base, fontWeight: '700', textAlign: 'right' },
 });

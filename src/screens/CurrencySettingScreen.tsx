@@ -10,7 +10,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useRegion } from '../context/RegionContext';
 import { CURRENCIES, type Currency } from '../data/currencies';
@@ -74,8 +74,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  headerTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
-  hint: { color: colors.textFaint, fontSize: 11, textAlign: 'right', padding: spacing.lg, paddingBottom: 0, lineHeight: 16 },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
+  hint: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'right', padding: spacing.lg, paddingBottom: 0, lineHeight: 16 },
   list: { padding: spacing.lg },
   row: {
     flexDirection: 'row-reverse',
@@ -85,9 +85,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  rowFlag: { fontSize: 20 },
-  rowCode: { color: colors.textFaint, fontSize: 12, width: 40, textAlign: 'right' },
-  rowName: { flex: 1, color: colors.text, fontSize: 14, fontWeight: '600', textAlign: 'right' },
+  rowFlag: { fontSize: fontSize.title },
+  rowCode: { color: colors.textFaint, fontSize: fontSize.base, width: 40, textAlign: 'right' },
+  rowName: { flex: 1, color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '600', textAlign: 'right' },
   radio: {
     width: 20,
     height: 20,

@@ -4,7 +4,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import type { AppNotification, NotificationType } from '../types';
@@ -202,7 +202,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  headerTitle: { flex: 1, color: colors.text, fontSize: 18, fontWeight: '700', textAlign: 'center' },
+  headerTitle: { flex: 1, color: colors.text, fontSize: fontSize.title, fontWeight: '700', textAlign: 'center' },
   backButton: {
     width: 36,
     height: 36,
@@ -213,7 +213,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  markAllText: { color: colors.primary, fontSize: 12.5, fontWeight: '700' },
+  markAllText: { color: colors.primary, fontSize: fontSize.body, fontWeight: '700' },
   filterRow: { flexDirection: 'row-reverse', gap: spacing.sm, paddingHorizontal: spacing.lg, marginBottom: spacing.md },
   filterChip: {
     paddingHorizontal: spacing.lg,
@@ -222,10 +222,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.surfaceAlt,
   },
   filterChipActive: { backgroundColor: colors.text },
-  filterChipText: { color: colors.text, fontSize: 13, fontWeight: '600' },
+  filterChipText: { color: colors.text, fontSize: fontSize.body, fontWeight: '600' },
   filterChipTextActive: { color: colors.background },
   list: { padding: spacing.lg, paddingTop: 0, paddingBottom: spacing.xxl },
-  groupHeading: { color: colors.textMuted, fontSize: 12, fontWeight: '700', textAlign: 'right', marginTop: spacing.md, marginBottom: spacing.sm },
+  groupHeading: { color: colors.textMuted, fontSize: fontSize.base, fontWeight: '700', textAlign: 'right', marginTop: spacing.md, marginBottom: spacing.sm },
   emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
   row: {
     flexDirection: 'row-reverse',
@@ -259,12 +259,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderColor: colors.surface,
   },
   textWrap: { flex: 1, gap: 2 },
-  title: { color: colors.text, fontSize: 13.5, fontWeight: '700', textAlign: 'right' },
-  body: { color: colors.textMuted, fontSize: 12, textAlign: 'right', lineHeight: 18 },
-  time: { color: colors.textFaint, fontSize: 10.5, textAlign: 'right', marginTop: 2 },
+  title: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700', textAlign: 'right' },
+  body: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right', lineHeight: 18 },
+  time: { color: colors.textFaint, fontSize: fontSize.small, textAlign: 'right', marginTop: 2 },
   actionsRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginTop: spacing.sm },
   acceptButton: { backgroundColor: colors.primary, borderRadius: radius.pill, paddingHorizontal: spacing.lg, paddingVertical: spacing.xs },
-  acceptButtonText: { color: colors.textOnPrimary, fontSize: 12.5, fontWeight: '700' },
+  acceptButtonText: { color: colors.textOnPrimary, fontSize: fontSize.body, fontWeight: '700' },
   declineButton: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: spacing.lg, paddingVertical: spacing.xs },
-  declineButtonText: { color: colors.textMuted, fontSize: 12.5, fontWeight: '700' },
+  declineButtonText: { color: colors.textMuted, fontSize: fontSize.body, fontWeight: '700' },
 });

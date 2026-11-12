@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, View, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import Text from './Text';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { setWebAlertHandler, type AlertButton } from '../lib/alert';
 
@@ -69,8 +69,8 @@ const createStyles = (colors: ThemeColors) =>
       padding: spacing.lg,
       gap: spacing.sm,
     },
-    title: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right' },
-    message: { color: colors.textMuted, fontSize: 13.5, textAlign: 'right', lineHeight: 20 },
+    title: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right' },
+    message: { color: colors.textMuted, fontSize: fontSize.bodyLg, textAlign: 'right', lineHeight: 20 },
     buttonsRow: { flexDirection: 'row-reverse', gap: spacing.sm, marginTop: spacing.sm },
     button: {
       flex: 1,
@@ -81,6 +81,6 @@ const createStyles = (colors: ThemeColors) =>
     },
     buttonCancel: { backgroundColor: colors.surfaceAlt },
     buttonDestructive: { backgroundColor: colors.red },
-    buttonText: { color: colors.textOnPrimary, fontSize: 14, fontWeight: '700' },
+    buttonText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, fontWeight: '700' },
     buttonTextCancel: { color: colors.text },
   });

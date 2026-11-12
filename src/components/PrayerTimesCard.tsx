@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import {
   PRAYER_LABELS,
@@ -73,14 +73,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginBottom: spacing.lg,
   },
   headerRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.sm },
-  headerTitle: { color: colors.text, fontSize: 13, fontWeight: '700', flex: 1, textAlign: 'right' },
-  nextLabel: { color: colors.primary, fontSize: 11.5, fontWeight: '700' },
+  headerTitle: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', flex: 1, textAlign: 'right' },
+  nextLabel: { color: colors.primary, fontSize: fontSize.base, fontWeight: '700' },
   timesRow: { flexDirection: 'row-reverse', justifyContent: 'space-between' },
   timeCell: { alignItems: 'center', flex: 1 },
   timeCellActive: { backgroundColor: colors.primarySoft, borderRadius: radius.sm, paddingVertical: 4 },
-  timeLabel: { color: colors.textMuted, fontSize: 10.5, fontWeight: '600' },
+  timeLabel: { color: colors.textMuted, fontSize: fontSize.small, fontWeight: '600' },
   timeLabelActive: { color: colors.primary },
-  timeValue: { color: colors.text, fontSize: 12, fontWeight: '700', marginTop: 2 },
+  timeValue: { color: colors.text, fontSize: fontSize.base, fontWeight: '700', marginTop: 2 },
   qiblaRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.xs, marginTop: spacing.sm },
-  qiblaText: { color: colors.textMuted, fontSize: 11 },
+  qiblaText: { color: colors.textMuted, fontSize: fontSize.small },
 });

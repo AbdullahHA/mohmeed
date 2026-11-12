@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableOpacity, Linking, ScrollView } from 'react-n
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { radius, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
@@ -335,8 +335,8 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   scrollContent: { padding: spacing.lg, paddingBottom: 120, gap: spacing.md },
   header: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'flex-start' },
   headerTextWrap: { gap: 2 },
-  headerTitle: { color: colors.text, fontSize: 15, fontWeight: '700', textAlign: 'right' },
-  headerDate: { color: colors.textMuted, fontSize: 12, textAlign: 'right' },
+  headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right' },
+  headerDate: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'right' },
   offlineBadge: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -346,7 +346,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
   },
-  offlineBadgeText: { color: colors.textMuted, fontSize: 10 },
+  offlineBadgeText: { color: colors.textMuted, fontSize: fontSize.tiny },
   nextCard: {
     backgroundColor: colors.surface,
     borderWidth: 1.5,
@@ -355,9 +355,9 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.lg,
     gap: 4,
   },
-  nextLabel: { color: colors.primary, fontSize: 11, fontWeight: '700', textAlign: 'right' },
-  nextTitle: { color: colors.text, fontSize: 18, fontWeight: '700', textAlign: 'right' },
-  nextSlot: { color: colors.textMuted, fontSize: 12.5, textAlign: 'right', marginBottom: spacing.sm },
+  nextLabel: { color: colors.primary, fontSize: fontSize.small, fontWeight: '700', textAlign: 'right' },
+  nextTitle: { color: colors.text, fontSize: fontSize.title, fontWeight: '700', textAlign: 'right' },
+  nextSlot: { color: colors.textMuted, fontSize: fontSize.body, textAlign: 'right', marginBottom: spacing.sm },
   nextActions: { flexDirection: 'row-reverse', gap: spacing.sm, marginTop: spacing.xs },
   nextActionBtn: {
     flexDirection: 'row-reverse',
@@ -370,7 +370,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingVertical: 7,
   },
   nextActionPrimary: { backgroundColor: colors.primary, borderColor: colors.primary },
-  nextActionText: { color: colors.text, fontSize: 12, fontWeight: '700' },
+  nextActionText: { color: colors.text, fontSize: fontSize.base, fontWeight: '700' },
   nextActionTextPrimary: { color: colors.textOnPrimary },
   doneCard: {
     backgroundColor: colors.primarySoft,
@@ -379,7 +379,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     alignItems: 'center',
     gap: spacing.xs,
   },
-  doneCardText: { color: colors.text, fontSize: 14, fontWeight: '700' },
+  doneCardText: { color: colors.text, fontSize: fontSize.bodyLg, fontWeight: '700' },
   cardsGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm },
   infoCard: {
     width: '47%',
@@ -390,13 +390,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.md,
     gap: 2,
   },
-  infoCardTitle: { color: colors.textMuted, fontSize: 11, fontWeight: '600', textAlign: 'right', marginTop: 4 },
-  infoCardMain: { color: colors.text, fontSize: 16, fontWeight: '700', textAlign: 'right' },
-  infoCardSub: { color: colors.textMuted, fontSize: 11, textAlign: 'right' },
-  infoCardLink: { color: colors.primary, fontSize: 13, fontWeight: '700', textAlign: 'right' },
-  infoCardHospital: { color: colors.textMuted, fontSize: 10.5, textAlign: 'right' },
+  infoCardTitle: { color: colors.textMuted, fontSize: fontSize.small, fontWeight: '600', textAlign: 'right', marginTop: 4 },
+  infoCardMain: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right' },
+  infoCardSub: { color: colors.textMuted, fontSize: fontSize.small, textAlign: 'right' },
+  infoCardLink: { color: colors.primary, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right' },
+  infoCardHospital: { color: colors.textMuted, fontSize: fontSize.small, textAlign: 'right' },
   restSection: { gap: spacing.xs },
-  restTitle: { color: colors.text, fontSize: 13, fontWeight: '700', textAlign: 'right', marginBottom: 2 },
+  restTitle: { color: colors.text, fontSize: fontSize.body, fontWeight: '700', textAlign: 'right', marginBottom: 2 },
   restRow: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -407,7 +407,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.sm,
     padding: spacing.sm,
   },
-  restRowSlot: { color: colors.textMuted, fontSize: 11, fontWeight: '600' },
-  restRowTitle: { flex: 1, color: colors.text, fontSize: 12.5, fontWeight: '600', textAlign: 'right' },
+  restRowSlot: { color: colors.textMuted, fontSize: fontSize.small, fontWeight: '600' },
+  restRowTitle: { flex: 1, color: colors.text, fontSize: fontSize.body, fontWeight: '600', textAlign: 'right' },
   restRowDone: { color: colors.textFaint, textDecorationLine: 'line-through' },
 });
