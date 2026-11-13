@@ -13,6 +13,7 @@ import PlaceEdit from './pages/PlaceEdit';
 import Communities from './pages/Communities';
 import CommunityRequests from './pages/CommunityRequests';
 import CommunityReports from './pages/CommunityReports';
+import UserReports from './pages/UserReports';
 import Users from './pages/Users';
 import Notifications from './pages/Notifications';
 import Events from './pages/Events';
@@ -75,6 +76,7 @@ function Router() {
         <Route path="communities" element={<RequireRole page="/communities"><Communities /></RequireRole>} />
         <Route path="community-requests" element={<RequireRole page="/community-requests"><CommunityRequests /></RequireRole>} />
         <Route path="community-reports" element={<RequireRole page="/community-reports"><CommunityReports /></RequireRole>} />
+        <Route path="user-reports" element={<RequireRole page="/user-reports"><UserReports /></RequireRole>} />
         <Route path="users" element={<RequireRole page="/users"><Users /></RequireRole>} />
         <Route path="notifications" element={<RequireRole page="/notifications"><Notifications /></RequireRole>} />
         <Route path="events" element={<RequireRole page="/events"><Events /></RequireRole>} />

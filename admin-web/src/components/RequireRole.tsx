@@ -1,10 +1,9 @@
 import type { ReactNode } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { canAccess, effectiveRole, ROLE_LABELS, type PageKey } from '../lib/roles';
+import { usePreviewRole } from '../context/PreviewRoleContext';
+import { canAccess, ROLE_LABELS, type PageKey } from '../lib/roles';
 
 export default function RequireRole({ page, children }: { page: PageKey; children: ReactNode }) {
-  const { profile } = useAuth();
-  const role = effectiveRole(profile?.adminRole ?? null);
+  const { displayRole: role } = usePreviewRole();
 
   if (!canAccess(role, page)) {
     return (

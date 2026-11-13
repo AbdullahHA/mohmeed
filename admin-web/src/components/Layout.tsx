@@ -3,7 +3,9 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import CommandPalette from './CommandPalette';
-import { canAccess, effectiveRole, ROLE_LABELS, type PageKey } from '../lib/roles';
+import AlertsBell from './AlertsBell';
+import { PreviewRoleProvider, usePreviewRole } from '../context/PreviewRoleContext';
+import { canAccess, effectiveRole, ALL_ROLES, ROLE_LABELS, type PageKey } from '../lib/roles';
 
 const NAV_GROUPS: { label: string; items: { to: PageKey; label: string; end?: boolean }[] }[] = [
   { label: 'عام', items: [{ to: '/', label: 'نظرة عامة', end: true }] },
@@ -22,6 +24,7 @@ const NAV_GROUPS: { label: string; items: { to: PageKey; label: string; end?: bo
       { to: '/communities', label: 'المجتمعات' },
       { to: '/community-requests', label: 'طلبات إنشاء مجتمعات' },
       { to: '/community-reports', label: 'بلاغات المجتمعات' },
+      { to: '/user-reports', label: 'بلاغات المستخدمين' },
       { to: '/posts-reviews', label: 'المنشورات والتقييمات' },
       { to: '/users', label: 'المستخدمون' },
       { to: '/support', label: 'الدعم والملاحظات' },
@@ -47,11 +50,21 @@ const NAV_GROUPS: { label: string; items: { to: PageKey; label: string; end?: bo
 ];
 
 export default function Layout() {
+  const { profile } = useAuth();
+  const realRole = effectiveRole(profile?.adminRole ?? null);
+  return (
+    <PreviewRoleProvider realRole={realRole}>
+      <LayoutInner />
+    </PreviewRoleProvider>
+  );
+}
+
+function LayoutInner() {
   const { profile, signOut } = useAuth();
   const { theme, resolved, setTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
-  const role = effectiveRole(profile?.adminRole ?? null);
+  const { realRole, displayRole: role, isPreviewing, canPreview, previewRole, setPreviewRole } = usePreviewRole();
 
   const visibleGroups = NAV_GROUPS.map((g) => ({
     ...g,
@@ -99,6 +112,25 @@ export default function Layout() {
       ))}
 
       <div className="mt-auto flex flex-col gap-2 pt-4">
+        {canPreview ? (
+          <div className="px-1">
+            <label htmlFor="previewRole" className="mb-1 block text-[11px] font-semibold text-muted-foreground">
+              معاينة كدور (صلاحياتك الحقيقية لا تتغير)
+            </label>
+            <select
+              id="previewRole"
+              value={previewRole ?? 'owner'}
+              onChange={(e) => setPreviewRole(e.target.value === 'owner' ? null : (e.target.value as (typeof ALL_ROLES)[number]))}
+              className="w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs font-semibold text-foreground"
+            >
+              {ALL_ROLES.map((r) => (
+                <option key={r} value={r}>
+                  {ROLE_LABELS[r]}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
         <button
           onClick={() => setTheme(theme === 'dark' ? 'light' : theme === 'light' ? 'system' : 'dark')}
           className="rounded-md border border-border px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted"
@@ -111,7 +143,7 @@ export default function Layout() {
           className="flex items-center justify-between rounded-md px-2 py-1 text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           <span>{profile?.name} · إعدادات الحساب</span>
-          <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold text-primary-ink">{ROLE_LABELS[role]}</span>
+          <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold text-primary-ink">{ROLE_LABELS[realRole]}</span>
         </Link>
         <button
           onClick={() => signOut()}
@@ -156,8 +188,19 @@ export default function Layout() {
       </aside>
 
       <main className="min-w-0 flex-1 overflow-y-auto p-4 pt-20 md:p-6 md:pt-6">
-        <div className="mb-6 max-w-xl">
-          <CommandPalette items={allVisibleItems} />
+        {isPreviewing ? (
+          <div className="mb-4 flex items-center justify-between gap-3 rounded-md bg-gold-soft px-4 py-2.5 text-sm font-semibold text-gold-ink">
+            <span>تعاين الآن كـ{ROLE_LABELS[role]} — هذا يغيّر العرض بس، صلاحياتك الحقيقية ({ROLE_LABELS[realRole]}) ما تغيّرت</span>
+            <button onClick={() => setPreviewRole(null)} className="rounded-md bg-card px-3 py-1 text-xs font-bold text-foreground">
+              رجّعني لحسابي
+            </button>
+          </div>
+        ) : null}
+        <div className="mb-6 flex items-center gap-3">
+          <div className="max-w-xl flex-1">
+            <CommandPalette items={allVisibleItems} />
+          </div>
+          <AlertsBell role={role} />
         </div>
         <Outlet />
       </main>
