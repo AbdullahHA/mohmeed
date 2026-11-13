@@ -58,9 +58,15 @@ export default function PassportScreen() {
     .sort((a, b) => a.visitedAt - b.visitedAt);
 
   const countriesVisited = useMemo(() => {
-    const set = new Set(visitedDestinations.map((v) => v.destination.country).filter(Boolean));
+    const set = new Set<string>(visitedDestinations.map((v) => v.destination.country).filter(Boolean));
+    for (const place of manualVisitedPlaces) {
+      const country = place.kind === 'country' ? place.name : place.country;
+      if (country) set.add(country);
+    }
     return set.size;
-  }, [visitedDestinations]);
+  }, [visitedDestinations, manualVisitedPlaces]);
+
+  const citiesVisited = visitedDestinations.length + manualVisitedPlaces.filter((p) => p.kind === 'city').length;
 
   const reviewsCount = useMemo(
     () => places.filter((p) => recommendedPlaceIds.includes(p.id)).length,
@@ -147,7 +153,7 @@ export default function PassportScreen() {
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statCell}>
-              <Text style={styles.statValue}>{visitedDestinations.length}</Text>
+              <Text style={styles.statValue}>{citiesVisited}</Text>
               <Text style={styles.statLabel}>مدينة</Text>
             </View>
           </View>

@@ -90,8 +90,14 @@ export default function UserProfileScreen() {
       const visitedDestinations = visited.stamps
         .map((stamp) => destinations.find((d) => d.id === stamp.destinationId))
         .filter((d): d is (typeof destinations)[number] => Boolean(d));
-      setCitiesVisited(visitedDestinations.length);
-      setCountriesVisited(new Set(visitedDestinations.map((d) => d.country)).size);
+      const manualCities = visited.manual.filter((p) => p.kind === 'city').length;
+      setCitiesVisited(visitedDestinations.length + manualCities);
+      const countrySet = new Set<string>(visitedDestinations.map((d) => d.country));
+      for (const place of visited.manual) {
+        const country = place.kind === 'country' ? place.name : place.country;
+        if (country) countrySet.add(country);
+      }
+      setCountriesVisited(countrySet.size);
       setPublishedTrips((publishedTripsResult.data ?? []) as { id: string; title: string; destination: string }[]);
       setLoading(false);
     });

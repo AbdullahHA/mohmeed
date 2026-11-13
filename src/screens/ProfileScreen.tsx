@@ -127,11 +127,16 @@ export default function ProfileScreen() {
 
   const myTemplates = tripTemplates.filter((t) => t.isMine);
 
-  // Real countries only (destinations tagged with a country) — never a made-up figure.
+  // Real countries only (destinations tagged with a country, plus manually
+  // added country/city stamps) — never a made-up figure.
   const countriesVisited = useMemo(() => {
-    const set = new Set(visitedDestinations.map((v) => v.destination.country).filter(Boolean));
+    const set = new Set<string>(visitedDestinations.map((v) => v.destination.country).filter(Boolean));
+    for (const place of manualVisitedPlaces) {
+      const country = place.kind === 'country' ? place.name : place.country;
+      if (country) set.add(country);
+    }
     return set.size;
-  }, [visitedDestinations]);
+  }, [visitedDestinations, manualVisitedPlaces]);
   const worldPercent = Math.round((countriesVisited / WORLD_COUNTRIES) * 100);
 
   // XP = رحلة +100، دولة جديدة +150، مدونة +80، تقييم +20 (SPEC §18) — summed

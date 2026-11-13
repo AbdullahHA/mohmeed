@@ -91,11 +91,11 @@ export default function AddVisitedPlaceScreen() {
 
   const handleAdd = () => {
     if (mode === 'country' && selectedCountry) {
-      addManualVisitedPlace(selectedCountry);
+      addManualVisitedPlace(selectedCountry, 'country', selectedCountry);
       navigation.goBack();
     } else if (mode === 'city' && selectedCity) {
       const label = selectedCity.region ? `${selectedCity.name}، ${selectedCity.region}` : selectedCity.name;
-      addManualVisitedPlace(label);
+      addManualVisitedPlace(label, 'city', selectedCity.region || null);
       navigation.goBack();
     }
   };

@@ -225,6 +225,8 @@ export type LoyaltyMembership = {
 export type ManualVisitedPlace = {
   id: string;
   name: string;
+  country: string | null;
+  kind: 'country' | 'city';
   visitedAt: number;
 };
 

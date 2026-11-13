@@ -156,7 +156,7 @@ type AppStateValue = {
   removeLoyaltyMembership: (id: string) => void;
   addWishlistItem: (name: string) => void;
   removeWishlistItem: (id: string) => void;
-  addManualVisitedPlace: (name: string) => Promise<void>;
+  addManualVisitedPlace: (name: string, kind: 'country' | 'city', country: string | null) => Promise<void>;
   removeManualVisitedPlace: (id: string) => Promise<void>;
   addTripTemplate: (input: NewTripTemplateInput) => TripTemplate;
   removeTripTemplate: (id: string) => void;
@@ -475,7 +475,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     }
     const [stampsRes, manualRes] = await Promise.all([
       supabase.from('visited_stamps').select('destination_id,visited_at').eq('profile_id', profile.id),
-      supabase.from('manual_visited_places').select('id,name,visited_at').eq('profile_id', profile.id),
+      supabase.from('manual_visited_places').select('id,name,country,kind,visited_at').eq('profile_id', profile.id),
     ]);
     setVisitedStamps(
       (stampsRes.data ?? []).map((r: any) => ({
@@ -487,6 +487,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       (manualRes.data ?? []).map((r: any) => ({
         id: r.id,
         name: r.name,
+        country: r.country ?? null,
+        kind: r.kind === 'country' ? 'country' : 'city',
         visitedAt: new Date(r.visited_at).getTime(),
       }))
     );
@@ -495,7 +497,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const loadUserVisitedPlaces = async (userId: string) => {
     const [stampsRes, manualRes] = await Promise.all([
       supabase.from('visited_stamps').select('destination_id,visited_at').eq('profile_id', userId),
-      supabase.from('manual_visited_places').select('id,name,visited_at').eq('profile_id', userId),
+      supabase.from('manual_visited_places').select('id,name,country,kind,visited_at').eq('profile_id', userId),
     ]);
     const stamps: VisitedStamp[] = (stampsRes.data ?? []).map((r: any) => ({
       destinationId: r.destination_id,
@@ -504,6 +506,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     const manual: ManualVisitedPlace[] = (manualRes.data ?? []).map((r: any) => ({
       id: r.id,
       name: r.name,
+      country: r.country ?? null,
+      kind: r.kind === 'country' ? 'country' : 'city',
       visitedAt: new Date(r.visited_at).getTime(),
     }));
     return { stamps, manual };
@@ -1596,18 +1600,24 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setWishlist((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const addManualVisitedPlace = async (name: string) => {
+  const addManualVisitedPlace = async (name: string, kind: 'country' | 'city', country: string | null) => {
     if (!profile) return;
     const trimmed = name.trim();
     if (!trimmed) return;
     const { data } = await supabase
       .from('manual_visited_places')
-      .insert({ profile_id: profile.id, name: trimmed })
-      .select('id,name,visited_at')
+      .insert({ profile_id: profile.id, name: trimmed, kind, country })
+      .select('id,name,country,kind,visited_at')
       .single();
     if (!data) return;
     setManualVisitedPlaces((prev) => [
-      { id: data.id, name: data.name, visitedAt: new Date(data.visited_at).getTime() },
+      {
+        id: data.id,
+        name: data.name,
+        country: data.country ?? null,
+        kind: data.kind === 'country' ? 'country' : 'city',
+        visitedAt: new Date(data.visited_at).getTime(),
+      },
       ...prev,
     ]);
   };
