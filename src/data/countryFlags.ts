@@ -182,3 +182,21 @@ export const COUNTRY_OPTIONS: CountryOption[] = COUNTRIES.map((name) => {
   const code = COUNTRY_CODES[name] ?? '';
   return { name, code, flag: code ? flagFromCode(code) : '🏳️' };
 });
+
+export const FLAG_BY_NAME: Record<string, string> = Object.fromEntries(
+  COUNTRY_OPTIONS.map((c) => [c.name, c.flag])
+);
+
+// `region` is often "State، Country" (e.g. "تكساس، الولايات المتحدة") and
+// sometimes shortens a country's name (no "الأمريكية" suffix) relative to
+// our own list — so check the last comma segment against both directions
+// of containment, not just an exact/full match.
+export function flagForRegion(region: string): string | null {
+  if (!region) return null;
+  if (FLAG_BY_NAME[region]) return FLAG_BY_NAME[region];
+  const lastSegment = region.split(/[،,]/).pop()?.trim() ?? region;
+  const match = COUNTRY_OPTIONS.find(
+    (c) => region.includes(c.name) || c.name.includes(lastSegment) || lastSegment.includes(c.name)
+  );
+  return match ? match.flag : null;
+}

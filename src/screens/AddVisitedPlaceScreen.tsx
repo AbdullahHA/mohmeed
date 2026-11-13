@@ -16,30 +16,13 @@ import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import CountryPickerModal from '../components/CountryPickerModal';
-import { COUNTRY_OPTIONS } from '../data/countryFlags';
+import { COUNTRY_OPTIONS, FLAG_BY_NAME, flagForRegion } from '../data/countryFlags';
 import { searchCities, type CitySuggestion } from '../lib/googlePlaces';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type Mode = 'country' | 'city';
 
-const FLAG_BY_NAME: Record<string, string> = Object.fromEntries(
-  COUNTRY_OPTIONS.map((c) => [c.name, c.flag])
-);
-
-function flagForRegion(region: string): string | null {
-  if (!region) return null;
-  if (FLAG_BY_NAME[region]) return FLAG_BY_NAME[region];
-  // Google's region text is often "State، Country" (e.g. "تكساس، الولايات
-  // المتحدة") and sometimes shortens a country's name (no "الأمريكية"
-  // suffix) relative to our own list — so check the last comma segment
-  // against both directions of containment, not just an exact/full match.
-  const lastSegment = region.split(/[،,]/).pop()?.trim() ?? region;
-  const match = COUNTRY_OPTIONS.find(
-    (c) => region.includes(c.name) || c.name.includes(lastSegment) || lastSegment.includes(c.name)
-  );
-  return match ? match.flag : null;
-}
 
 export default function AddVisitedPlaceScreen() {
   const navigation = useNavigation<Nav>();

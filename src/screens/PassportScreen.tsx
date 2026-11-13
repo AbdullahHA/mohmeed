@@ -19,6 +19,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
+import { flagForRegion } from '../data/countryFlags';
 import { computeXp, computeTravelerLevel, nextLevelThreshold } from '../utils/travelerStats';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -89,6 +90,7 @@ export default function PassportScreen() {
     dateLabel: string;
     timestamp: number;
     image?: (typeof visitedDestinations)[number]['destination']['image'];
+    flag?: string | null;
     color: string;
     onPress?: () => void;
     onLongPress?: () => void;
@@ -109,6 +111,7 @@ export default function PassportScreen() {
       name: place.name,
       dateLabel: formatStampDate(place.visitedAt),
       timestamp: place.visitedAt,
+      flag: flagForRegion(place.kind === 'country' ? place.name : place.country ?? place.name),
       color: fixedColors.stamps[1],
       onLongPress: () =>
         Alert.alert('حذف الختم؟', `بيُحذف "${place.name}" من أختامك.`, [
@@ -195,6 +198,10 @@ export default function PassportScreen() {
                 <View style={[styles.stampRing, { borderColor: stamp.color }]}>
                   {stamp.image ? (
                     <Image source={stamp.image} style={styles.stampImage} />
+                  ) : stamp.flag ? (
+                    <View style={[styles.inkStamp, { borderColor: stamp.color }]}>
+                      <Text style={styles.inkStampFlag}>{stamp.flag}</Text>
+                    </View>
                   ) : (
                     <Ionicons name="location" size={22} color={stamp.color} />
                   )}
@@ -266,6 +273,17 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.surfaceAlt,
   },
   stampImage: { width: '100%', height: '100%' },
+  inkStamp: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transform: [{ rotate: '-8deg' }],
+  },
+  inkStampFlag: { fontSize: fontSize.heading, transform: [{ rotate: '8deg' }] },
   stampName: { color: colors.text, fontSize: fontSize.small, fontWeight: '700', textAlign: 'center', marginTop: spacing.xs },
   stampDate: { color: colors.textFaint, fontSize: fontSize.tiny, fontWeight: '600', textAlign: 'center' },
 });
