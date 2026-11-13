@@ -57,8 +57,14 @@ export default function NotificationsScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { notifications, markNotificationRead, markAllNotificationsRead, acceptFriendRequest, declineFriendRequest } =
-    useAppState();
+  const {
+    notifications,
+    markNotificationRead,
+    markAllNotificationsRead,
+    acceptFriendRequest,
+    declineFriendRequest,
+    incomingRequests,
+  } = useAppState();
   const [filter, setFilter] = useState<Filter>('all');
   const [respondingId, setRespondingId] = useState<string | null>(null);
   const [handledIds, setHandledIds] = useState<Set<string>>(new Set());
@@ -161,7 +167,9 @@ export default function NotificationsScreen() {
                     <Text style={styles.title}>{item.title}</Text>
                     {item.body ? <Text style={styles.body}>{item.body}</Text> : null}
                     <Text style={styles.time}>{timeAgo(item.createdAt)}</Text>
-                    {item.type === 'friend_request' && !handledIds.has(item.id) ? (
+                    {item.type === 'friend_request' &&
+                    !handledIds.has(item.id) &&
+                    incomingRequests.some((f) => f.id === (item.data as { senderId?: string } | null)?.senderId) ? (
                       <View style={styles.actionsRow}>
                         <TouchableOpacity
                           style={styles.acceptButton}
