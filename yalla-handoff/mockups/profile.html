@@ -1,0 +1,632 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>ملف يلا نسافر المدمج</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@600;700&display=swap">
+<style>
+/* Layout: three phone frames side by side on desktop; a segmented switch shows one at a time on phones */
+:root{
+  --page:#eef1f7; --screen:#f6f8fb; --card:#ffffff; --ink:#141a2b; --muted:#5b6378; --line:#e3e7f0;
+  --primary:oklch(0.5 0.23 262); --primary-ink:oklch(0.5 0.23 262); --primary-soft:oklch(0.94 0.04 262); --gold-ink:#8f5a0c; --ok-ink:#13744a; --gold:#d9932b; --gold-soft:#fbefd9;
+  --navy:#16245c; --ok:#1f9d63;
+  --s1:#e07b24; --s2:#1f9d63; --s3:#2a55d8; --s4:#b2449a; --s5:#2a9bb0;
+  --display:"Reem Kufi","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --body:"IBM Plex Sans Arabic",system-ui,sans-serif;
+  --shadow:0 1px 2px rgb(20 26 43/.05),0 8px 24px rgb(20 26 43/.06);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --page:#0b0f1a; --screen:#10162a; --card:#18203a; --ink:#eef1fa; --muted:#98a1ba; --line:#263052;
+  --primary:oklch(0.56 0.2 262); --primary-ink:oklch(0.76 0.13 262); --primary-soft:oklch(0.3 0.08 262); --gold-ink:#eab05a; --ok-ink:#3fbf85; --gold:#eab05a; --gold-soft:#3a2c14;
+  --navy:#22337a; --shadow:0 1px 2px rgb(0 0 0/.3),0 8px 24px rgb(0 0 0/.3); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --page:#0b0f1a; --screen:#10162a; --card:#18203a; --ink:#eef1fa; --muted:#98a1ba; --line:#263052;
+  --primary:oklch(0.56 0.2 262); --primary-ink:oklch(0.76 0.13 262); --primary-soft:oklch(0.3 0.08 262); --gold-ink:#eab05a; --ok-ink:#3fbf85; --gold:#eab05a; --gold-soft:#3a2c14;
+  --navy:#22337a; --shadow:0 1px 2px rgb(0 0 0/.3),0 8px 24px rgb(0 0 0/.3); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--page);color:var(--ink);font-family:var(--body);margin:0}
+.wrap{direction:rtl;max-width:1280px;margin:0 auto;padding-block:28px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.intro{display:grid;gap:6px;margin-bottom:22px}
+header.intro h1{font-family:var(--display);font-size:clamp(24px,4vw,34px);margin:0;text-wrap:balance}
+header.intro p{margin:0;color:var(--muted);font-size:15px;max-width:62ch;line-height:1.8}
+
+.switch{display:none;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px;margin-bottom:18px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.switch button{flex:1;border:0;background:none;color:var(--muted);font:600 13px var(--body);padding:10px 6px;border-radius:10px;cursor:pointer}
+.switch button[aria-selected="true"]{background:var(--primary);color:#fff}
+.switch button:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+
+.concepts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;align-items:start}
+.concept{display:grid;gap:14px;min-width:0}
+.concept-head{display:grid;gap:4px}
+.concept-head .tag{font-size:12px;font-weight:600;color:var(--primary-ink);letter-spacing:.02em}
+.concept-head h2{margin:0;font-family:var(--display);font-size:22px}
+.concept-head p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.75}
+
+.phone{background:var(--screen);border:10px solid #0d1120;border-radius:46px;height:800px;overflow:hidden;position:relative;box-shadow:0 30px 60px -20px rgb(13 17 32/.35);max-width:390px;width:100%;margin-inline:auto}
+.scroll{height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding-bottom:96px}
+.scroll::-webkit-scrollbar{display:none}
+.notes{display:grid;gap:8px;font-size:13px;line-height:1.7;color:var(--muted)}
+.notes b{color:var(--ink);font-weight:600}
+.notes ul{margin:0;padding-inline-start:18px;display:grid;gap:2px}
+
+@media (max-width:1100px){
+  .switch{display:flex}
+  .concepts{grid-template-columns:minmax(0,1fr)}
+  .concept{display:none}
+  .concept.active{display:grid}
+}
+@media (max-width:480px){
+  .phone{border-width:6px;border-radius:34px;height:760px}
+}
+
+/* ---------- shared phone UI ---------- */
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.statusbar{height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-size:13px;font-weight:600;direction:ltr}
+.statusbar.on-photo{position:absolute;inset:0 0 auto;color:#fff;z-index:2}
+.iconbtn{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:rgb(255 255 255/.85);color:#141a2b;border:0}
+.iconbtn.plain{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.btn{border:0;border-radius:12px;font:600 13px var(--body);padding:10px 14px;display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+.btn.primary{background:var(--primary);color:#fff}
+.btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.sec{padding:0 18px;margin-top:20px}
+.sec-title{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.sec-title h3{margin:0;font-size:15px;font-weight:700}
+.sec-title a{font-size:12px;color:var(--primary-ink);text-decoration:none;font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px}
+.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+
+.nav{position:absolute;inset:auto 10px 12px;background:color-mix(in oklab,var(--card) 92%,transparent);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:26px;display:flex;justify-content:space-around;padding:8px 6px;box-shadow:var(--shadow);z-index:3}
+.nav span{display:grid;justify-items:center;gap:2px;font-size:10.5px;color:var(--muted);padding:6px 10px;border-radius:18px}
+.nav span.on{background:var(--primary-soft);color:var(--primary-ink);font-weight:600}
+.nav svg.i{width:20px;height:20px}
+
+/* photo stand-ins (CSS scenes, since the page can't load external images) */
+.ph-desert{background:linear-gradient(180deg,#f0a35c 0%,#e9895a 32%,#b6573a 58%,#7a3524 100%)}
+.ph-desert::after{content:"";position:absolute;inset:auto 0 0;height:55%;background:
+  radial-gradient(60% 90% at 20% 100%,#5c2a1c 60%,transparent 61%),
+  radial-gradient(40% 70% at 75% 100%,#6d3221 60%,transparent 61%),
+  radial-gradient(30% 110% at 50% 100%,#4a2216 55%,transparent 56%)}
+.ph-sea{background:linear-gradient(180deg,#9fd3f0 0%,#6db7e3 45%,#1f7fb8 46%,#155f8f 100%)}
+.ph-city{background:linear-gradient(180deg,#5a6fa8 0%,#8e8fc4 50%,#d6a3a8 100%)}
+.ph-city::after{content:"";position:absolute;inset:auto 0 0;height:50%;background:
+  linear-gradient(90deg,#2a2f55 0 12%,transparent 12% 16%,#33396a 16% 30%,transparent 30% 34%,#262b4e 34% 44%,transparent 44% 48%,#30366a 48% 66%,transparent 66% 70%,#2a2f55 70% 86%,transparent 86% 90%,#33396a 90%);
+  clip-path:polygon(0 30%,12% 30%,12% 0,16% 0,16% 45%,30% 45%,30% 15%,34% 15%,34% 55%,48% 55%,48% 5%,66% 5%,66% 40%,70% 40%,70% 25%,86% 25%,86% 60%,90% 60%,90% 35%,100% 35%,100% 100%,0 100%)}
+.ph-green{background:linear-gradient(180deg,#bfe3d0 0%,#7fc4a0 40%,#3f8f68 100%)}
+.ph-night{background:radial-gradient(circle at 70% 30%,#f7e7a6 0 6%,transparent 7%),linear-gradient(180deg,#1b2350 0%,#3a2f6b 60%,#6a3d6e 100%)}
+.ph-food{background:radial-gradient(circle at 50% 55%,#f5d7a1 0 22%,#d98b3a 23% 30%,transparent 31%),linear-gradient(135deg,#7a4a2a,#3d2414)}
+.ph-old{background:linear-gradient(180deg,#e9d3a8 0%,#d1a86a 55%,#a8773e 100%)}
+.ph{position:relative;overflow:hidden}
+
+/* ---------- A: passport ---------- */
+.a-cover{height:180px}
+.a-cover .tools{position:absolute;top:46px;inset-inline:16px;display:flex;justify-content:space-between;z-index:2}
+.a-id{padding:0 18px;margin-top:-44px;position:relative;display:grid;gap:10px}
+.avatar{border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;background:linear-gradient(135deg,#3b6cf0,#2a3fae)}
+.a-id .avatar{width:88px;height:88px;font-size:30px;border:4px solid var(--screen)}
+.a-name{display:flex;align-items:center;gap:6px;font-size:20px;font-weight:700}
+.verified{width:18px;height:18px;color:var(--primary-ink)}
+.a-handle{font-size:13px;direction:ltr;text-align:right}
+.a-bio{font-size:13.5px;line-height:1.75;margin:0}
+.meta-row{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}
+.meta-row span{display:inline-flex;align-items:center;gap:4px}
+.meta-row svg.i{width:14px;height:14px}
+.a-actions{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}
+.stats4{display:grid;grid-template-columns:repeat(4,1fr);text-align:center;padding:12px 4px}
+.stats4 div{display:grid;gap:2px}
+.stats4 div+div{border-inline-start:1px solid var(--line)}
+.stats4 b{font-size:17px}
+.stats4 small{font-size:11px;color:var(--muted)}
+
+.passport{background:var(--navy);color:#e9edff;border-radius:20px;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;position:relative;overflow:hidden}
+.passport::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgb(255 255 255/.03) 0 2px,transparent 2px 10px)}
+.ring{--p:6;width:84px;height:84px;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--p)*1%),rgb(255 255 255/.15) 0);display:grid;place-items:center;position:relative}
+.ring::after{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--navy)}
+.ring span{position:relative;z-index:1;text-align:center;font-size:11px;line-height:1.3}
+.ring b{display:block;font-size:20px;color:#fff}
+.passport .pt{position:relative;display:grid;gap:6px}
+.passport .pt small{font-size:10.5px;letter-spacing:.12em;opacity:.7;direction:ltr;text-align:right}
+.passport .pt h4{margin:0;font-family:var(--display);font-size:18px;color:#fff}
+.level{display:inline-flex;align-items:center;gap:5px;background:rgb(217 147 43/.2);color:#f6c77d;border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:600;width:max-content}
+.xp{height:6px;border-radius:9px;background:rgb(255 255 255/.15);overflow:hidden}
+.xp i{display:block;height:100%;width:78%;background:var(--gold);border-radius:9px}
+.passport .pt p{margin:0;font-size:11px;opacity:.8}
+
+.stamps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px;background:
+  linear-gradient(var(--card),var(--card)) padding-box;border-radius:20px;border:1px dashed var(--line)}
+.stamp{aspect-ratio:1;border-radius:50%;border:2px dashed currentColor;display:grid;place-items:center;text-align:center;font-size:12px;font-weight:700;padding:6px;position:relative}
+.stamp::before{content:"";position:absolute;inset:4px;border-radius:50%;border:1px solid currentColor;opacity:.5}
+.stamp small{display:block;font-size:9.5px;font-weight:500;opacity:.8}
+.stamp.sq{border-radius:14px}.stamp.sq::before{border-radius:10px}
+.stamp:nth-child(1){color:var(--s1);transform:rotate(-8deg)}
+.stamp:nth-child(2){color:var(--s2);transform:rotate(6deg)}
+.stamp:nth-child(3){color:var(--s3);transform:rotate(-3deg)}
+.stamp:nth-child(4){color:var(--s4);transform:rotate(9deg)}
+.stamp:nth-child(5){color:var(--s5);transform:rotate(-6deg)}
+.stamp.add{color:var(--muted);transform:none;font-weight:500}
+
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);padding:0 18px;margin-top:22px;overflow-x:auto;scrollbar-width:none}
+.tabs span{font-size:13px;padding:10px 8px;color:var(--muted);white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs span.on{color:var(--ink);font-weight:700;border-color:var(--primary)}
+
+.upcoming{display:grid;grid-template-columns:64px 1fr;gap:12px;padding:12px;align-items:center}
+.upcoming .ph{height:64px;border-radius:14px}
+.upcoming h5{margin:0;font-size:14px}
+.upcoming p{margin:2px 0 6px;font-size:12px}
+.count{display:inline-flex;gap:4px;align-items:center;font-size:11px;font-weight:600;color:var(--ok-ink);background:color-mix(in oklab,var(--ok) 14%,transparent);padding:2px 8px;border-radius:999px}
+.faces{display:flex;direction:ltr}
+.faces i{width:22px;height:22px;border-radius:50%;border:2px solid var(--card);margin-left:-7px;display:block}
+.faces i:first-child{margin-left:0}
+
+/* ---------- B: social ---------- */
+.b-top{display:flex;justify-content:space-between;align-items:center;padding:6px 18px 4px}
+.b-top h4{margin:0;font-size:17px;direction:ltr;display:flex;align-items:center;gap:4px}
+.b-top .t{display:flex;gap:8px}
+.b-row{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;padding:10px 18px 0}
+.story-ring{padding:3px;border-radius:50%;background:conic-gradient(from 200deg,#f0a35c,#e0527d,#6a5cf0,#2a9bb0,#f0a35c)}
+.story-ring .avatar{width:82px;height:82px;font-size:28px;border:3px solid var(--screen)}
+.b-stats{display:grid;grid-template-columns:repeat(3,1fr);text-align:center}
+.b-stats b{display:block;font-size:17px}
+.b-stats small{font-size:11.5px;color:var(--muted)}
+.b-info{padding:10px 18px 0;display:grid;gap:6px}
+.b-info .n{font-weight:700;font-size:15px;display:flex;gap:6px;align-items:center}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--primary-soft);color:var(--primary-ink);display:inline-flex;gap:4px;align-items:center}
+.chip.gold{background:var(--gold-soft);color:var(--gold-ink)}
+.chip svg.i{width:12px;height:12px}
+.b-info p{margin:0;font-size:13px;line-height:1.7}
+.b-info a{font-size:12.5px;color:var(--primary-ink);direction:ltr;text-align:right;text-decoration:none;font-weight:600}
+.b-actions{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;padding:12px 18px 0}
+.highlights{display:flex;gap:14px;padding:16px 18px 2px;overflow-x:auto;scrollbar-width:none}
+.hl{display:grid;justify-items:center;gap:5px;font-size:11px;flex:none}
+.hl .ph{width:60px;height:60px;border-radius:50%;border:2px solid var(--card);outline:1.5px solid var(--line);outline-offset:1px}
+.hl .plus{width:60px;height:60px;border-radius:50%;border:1.5px dashed var(--muted);display:grid;place-items:center;color:var(--muted)}
+.meetup{margin:14px 18px 0;padding:12px;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:linear-gradient(135deg,var(--primary-soft),var(--card))}
+.meetup .ic{width:38px;height:38px;border-radius:12px;background:var(--primary);color:#fff;display:grid;place-items:center}
+.meetup h5{margin:0;font-size:13px}
+.meetup p{margin:2px 0 0;font-size:11.5px}
+.icotabs{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line);margin-top:16px}
+.icotabs span{display:grid;place-items:center;padding:10px 0;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
+.icotabs span.on{color:var(--ink);border-color:var(--ink)}
+.grid9{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:2px}
+.grid9 .ph{aspect-ratio:4/5}
+.grid9 .lbl{position:absolute;inset:auto 6px 6px auto;z-index:1;font-size:10px;font-weight:600;color:#fff;background:rgb(0 0 0/.45);padding:2px 7px;border-radius:999px;display:flex;align-items:center;gap:3px}
+.grid9 .lbl svg.i{width:11px;height:11px}
+.grid9 .pin{position:absolute;top:6px;left:6px;z-index:1;color:#fff}
+.grid9 .pin svg.i{width:14px;height:14px}
+
+/* ---------- C: map + stats ---------- */
+.c-map{height:250px;background:
+  radial-gradient(circle,rgb(255 255 255/.22) 1.1px,transparent 1.6px) 0 0/9px 9px,
+  linear-gradient(160deg,#1a2a6c 0%,#22398f 55%,#2a4fd6 100%)}
+.c-map .land{position:absolute;border-radius:45% 55% 50% 50%;background:radial-gradient(circle,rgb(255 255 255/.55) 1.2px,transparent 1.7px) 0 0/9px 9px}
+.c-map svg.route{position:absolute;inset:0;width:100%;height:100%}
+.pinm{position:absolute;width:12px;height:12px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgb(217 147 43/.3);transform:translate(50%,-50%)}
+.pinm em{position:absolute;top:-22px;right:50%;transform:translateX(50%);font-style:normal;font-size:10px;font-weight:600;color:#fff;white-space:nowrap;background:rgb(0 0 0/.35);padding:1px 6px;border-radius:6px}
+.c-map .over{position:absolute;inset:auto 16px 14px;display:flex;justify-content:space-between;align-items:end;z-index:2;color:#fff}
+.c-map .over b{font-size:26px;display:block;line-height:1}
+.c-map .over small{font-size:11.5px;opacity:.85}
+.c-map .tools{position:absolute;top:46px;inset-inline:16px;display:flex;justify-content:space-between;z-index:2}
+.c-id{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:0 18px;margin-top:-26px;position:relative;z-index:2}
+.c-id .avatar{width:64px;height:64px;font-size:22px;border:3px solid var(--screen)}
+.c-id .who{padding-top:28px}
+.c-id .who b{font-size:16px;display:flex;gap:5px;align-items:center}
+.c-id .who small{font-size:12px;color:var(--muted)}
+.c-id .btn{margin-top:28px;padding:8px 12px}
+.lvl{padding:14px;display:grid;gap:8px}
+.lvl .top{display:flex;justify-content:space-between;align-items:center}
+.lvl .badge{display:flex;gap:10px;align-items:center}
+.lvl .medal{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#f6c77d,#d9932b);display:grid;place-items:center;color:#5a3608}
+.lvl b{font-size:14px}.lvl small{font-size:11.5px;color:var(--muted)}
+.bar{height:8px;border-radius:9px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--gold),#f0b960)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{padding:12px;display:grid;gap:4px}
+.tile svg.i{color:var(--primary-ink)}
+.tile b{font-size:20px}
+.tile small{font-size:11.5px;color:var(--muted)}
+.dna{padding:14px;display:grid;gap:10px}
+.dna-row{display:grid;grid-template-columns:62px 1fr 34px;gap:8px;align-items:center;font-size:12px}
+.dna-row .bar{height:7px}
+.dna-row .bar i{background:var(--primary)}
+.dna-row span:last-child{text-align:left;color:var(--muted)}
+.badges{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.bdg{flex:none;width:72px;display:grid;justify-items:center;gap:6px;text-align:center;font-size:10.5px;line-height:1.35}
+.bdg .hex{width:54px;height:58px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);display:grid;place-items:center;color:#fff}
+.bdg .hex svg.i{width:22px;height:22px}
+.bdg.locked .hex{background:var(--line)!important;color:var(--muted)}
+.bdg.locked{color:var(--muted)}
+.timeline{display:grid;gap:0}
+.tl{display:grid;grid-template-columns:18px 1fr;gap:12px;position:relative;padding-bottom:14px}
+.tl::before{content:"";position:absolute;right:8px;top:14px;bottom:0;width:2px;background:var(--line)}
+.tl:last-child::before{display:none}
+.tl .dot{width:18px;height:18px;border-radius:50%;border:3px solid var(--primary);background:var(--screen);margin-top:2px}
+.tl.future .dot{border-style:dashed}
+.tl .card{display:grid;grid-template-columns:1fr 54px;gap:10px;padding:10px;align-items:center}
+.tl h5{margin:0;font-size:13.5px}
+.tl p{margin:2px 0 0;font-size:11.5px}
+.tl .ph{height:54px;border-radius:12px}
+
+@media (prefers-reduced-motion:no-preference){
+  .stamp{transition:transform .25s}
+  .stamp:hover{transform:rotate(0) scale(1.06)}
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+    <symbol id="share" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></symbol>
+    <symbol id="pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+    <symbol id="edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+    <symbol id="userplus" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></symbol>
+    <symbol id="msg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="check" viewBox="0 0 24 24"><path d="M12 2l2.4 2.2 3.2-.4.9 3.1 2.9 1.5-1 3 1 3.1-2.9 1.5-.9 3.1-3.2-.4L12 22l-2.4-2.2-3.2.4-.9-3.1-2.9-1.5 1-3.1-1-3 2.9-1.5.9-3.1 3.2.4z" fill="currentColor" stroke="none"/><path d="m8.5 12 2.5 2.5 4.5-5" stroke="#fff" stroke-width="2.2"/></symbol>
+    <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></symbol>
+    <symbol id="book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></symbol>
+    <symbol id="map" viewBox="0 0 24 24"><path d="m1 6 7-4 8 4 7-4v16l-7 4-8-4-7 4z"/><path d="M8 2v16M16 6v16"/></symbol>
+    <symbol id="star" viewBox="0 0 24 24"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></symbol>
+    <symbol id="home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z"/></symbol>
+    <symbol id="compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2.1 6.3-6.3 2.1 2.1-6.3z"/></symbol>
+    <symbol id="bag" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2M2 13h20"/></symbol>
+    <symbol id="chat" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2-5.3A8.5 8.5 0 1 1 21 11.5z"/></symbol>
+    <symbol id="user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.5" fill="currentColor"/><path d="M3.5 21a8.5 8.5 0 0 1 17 0z" fill="currentColor"/></symbol>
+    <symbol id="plane" viewBox="0 0 24 24"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></symbol>
+    <symbol id="clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol id="award" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/></symbol>
+    <symbol id="globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></symbol>
+    <symbol id="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></symbol>
+    <symbol id="users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></symbol>
+    <symbol id="flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></symbol>
+    <symbol id="lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="11" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+    <symbol id="utensils" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></symbol>
+    <symbol id="chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  </defs>
+</svg>
+
+<style>
+.concepts.two{grid-template-columns:repeat(2,minmax(0,390px)) minmax(0,1fr);gap:32px}
+.m-cover{height:150px}
+.m-cover .tools{position:absolute;top:46px;inset-inline:16px;display:flex;justify-content:space-between;z-index:2}
+.m-id{padding:0 18px;margin-top:-46px;position:relative;display:grid;gap:10px}
+.m-id .story-ring{width:max-content}
+.m-id .story-ring .avatar{width:86px;height:86px}
+.m-head{display:flex;justify-content:space-between;align-items:end;gap:8px}
+.m-head .lvlpill{display:inline-flex;align-items:center;gap:5px;background:var(--gold-soft);color:var(--gold-ink);border-radius:999px;padding:4px 10px;font-size:11.5px;font-weight:700;margin-bottom:6px}
+.m-head .lvlpill svg.i{width:13px;height:13px}
+.mutual{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.passport.slim{grid-template-columns:auto 1fr auto;padding:14px}
+.passport.slim .ring{width:66px;height:66px}
+.passport.slim .ring b{font-size:16px}
+.passport.slim .ring span{font-size:9.5px}
+.passport.slim .go{position:relative;color:#fff;opacity:.8;transform:rotate(90deg)}
+.stamps.row{grid-template-columns:repeat(4,1fr);gap:8px;padding:12px}
+.stamps.row .stamp{font-size:11px}
+.stamps.row .stamp small{font-size:8.5px}
+.ltabs{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line);margin-top:20px}
+.ltabs span{display:grid;justify-items:center;gap:3px;padding:9px 0;color:var(--muted);font-size:11px;border-bottom:2px solid transparent;margin-bottom:-1px}
+.ltabs span.on{color:var(--ink);font-weight:700;border-color:var(--primary)}
+.ltabs svg.i{width:17px;height:17px}
+.together{margin:14px 18px 0;padding:12px;display:grid;gap:10px;background:linear-gradient(135deg,var(--primary-soft),var(--card))}
+.together .r{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center}
+.together .ic{width:38px;height:38px;border-radius:12px;background:var(--primary);color:#fff;display:grid;place-items:center}
+.together h5{margin:0;font-size:13px}
+.together p{margin:2px 0 0;font-size:11.5px}
+.together .b{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.together .btn{padding:8px;font-size:12px}
+.map-panel{display:grid;gap:18px;font-size:13.5px;line-height:1.8;align-content:start}
+.map-panel h3{margin:0;font-family:var(--display);font-size:20px}
+.moves{display:grid;gap:0;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card)}
+.mv{display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1.2fr);gap:8px;align-items:center;padding:10px 14px;font-size:13px}
+.mv+.mv{border-top:1px solid var(--line)}
+.mv .from{color:var(--muted)}
+.mv .to{font-weight:600}
+.mv svg.i{width:16px;height:16px;color:var(--primary-ink);transform:rotate(90deg)}
+.legend{display:grid;gap:8px}
+.legend div{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start}
+.legend .k{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.k.a{background:var(--gold-soft);color:var(--gold-ink)}
+.k.b{background:var(--primary-soft);color:var(--primary-ink)}
+.k.n{background:color-mix(in oklab,var(--ok) 14%,transparent);color:var(--ok-ink)}
+@media (max-width:1100px){.concepts.two{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:1100px){.map-panel{display:none}.map-panel.active{display:grid}}
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <h1>الملف المدمج: جواز + مجتمع</h1>
+    <p>الهوية من التصميم الأول (الجواز والأختام والمستوى)، والتواصل من التصميم الثاني (المتابعة والستوري و«نلتقي؟»). نفس الصفحة بشكلين: وأنت تشوف ملفك، ولما يشوفه شخص ثاني.</p>
+  </header>
+
+  <div class="switch" role="tablist" aria-label="اختر الشاشة">
+    <button role="tab" aria-selected="true" data-t="a" id="tab-a">ملفي أنا</button>
+    <button role="tab" aria-selected="false" data-t="b" id="tab-b">كما يشوفه غيري</button>
+    <button role="tab" aria-selected="false" data-t="c" id="tab-c">وين راحت الأقسام؟</button>
+  </div>
+
+  <div class="concepts two">
+
+    <!-- ========== OWN VIEW ========== -->
+    <section class="concept active" id="c-a">
+      <div class="concept-head">
+        <span class="tag">الشاشة الأولى</span>
+        <h2>ملفي أنا</h2>
+        <p>اللي يشوفه صاحب الحساب لما يضغط «حسابي».</p>
+      </div>
+      <div class="phone"><div class="scroll">
+        <div class="ph ph-desert m-cover">
+          <div class="statusbar on-photo"><span>9:41</span><span>●●●</span></div>
+          <div class="tools">
+            <button class="iconbtn" aria-label="الإعدادات"><svg class="i"><use href="#settings"/></svg></button>
+            <button class="iconbtn" aria-label="تغيير الغلاف"><svg class="i"><use href="#edit"/></svg></button>
+          </div>
+        </div>
+        <div class="m-id">
+          <div class="m-head">
+            <div class="story-ring"><div class="avatar">ت</div></div>
+            <span class="lvlpill"><svg class="i"><use href="#award"/></svg>مستكشف ذهبي</span>
+          </div>
+          <div>
+            <div class="a-name">تركي العتيبي <svg class="i verified"><use href="#check"/></svg></div>
+            <div class="a-handle muted">@turki.travels</div>
+          </div>
+          <div class="chips">
+            <span class="chip gold"><svg class="i"><use href="#award"/></svg>خبير محلي · الرياض</span>
+            <span class="chip"><svg class="i"><use href="#utensils"/></svg>عاشق أكل</span>
+            <span class="chip"><svg class="i"><use href="#sun"/></svg>صحراء</span>
+          </div>
+          <p class="a-bio">أحب الصحراء والقهوة المختصة والمطاعم الشعبية. أكتب عن رحلاتي داخل المملكة وبرّا.</p>
+          <div class="meta-row">
+            <span><svg class="i"><use href="#pin"/></svg>الرياض</span>
+            <span><svg class="i"><use href="#globe"/></svg>عربي · English</span>
+            <span><svg class="i"><use href="#cal"/></svg>يسافر من 2019</span>
+          </div>
+          <div class="card stats4 num">
+            <div><b>12</b><small>دولة</small></div>
+            <div><b>18</b><small>رحلة</small></div>
+            <div><b>1,248</b><small>متابع</small></div>
+            <div><b>312</b><small>يتابع</small></div>
+          </div>
+          <div class="a-actions">
+            <button class="btn primary"><svg class="i"><use href="#edit"/></svg>تعديل الملف</button>
+            <button class="btn ghost"><svg class="i"><use href="#share"/></svg>مشاركة</button>
+            <button class="btn ghost" aria-label="إضافة صديق"><svg class="i"><use href="#userplus"/></svg></button>
+          </div>
+        </div>
+
+        <div class="highlights">
+          <div class="hl"><div class="plus"><svg class="i"><use href="#plus"/></svg></div>جديد</div>
+          <div class="hl"><div class="ph ph-desert"></div>العلا</div>
+          <div class="hl"><div class="ph ph-city"></div>لندن</div>
+          <div class="hl"><div class="ph ph-sea"></div>جدة</div>
+          <div class="hl"><div class="ph ph-old"></div>مدريد</div>
+          <div class="hl"><div class="ph ph-night"></div>دبي</div>
+        </div>
+
+        <div class="sec">
+          <div class="passport slim">
+            <div class="ring" style="--p:6"><span><b class="num">6%</b>من العالم</span></div>
+            <div class="pt">
+              <small>YALLA NSAFER · PASSPORT</small>
+              <h4>جواز رحلاتي</h4>
+              <div class="xp"><i></i></div>
+              <p class="num">باقي 3 دول وتوصل «سفير»</p>
+            </div>
+            <svg class="i go"><use href="#chev"/></svg>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-title"><h3>أختامي</h3><a href="#">الكل (12)</a></div>
+          <div class="stamps row">
+            <div class="stamp">العلا<small>نوف 26</small></div>
+            <div class="stamp sq">لندن<small>أغس 26</small></div>
+            <div class="stamp">جدة<small>يول 26</small></div>
+            <div class="stamp add"><span><svg class="i"><use href="#plus"/></svg><small>ختم</small></span></div>
+          </div>
+        </div>
+
+        <div class="card together">
+          <div class="r">
+            <div class="ic"><svg class="i"><use href="#plane"/></svg></div>
+            <div><h5>رايح العلا 12 نوفمبر</h5><p class="muted">3 من اللي تتابعهم بيكونون هناك بنفس الأيام</p></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="faces"><i style="background:#e07b24"></i><i style="background:#2a9bb0"></i><i style="background:#b2449a"></i></div>
+            <button class="btn ghost" style="padding:7px 12px;font-size:12px">نلتقي؟</button>
+          </div>
+        </div>
+
+        <div class="ltabs">
+          <span class="on"><svg class="i"><use href="#bag"/></svg>رحلاتي</span>
+          <span><svg class="i"><use href="#book"/></svg>مدوناتي</span>
+          <span><svg class="i"><use href="#star"/></svg>تقييماتي</span>
+          <span><svg class="i"><use href="#pin"/></svg>محفوظاتي</span>
+        </div>
+        <div class="sec" style="margin-top:14px">
+          <div class="card upcoming">
+            <div class="ph ph-desert"></div>
+            <div>
+              <h5>رحلة العلا مع الشلة</h5>
+              <p class="muted num">12 – 16 نوفمبر · 4 أشخاص</p>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span class="count"><svg class="i" style="width:12px;height:12px"><use href="#clock"/></svg>بعد 10 أيام</span>
+                <div class="faces"><i style="background:#e07b24"></i><i style="background:#2a9bb0"></i><i style="background:#b2449a"></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="card upcoming" style="margin-top:10px">
+            <div class="ph ph-sea"></div>
+            <div>
+              <h5>إجازة جدة الصيفية</h5>
+              <p class="muted num">5 – 8 أغسطس · انتهت</p>
+              <span class="chip"><svg class="i"><use href="#edit"/></svg>اكتب عنها مدونة</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="nav" aria-label="تنقل التطبيق">
+        <span><svg class="i"><use href="#home"/></svg>الرئيسية</span>
+        <span><svg class="i"><use href="#compass"/></svg>اكتشف</span>
+        <span><svg class="i"><use href="#bag"/></svg>رحلاتي</span>
+        <span><svg class="i"><use href="#chat"/></svg>المحادثة</span>
+        <span class="on"><svg class="i"><use href="#user"/></svg>حسابي</span>
+      </nav>
+      </div>
+    </section>
+
+    <!-- ========== VISITOR VIEW ========== -->
+    <section class="concept" id="c-b">
+      <div class="concept-head">
+        <span class="tag">الشاشة الثانية</span>
+        <h2>كما يشوفه غيري</h2>
+        <p>نفس الملف، لما يفتحه مسافر ثاني من الاكتشاف أو المدونات.</p>
+      </div>
+      <div class="phone"><div class="scroll">
+        <div class="ph ph-desert m-cover">
+          <div class="statusbar on-photo"><span>9:41</span><span>●●●</span></div>
+          <div class="tools">
+            <button class="iconbtn" aria-label="رجوع"><svg class="i" style="transform:rotate(-90deg)"><use href="#chev"/></svg></button>
+            <button class="iconbtn" aria-label="مشاركة"><svg class="i"><use href="#share"/></svg></button>
+          </div>
+        </div>
+        <div class="m-id">
+          <div class="m-head">
+            <div class="story-ring"><div class="avatar">ت</div></div>
+            <span class="lvlpill"><svg class="i"><use href="#award"/></svg>مستكشف ذهبي</span>
+          </div>
+          <div>
+            <div class="a-name">تركي العتيبي <svg class="i verified"><use href="#check"/></svg></div>
+            <div class="a-handle muted">@turki.travels</div>
+          </div>
+          <div class="chips">
+            <span class="chip gold"><svg class="i"><use href="#award"/></svg>خبير محلي · الرياض</span>
+            <span class="chip"><svg class="i"><use href="#utensils"/></svg>عاشق أكل</span>
+          </div>
+          <p class="a-bio">أحب الصحراء والقهوة المختصة والمطاعم الشعبية. أكتب عن رحلاتي داخل المملكة وبرّا.</p>
+          <div class="mutual">
+            <div class="faces"><i style="background:#1f9d63"></i><i style="background:#2a55d8"></i></div>
+            يتابعه سارة وخالد و5 غيرهم تعرفهم
+          </div>
+          <div class="card stats4 num">
+            <div><b>12</b><small>دولة</small></div>
+            <div><b>18</b><small>رحلة</small></div>
+            <div><b>1,248</b><small>متابع</small></div>
+            <div><b>46</b><small>مدونة</small></div>
+          </div>
+          <div class="a-actions">
+            <button class="btn primary"><svg class="i"><use href="#userplus"/></svg>متابعة</button>
+            <button class="btn ghost"><svg class="i"><use href="#msg"/></svg>مراسلة</button>
+            <button class="btn ghost" aria-label="المزيد">•••</button>
+          </div>
+        </div>
+
+        <div class="highlights">
+          <div class="hl"><div class="ph ph-desert"></div>العلا</div>
+          <div class="hl"><div class="ph ph-city"></div>لندن</div>
+          <div class="hl"><div class="ph ph-sea"></div>جدة</div>
+          <div class="hl"><div class="ph ph-old"></div>مدريد</div>
+          <div class="hl"><div class="ph ph-night"></div>دبي</div>
+        </div>
+
+        <div class="card together">
+          <div class="r">
+            <div class="ic"><svg class="i"><use href="#users"/></svg></div>
+            <div><h5>أنتم الاثنين رايحين العلا</h5><p class="muted num">هو 12 – 16 نوفمبر، وأنت 13 – 15 نوفمبر</p></div>
+          </div>
+          <div class="b">
+            <button class="btn primary">اقترح لقاء</button>
+            <button class="btn ghost">شوف خطته</button>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="passport slim">
+            <div class="ring" style="--p:6"><span><b class="num">6%</b>من العالم</span></div>
+            <div class="pt">
+              <small>YALLA NSAFER · PASSPORT</small>
+              <h4>جواز تركي</h4>
+              <p class="num">12 دولة · 31 مدينة · 4 قارات</p>
+            </div>
+            <svg class="i go"><use href="#chev"/></svg>
+          </div>
+        </div>
+
+        <div class="ltabs">
+          <span class="on"><svg class="i"><use href="#book"/></svg>مدونات</span>
+          <span><svg class="i"><use href="#bag"/></svg>رحلات</span>
+          <span><svg class="i"><use href="#star"/></svg>تقييمات</span>
+          <span><svg class="i"><use href="#map"/></svg>خريطة</span>
+        </div>
+        <div class="grid9">
+          <div class="ph ph-desert"><span class="lbl"><svg class="i"><use href="#book"/></svg>مدونة</span></div>
+          <div class="ph ph-food"><span class="pin"><svg class="i"><use href="#pin"/></svg></span></div>
+          <div class="ph ph-city"></div>
+          <div class="ph ph-sea"><span class="lbl"><svg class="i"><use href="#book"/></svg>مدونة</span></div>
+          <div class="ph ph-night"></div>
+          <div class="ph ph-green"><span class="pin"><svg class="i"><use href="#pin"/></svg></span></div>
+          <div class="ph ph-old"></div>
+          <div class="ph ph-desert"></div>
+          <div class="ph ph-food"><span class="lbl"><svg class="i"><use href="#star"/></svg>تقييم</span></div>
+        </div>
+      </div>
+      <nav class="nav" aria-label="تنقل التطبيق">
+        <span><svg class="i"><use href="#home"/></svg>الرئيسية</span>
+        <span class="on"><svg class="i"><use href="#compass"/></svg>اكتشف</span>
+        <span><svg class="i"><use href="#bag"/></svg>رحلاتي</span>
+        <span><svg class="i"><use href="#chat"/></svg>المحادثة</span>
+        <span><svg class="i"><use href="#user"/></svg>حسابي</span>
+      </nav>
+      </div>
+    </section>
+
+    <!-- ========== MAPPING ========== -->
+    <aside class="map-panel" id="c-c">
+      <div class="concept-head">
+        <span class="tag">التنظيم</span>
+        <h3>وين راحت الأقسام الحالية؟</h3>
+        <p>ما شلنا شي من اللي عندك، بس كل قسم صار في مكانه.</p>
+      </div>
+      <div class="moves">
+        <div class="mv"><span class="from">جواز رحلاتي</span><svg class="i"><use href="#chev"/></svg><span class="to">بطاقة الجواز (تفتح صفحة كاملة)</span></div>
+        <div class="mv"><span class="from">أختامي</span><svg class="i"><use href="#chev"/></svg><span class="to">صف أختام تحت الجواز</span></div>
+        <div class="mv"><span class="from">رحلاتي</span><svg class="i"><use href="#chev"/></svg><span class="to">تبويب «رحلاتي»</span></div>
+        <div class="mv"><span class="from">قوالب رحلاتي + توصياتي</span><svg class="i"><use href="#chev"/></svg><span class="to">تبويب «محفوظاتي»</span></div>
+        <div class="mv"><span class="from">تجاربي بالطيران</span><svg class="i"><use href="#chev"/></svg><span class="to">تبويب «تقييماتي»</span></div>
+        <div class="mv"><span class="from">أصدقائي</span><svg class="i"><use href="#chev"/></svg><span class="to">الضغط على رقم المتابعين + زر إضافة صديق</span></div>
+        <div class="mv"><span class="from">برامج الولاء</span><svg class="i"><use href="#chev"/></svg><span class="to">الإعدادات ← محفظتي (خاصة، ما تظهر لأحد)</span></div>
+        <div class="mv"><span class="from">التفضيلات والاهتمامات</span><svg class="i"><use href="#chev"/></svg><span class="to">تعديل الملف (وتطلع كشارات تحت الاسم)</span></div>
+      </div>
+      <div class="legend">
+        <div><span class="k a">من الأول</span><span>صورة الغلاف، المستوى، بطاقة الجواز ونسبة العالم، الأختام، بطاقات الرحلات.</span></div>
+        <div><span class="k b">من الثاني</span><span>إطار الستوري حول الصورة، المتابعين، دوائر المدن، شارات الخبرة، شبكة المدونات، متابعة ومراسلة.</span></div>
+        <div><span class="k n">جديد</span><span>«يتابعه ناس تعرفهم» وبطاقة «أنتم الاثنين رايحين» اللي تقارن تواريخك بتواريخه.</span></div>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  var tabs=document.querySelectorAll('.switch button');
+  function show(t){
+    tabs.forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.t===t))});
+    document.querySelectorAll('.concept,.map-panel').forEach(function(c){c.classList.toggle('active',c.id==='c-'+t)});
+    try{localStorage.setItem('merged',t)}catch(e){}
+  }
+  tabs.forEach(function(b){b.addEventListener('click',function(){show(b.dataset.t)})});
+  try{var s=localStorage.getItem('merged');if(s)show(s)}catch(e){}
+})();
+</script>
+<div id="thx" role="group" aria-label="المظهر" style="position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:max(12px,env(safe-area-inset-left,0px));z-index:50;display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;box-shadow:var(--shadow);direction:rtl">
+<button data-th="light" style="border:0;background:none;color:var(--ink);font:600 12px var(--body);padding:6px 10px;border-radius:8px;cursor:pointer">فاتح</button>
+<button data-th="dark" style="border:0;background:none;color:var(--ink);font:600 12px var(--body);padding:6px 10px;border-radius:8px;cursor:pointer">داكن</button>
+<button data-th="system" style="border:0;background:none;color:var(--ink);font:600 12px var(--body);padding:6px 10px;border-radius:8px;cursor:pointer">تلقائي</button>
+</div>
+<script>(function(){var b=document.querySelectorAll('#thx button');function s(v){b.forEach(function(x){var on=x.dataset.th===v;x.style.background=on?'var(--primary)':'none';x.style.color=on?'#fff':'var(--ink)'});if(v==='system')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',v);try{localStorage.setItem('theme',v)}catch(e){}}b.forEach(function(x){x.addEventListener('click',function(){s(x.dataset.th)})});var t='system';try{t=localStorage.getItem('theme')||'system'}catch(e){}s(t)})();</script>
+</body></html>

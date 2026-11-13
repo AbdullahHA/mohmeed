@@ -1,46 +1,119 @@
+import type { ImageSourcePropType } from 'react-native';
+
 export type Destination = {
   id: string;
   name: string;
+  country: string;
   tagline: string;
-  image: string;
+  image: ImageSourcePropType;
   trending?: boolean;
+  bestMonths: number[];
+  whyVisit: string;
+  topHotels: string[];
+  topRestaurants: string[];
+  interests: string[];
+  latitude?: number;
+  longitude?: number;
+  timezone?: string;
 };
+
+export const INTEREST_TAGS = ['مغامرة', 'شواطئ', 'ثقافة', 'عائلي', 'رومانسي', 'طبيعة'] as const;
 
 export const destinations: Destination[] = [
   {
-    id: 'cannes',
-    name: 'كان',
-    tagline: 'لؤلؤة الريفيرا',
-    image: 'https://images.unsplash.com/photo-1533929418994-9f3e4ae4d5f1?w=800&q=80',
+    id: 'alula',
+    name: 'العلا',
+    country: 'السعودية',
+    tagline: 'آثار عمرها آلاف السنين وسماء بلا حدود',
+    image: require('../assets/images/alula.png'),
+    trending: true,
+    bestMonths: [10, 11, 12, 1, 2],
+    whyVisit: 'أجواء معتدلة ومهرجان الشتاء ينشط الوجهة بالفعاليات والحرف.',
+    topHotels: ['Habitas AlUla', 'Shaden Resort', 'Our Habitas AlUla'],
+    topRestaurants: ['مطعم صحارى', 'Somewhere Cafe', 'مطعم الفرن'],
+    interests: ['مغامرة', 'ثقافة'],
+    latitude: 26.6097,
+    longitude: 37.9154,
+    timezone: 'Asia/Riyadh',
   },
   {
     id: 'redsea',
     name: 'البحر الأحمر',
+    country: 'السعودية',
     tagline: 'الوجهة التي يتحدث عنها الجميع',
-    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
+    image: require('../assets/images/redsea.png'),
+    bestMonths: [3, 4, 5, 10, 11],
+    whyVisit: 'مياه فيروزية وشعاب مرجانية ومنتجعات جزرية بعيدة عن الزحام.',
+    topHotels: ['Six Senses Southern Dunes', 'St. Regis Red Sea Resort'],
+    topRestaurants: ['Turquoiz', 'Kaia'],
+    interests: ['شواطئ', 'مغامرة'],
+    latitude: 25.0167,
+    longitude: 37.2667,
+    timezone: 'Asia/Riyadh',
   },
   {
     id: 'marbella',
     name: 'ماربيا',
+    country: 'إسبانيا',
     tagline: 'أجواء شاطئية ورحلات بحرية',
-    image: 'https://images.unsplash.com/photo-1591825729269-caeb344f6df2?w=800&q=80',
-    trending: true,
+    image: require('../assets/images/marbella.png'),
+    bestMonths: [6, 7, 8],
+    whyVisit: 'صيف أوروبي حيوي بين الشواطئ والمارينا والحياة الليلية.',
+    topHotels: ['Puente Romano', 'Marbella Club Hotel'],
+    topRestaurants: ['Nobu Marbella', 'La Sala by the Sea'],
+    interests: ['شواطئ', 'رومانسي'],
+    latitude: 36.5099,
+    longitude: -4.8863,
+    timezone: 'Europe/Madrid',
   },
   {
     id: 'riyadh',
     name: 'الرياض',
+    country: 'السعودية',
     tagline: 'حيث يلتقي التراث بالحداثة',
-    image: 'https://images.unsplash.com/photo-1578894381163-e72c17f2d45f?w=800&q=80',
+    image: require('../assets/images/riyadh.png'),
+    bestMonths: [11, 12, 1, 2, 3],
+    whyVisit: 'شتاء لطيف يناسب التجول في بوليفارد رياض سيتي وحي الدرعية.',
+    topHotels: ['Kimpton KAFD Riyadh by IHG', 'Ritz-Carlton Riyadh'],
+    topRestaurants: ['مطعم بوابة الدرعية', 'Angelina Riyadh'],
+    interests: ['ثقافة', 'عائلي'],
+    latitude: 24.7136,
+    longitude: 46.6753,
+    timezone: 'Asia/Riyadh',
   },
   {
     id: 'jeddah',
     name: 'جدة',
+    country: 'السعودية',
     tagline: 'عروس البحر الأحمر',
-    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80',
+    image: require('../assets/images/jeddah.png'),
+    bestMonths: [7, 8, 9],
+    whyVisit: 'كورنيش بحري وأمسيات صيفية وأجواء تاريخية في البلد.',
+    topHotels: ['Rosewood Jeddah', 'InterContinental Jeddah'],
+    topRestaurants: ['Byblos', 'Al Nakheel Seafood'],
+    interests: ['شواطئ', 'عائلي'],
+    latitude: 21.4858,
+    longitude: 39.1925,
+    timezone: 'Asia/Riyadh',
+  },
+  {
+    id: 'abha',
+    name: 'أبها',
+    country: 'السعودية',
+    tagline: 'برودة الجبال وسحاب يلامس القمم',
+    image: require('../assets/images/abha.png'),
+    bestMonths: [6, 7, 8, 9],
+    whyVisit: 'مصيف جبلي منعش هرباً من حرارة الصيف مع تلفريك السودة.',
+    topHotels: ['Boudl Abha', 'Abha Palace Hotel'],
+    topRestaurants: ['مطعم شذا أبها', 'Cafe Rosto'],
+    interests: ['طبيعة', 'مغامرة'],
+    latitude: 18.2164,
+    longitude: 42.5053,
+    timezone: 'Asia/Riyadh',
   },
 ];
 
 export const heroDestination = {
   name: 'الدرعية',
-  image: 'https://images.unsplash.com/photo-1621887700004-b4e8a2f4f6a3?w=1200&q=80',
+  image: require('../assets/images/diriyah.png') as ImageSourcePropType,
 };

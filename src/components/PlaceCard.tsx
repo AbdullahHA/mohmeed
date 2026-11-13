@@ -1,26 +1,127 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Linking } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  View,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Linking,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, radius, spacing } from '../theme/colors';
-import type { Place } from '../data/places';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { fontSize, radius, spacing, fixedColors, type ThemeColors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
+import { useAppState } from '../context/AppState';
+import { useAuth } from '../context/AuthContext';
+import { useRequireAccount } from '../hooks/useRequireAccount';
+import { getMapsUrl } from '../utils/place';
+import { supabase } from '../lib/supabase';
+import AddToTripSheet from './AddToTripSheet';
+import AddedToast from './AddedToast';
+import type { RootStackParamList } from '../navigation/types';
+import type { Trip, ItinerarySlot } from '../types';
+import { PLACE_TYPE_LABELS, type Place } from '../data/places';
 
 type Props = {
   place: Place;
   onPress?: () => void;
 };
 
+type Nav = NativeStackNavigationProp<RootStackParamList>;
+
 export default function PlaceCard({ place, onPress }: Props) {
-  const priceLabel = '$'.repeat(place.priceLevel);
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${place.coordinate.latitude},${place.coordinate.longitude}`;
+  const navigation = useNavigation<Nav>();
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const { trips, addItineraryItem, removeItineraryItem, recommendedPlaceIds, toggleRecommended } = useAppState();
+  const { profile } = useAuth();
+  const { requireAccount } = useRequireAccount();
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const [toast, setToast] = useState<{ tripId: string; tripTitle: string; itemId: string } | null>(null);
+  const mapsUrl = getMapsUrl(place.coordinate);
+  const isRecommended = recommendedPlaceIds.includes(place.id);
+
+  const handleAddToTrip = () => {
+    requireAccount('trip', () => {
+      if (trips.length === 0) {
+        navigation.navigate('CreateTrip');
+        return;
+      }
+      setPickerVisible(true);
+    });
+  };
+
+  const handleAdd = async (trip: Trip, day: string | null, slot: ItinerarySlot | null, notifyGroup: boolean) => {
+    const WEEKDAY = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const dayLabel = day ? WEEKDAY[new Date(day + 'T00:00:00').getDay()] : 'غير محدد';
+    const created = await addItineraryItem(trip.id, {
+      day: dayLabel,
+      time: slot ?? '—',
+      title: place.name,
+      itemDate: day,
+      slot,
+      placeId: place.id,
+      kind: 'place',
+    });
+    setPickerVisible(false);
+    if (!created) return;
+    if (notifyGroup && profile) {
+      await supabase.from('trip_messages').insert({
+        trip_id: trip.id,
+        from_id: profile.id,
+        text: `أضاف ${place.name} للجدول${day ? ` — ${dayLabel}` : ''}`,
+      });
+    }
+    setToast({ tripId: trip.id, tripTitle: trip.title, itemId: created.id });
+  };
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 5000);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   return (
     <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={onPress}>
-      <Image source={{ uri: place.image }} style={styles.image} />
+      <View style={styles.imageWrap}>
+        <Image source={place.image} style={styles.image} />
+        <LinearGradient
+          colors={['transparent', `${fixedColors.category[place.type]}66`]}
+          style={StyleSheet.absoluteFill}
+          pointerEvents="none"
+        />
+        <View style={styles.typeBadge}>
+          <Text style={styles.typeBadgeText}>{PLACE_TYPE_LABELS[place.type]}</Text>
+        </View>
+        <View style={styles.priceBadge}>
+          <Text style={styles.priceBadgeText}>
+            {'﷼'.repeat(place.priceLevel)}
+            <Text style={styles.priceBadgeMuted}>{'﷼'.repeat(3 - place.priceLevel)}</Text>
+          </Text>
+        </View>
+        <TouchableOpacity
+          style={styles.favoriteButton}
+          onPress={() => requireAccount('recommend', () => toggleRecommended(place.id))}
+          activeOpacity={0.7}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Ionicons
+            name={isRecommended ? 'heart' : 'heart-outline'}
+            size={18}
+            color={isRecommended ? colors.accent : '#FFFFFF'}
+          />
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.body}>
-        <View style={styles.ratingRow}>
-          <Ionicons name="star" size={14} color={colors.gold} />
-          <Text style={styles.rating}>{place.rating.toFixed(1)}</Text>
+        <View style={styles.metaRow}>
+          <Text style={styles.category}>{place.category}</Text>
+          <View style={styles.ratingGroup}>
+            <Ionicons name="star" size={14} color={colors.accent} />
+            <Text style={styles.rating}>{place.rating.toFixed(1)}</Text>
+          </View>
         </View>
 
         <Text style={styles.name}>{place.name}</Text>
@@ -28,12 +129,10 @@ export default function PlaceCard({ place, onPress }: Props) {
           {place.description}
         </Text>
 
-        <Text style={styles.price}>{priceLabel}</Text>
-
         <View style={styles.actionsRow}>
-          <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
-            <Ionicons name="git-network-outline" size={14} color={colors.text} />
-            <Text style={styles.actionText}>مسارات</Text>
+          <TouchableOpacity style={styles.actionButton} activeOpacity={0.8} onPress={handleAddToTrip}>
+            <Ionicons name="add-circle-outline" size={14} color={colors.text} />
+            <Text style={styles.actionText}>أضف للرحلة</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionButton}
@@ -55,11 +154,38 @@ export default function PlaceCard({ place, onPress }: Props) {
           ) : null}
         </View>
       </View>
+
+      <AddToTripSheet
+        visible={pickerVisible}
+        placeName={place.name}
+        isRestaurant={place.type === 'food' || place.type === 'cafe'}
+        trips={trips}
+        onClose={() => setPickerVisible(false)}
+        onAdd={handleAdd}
+        onNewTrip={() => {
+          setPickerVisible(false);
+          navigation.navigate('CreateTrip');
+        }}
+      />
+
+      {toast ? (
+        <AddedToast
+          tripTitle={toast.tripTitle}
+          onUndo={() => {
+            removeItineraryItem(toast.tripId, toast.itemId);
+            setToast(null);
+          }}
+          onViewSchedule={() => {
+            navigation.navigate('TripDetail', { tripId: toast.tripId });
+            setToast(null);
+          }}
+        />
+      ) : null}
     </TouchableOpacity>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
     marginHorizontal: spacing.lg,
     marginBottom: spacing.lg,
@@ -69,43 +195,92 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     overflow: 'hidden',
   },
+  imageWrap: {
+    width: '100%',
+    height: 220,
+  },
   image: {
     width: '100%',
-    height: 190,
+    height: '100%',
+  },
+  favoriteButton: {
+    position: 'absolute',
+    top: spacing.md,
+    left: spacing.md,
+    width: 34,
+    height: 34,
+    borderRadius: radius.pill,
+    backgroundColor: colors.overlay,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  typeBadge: {
+    position: 'absolute',
+    top: spacing.md,
+    right: spacing.md,
+    backgroundColor: colors.overlay,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+  },
+  typeBadgeText: {
+    color: '#FFFFFF',
+    fontSize: fontSize.small,
+    fontWeight: '700',
+  },
+  priceBadge: {
+    position: 'absolute',
+    bottom: spacing.md,
+    left: spacing.md,
+    backgroundColor: colors.overlay,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+  },
+  priceBadgeText: {
+    color: '#FFFFFF',
+    fontSize: fontSize.base,
+    fontWeight: '700',
+  },
+  priceBadgeMuted: {
+    color: 'rgba(255,255,255,0.45)',
   },
   body: {
     padding: spacing.lg,
   },
-  ratingRow: {
+  metaRow: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.xs,
+  },
+  category: {
+    color: colors.textMuted,
+    fontSize: fontSize.base,
+    fontWeight: '600',
+  },
+  ratingGroup: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
     gap: spacing.xs,
-    marginBottom: spacing.xs,
   },
   rating: {
-    color: colors.gold,
+    color: colors.accentDark,
     fontWeight: '700',
-    fontSize: 13,
+    fontSize: fontSize.body,
   },
   name: {
     color: colors.text,
-    fontSize: 18,
+    fontSize: fontSize.title,
     fontWeight: '700',
     textAlign: 'right',
     marginBottom: spacing.xs,
   },
   description: {
     color: colors.textMuted,
-    fontSize: 13,
+    fontSize: fontSize.body,
     textAlign: 'right',
     lineHeight: 19,
-  },
-  price: {
-    color: colors.gold,
-    fontSize: 13,
-    fontWeight: '600',
-    textAlign: 'right',
-    marginTop: spacing.sm,
   },
   actionsRow: {
     flexDirection: 'row-reverse',
@@ -123,7 +298,7 @@ const styles = StyleSheet.create({
   },
   actionText: {
     color: colors.text,
-    fontSize: 12,
+    fontSize: fontSize.base,
     fontWeight: '600',
   },
 });

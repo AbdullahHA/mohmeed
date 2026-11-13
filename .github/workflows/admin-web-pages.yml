@@ -1,0 +1,58 @@
+name: Deploy admin web panel to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - claude/yalla-nsafer-tourism-vy91ot
+    paths:
+      - 'admin-web/**'
+      - '.github/workflows/admin-web-pages.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: admin-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: admin-web/package-lock.json
+      - run: npm ci
+      - run: npm run build
+        env:
+          GITHUB_PAGES: '1'
+          # Supabase public anon ("publishable") credentials — safe for a
+          # client bundle by design, access is enforced by RLS policies.
+          VITE_SUPABASE_URL: https://jxsdiumqzbjxrvkmydgu.supabase.co
+          VITE_SUPABASE_ANON_KEY: sb_publishable_Fjgt1ajw8SQ4Iy4V0_0NNw_j-gPO4eW
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: admin-web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
