@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Modal, Pressable, View, StyleSheet, TextInput, ScrollView } from 'react-native';
+import { Modal, Pressable, View, StyleSheet, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
 import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
@@ -42,8 +42,9 @@ export default function CreatePollSheet({ visible, onClose, onSubmit }: Props) {
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={close}>
-      <Pressable style={styles.backdrop} onPress={close}>
-        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <Pressable style={styles.backdrop} onPress={close}>
+          <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
           <Text style={styles.title}>إنشاء استطلاع رأي</Text>
           <Text style={styles.subtitle}>كل عضو بالرحلة يقدر يصوّت، والنتيجة تتحدث مباشرة للكل</Text>
 
@@ -100,13 +101,15 @@ export default function CreatePollSheet({ visible, onClose, onSubmit }: Props) {
           <Pressable style={[styles.submitButton, !canSubmit && styles.submitDisabled]} disabled={!canSubmit} onPress={handleSubmit}>
             <Text style={styles.submitText}>إرسال الاستطلاع</Text>
           </Pressable>
+          </Pressable>
         </Pressable>
-      </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  flex: { flex: 1 },
   backdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.surface,
