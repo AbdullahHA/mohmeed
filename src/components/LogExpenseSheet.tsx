@@ -5,6 +5,8 @@ import {
   View,
   StyleSheet,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Text from './Text';
 import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
@@ -45,9 +47,10 @@ export default function LogExpenseSheet({ visible, onClose, onSubmit }: Props) {
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
-          <Text style={styles.title}>سجّل مصروف</Text>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <Pressable style={styles.backdrop} onPress={onClose}>
+          <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.title}>سجّل مصروف</Text>
           <Text style={styles.subtitle}>بينضاف لميزانية الرحلة وينقسم بين الأعضاء</Text>
 
           <View style={styles.chipsRow}>
@@ -82,13 +85,15 @@ export default function LogExpenseSheet({ visible, onClose, onSubmit }: Props) {
           <Pressable style={[styles.submitButton, !canSubmit && styles.submitDisabled]} disabled={!canSubmit} onPress={handleSubmit}>
             <Text style={styles.submitText}>سجّل المصروف</Text>
           </Pressable>
+          </Pressable>
         </Pressable>
-      </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  flex: { flex: 1 },
   backdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.surface,

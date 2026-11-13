@@ -5,6 +5,8 @@ import {
   View,
   StyleSheet,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
@@ -44,9 +46,10 @@ export default function QuickRateSheet({ visible, placeName, onClose, onSubmit }
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
-          <Text style={styles.title}>كيف كانت تجربتك في {placeName}؟</Text>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <Pressable style={styles.backdrop} onPress={onClose}>
+          <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.title}>كيف كانت تجربتك في {placeName}؟</Text>
 
           <View style={styles.starsRow}>
             {[1, 2, 3, 4, 5].map((n) => (
@@ -79,13 +82,15 @@ export default function QuickRateSheet({ visible, placeName, onClose, onSubmit }
           <Pressable style={[styles.submitButton, stars === 0 && styles.submitDisabled]} disabled={stars === 0} onPress={handleSubmit}>
             <Text style={styles.submitText}>تم</Text>
           </Pressable>
+          </Pressable>
         </Pressable>
-      </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  flex: { flex: 1 },
   backdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.surface,

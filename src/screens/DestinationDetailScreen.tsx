@@ -69,6 +69,7 @@ export default function DestinationDetailScreen() {
     checkIn,
     checkOut,
     sendGuideMessage,
+    wishlist,
     addWishlistItem,
     loadDestinationCheckIns,
   } = useAppState();
@@ -79,7 +80,6 @@ export default function DestinationDetailScreen() {
   const [activeTab, setActiveTab] = useState<CityTab>('places');
   const [posts, setPosts] = useState<CityPost[]>([]);
   const [postsLoading, setPostsLoading] = useState(false);
-  const [wishlisted, setWishlisted] = useState(false);
   const [googleQuery, setGoogleQuery] = useState('');
   const [googleResults, setGoogleResults] = useState<GooglePlaceResult[] | null>(null);
   const [googleSearching, setGoogleSearching] = useState(false);
@@ -199,10 +199,12 @@ export default function DestinationDetailScreen() {
     Share.share({ message: `${destination.name} — ${destination.tagline}` });
   };
 
+  const wishlisted = wishlist.some((item) => item.name === destination.name);
+
   const handleWishlist = () => {
+    if (wishlisted) return;
     requireAccount('trip', () => {
       addWishlistItem(destination.name);
-      setWishlisted(true);
     });
   };
 

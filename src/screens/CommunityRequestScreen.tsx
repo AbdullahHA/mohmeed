@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Text from '../components/Text';
 import { Alert } from '../lib/alert';
@@ -61,6 +63,7 @@ export default function CommunityRequestScreen() {
         <View style={{ width: 22 }} />
       </View>
 
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.body}>
         <Text style={styles.intro}>
           يراجع فريق «يلا نسافر» طلبك. إذا تمت الموافقة، راح تصير مشرف المجتمع الجديد.
@@ -122,6 +125,7 @@ export default function CommunityRequestScreen() {
           </>
         )}
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -137,6 +141,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  flex: { flex: 1 },
   header: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { SafeAreaView, View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Platform } from 'react-native';
+import { SafeAreaView, View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Platform, KeyboardAvoidingView } from 'react-native';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
@@ -74,6 +74,7 @@ export default function NewSupportTicketScreen() {
         <View style={{ width: 22 }} />
       </View>
 
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.body}>
         <Text style={styles.label}>النوع</Text>
         <View style={styles.typeRow}>
@@ -120,12 +121,14 @@ export default function NewSupportTicketScreen() {
           <Text style={styles.submitBtnText}>{saving ? 'جاري الإرسال...' : 'إرسال'}</Text>
         </TouchableOpacity>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  flex: { flex: 1 },
   header: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

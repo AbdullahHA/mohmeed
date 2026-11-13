@@ -7,6 +7,8 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Text from '../components/Text';
 import { Alert } from '../lib/alert';
@@ -96,6 +98,7 @@ export default function AdminNotificationsScreen() {
         <View style={{ width: 22 }} />
       </View>
 
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
         <View style={styles.noticeBox}>
           <Ionicons name="information-circle-outline" size={18} color={colors.primary} />
@@ -156,12 +159,14 @@ export default function AdminNotificationsScreen() {
           </>
         ) : null}
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  flex: { flex: 1 },
   header: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

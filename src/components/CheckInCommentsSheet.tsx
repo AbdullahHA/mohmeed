@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Modal, Pressable, View, StyleSheet, TextInput, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { Modal, Pressable, View, StyleSheet, TextInput, TouchableOpacity, FlatList, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import Text from './Text';
 import { Ionicons } from '@expo/vector-icons';
 import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
@@ -108,9 +108,10 @@ export default function CheckInCommentsSheet({ visible, checkInId, meId, onClose
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
-          <Text style={styles.title}>التعليقات</Text>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <Pressable style={styles.backdrop} onPress={onClose}>
+          <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.title}>التعليقات</Text>
 
           {loading ? (
             <ActivityIndicator color={colors.primary} style={{ marginVertical: spacing.xl }} />
@@ -148,13 +149,15 @@ export default function CheckInCommentsSheet({ visible, checkInId, meId, onClose
               textAlign="right"
             />
           </View>
+          </Pressable>
         </Pressable>
-      </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  flex: { flex: 1 },
   backdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.surface,

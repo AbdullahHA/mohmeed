@@ -5,6 +5,8 @@ import {
   View,
   StyleSheet,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Text from './Text';
 import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
@@ -41,9 +43,10 @@ export default function ReportSheet({ visible, title, onClose, onSubmit }: Props
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={close}>
-      <Pressable style={styles.backdrop} onPress={close}>
-        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
-          <Text style={styles.title}>{title}</Text>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <Pressable style={styles.backdrop} onPress={close}>
+          <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.title}>{title}</Text>
           <View style={styles.reasonsWrap}>
             {REASONS.map((r) => (
               <Pressable key={r} style={[styles.chip, reason === r && styles.chipActive]} onPress={() => setReason(r)}>
@@ -63,13 +66,15 @@ export default function ReportSheet({ visible, title, onClose, onSubmit }: Props
           <Pressable style={[styles.submitButton, !reason && styles.submitDisabled]} disabled={!reason} onPress={submit}>
             <Text style={styles.submitText}>إرسال البلاغ</Text>
           </Pressable>
+          </Pressable>
         </Pressable>
-      </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
+  flex: { flex: 1 },
   backdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.surface,

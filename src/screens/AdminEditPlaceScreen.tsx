@@ -8,6 +8,8 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Text from '../components/Text';
 import { Alert } from '../lib/alert';
@@ -95,6 +97,7 @@ export default function AdminEditPlaceScreen() {
         <View style={{ width: 22 }} />
       </View>
 
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
         <TouchableOpacity
           style={styles.imageWrap}
@@ -156,12 +159,14 @@ export default function AdminEditPlaceScreen() {
           )}
         </TouchableOpacity>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  flex: { flex: 1 },
   header: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

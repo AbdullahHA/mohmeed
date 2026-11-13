@@ -7,6 +7,8 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Text from '../components/Text';
 import { Alert } from '../lib/alert';
@@ -165,6 +167,7 @@ export default function DocumentsScreen() {
         <View style={{ width: 22 }} />
       </View>
 
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
         {KINDS.map((kind) => {
           const kindDocs = docs.filter((d) => d.kind === kind && (d.visibility === 'shared' || d.ownerId === profile.id));
@@ -297,12 +300,14 @@ export default function DocumentsScreen() {
           );
         })}
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  flex: { flex: 1 },
   notFound: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
   header: {
     flexDirection: 'row-reverse',

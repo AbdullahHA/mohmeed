@@ -8,6 +8,8 @@ import {
   Image,
   ActivityIndicator,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Text from '../components/Text';
 import { Alert } from '../lib/alert';
@@ -75,6 +77,7 @@ export default function AddTravelPostScreen() {
         <View style={{ width: 22 }} />
       </View>
 
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.body}>
         <TouchableOpacity
           style={styles.imagePicker}
@@ -137,12 +140,14 @@ export default function AddTravelPostScreen() {
           {submitting ? <ActivityIndicator color={colors.textOnPrimary} /> : <Text style={styles.submitText}>نشر</Text>}
         </TouchableOpacity>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  flex: { flex: 1 },
   header: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

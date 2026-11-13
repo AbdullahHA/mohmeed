@@ -6,6 +6,8 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Text from '../components/Text';
 import RtlScrollRow from '../components/RtlScrollRow';
@@ -72,6 +74,7 @@ export default function CreateTripTemplateScreen() {
         <View style={{ width: 22 }} />
       </View>
 
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
         <Text style={styles.label}>عنوان القالب</Text>
         <TextInput
@@ -158,12 +161,14 @@ export default function CreateTripTemplateScreen() {
           <Text style={styles.hint}>أضف عنوان وعنصر واحد على الأقل عشان تقدر تنشر</Text>
         ) : null}
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  flex: { flex: 1 },
   header: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

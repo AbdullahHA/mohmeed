@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
@@ -96,6 +98,7 @@ export default function EditProfileScreen() {
         <View style={{ width: 22 }} />
       </View>
 
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
         <TouchableOpacity activeOpacity={0.85} onPress={handlePickAvatar} disabled={avatarUploading}>
           <PersonAvatar avatarUrl={avatarUrl} size={84} style={styles.avatarMargin} />
@@ -160,12 +163,14 @@ export default function EditProfileScreen() {
           {loading ? <ActivityIndicator color={colors.textOnPrimary} /> : <Text style={styles.submitText}>حفظ</Text>}
         </TouchableOpacity>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  flex: { flex: 1 },
   header: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
