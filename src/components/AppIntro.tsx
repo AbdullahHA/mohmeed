@@ -117,7 +117,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   nameAr: {
     color: colors.primary,
     fontSize: fontSize.hero,
-    fontWeight: '900',
+    fontWeight: '700',
     lineHeight: 42,
   },
   nameEn: {

@@ -431,7 +431,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   sectionTitle: {
     color: colors.text,
     fontSize: fontSize.subtitle,
-    fontWeight: '800',
+    fontWeight: '700',
     textAlign: 'right',
     marginBottom: spacing.md,
     marginTop: spacing.xxl,

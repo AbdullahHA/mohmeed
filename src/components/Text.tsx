@@ -28,5 +28,12 @@ function familyFor(weight: TextStyle['fontWeight'] | undefined): string {
 
 export default function Text({ style, ...rest }: TextProps) {
   const flat = (StyleSheet.flatten(style) ?? {}) as TextStyle;
-  return <RNText {...rest} style={[{ fontFamily: familyFor(flat.fontWeight) }, style]} />;
+  return (
+    <RNText
+      allowFontScaling
+      maxFontSizeMultiplier={2}
+      {...rest}
+      style={[{ fontFamily: familyFor(flat.fontWeight) }, style]}
+    />
+  );
 }

@@ -468,7 +468,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   heroLogoBadge: {
     width: 56,
     height: 56,
-    borderRadius: 18,
+    borderRadius: radius.card,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
@@ -482,7 +482,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   heroError: { color: '#fff', backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: radius.sm, padding: spacing.sm, fontSize: fontSize.base, textAlign: 'center', marginBottom: spacing.xs },
   sso: {
     height: 52,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     flexDirection: 'row-reverse',
     alignItems: 'center',
     justifyContent: 'center',

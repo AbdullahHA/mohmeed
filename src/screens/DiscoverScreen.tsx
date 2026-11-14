@@ -439,7 +439,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: spacing.xl,
     maxHeight: '70%',
   },
-  citySheetTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '800', textAlign: 'right', marginBottom: spacing.md },
+  citySheetTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', textAlign: 'right', marginBottom: spacing.md },
   cityList: { marginTop: spacing.xs },
   cityOption: {
     flexDirection: 'row-reverse',

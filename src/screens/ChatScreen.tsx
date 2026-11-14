@@ -379,7 +379,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   filterChip: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
-    gap: 6,
+    gap: spacing.xs,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,

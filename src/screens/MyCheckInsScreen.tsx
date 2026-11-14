@@ -501,6 +501,6 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   rankRowMine: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
   rankBadge: { width: 32, alignItems: 'center' },
-  rankBadgeText: { color: colors.textMuted, fontSize: fontSize.subtitle, fontWeight: '800' },
-  rankPoints: { color: colors.primary, fontSize: fontSize.title, fontWeight: '800' },
+  rankBadgeText: { color: colors.textMuted, fontSize: fontSize.subtitle, fontWeight: '700' },
+  rankPoints: { color: colors.primary, fontSize: fontSize.title, fontWeight: '700' },
 });
