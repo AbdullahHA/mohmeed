@@ -368,7 +368,7 @@ export default function TripDetailScreen() {
         <View style={styles.imageWrap}>
           <Image source={trip.coverImage} style={styles.image} />
           <View style={styles.headerRow}>
-            <TouchableOpacity style={styles.glassButton} onPress={() => navigation.goBack()} activeOpacity={0.85}>
+            <TouchableOpacity style={styles.glassButton} onPress={() => navigation.goBack()} activeOpacity={0.85} accessibilityLabel="رجوع">
               <Ionicons name="chevron-forward" size={20} color={colors.textOnPrimary} />
             </TouchableOpacity>
             <View style={styles.glassGroup}>
@@ -376,13 +376,13 @@ export default function TripDetailScreen() {
                 style={styles.glassButton}
                 activeOpacity={0.85}
                 onPress={() => navigation.navigate('Documents', { tripId: trip.id })}
-              >
+               accessibilityLabel="المستندات">
                 <Ionicons name="document-text-outline" size={17} color={colors.textOnPrimary} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.glassButton} activeOpacity={0.85} onPress={() => setShowInvite((v) => !v)}>
                 <Ionicons name="person-add-outline" size={17} color={colors.textOnPrimary} />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.glassButton} activeOpacity={0.85} onPress={handleShare}>
+              <TouchableOpacity style={styles.glassButton} activeOpacity={0.85} onPress={handleShare} accessibilityLabel="مشاركة">
                 <Ionicons name="share-social-outline" size={17} color={colors.textOnPrimary} />
               </TouchableOpacity>
             </View>
@@ -536,7 +536,7 @@ export default function TripDetailScreen() {
                     style={styles.mapButton}
                     activeOpacity={0.8}
                     onPress={() => navigation.navigate('DayMap', { tripId: trip.id })}
-                  >
+                   accessibilityLabel="الخريطة">
                     <Ionicons name="map-outline" size={18} color={colors.primary} />
                   </TouchableOpacity>
                 </View>
@@ -572,7 +572,7 @@ export default function TripDetailScreen() {
                               onPress={() => handleRemoveItineraryItem(item.id, item.title)}
                               activeOpacity={0.7}
                               hitSlop={8}
-                            >
+                             accessibilityLabel="حذف">
                               <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
                             </TouchableOpacity>
                             <View style={styles.itineraryTextWrap}>
@@ -593,7 +593,7 @@ export default function TripDetailScreen() {
                       onPress={() => handleRemoveItineraryItem(item.id, item.title)}
                       activeOpacity={0.7}
                       hitSlop={8}
-                    >
+                     accessibilityLabel="حذف">
                       <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
                     </TouchableOpacity>
                     <View style={styles.itineraryTextWrap}>
@@ -715,7 +715,7 @@ export default function TripDetailScreen() {
                     onPress={() => handleRemoveBudgetItem(item.id, item.label)}
                     activeOpacity={0.7}
                     hitSlop={8}
-                  >
+                   accessibilityLabel="حذف">
                     <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
                   </TouchableOpacity>
                 </View>
@@ -865,7 +865,7 @@ export default function TripDetailScreen() {
                           onPress={() => handleRemoveChecklistItem(item.id, item.title)}
                           activeOpacity={0.7}
                           hitSlop={8}
-                        >
+                         accessibilityLabel="حذف">
                           <Ionicons name="close" size={14} color={colors.textFaint} />
                         </TouchableOpacity>
                       </TouchableOpacity>

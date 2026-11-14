@@ -72,7 +72,7 @@ export default function TripTemplateDetailScreen() {
             style={styles.backButton}
             onPress={() => navigation.goBack()}
             activeOpacity={0.85}
-          >
+           accessibilityLabel="رجوع">
             <Ionicons name="arrow-forward" size={20} color={colors.textOnPrimary} />
           </TouchableOpacity>
         </View>

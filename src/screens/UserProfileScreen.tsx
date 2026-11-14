@@ -193,7 +193,7 @@ export default function UserProfileScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <DesertHero style={styles.cover}>
-          <TouchableOpacity style={styles.backButton} activeOpacity={0.8} onPress={() => navigation.goBack()}>
+          <TouchableOpacity style={styles.backButton} activeOpacity={0.8} onPress={() => navigation.goBack()} accessibilityLabel="رجوع">
             <Ionicons name="chevron-forward" size={18} color="#fff" />
           </TouchableOpacity>
         </DesertHero>
@@ -206,14 +206,14 @@ export default function UserProfileScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <DesertHero style={styles.cover}>
-          <TouchableOpacity style={styles.backButton} activeOpacity={0.8} onPress={() => navigation.goBack()}>
+          <TouchableOpacity style={styles.backButton} activeOpacity={0.8} onPress={() => navigation.goBack()} accessibilityLabel="رجوع">
             <Ionicons name="chevron-forward" size={18} color="#fff" />
           </TouchableOpacity>
           <View style={styles.heroActions}>
-            <TouchableOpacity style={styles.heroActionButton} activeOpacity={0.8} onPress={handleOptions}>
+            <TouchableOpacity style={styles.heroActionButton} activeOpacity={0.8} onPress={handleOptions} accessibilityLabel="خيارات إضافية">
               <Ionicons name="ellipsis-horizontal" size={18} color="#fff" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.heroActionButton} activeOpacity={0.8} onPress={handleShare}>
+            <TouchableOpacity style={styles.heroActionButton} activeOpacity={0.8} onPress={handleShare} accessibilityLabel="مشاركة">
               <Ionicons name="share-outline" size={18} color="#fff" />
             </TouchableOpacity>
           </View>

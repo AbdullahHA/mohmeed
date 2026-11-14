@@ -67,7 +67,7 @@ export default function WalletScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="رجوع">
           <Ionicons name="chevron-forward" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>محفظتي</Text>
@@ -151,7 +151,7 @@ export default function WalletScreen() {
                   color={colors.textFaint}
                 />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => removeLoyaltyMembership(membership.id)} activeOpacity={0.7}>
+              <TouchableOpacity onPress={() => removeLoyaltyMembership(membership.id)} activeOpacity={0.7} accessibilityLabel="حذف">
                 <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
               </TouchableOpacity>
             </View>

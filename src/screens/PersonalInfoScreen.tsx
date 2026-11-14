@@ -82,7 +82,7 @@ export default function PersonalInfoScreen() {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="رجوع">
           <Ionicons name="arrow-forward" size={20} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>البيانات الشخصية</Text>

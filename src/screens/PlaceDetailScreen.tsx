@@ -177,7 +177,7 @@ export default function PlaceDetailScreen() {
             pointerEvents="none"
           />
           <View style={styles.imageHeader}>
-            <TouchableOpacity style={styles.glassButton} onPress={() => navigation.goBack()} activeOpacity={0.85}>
+            <TouchableOpacity style={styles.glassButton} onPress={() => navigation.goBack()} activeOpacity={0.85} accessibilityLabel="رجوع">
               <Ionicons name="chevron-forward" size={20} color="#fff" />
             </TouchableOpacity>
             <View style={styles.glassGroup}>
@@ -185,14 +185,14 @@ export default function PlaceDetailScreen() {
                 style={styles.glassButton}
                 activeOpacity={0.85}
                 onPress={() => Share.share({ message: `${place.name} — يلا نسافر` })}
-              >
+               accessibilityLabel="مشاركة">
                 <Ionicons name="share-outline" size={18} color="#fff" />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.glassButton}
                 activeOpacity={0.85}
                 onPress={() => requireAccount('chat', () => setShareSheetVisible(true))}
-              >
+               accessibilityLabel="محادثة">
                 <Ionicons name="chatbubble-ellipses-outline" size={18} color="#fff" />
               </TouchableOpacity>
               <TouchableOpacity

@@ -229,7 +229,7 @@ export default function ProfileScreen() {
             style={styles.settingsButton}
             activeOpacity={0.8}
             onPress={() => navigation.navigate('Settings')}
-          >
+           accessibilityLabel="الإعدادات">
             <Ionicons name="settings-outline" size={16} color="#fff" />
           </TouchableOpacity>
         </DesertHero>
@@ -706,7 +706,7 @@ export default function ProfileScreen() {
               <View style={styles.favoriteDestRow}>
                 {wishlist.map((item) => (
                   <View key={item.id} style={styles.favoriteDestChip}>
-                    <TouchableOpacity activeOpacity={0.7} onPress={() => removeWishlistItem(item.id)}>
+                    <TouchableOpacity activeOpacity={0.7} onPress={() => removeWishlistItem(item.id)} accessibilityLabel="حذف">
                       <Ionicons name="close-circle-outline" size={14} color={colors.textFaint} />
                     </TouchableOpacity>
                     <Text style={styles.favoriteDestText}>{item.name}</Text>

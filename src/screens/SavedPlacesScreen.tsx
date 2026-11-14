@@ -30,7 +30,7 @@ export default function SavedPlacesScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="رجوع">
           <Ionicons name="arrow-forward" size={20} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>محفوظاتي</Text>
@@ -65,7 +65,12 @@ export default function SavedPlacesScreen() {
                   <Text style={styles.rowMetaText}>{place.rating.toFixed(1)}</Text>
                 </View>
               </View>
-              <TouchableOpacity activeOpacity={0.7} onPress={() => toggleRecommended(place.id)} hitSlop={8}>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => toggleRecommended(place.id)}
+                hitSlop={8}
+                accessibilityLabel="إزالة من المفضلة"
+              >
                 <Ionicons name="heart" size={20} color={colors.heart} />
               </TouchableOpacity>
             </TouchableOpacity>

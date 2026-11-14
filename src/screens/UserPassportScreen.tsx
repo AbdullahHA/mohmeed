@@ -132,7 +132,7 @@ export default function UserPassportScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="رجوع">
           <Ionicons name="chevron-forward" size={22} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>جواز {params.name}</Text>

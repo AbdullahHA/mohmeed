@@ -86,7 +86,7 @@ export default function OnboardingQuizScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleSkip} activeOpacity={0.8} style={styles.closeButton}>
+        <TouchableOpacity onPress={handleSkip} activeOpacity={0.8} style={styles.closeButton} accessibilityLabel="إغلاق">
           <Ionicons name="close" size={20} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.stepCounter}>{step}/{TOTAL_STEPS}</Text>

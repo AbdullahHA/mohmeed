@@ -115,7 +115,7 @@ export default function SupportTicketScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="رجوع">
           <Ionicons name="arrow-forward" size={20} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>{ticket.subject}</Text>
@@ -166,7 +166,7 @@ export default function SupportTicketScreen() {
               activeOpacity={0.85}
               disabled={!reply.trim() || sending}
               onPress={sendReply}
-            >
+             accessibilityLabel="إرسال">
               <Ionicons name="send" size={16} color={colors.textOnPrimary} />
             </TouchableOpacity>
           </View>

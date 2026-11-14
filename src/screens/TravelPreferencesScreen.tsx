@@ -45,7 +45,7 @@ export default function TravelPreferencesScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="رجوع">
           <Ionicons name="chevron-forward" size={18} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>تفضيلات السفر</Text>

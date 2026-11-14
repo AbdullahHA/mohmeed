@@ -129,7 +129,12 @@ export default function ResultsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.iconBtn}
+          activeOpacity={0.8}
+          onPress={() => navigation.goBack()}
+          accessibilityLabel="رجوع"
+        >
           <Ionicons name="arrow-forward" size={20} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.headerTextWrap}>
@@ -140,6 +145,7 @@ export default function ResultsScreen() {
           style={styles.iconBtn}
           activeOpacity={0.8}
           onPress={() => setViewMode((m) => (m === 'list' ? 'map' : 'list'))}
+          accessibilityLabel={viewMode === 'list' ? 'عرض الخريطة' : 'عرض القائمة'}
         >
           <Ionicons name={viewMode === 'list' ? 'map-outline' : 'list-outline'} size={18} color={colors.text} />
         </TouchableOpacity>

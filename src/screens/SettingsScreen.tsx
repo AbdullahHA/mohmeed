@@ -128,7 +128,7 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="إغلاق">
           <Ionicons name="close" size={20} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>الإعدادات</Text>
