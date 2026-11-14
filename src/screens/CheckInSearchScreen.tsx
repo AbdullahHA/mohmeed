@@ -92,7 +92,7 @@ export default function CheckInSearchScreen() {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="إغلاق">
           <Ionicons name="close" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>تسجيل الوصول</Text>
@@ -113,7 +113,7 @@ export default function CheckInSearchScreen() {
           textAlign="right"
           autoFocus
         />
-        <TouchableOpacity style={styles.searchButton} activeOpacity={0.85} onPress={handleSearch}>
+        <TouchableOpacity style={styles.searchButton} activeOpacity={0.85} onPress={handleSearch} accessibilityLabel="بحث">
           <Ionicons name="search" size={20} color={colors.textOnPrimary} />
         </TouchableOpacity>
       </View>
@@ -170,7 +170,7 @@ export default function CheckInSearchScreen() {
                       <Ionicons name="time-outline" size={16} color={colors.textFaint} />
                       <Text style={styles.recentRowText}>{term}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => removeRecentSearch(term)} activeOpacity={0.7}>
+                    <TouchableOpacity onPress={() => removeRecentSearch(term)} activeOpacity={0.7} accessibilityLabel="حذف">
                       <Ionicons name="close" size={16} color={colors.textFaint} />
                     </TouchableOpacity>
                   </View>

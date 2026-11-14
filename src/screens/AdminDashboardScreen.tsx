@@ -50,11 +50,11 @@ export default function AdminDashboardScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="إغلاق">
           <Ionicons name="close" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>لوحة التحكم</Text>
-        <TouchableOpacity onPress={() => signOut()} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => signOut()} activeOpacity={0.8} accessibilityLabel="تسجيل الخروج">
           <Ionicons name="log-out-outline" size={22} color={colors.red} />
         </TouchableOpacity>
       </View>
@@ -75,7 +75,7 @@ export default function AdminDashboardScreen() {
 
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>الوجهات ({destinations.length})</Text>
-          <TouchableOpacity onPress={() => refresh()} activeOpacity={0.7}>
+          <TouchableOpacity onPress={() => refresh()} activeOpacity={0.7} accessibilityLabel="تحديث">
             <Ionicons name="refresh" size={18} color={colors.textMuted} />
           </TouchableOpacity>
         </View>

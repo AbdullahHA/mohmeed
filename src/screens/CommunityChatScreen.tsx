@@ -144,7 +144,7 @@ export default function CommunityChatScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="رجوع">
           <Ionicons name="arrow-forward" size={20} color={colors.text} />
         </TouchableOpacity>
         <View style={[styles.headerIcon, { backgroundColor: community.color }]}>
@@ -154,7 +154,7 @@ export default function CommunityChatScreen() {
           <Text style={styles.headerTitle}>{community.name}</Text>
           <Text style={styles.headerSubtitle}>{community.memberCount.toLocaleString()} عضو</Text>
         </View>
-        <TouchableOpacity onPress={() => setMenuOpen(true)} activeOpacity={0.8} hitSlop={8}>
+        <TouchableOpacity onPress={() => setMenuOpen(true)} activeOpacity={0.8} hitSlop={8} accessibilityLabel="خيارات إضافية">
           <Ionicons name="ellipsis-vertical" size={18} color={colors.textMuted} />
         </TouchableOpacity>
       </View>
@@ -201,7 +201,7 @@ export default function CommunityChatScreen() {
 
         {community.joined ? (
           <View style={styles.inputRow}>
-            <TouchableOpacity style={styles.sendButton} onPress={send} activeOpacity={0.8} disabled={sending}>
+            <TouchableOpacity style={styles.sendButton} onPress={send} activeOpacity={0.8} disabled={sending} accessibilityLabel="إرسال">
               <Ionicons name="send" size={16} color={colors.textOnPrimary} />
             </TouchableOpacity>
             <TextInput

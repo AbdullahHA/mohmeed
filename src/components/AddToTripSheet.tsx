@@ -101,7 +101,7 @@ export default function AddToTripSheet({ visible, placeName, isRestaurant, trips
       <Pressable style={styles.backdrop} onPress={onClose}>
         <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
           <View style={styles.headerRow}>
-            <Pressable onPress={onClose} hitSlop={10}>
+            <Pressable onPress={onClose} hitSlop={10} accessibilityLabel="إغلاق">
               <Ionicons name="close" size={20} color={colors.textMuted} />
             </Pressable>
             <View style={styles.headerTextWrap}>

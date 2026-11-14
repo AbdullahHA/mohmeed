@@ -124,7 +124,7 @@ export default function CheckInVenueScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="رجوع">
           <Ionicons name="chevron-forward" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>تسجيل الوصول</Text>
@@ -167,7 +167,7 @@ export default function CheckInVenueScreen() {
         {photoUrl ? (
           <View style={styles.photoPreviewWrap}>
             <Image source={{ uri: photoUrl }} style={styles.photoPreview} resizeMode="cover" />
-            <TouchableOpacity style={styles.photoRemoveButton} onPress={() => setPhotoUrl(null)} hitSlop={8}>
+            <TouchableOpacity style={styles.photoRemoveButton} onPress={() => setPhotoUrl(null)} hitSlop={8} accessibilityLabel="إزالة الصورة">
               <Ionicons name="close-circle" size={22} color={colors.text} />
             </TouchableOpacity>
           </View>

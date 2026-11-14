@@ -67,7 +67,7 @@ export default function CreateTripTemplateScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="إغلاق">
           <Ionicons name="close" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>قالب رحلة جديد</Text>
@@ -114,7 +114,7 @@ export default function CreateTripTemplateScreen() {
           <View key={item.id} style={styles.itemRow}>
             <Text style={styles.itemText}>{item.label}</Text>
             <Text style={styles.itemCategory}>{BUDGET_CATEGORY_LABELS[item.category]}</Text>
-            <TouchableOpacity onPress={() => removeItem(item.id)} activeOpacity={0.7}>
+            <TouchableOpacity onPress={() => removeItem(item.id)} activeOpacity={0.7} accessibilityLabel="حذف">
               <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
             </TouchableOpacity>
           </View>

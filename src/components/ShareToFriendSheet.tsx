@@ -29,7 +29,7 @@ export default function ShareToFriendSheet({ visible, friends, onClose, onPick }
       <Pressable style={styles.backdrop} onPress={onClose}>
         <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
           <View style={styles.headerRow}>
-            <Pressable onPress={onClose} hitSlop={10}>
+            <Pressable onPress={onClose} hitSlop={10} accessibilityLabel="إغلاق">
               <Ionicons name="close" size={20} color={colors.textMuted} />
             </Pressable>
             <Text style={styles.title}>شارك مع صديق</Text>

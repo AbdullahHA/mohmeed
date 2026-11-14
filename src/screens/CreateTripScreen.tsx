@@ -154,7 +154,7 @@ export default function CreateTripScreen() {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="إغلاق">
           <Ionicons name="close" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>رحلة جديدة</Text>
@@ -340,11 +340,19 @@ export default function CreateTripScreen() {
                     </RtlScrollRow>
                     <Text style={styles.subLabel}>عدد الأيام</Text>
                     <View style={styles.stepperRow}>
-                      <TouchableOpacity style={styles.stepperBtn} onPress={() => setFlexibleDays((d) => Math.max(1, d - 1))}>
+                      <TouchableOpacity
+                        style={styles.stepperBtn}
+                        onPress={() => setFlexibleDays((d) => Math.max(1, d - 1))}
+                        accessibilityLabel="إنقاص عدد الأيام"
+                      >
                         <Ionicons name="remove" size={16} color={colors.text} />
                       </TouchableOpacity>
                       <Text style={styles.stepperValue}>{flexibleDays}</Text>
-                      <TouchableOpacity style={styles.stepperBtn} onPress={() => setFlexibleDays((d) => Math.min(30, d + 1))}>
+                      <TouchableOpacity
+                        style={styles.stepperBtn}
+                        onPress={() => setFlexibleDays((d) => Math.min(30, d + 1))}
+                        accessibilityLabel="زيادة عدد الأيام"
+                      >
                         <Ionicons name="add" size={16} color={colors.text} />
                       </TouchableOpacity>
                     </View>

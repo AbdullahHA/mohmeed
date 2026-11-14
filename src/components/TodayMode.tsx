@@ -319,7 +319,7 @@ export default function TodayMode({ trip, navigation }: Props) {
             .filter((i) => i.done)
             .map((item) => (
               <View key={item.id} style={styles.restRow}>
-                <TouchableOpacity onPress={() => toggleItineraryItemDone(trip.id, item.id)}>
+                <TouchableOpacity onPress={() => toggleItineraryItemDone(trip.id, item.id)} accessibilityLabel="إلغاء الإنجاز">
                   <Ionicons name="checkmark-circle" size={18} color={colors.primary} />
                 </TouchableOpacity>
                 <Text style={[styles.restRowTitle, styles.restRowDone]} numberOfLines={1}>{item.title}</Text>

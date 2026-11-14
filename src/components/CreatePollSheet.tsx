@@ -64,7 +64,7 @@ export default function CreatePollSheet({ visible, onClose, onSubmit }: Props) {
                   <Pressable
                     onPress={() => setOptions((prev) => prev.filter((_, idx) => idx !== i))}
                     hitSlop={8}
-                  >
+                   accessibilityLabel="حذف الخيار">
                     <Ionicons name="close-circle" size={20} color={colors.textFaint} />
                   </Pressable>
                 ) : (

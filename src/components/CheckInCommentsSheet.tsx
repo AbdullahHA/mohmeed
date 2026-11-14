@@ -136,7 +136,7 @@ export default function CheckInCommentsSheet({ visible, checkInId, meId, onClose
           )}
 
           <View style={styles.inputRow}>
-            <TouchableOpacity style={styles.sendButton} onPress={send} disabled={sending} activeOpacity={0.8}>
+            <TouchableOpacity style={styles.sendButton} onPress={send} disabled={sending} activeOpacity={0.8} accessibilityLabel="إرسال">
               <Ionicons name="send" size={16} color={colors.textOnPrimary} />
             </TouchableOpacity>
             <TextInput
