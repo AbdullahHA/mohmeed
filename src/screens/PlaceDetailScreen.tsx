@@ -224,7 +224,7 @@ export default function PlaceDetailScreen() {
               <Text style={styles.subRateText}>{place.rating.toFixed(1)}</Text>
             </View>
             <Text style={styles.subDot}>·</Text>
-            <Text style={styles.subText}>{'﷼'.repeat(place.priceLevel)}</Text>
+            <Text style={styles.subText}>{'$'.repeat(place.priceLevel)}</Text>
           </View>
 
           <View style={styles.qaRow}>

@@ -97,8 +97,8 @@ export default function PlaceCard({ place, onPress }: Props) {
         </View>
         <View style={styles.priceBadge}>
           <Text style={styles.priceBadgeText}>
-            {'﷼'.repeat(place.priceLevel)}
-            <Text style={styles.priceBadgeMuted}>{'﷼'.repeat(3 - place.priceLevel)}</Text>
+            {'$'.repeat(place.priceLevel)}
+            <Text style={styles.priceBadgeMuted}>{'$'.repeat(3 - place.priceLevel)}</Text>
           </Text>
         </View>
         <TouchableOpacity

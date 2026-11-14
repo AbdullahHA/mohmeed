@@ -369,7 +369,7 @@ export default function DiscoverScreen() {
                           {PLACE_TYPE_LABELS[place.type]} · {destinationName(place.destinationId) ?? ''}
                         </Text>
                       </View>
-                      <Text style={styles.rowPrice}>{'﷼'.repeat(place.priceLevel)}</Text>
+                      <Text style={styles.rowPrice}>{'$'.repeat(place.priceLevel)}</Text>
                     </TouchableOpacity>
                   )}
                 />

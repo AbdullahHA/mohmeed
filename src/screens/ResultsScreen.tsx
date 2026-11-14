@@ -160,7 +160,7 @@ export default function ResultsScreen() {
               onPress={() => togglePrice(level)}
             >
               <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>
-                {'﷼'.repeat(level)}
+                {'$'.repeat(level)}
               </Text>
             </TouchableOpacity>
           );
@@ -217,7 +217,7 @@ export default function ResultsScreen() {
                       <Text style={styles.ratingText}>{place.rating.toFixed(1)}</Text>
                     </View>
                     <Text style={styles.cardMetaText}>
-                      {PLACE_TYPE_LABELS[place.type]} · {'﷼'.repeat(place.priceLevel)}
+                      {PLACE_TYPE_LABELS[place.type]} · {'$'.repeat(place.priceLevel)}
                       {distance !== null ? ` · ${distance < 1 ? Math.round(distance * 1000) + ' م' : distance.toFixed(1) + ' كم'}` : ''}
                     </Text>
                   </View>
