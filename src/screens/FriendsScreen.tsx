@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import Text from '../components/Text';
 import { Alert } from '../lib/alert';
@@ -35,7 +36,16 @@ export default function FriendsScreen() {
     acceptFriendRequest,
     declineFriendRequest,
     cancelFriendRequest,
+    loadFriends,
+    loadFriendRequests,
   } = useAppState();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await Promise.all([loadFriends(), loadFriendRequests()]);
+    setRefreshing(false);
+  };
 
   const handleDelete = (friend: Friend) => {
     Alert.alert('حذف الصديق؟', `بتحذف ${friend.name} من قائمة أصدقائك.`, [
@@ -101,7 +111,11 @@ export default function FriendsScreen() {
       {friendsLoading ? (
         <ActivityIndicator color={colors.primary} style={styles.loading} />
       ) : (
-        <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+        >
           {incomingRequests.length > 0 ? (
             <>
               <Text style={styles.sectionTitle}>طلبات واردة</Text>

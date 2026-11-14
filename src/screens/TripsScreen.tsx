@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
@@ -45,9 +46,16 @@ export default function TripsScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { trips, tripsLoading } = useAppState();
+  const { trips, tripsLoading, loadTrips } = useAppState();
   const { requireAccount } = useRequireAccount();
   const [activeTab, setActiveTab] = useState<TripTab>('upcoming');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadTrips();
+    setRefreshing(false);
+  };
 
   const upcomingTrips = useMemo(() => trips.filter((t) => !isTripPast(t.endDate)), [trips]);
   const pastTrips = useMemo(() => trips.filter((t) => isTripPast(t.endDate)), [trips]);
@@ -227,6 +235,7 @@ export default function TripsScreen() {
               keyExtractor={(item) => item.id}
               contentContainerStyle={styles.list}
               showsVerticalScrollIndicator={false}
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
               renderItem={({ item }) => renderCard(item)}
               ListFooterComponent={
                 <TouchableOpacity

@@ -174,7 +174,7 @@ export default function TrendingScreen() {
                 <View style={styles.ratingBadge}>
                   <Text style={styles.ratingCountText}>({(r.ratingCount ?? 0).toLocaleString()})</Text>
                   <Text style={styles.ratingText}>{r.rating.toFixed(1)}</Text>
-                  <Ionicons name="star" size={12} color={colors.warning} />
+                  <Ionicons name="star" size={14} color={colors.accent} />
                 </View>
               ) : null}
             </TouchableOpacity>

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { SafeAreaView, View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaView, View, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -64,9 +64,17 @@ export default function NotificationsScreen() {
     acceptFriendRequest,
     declineFriendRequest,
     incomingRequests,
+    loadNotifications,
   } = useAppState();
   const [filter, setFilter] = useState<Filter>('all');
   const [respondingId, setRespondingId] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadNotifications();
+    setRefreshing(false);
+  };
   const [handledIds, setHandledIds] = useState<Set<string>>(new Set());
 
   const tripNotifications = notifications.filter((n) => TRIP_TYPES.includes(n.type));
@@ -146,7 +154,11 @@ export default function NotificationsScreen() {
           subtitle="إشعارات طلبات الأصدقاء ورحلاتك بتظهر هنا أول ما تصير."
         />
       ) : (
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.list}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+      >
           {groups.map((group) => (
             <View key={group.label}>
               <Text style={styles.groupHeading}>{group.label}</Text>

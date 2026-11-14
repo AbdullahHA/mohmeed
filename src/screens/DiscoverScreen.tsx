@@ -12,6 +12,7 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Platform,
+  RefreshControl,
 } from 'react-native';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
@@ -44,11 +45,18 @@ export default function DiscoverScreen() {
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { places, destinations } = useContent();
+  const { places, destinations, refresh } = useContent();
   const { recommendedPlaceIds, toggleRecommended, currentUser } = useAppState();
   const firstName = currentUser.name.trim().split(/\s+/)[0];
   const { requireAccount } = useRequireAccount();
   const [query, setQuery] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refresh();
+    setRefreshing(false);
+  };
   const [activeType, setActiveType] = useState<PlaceType | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [manualCityId, setManualCityId] = useState<string | null>(null);
@@ -143,6 +151,7 @@ export default function DiscoverScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scroll}
         stickyHeaderIndices={[0]}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
       >
         <View style={styles.top}>
           <View style={styles.topRow}>
@@ -287,7 +296,7 @@ export default function DiscoverScreen() {
                       </View>
                       <Text style={styles.pcardName} numberOfLines={1}>{place.name}</Text>
                       <View style={styles.pcardMeta}>
-                        <Ionicons name="star" size={12} color={colors.accentDark} />
+                        <Ionicons name="star" size={14} color={colors.accent} />
                         <Text style={styles.pcardMetaText}>{place.rating.toFixed(1)}</Text>
                         <Text style={styles.pcardMetaText}>· {PLACE_TYPE_LABELS[place.type]}</Text>
                       </View>
@@ -318,7 +327,7 @@ export default function DiscoverScreen() {
                         </Text>
                       </View>
                       <View style={styles.rowRating}>
-                        <Ionicons name="star" size={12} color={colors.accentDark} />
+                        <Ionicons name="star" size={14} color={colors.accent} />
                         <Text style={styles.rowRatingText}>{place.rating.toFixed(1)}</Text>
                       </View>
                     </TouchableOpacity>

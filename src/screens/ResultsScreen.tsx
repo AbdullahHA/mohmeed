@@ -6,6 +6,7 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
@@ -35,7 +36,7 @@ export default function ResultsScreen() {
   const { title, category, query, destinationId } = route.params;
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { places, destinations } = useContent();
+  const { places, destinations, refresh } = useContent();
   const { recommendedPlaceIds, toggleRecommended, followingIds } = useAppState();
   const { requireAccount } = useRequireAccount();
   const { status: locationStatus, coords, requestLocation } = useUserLocation();
@@ -44,6 +45,13 @@ export default function ResultsScreen() {
   const [sort, setSort] = useState<SortMode>('default');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [friendSignals, setFriendSignals] = useState<Record<string, string[]>>({});
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refresh();
+    setRefreshing(false);
+  };
 
   const destinationName = (id: string) => destinations.find((d) => d.id === id)?.name;
 
@@ -186,6 +194,7 @@ export default function ResultsScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
           renderItem={({ item: place }) => {
             const isRecommended = recommendedPlaceIds.includes(place.id);
             const distance = distanceFor(place);
@@ -213,7 +222,7 @@ export default function ResultsScreen() {
                 <View style={styles.cardBody}>
                   <View style={styles.cardMetaRow}>
                     <View style={styles.ratingRow}>
-                      <Ionicons name="star" size={12} color={colors.accentDark} />
+                      <Ionicons name="star" size={14} color={colors.accent} />
                       <Text style={styles.ratingText}>{place.rating.toFixed(1)}</Text>
                     </View>
                     <Text style={styles.cardMetaText}>

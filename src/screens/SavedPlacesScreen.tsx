@@ -61,7 +61,7 @@ export default function SavedPlacesScreen() {
                   {PLACE_TYPE_LABELS[place.type]} · {destinationName(place.destinationId) ?? ''}
                 </Text>
                 <View style={styles.rowMeta}>
-                  <Ionicons name="star" size={12} color={colors.accentDark} />
+                  <Ionicons name="star" size={14} color={colors.accent} />
                   <Text style={styles.rowMetaText}>{place.rating.toFixed(1)}</Text>
                 </View>
               </View>

@@ -182,6 +182,10 @@ type AppStateValue = {
   loadDestinationCheckIns: (destinationId: string) => Promise<CheckInRecord[]>;
   loadFriendsCheckInFeed: () => Promise<CheckInRecord[]>;
   loadWeeklyCheckIns: () => Promise<CheckInRecord[]>;
+  loadTrips: () => Promise<void>;
+  loadFriends: () => Promise<void>;
+  loadFriendRequests: () => Promise<void>;
+  loadNotifications: () => Promise<void>;
   followersCount: number;
   followingCount: number;
   followingIds: string[];
@@ -2032,6 +2036,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       loadDestinationCheckIns,
       loadFriendsCheckInFeed,
       loadWeeklyCheckIns,
+      loadTrips,
+      loadFriends,
+      loadFriendRequests,
+      loadNotifications,
       followersCount,
       followingCount,
       followingIds,
