@@ -141,6 +141,12 @@ type AppStateValue = {
   addChecklistItem: (tripId: string, item: Omit<ChecklistItem, 'id' | 'done'>) => Promise<void>;
   toggleChecklistItem: (tripId: string, itemId: string) => Promise<void>;
   removeChecklistItem: (tripId: string, itemId: string) => Promise<void>;
+  applyTripRealtimeChange: (
+    tripId: string,
+    table: 'itinerary_items' | 'budget_items' | 'trip_checklist',
+    eventType: 'INSERT' | 'UPDATE' | 'DELETE',
+    row: any
+  ) => void;
   sendGuideMessage: (text: string) => void;
   resetGuideConversation: () => void;
   joinCommunity: (communityId: string) => Promise<{ error: string | null }>;
@@ -1450,6 +1456,45 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     await supabase.from('trip_checklist').delete().eq('id', itemId);
   };
 
+  // Merges one realtime row change (from the schedule tab's live-collab
+  // subscription in TripDetailScreen) into local state — upsert-by-id for
+  // INSERT/UPDATE so our own optimistic write echoing back is a no-op, and
+  // a filter for DELETE.
+  const applyTripRealtimeChange = (
+    tripId: string,
+    table: 'itinerary_items' | 'budget_items' | 'trip_checklist',
+    eventType: 'INSERT' | 'UPDATE' | 'DELETE',
+    row: any
+  ) => {
+    updateTripLocal(tripId, (t) => {
+      if (table === 'itinerary_items') {
+        if (eventType === 'DELETE') return { ...t, itinerary: t.itinerary.filter((i) => i.id !== row.id) };
+        const mapped = mapItineraryRow(row);
+        const exists = t.itinerary.some((i) => i.id === mapped.id);
+        return {
+          ...t,
+          itinerary: exists ? t.itinerary.map((i) => (i.id === mapped.id ? mapped : i)) : [...t.itinerary, mapped],
+        };
+      }
+      if (table === 'budget_items') {
+        if (eventType === 'DELETE') return { ...t, budgetItems: t.budgetItems.filter((b) => b.id !== row.id) };
+        const mapped = mapBudgetRow(row);
+        const exists = t.budgetItems.some((b) => b.id === mapped.id);
+        return {
+          ...t,
+          budgetItems: exists ? t.budgetItems.map((b) => (b.id === mapped.id ? mapped : b)) : [...t.budgetItems, mapped],
+        };
+      }
+      if (eventType === 'DELETE') return { ...t, checklist: t.checklist.filter((c) => c.id !== row.id) };
+      const mapped = mapChecklistRow(row);
+      const exists = t.checklist.some((c) => c.id === mapped.id);
+      return {
+        ...t,
+        checklist: exists ? t.checklist.map((c) => (c.id === mapped.id ? mapped : c)) : [...t.checklist, mapped],
+      };
+    });
+  };
+
   const sendGuideMessage = (text: string) => {
     const trimmed = text.trim();
     if (!trimmed) return;
@@ -1955,6 +2000,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       addChecklistItem,
       toggleChecklistItem,
       removeChecklistItem,
+      applyTripRealtimeChange,
       sendGuideMessage,
       resetGuideConversation,
       joinCommunity,

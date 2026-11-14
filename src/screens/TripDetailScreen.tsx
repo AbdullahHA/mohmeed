@@ -86,6 +86,7 @@ export default function TripDetailScreen() {
     addChecklistItem,
     toggleChecklistItem,
     removeChecklistItem,
+    applyTripRealtimeChange,
     sendGuideMessage,
   } = useAppState();
 
@@ -97,6 +98,7 @@ export default function TripDetailScreen() {
   const [members, setMembers] = useState<MemberProfile[]>([]);
   const [memberRoles, setMemberRoles] = useState<Record<string, TripMemberRole>>({});
   const [hijriEnabled, setHijriEnabled] = useState(false);
+  const [livePresence, setLivePresence] = useState<{ userId: string; name: string }[]>([]);
 
   useEffect(() => {
     getHijriDateEnabled().then(setHijriEnabled);
@@ -166,6 +168,56 @@ export default function TripDetailScreen() {
       cancelled = true;
     };
   }, [trip?.memberIds.join(',')]);
+
+  // Live collaborative planning: push every itinerary/budget/checklist
+  // change to other members immediately (same postgres_changes pattern as
+  // the group chat), and track presence so everyone sees who else is
+  // looking at this trip's schedule right now.
+  useEffect(() => {
+    if (!trip || !profile) return;
+    const channel = supabase
+      .channel(`trip-schedule-${trip.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'itinerary_items', filter: `trip_id=eq.${trip.id}` },
+        (payload) => {
+          applyTripRealtimeChange(trip.id, 'itinerary_items', payload.eventType as any, payload.eventType === 'DELETE' ? payload.old : payload.new);
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'budget_items', filter: `trip_id=eq.${trip.id}` },
+        (payload) => {
+          applyTripRealtimeChange(trip.id, 'budget_items', payload.eventType as any, payload.eventType === 'DELETE' ? payload.old : payload.new);
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'trip_checklist', filter: `trip_id=eq.${trip.id}` },
+        (payload) => {
+          applyTripRealtimeChange(trip.id, 'trip_checklist', payload.eventType as any, payload.eventType === 'DELETE' ? payload.old : payload.new);
+        }
+      )
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState<{ userId: string; name: string }>();
+        const others = Object.values(state)
+          .flat()
+          .filter((p) => p.userId !== profile.id);
+        const unique = Array.from(new Map(others.map((p) => [p.userId, p])).values());
+        setLivePresence(unique);
+      })
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          channel.track({ userId: profile.id, name: profile.name });
+        }
+      });
+
+    return () => {
+      setLivePresence([]);
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trip?.id, profile?.id]);
 
   const isOrganizer = memberRoles[profile?.id ?? ''] === 'organizer' || trip?.ownerId === profile?.id;
   const isViewer = memberRoles[profile?.id ?? ''] === 'viewer';
@@ -414,6 +466,15 @@ export default function TripDetailScreen() {
                 </Text>
                 <Ionicons name={shareCodeCopied ? 'checkmark' : 'copy-outline'} size={15} color={colors.primary} />
               </TouchableOpacity>
+            </View>
+          ) : null}
+
+          {livePresence.length > 0 ? (
+            <View style={styles.presenceRow}>
+              <View style={styles.presenceDot} />
+              <Text style={styles.presenceText}>
+                يشوفون الجدول الحين: {livePresence.map((p) => p.name).join('، ')}
+              </Text>
             </View>
           ) : null}
 
@@ -851,6 +912,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     marginTop: spacing.xs,
   },
   offlineBadgeText: { color: colors.textMuted, fontSize: fontSize.tiny, fontWeight: '700' },
+  presenceRow: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  presenceDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.success },
+  presenceText: { color: colors.textMuted, fontSize: fontSize.small, fontWeight: '600' },
   subtitleRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.sm, marginTop: 4, marginBottom: spacing.md },
   hijriSubtitle: { color: colors.textFaint, fontSize: fontSize.base, textAlign: 'right', marginTop: -4, marginBottom: spacing.sm },
   subtitle: { color: colors.textMuted, fontSize: fontSize.body },
