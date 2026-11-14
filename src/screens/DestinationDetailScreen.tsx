@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Share,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
@@ -210,6 +212,7 @@ export default function DestinationDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <View style={styles.imageWrap}>
           <Image source={destination.image} style={styles.image} />
@@ -530,12 +533,14 @@ export default function DestinationDetailScreen() {
           <Text style={styles.planTripButtonText}>خطط رحلة لـ{destination.name}</Text>
         </TouchableOpacity>
       </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  flex: { flex: 1 },
   notFound: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
   scrollContent: { paddingBottom: 100 },
   imageWrap: { width: '100%', height: 260 },

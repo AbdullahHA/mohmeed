@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
@@ -146,6 +148,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       {offline ? (
         <View style={styles.offlineBanner}>
           <Ionicons name="cloud-offline-outline" size={14} color={colors.textMuted} />
@@ -413,12 +416,14 @@ export default function HomeScreen() {
           <Ionicons name="chevron-back" size={18} color={colors.textMuted} />
         </TouchableOpacity>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  flex: { flex: 1 },
   scrollContent: { paddingBottom: 120 },
   offlineBanner: {
     flexDirection: 'row-reverse',

@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   Platform,
+  KeyboardAvoidingView,
 } from 'react-native';
 import Text from '../components/Text';
 import RtlScrollRow from '../components/RtlScrollRow';
@@ -151,6 +152,7 @@ export default function CreateTripScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
           <Ionicons name="close" size={22} color={colors.text} />
@@ -478,12 +480,14 @@ export default function CreateTripScreen() {
           <Text style={styles.submitText}>{creating ? 'جاري الإنشاء...' : 'سوّ الرحلة'}</Text>
         </TouchableOpacity>
       </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  flex: { flex: 1 },
   header: {
     flexDirection: 'row-reverse',
     alignItems: 'center',

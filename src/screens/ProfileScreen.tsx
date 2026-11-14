@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Image,
   Share,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Text from '../components/Text';
 import RtlScrollRow from '../components/RtlScrollRow';
@@ -210,6 +212,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <DesertHero style={styles.cover} imageUri={profile?.coverUrl} dark={!!profile?.coverUrl}>
           {profile ? (
@@ -765,12 +768,14 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         ) : null}
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  flex: { flex: 1 },
   scrollContent: { paddingBottom: 120 },
   cover: { height: 130 },
   settingsButton: {

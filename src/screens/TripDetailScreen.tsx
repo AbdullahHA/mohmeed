@@ -8,6 +8,8 @@ import {
   TextInput,
   TouchableOpacity,
   Share,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Text from '../components/Text';
 import RtlScrollRow from '../components/RtlScrollRow';
@@ -286,7 +288,8 @@ export default function TripDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.imageWrap}>
           <Image source={trip.coverImage} style={styles.image} />
           <View style={styles.headerRow}>
@@ -796,13 +799,15 @@ export default function TripDetailScreen() {
             </View>
           ) : null}
         </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  flex: { flex: 1 },
   notFound: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
   imageWrap: { width: '100%', height: 190 },
   image: { width: '100%', height: '100%' },
