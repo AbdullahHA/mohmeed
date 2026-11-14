@@ -217,6 +217,7 @@ export default function ResultsScreen() {
                     style={styles.heartButton}
                     activeOpacity={0.7}
                     onPress={() => requireAccount('recommend', () => toggleRecommended(place.id))}
+                    accessibilityLabel={isRecommended ? 'إزالة التوصية بهذا المكان' : 'التوصية بهذا المكان'}
                   >
                     <Ionicons
                       name={isRecommended ? 'heart' : 'heart-outline'}

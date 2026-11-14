@@ -204,7 +204,7 @@ export default function FriendsScreen() {
                    accessibilityLabel="محادثة">
                     <Ionicons name="chatbubble-outline" size={18} color={colors.primary} />
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.actionButton} activeOpacity={0.7} onPress={() => handleBlock(friend)}>
+                  <TouchableOpacity style={styles.actionButton} activeOpacity={0.7} onPress={() => handleBlock(friend)} accessibilityLabel="حظر">
                     <Ionicons name="hand-left-outline" size={18} color={colors.textMuted} />
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.actionButton} activeOpacity={0.7} onPress={() => handleDelete(friend)} accessibilityLabel="حذف">

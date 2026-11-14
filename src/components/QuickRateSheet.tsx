@@ -53,7 +53,7 @@ export default function QuickRateSheet({ visible, placeName, onClose, onSubmit }
 
           <View style={styles.starsRow}>
             {[1, 2, 3, 4, 5].map((n) => (
-              <Pressable key={n} onPress={() => setStars(n)} hitSlop={6}>
+              <Pressable key={n} onPress={() => setStars(n)} hitSlop={6} accessibilityLabel={`تقييم ${n} من 5 نجوم`}>
                 <Ionicons name={n <= stars ? 'star' : 'star-outline'} size={34} color={colors.accent} />
               </Pressable>
             ))}

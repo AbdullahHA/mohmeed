@@ -171,11 +171,16 @@ export default function TripDatesVoteScreen() {
         <Text style={styles.hint}>كل عضو يضغط الأيام اللي تناسبه، وكل ما زاد اللون اخضر كل ما اتفق عليه أكثر</Text>
 
         <View style={styles.monthRow}>
-          <TouchableOpacity onPress={() => setMonthOffset((m) => m + 1)} hitSlop={10}>
+          <TouchableOpacity onPress={() => setMonthOffset((m) => m + 1)} hitSlop={10} accessibilityLabel="الشهر التالي">
             <Ionicons name="chevron-back" size={20} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.monthLabel}>{MONTH_NAMES[baseMonth.getMonth()]} {baseMonth.getFullYear()}</Text>
-          <TouchableOpacity onPress={() => setMonthOffset((m) => Math.max(0, m - 1))} hitSlop={10} disabled={monthOffset === 0}>
+          <TouchableOpacity
+            onPress={() => setMonthOffset((m) => Math.max(0, m - 1))}
+            hitSlop={10}
+            disabled={monthOffset === 0}
+            accessibilityLabel="الشهر السابق"
+          >
             <Ionicons name="chevron-forward" size={20} color={monthOffset === 0 ? colors.textFaint : colors.text} />
           </TouchableOpacity>
         </View>

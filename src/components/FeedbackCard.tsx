@@ -57,7 +57,13 @@ export default function FeedbackCard({ feedback, onSubmit }: Props) {
         {[1, 2, 3, 4, 5].map((value) => {
           const filled = value <= rating;
           return (
-            <TouchableOpacity key={value} activeOpacity={0.7} onPress={() => selectRating(value)} hitSlop={6}>
+            <TouchableOpacity
+              key={value}
+              activeOpacity={0.7}
+              onPress={() => selectRating(value)}
+              hitSlop={6}
+              accessibilityLabel={`تقييم ${value} من 5 نجوم`}
+            >
               <Ionicons
                 name={filled ? 'star' : 'star-outline'}
                 size={30}

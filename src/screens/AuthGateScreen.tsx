@@ -260,6 +260,7 @@ export default function AuthGateScreen() {
                     style={styles.eyeButton}
                     activeOpacity={0.7}
                     onPress={() => setShowNewPassword((v) => !v)}
+                    accessibilityLabel={showNewPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                   >
                     <Ionicons
                       name={showNewPassword ? 'eye-off-outline' : 'eye-outline'}
@@ -383,6 +384,7 @@ export default function AuthGateScreen() {
               style={styles.eyeButton}
               activeOpacity={0.7}
               onPress={() => setShowPassword((v) => !v)}
+              accessibilityLabel={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
             >
               <Ionicons
                 name={showPassword ? 'eye-off-outline' : 'eye-outline'}

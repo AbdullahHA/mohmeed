@@ -173,6 +173,7 @@ export default function TripsScreen() {
             style={styles.iconButton}
             activeOpacity={0.8}
             onPress={() => requireAccount('trip', () => navigation.navigate('JoinTrip'))}
+            accessibilityLabel="الانضمام لرحلة برمز"
           >
             <Ionicons name="key-outline" size={18} color={colors.text} />
           </TouchableOpacity>

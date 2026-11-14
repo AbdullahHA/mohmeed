@@ -106,6 +106,7 @@ export default function PlaceCard({ place, onPress }: Props) {
           onPress={() => requireAccount('recommend', () => toggleRecommended(place.id))}
           activeOpacity={0.7}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          accessibilityLabel={isRecommended ? 'إزالة التوصية بهذا المكان' : 'التوصية بهذا المكان'}
         >
           <Ionicons
             name={isRecommended ? 'heart' : 'heart-outline'}

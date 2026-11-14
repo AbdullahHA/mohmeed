@@ -232,6 +232,7 @@ export default function DestinationDetailScreen() {
                 style={styles.glassButton}
                 activeOpacity={0.85}
                 onPress={() => requireAccount('favoriteDestination', () => toggleFavoriteDestination(destination.id))}
+                accessibilityLabel={isFavorite ? 'إزالة من الوجهات المفضلة' : 'إضافة للوجهات المفضلة'}
               >
                 <Ionicons
                   name={isFavorite ? 'heart' : 'heart-outline'}
@@ -516,6 +517,7 @@ export default function DestinationDetailScreen() {
           style={[styles.wishlistButton, wishlisted && styles.wishlistButtonActive]}
           activeOpacity={0.85}
           onPress={handleWishlist}
+          accessibilityLabel={wishlisted ? 'إزالة من قائمة الأمنيات' : 'إضافة لقائمة الأمنيات'}
         >
           <Ionicons
             name={wishlisted ? 'bookmark' : 'bookmark-outline'}

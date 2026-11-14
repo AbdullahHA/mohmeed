@@ -349,10 +349,23 @@ export default function GroupChatScreen() {
             onSubmitEditing={send}
             textAlign="right"
           />
-          <TouchableOpacity style={styles.attachButton} onPress={() => setPollSheetVisible(true)} activeOpacity={0.8} hitSlop={6}>
+          <TouchableOpacity
+            style={styles.attachButton}
+            onPress={() => setPollSheetVisible(true)}
+            activeOpacity={0.8}
+            hitSlop={6}
+            accessibilityLabel="إنشاء استطلاع"
+          >
             <Ionicons name="bar-chart-outline" size={20} color={colors.textMuted} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.attachButton} onPress={sendImage} activeOpacity={0.8} disabled={uploadingImage} hitSlop={6}>
+          <TouchableOpacity
+            style={styles.attachButton}
+            onPress={sendImage}
+            activeOpacity={0.8}
+            disabled={uploadingImage}
+            hitSlop={6}
+            accessibilityLabel="إرسال صورة"
+          >
             {uploadingImage ? (
               <ActivityIndicator size="small" color={colors.primary} />
             ) : (

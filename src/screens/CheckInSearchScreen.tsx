@@ -96,7 +96,7 @@ export default function CheckInSearchScreen() {
           <Ionicons name="close" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>تسجيل الوصول</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('MyCheckIns')} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => navigation.navigate('MyCheckIns')} activeOpacity={0.8} accessibilityLabel="سجل تسجيلات الوصول">
           <Ionicons name="time-outline" size={22} color={colors.text} />
         </TouchableOpacity>
       </View>

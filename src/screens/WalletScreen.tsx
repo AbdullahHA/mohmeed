@@ -144,6 +144,7 @@ export default function WalletScreen() {
                 onPress={() => handleCopyMembership(membership.id, membership.memberNumber)}
                 activeOpacity={0.7}
                 hitSlop={6}
+                accessibilityLabel="نسخ رقم العضوية"
               >
                 <Ionicons
                   name={copiedMembershipId === membership.id ? 'checkmark' : 'copy-outline'}

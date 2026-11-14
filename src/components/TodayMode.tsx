@@ -302,7 +302,7 @@ export default function TodayMode({ trip, navigation }: Props) {
           <Text style={styles.restTitle}>باقي اليوم</Text>
           {restOfDay.map((item) => (
             <View key={item.id} style={styles.restRow}>
-              <TouchableOpacity onPress={() => toggleItineraryItemDone(trip.id, item.id)}>
+              <TouchableOpacity onPress={() => toggleItineraryItemDone(trip.id, item.id)} accessibilityLabel={`تحديد "${item.title}" كمنجز`}>
                 <Ionicons name="ellipse-outline" size={18} color={colors.textMuted} />
               </TouchableOpacity>
               <Text style={styles.restRowSlot}>{item.slot ? SLOT_LABELS[item.slot] : item.time}</Text>
