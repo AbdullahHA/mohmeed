@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import Text from '../components/Text';
 import RtlScrollRow from '../components/RtlScrollRow';
+import { Alert } from '../lib/alert';
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
@@ -297,6 +298,27 @@ export default function TripDetailScreen() {
     : trip.itinerary;
   const undated = trip.itinerary.filter((i) => !i.itemDate);
 
+  const handleRemoveItineraryItem = (itemId: string, title: string) => {
+    Alert.alert('حذف هذا العنصر؟', `بيُحذف "${title}" من جدول الرحلة لكل الأعضاء.`, [
+      { text: 'إلغاء', style: 'cancel' },
+      { text: 'حذف', style: 'destructive', onPress: () => removeItineraryItem(trip.id, itemId) },
+    ]);
+  };
+
+  const handleRemoveBudgetItem = (itemId: string, label: string) => {
+    Alert.alert('حذف هذا المصروف؟', `بيُحذف "${label}" من الميزانية لكل الأعضاء.`, [
+      { text: 'إلغاء', style: 'cancel' },
+      { text: 'حذف', style: 'destructive', onPress: () => removeBudgetItem(trip.id, itemId) },
+    ]);
+  };
+
+  const handleRemoveChecklistItem = (itemId: string, title: string) => {
+    Alert.alert('حذف هذه المهمة؟', `بيُحذف "${title}" من قائمة التجهيز لكل الأعضاء.`, [
+      { text: 'إلغاء', style: 'cancel' },
+      { text: 'حذف', style: 'destructive', onPress: () => removeChecklistItem(trip.id, itemId) },
+    ]);
+  };
+
   const handleAddBudgetItem = () => {
     const amount = Number(budgetAmount);
     if (!budgetLabel.trim() || !Number.isFinite(amount) || amount <= 0) return;
@@ -546,7 +568,11 @@ export default function TripDetailScreen() {
                         <Text style={styles.slotHeading}>{SLOT_LABELS[slot]}</Text>
                         {items.map((item) => (
                           <View key={item.id} style={styles.itineraryRow}>
-                            <TouchableOpacity onPress={() => removeItineraryItem(trip.id, item.id)} activeOpacity={0.7}>
+                            <TouchableOpacity
+                              onPress={() => handleRemoveItineraryItem(item.id, item.title)}
+                              activeOpacity={0.7}
+                              hitSlop={8}
+                            >
                               <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
                             </TouchableOpacity>
                             <View style={styles.itineraryTextWrap}>
@@ -563,7 +589,11 @@ export default function TripDetailScreen() {
                 )}
                 {visibleItinerary.filter((i) => !i.slot).map((item) => (
                   <View key={item.id} style={styles.itineraryRow}>
-                    <TouchableOpacity onPress={() => removeItineraryItem(trip.id, item.id)} activeOpacity={0.7}>
+                    <TouchableOpacity
+                      onPress={() => handleRemoveItineraryItem(item.id, item.title)}
+                      activeOpacity={0.7}
+                      hitSlop={8}
+                    >
                       <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
                     </TouchableOpacity>
                     <View style={styles.itineraryTextWrap}>
@@ -681,7 +711,11 @@ export default function TripDetailScreen() {
                     </Text>
                   </View>
                   <Text style={styles.budgetItemAmount}>{item.amount.toLocaleString()} {currency.symbol}</Text>
-                  <TouchableOpacity onPress={() => removeBudgetItem(trip.id, item.id)} activeOpacity={0.7}>
+                  <TouchableOpacity
+                    onPress={() => handleRemoveBudgetItem(item.id, item.label)}
+                    activeOpacity={0.7}
+                    hitSlop={8}
+                  >
                     <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
                   </TouchableOpacity>
                 </View>
@@ -827,7 +861,11 @@ export default function TripDetailScreen() {
                             <Ionicons name="add" size={14} color={colors.textFaint} />
                           )}
                         </View>
-                        <TouchableOpacity onPress={() => removeChecklistItem(trip.id, item.id)} activeOpacity={0.7}>
+                        <TouchableOpacity
+                          onPress={() => handleRemoveChecklistItem(item.id, item.title)}
+                          activeOpacity={0.7}
+                          hitSlop={8}
+                        >
                           <Ionicons name="close" size={14} color={colors.textFaint} />
                         </TouchableOpacity>
                       </TouchableOpacity>
@@ -1108,7 +1146,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.md,
   },
-  checklistHeaderWrap: { gap: 6, marginBottom: spacing.md },
+  checklistHeaderWrap: { gap: spacing.xs, marginBottom: spacing.md },
   checklistHeaderRow: { flexDirection: 'row-reverse' },
   checklistHeaderCount: { color: colors.text, fontSize: fontSize.body, fontWeight: '700' },
   checklistProgressTrack: { height: 6, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt, overflow: 'hidden' },

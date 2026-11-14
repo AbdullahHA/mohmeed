@@ -142,7 +142,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   body: { padding: spacing.lg, paddingBottom: spacing.xxl },
   label: { color: colors.textMuted, fontSize: fontSize.base, fontWeight: '700', marginBottom: spacing.sm, marginTop: spacing.md, textAlign: 'right' },
   typeRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: spacing.sm },
-  typeChip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt },
+  typeChip: { paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt },
   typeChipActive: { backgroundColor: colors.primary },
   typeChipText: { color: colors.textMuted, fontSize: fontSize.body, fontWeight: '700' },
   typeChipTextActive: { color: colors.textOnPrimary },

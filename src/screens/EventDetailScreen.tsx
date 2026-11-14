@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { SafeAreaView, View, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import { SafeAreaView, View, StyleSheet, ScrollView, TouchableOpacity, Linking, ActivityIndicator } from 'react-native';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
@@ -48,27 +48,47 @@ export default function EventDetailScreen() {
   const [event, setEvent] = useState<EventRow | null>(null);
   const [interested, setInterested] = useState(false);
   const [togglingInterest, setTogglingInterest] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [retryTick, setRetryTick] = useState(0);
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
-      const { data } = await supabase
-        .from('events')
-        .select('id,name,city,category,starts_at,ends_at,official_url,audience,notify_interested,place_id')
-        .eq('id', route.params.eventId)
-        .single();
-      setEvent(data ?? null);
+      setLoading(true);
+      setLoadError(false);
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select('id,name,city,category,starts_at,ends_at,official_url,audience,notify_interested,place_id')
+          .eq('id', route.params.eventId)
+          .single();
+        if (cancelled) return;
+        if (error || !data) {
+          setLoadError(true);
+          return;
+        }
+        setEvent(data);
 
-      if (session?.user.id) {
-        const { data: interestRow } = await supabase
-          .from('event_interests')
-          .select('event_id')
-          .eq('event_id', route.params.eventId)
-          .eq('user_id', session.user.id)
-          .maybeSingle();
-        setInterested(!!interestRow);
+        if (session?.user.id) {
+          const { data: interestRow } = await supabase
+            .from('event_interests')
+            .select('event_id')
+            .eq('event_id', route.params.eventId)
+            .eq('user_id', session.user.id)
+            .maybeSingle();
+          if (!cancelled) setInterested(!!interestRow);
+        }
+      } catch {
+        if (!cancelled) setLoadError(true);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     })();
-  }, [route.params.eventId, session?.user.id]);
+    return () => {
+      cancelled = true;
+    };
+  }, [route.params.eventId, session?.user.id, retryTick]);
 
   const toggleInterest = async () => {
     if (!session?.user.id || !event) return;
@@ -92,7 +112,20 @@ export default function EventDetailScreen() {
           <Text style={styles.headerTitle}>الفعالية</Text>
           <View style={{ width: 20 }} />
         </View>
-        <Text style={styles.emptyText}>جاري التحميل...</Text>
+        {loading ? (
+          <View style={styles.centerState}>
+            <ActivityIndicator color={colors.primary} />
+          </View>
+        ) : (
+          <View style={styles.centerState}>
+            <Text style={styles.emptyText}>{loadError ? 'تعذّر تحميل الفعالية' : 'ما لقينا هذي الفعالية'}</Text>
+            {loadError ? (
+              <TouchableOpacity style={styles.retryBtn} activeOpacity={0.85} onPress={() => setRetryTick((t) => t + 1)}>
+                <Text style={styles.retryBtnText}>إعادة المحاولة</Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        )}
       </SafeAreaView>
     );
   }
@@ -193,28 +226,36 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', flex: 1, textAlign: 'center' },
   body: { padding: spacing.lg, gap: spacing.sm, paddingBottom: spacing.xxl },
-  emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
+  centerState: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md, paddingHorizontal: spacing.xl },
+  emptyText: { color: colors.textMuted, textAlign: 'center' },
+  retryBtn: {
+    backgroundColor: colors.primary,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
+  retryBtnText: { color: colors.textOnPrimary, fontSize: fontSize.body, fontWeight: '700' },
   soonBanner: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
-    gap: 6,
+    gap: spacing.xs,
     alignSelf: 'flex-end',
     backgroundColor: colors.accentSoft,
     borderRadius: radius.pill,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
     marginBottom: spacing.sm,
   },
   soonBannerText: { color: colors.accentDark, fontSize: fontSize.base, fontWeight: '700' },
-  title: { color: colors.text, fontSize: fontSize.title, fontWeight: '800', textAlign: 'right' },
-  metaRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6 },
+  title: { color: colors.text, fontSize: fontSize.title, fontWeight: '700', textAlign: 'right' },
+  metaRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: spacing.xs },
   metaText: { color: colors.textMuted, fontSize: fontSize.body, textAlign: 'right' },
   audienceBadge: {
     alignSelf: 'flex-end',
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.pill,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xxs,
     marginTop: 2,
   },
   audienceBadgeText: { color: colors.textMuted, fontSize: fontSize.small, fontWeight: '700' },
@@ -231,10 +272,10 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flexDirection: 'row-reverse',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: spacing.sm,
     backgroundColor: colors.primary,
     borderRadius: radius.md,
-    paddingVertical: 13,
+    paddingVertical: spacing.md,
     marginTop: spacing.md,
   },
   officialBtnText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, fontWeight: '700' },
@@ -242,12 +283,12 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     flexDirection: 'row-reverse',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: spacing.sm,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
     marginTop: spacing.sm,
   },
   interestBtnActive: { borderColor: colors.heart },

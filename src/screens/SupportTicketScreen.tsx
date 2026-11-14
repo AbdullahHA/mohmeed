@@ -1,5 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { SafeAreaView, View, StyleSheet, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+} from 'react-native';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
@@ -29,20 +39,34 @@ export default function SupportTicketScreen() {
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
   const [rating, setRating] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   const load = async () => {
-    const { data: t } = await supabase
-      .from('support_tickets')
-      .select('id,subject,status,satisfaction')
-      .eq('id', route.params.ticketId)
-      .single();
-    setTicket(t ?? null);
-    const { data: m } = await supabase
-      .from('support_messages')
-      .select('id,from_admin,text,created_at')
-      .eq('ticket_id', route.params.ticketId)
-      .order('created_at', { ascending: true });
-    setMessages(m ?? []);
+    setLoading(true);
+    setLoadError(false);
+    try {
+      const { data: t, error: ticketError } = await supabase
+        .from('support_tickets')
+        .select('id,subject,status,satisfaction')
+        .eq('id', route.params.ticketId)
+        .single();
+      if (ticketError || !t) {
+        setLoadError(true);
+        return;
+      }
+      setTicket(t);
+      const { data: m } = await supabase
+        .from('support_messages')
+        .select('id,from_admin,text,created_at')
+        .eq('ticket_id', route.params.ticketId)
+        .order('created_at', { ascending: true });
+      setMessages(m ?? []);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -68,7 +92,20 @@ export default function SupportTicketScreen() {
   if (!ticket) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.loading}>جاري التحميل...</Text>
+        {loading ? (
+          <View style={styles.centerState}>
+            <ActivityIndicator color={colors.primary} />
+          </View>
+        ) : (
+          <View style={styles.centerState}>
+            <Text style={styles.loading}>{loadError ? 'تعذّر تحميل التذكرة' : 'ما لقينا هذي التذكرة'}</Text>
+            {loadError ? (
+              <TouchableOpacity style={styles.retryBtn} activeOpacity={0.85} onPress={load}>
+                <Text style={styles.retryBtnText}>إعادة المحاولة</Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        )}
       </SafeAreaView>
     );
   }
@@ -142,7 +179,15 @@ export default function SupportTicketScreen() {
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
-  loading: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
+  loading: { color: colors.textMuted, textAlign: 'center' },
+  centerState: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md, paddingHorizontal: spacing.xl },
+  retryBtn: {
+    backgroundColor: colors.primary,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
+  retryBtnText: { color: colors.textOnPrimary, fontSize: fontSize.body, fontWeight: '700' },
   header: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -155,11 +200,11 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', flex: 1, textAlign: 'center' },
   statusLine: { color: colors.textMuted, fontSize: fontSize.base, textAlign: 'center', paddingVertical: spacing.sm },
   body: { padding: spacing.lg, gap: spacing.sm },
-  bubble: { maxWidth: '85%', borderRadius: radius.lg, padding: 10 },
+  bubble: { maxWidth: '85%', borderRadius: radius.lg, padding: spacing.sm },
   bubbleUser: { alignSelf: 'flex-end', backgroundColor: colors.primary },
   bubbleAdmin: { alignSelf: 'flex-start', backgroundColor: colors.surfaceAlt },
   bubbleText: { color: colors.textOnPrimary, fontSize: fontSize.bodyLg, textAlign: 'right' },
-  bubbleTime: { color: 'rgba(255,255,255,0.75)', fontSize: fontSize.tiny, marginTop: 4, textAlign: 'right' },
+  bubbleTime: { color: 'rgba(255,255,255,0.75)', fontSize: fontSize.tiny, marginTop: spacing.xxs, textAlign: 'right' },
   ratingCard: {
     alignItems: 'center',
     gap: spacing.sm,
@@ -187,7 +232,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.lg,
     paddingHorizontal: spacing.md,
-    paddingVertical: 10,
+    paddingVertical: spacing.sm,
     fontSize: fontSize.bodyLg,
     color: colors.text,
     textAlign: 'right',
