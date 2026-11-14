@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, View, type ImageSourcePropType } from 'react-native';
+import { ActivityIndicator, View, AppState as RNAppState, type ImageSourcePropType } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { seedTripTemplates } from '../data/tripTemplates';
 import { heroDestination, type Destination } from '../data/destinations';
@@ -96,6 +96,7 @@ type AppStateValue = {
   trips: Trip[];
   tripsLoading: boolean;
   tripsOffline: boolean;
+  pendingTripWritesCount: number;
   guideMessages: ChatMessage[];
   guideThinking: boolean;
   communities: Community[];
@@ -197,6 +198,14 @@ function uid(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 }
 
+// A write that failed while offline — replayed against Supabase once the
+// connection is back (SPEC §22.2 extension: not just viewing cached trips,
+// but the two most common quick actions while traveling without signal).
+type PendingTripMutation =
+  | { id: string; kind: 'toggleChecklist'; tripId: string; itemId: string; done: boolean }
+  | { id: string; kind: 'addBudgetItem'; tripId: string; tempId: string; item: Omit<BudgetItem, 'id'> };
+type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never;
+
 // The guide-chat model sometimes replies with markdown emphasis
 // (**bold**), but every place this text gets rendered — the guide bubble,
 // a shared copy pasted into a trip/community chat — is a plain Text node
@@ -272,6 +281,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [tripsLoading, setTripsLoading] = useState(true);
   const [tripsOffline, setTripsOffline] = useState(false);
+  const [pendingTripMutations, setPendingTripMutations] = useState<PendingTripMutation[]>([]);
   const [guideMessages, setGuideMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
   const [guideThinking, setGuideThinking] = useState(false);
   const [communities, setCommunities] = useState<Community[]>([]);
@@ -834,6 +844,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       setTrips(mapped);
       setTripsOffline(false);
       tripsLoadedForRef.current = profile.id;
+      flushPendingMutations();
     } catch {
       // Network/Supabase unavailable — fall back to the last offline-saved copy
       // (SPEC §22.2: the trip schedule stays viewable without internet).
@@ -860,6 +871,76 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     // network drops right after — not just whatever the last full reload saw.
     AsyncStorage.setItem(tripsCacheKey(profile.id), JSON.stringify(trips)).catch(() => {});
   }, [trips, tripsLoading, tripsOffline, profile?.id]);
+
+  const pendingMutationsKey = (userId: string) => `yalla-nsafer:pending-trip-writes:${userId}`;
+  const pendingMutationsLoadedForRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!profile || pendingMutationsLoadedForRef.current === profile.id) return;
+    pendingMutationsLoadedForRef.current = profile.id;
+    AsyncStorage.getItem(pendingMutationsKey(profile.id))
+      .then((raw) => {
+        if (raw) setPendingTripMutations(JSON.parse(raw));
+      })
+      .catch(() => {});
+  }, [profile?.id]);
+
+  useEffect(() => {
+    if (!profile || pendingMutationsLoadedForRef.current !== profile.id) return;
+    AsyncStorage.setItem(pendingMutationsKey(profile.id), JSON.stringify(pendingTripMutations)).catch(() => {});
+  }, [pendingTripMutations, profile?.id]);
+
+  const queuePendingMutation = (mutation: DistributiveOmit<PendingTripMutation, 'id'>) => {
+    setPendingTripMutations((prev) => [...prev, { ...mutation, id: uid('pending') } as PendingTripMutation]);
+  };
+
+  // Replays writes that failed while offline, in order, against Supabase.
+  // Called once we know we're back online (a trips reload just succeeded,
+  // or the app came back to the foreground) — never on a timer/poll.
+  const flushPendingMutations = async () => {
+    if (pendingTripMutations.length === 0) return;
+    const remaining: PendingTripMutation[] = [];
+    for (const mutation of pendingTripMutations) {
+      if (mutation.kind === 'toggleChecklist') {
+        const { error } = await supabase
+          .from('trip_checklist')
+          .update({ done: mutation.done })
+          .eq('id', mutation.itemId);
+        if (error) remaining.push(mutation);
+      } else if (mutation.kind === 'addBudgetItem') {
+        const { data, error } = await supabase
+          .from('budget_items')
+          .insert({
+            trip_id: mutation.tripId,
+            category: mutation.item.category,
+            label: mutation.item.label,
+            amount: mutation.item.amount,
+            paid_by: mutation.item.paidBy,
+            split_between: mutation.item.splitBetween,
+          })
+          .select()
+          .single();
+        if (error || !data) {
+          remaining.push(mutation);
+        } else {
+          const synced = mapBudgetRow(data);
+          updateTripLocal(mutation.tripId, (t) => ({
+            ...t,
+            budgetItems: t.budgetItems.map((b) => (b.id === mutation.tempId ? synced : b)),
+          }));
+        }
+      }
+    }
+    setPendingTripMutations(remaining);
+  };
+
+  useEffect(() => {
+    const subscription = RNAppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') flushPendingMutations();
+    });
+    return () => subscription.remove();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingTripMutations]);
 
   const mirrorTripWindow = (trip: Trip) => {
     if (!profile) return;
@@ -1258,7 +1339,15 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       })
       .select()
       .single();
-    if (error || !data) return;
+    if (error || !data) {
+      // Offline (or Supabase briefly unreachable): show it immediately with a
+      // temp id and replay the real insert once we're back — SPEC §22.2's
+      // "schedule stays viewable offline" extended to the most common write.
+      const tempId = uid('pending-budget');
+      updateTripLocal(tripId, (t) => ({ ...t, budgetItems: [...t.budgetItems, { id: tempId, ...item }] }));
+      queuePendingMutation({ kind: 'addBudgetItem', tripId, tempId, item });
+      return;
+    }
     updateTripLocal(tripId, (t) => ({ ...t, budgetItems: [...t.budgetItems, mapBudgetRow(data)] }));
   };
 
@@ -1352,7 +1441,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       ...t,
       checklist: t.checklist.map((c) => (c.id === itemId ? { ...c, done } : c)),
     }));
-    await supabase.from('trip_checklist').update({ done }).eq('id', itemId);
+    const { error } = await supabase.from('trip_checklist').update({ done }).eq('id', itemId);
+    if (error) queuePendingMutation({ kind: 'toggleChecklist', tripId, itemId, done });
   };
 
   const removeChecklistItem = async (tripId: string, itemId: string) => {
@@ -1827,6 +1917,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       trips,
       tripsLoading,
       tripsOffline,
+      pendingTripWritesCount: pendingTripMutations.length,
       guideMessages,
       guideThinking,
       communities,
@@ -1923,6 +2014,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       trips,
       tripsLoading,
       tripsOffline,
+      pendingTripMutations.length,
       guideMessages,
       guideThinking,
       communities,

@@ -76,6 +76,7 @@ export default function TripDetailScreen() {
   const {
     trips,
     tripsOffline,
+    pendingTripWritesCount,
     friends,
     addMember,
     addBudgetItem,
@@ -320,6 +321,13 @@ export default function TripDetailScreen() {
             <View style={styles.offlineBadge}>
               <Ionicons name="cloud-offline-outline" size={12} color={colors.textMuted} />
               <Text style={styles.offlineBadgeText}>محفوظ بدون نت</Text>
+            </View>
+          ) : pendingTripWritesCount > 0 ? (
+            <View style={styles.offlineBadge}>
+              <Ionicons name="sync-outline" size={12} color={colors.textMuted} />
+              <Text style={styles.offlineBadgeText}>
+                {pendingTripWritesCount} تغيير بانتظار الرفع — بترفع تلقائيًا لما يرجع النت
+              </Text>
             </View>
           ) : null}
           <View style={styles.subtitleRow}>
