@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Text from '../components/Text';
+import RtlScrollRow from '../components/RtlScrollRow';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -19,6 +20,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { flagForRegion } from '../data/countryFlags';
+import { PASSPORT_BADGES } from '../data/passportBadges';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -79,17 +81,20 @@ export default function UserPassportScreen() {
     )
     .sort((a, b) => a.visitedAt - b.visitedAt);
 
-  const countriesVisited = useMemo(() => {
+  const countriesSet = useMemo(() => {
     const set = new Set<string>(visitedDestinations.map((v) => v.destination.country).filter(Boolean));
     for (const place of manualPlaces) {
       const country = place.kind === 'country' ? place.name : place.country;
       if (country) set.add(country);
     }
-    return set.size;
+    return set;
   }, [visitedDestinations, manualPlaces]);
+  const countriesVisited = countriesSet.size;
 
   const citiesVisited = visitedDestinations.length + manualPlaces.filter((p) => p.kind === 'city').length;
+  const stampsCount = visitedDestinations.length + manualPlaces.length;
   const worldPercent = Math.round((countriesVisited / WORLD_COUNTRIES) * 100);
+  const badgeContext = { stampsCount, countriesVisited, countriesSet, worldPercent };
 
   type CombinedStamp = {
     id: string;
@@ -158,6 +163,35 @@ export default function UserPassportScreen() {
               </View>
             </View>
           </View>
+
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionTitle}>الشارات</Text>
+          </View>
+          <RtlScrollRow contentContainerStyle={styles.badgesRow}>
+            {PASSPORT_BADGES.map((badge) => {
+              const unlocked = badge.isUnlocked(badgeContext);
+              return (
+                <View key={badge.id} style={styles.badgeCell}>
+                  <View style={[styles.badgeCircle, unlocked ? styles.badgeCircleUnlocked : styles.badgeCircleLocked]}>
+                    <Ionicons
+                      name={badge.icon}
+                      size={24}
+                      color={unlocked ? colors.accentDark : colors.textFaint}
+                    />
+                    {!unlocked ? (
+                      <View style={styles.badgeLockDot}>
+                        <Ionicons name="lock-closed" size={10} color={colors.textFaint} />
+                      </View>
+                    ) : null}
+                  </View>
+                  <Text style={[styles.badgeLabel, !unlocked && styles.badgeLabelLocked]} numberOfLines={1}>
+                    {badge.label}
+                  </Text>
+                  <Text style={styles.badgeDescription} numberOfLines={2}>{badge.description}</Text>
+                </View>
+              );
+            })}
+          </RtlScrollRow>
 
           {visitedWithCoords.length > 0 ? (
             <View style={styles.mapWrap}>
@@ -234,6 +268,34 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   statDivider: { width: 1, backgroundColor: 'rgba(255,255,255,0.25)' },
   statValue: { color: '#fff', fontSize: fontSize.title, fontWeight: '700' },
   statLabel: { color: 'rgba(255,255,255,0.75)', fontSize: fontSize.small },
+  badgesRow: { flexDirection: 'row-reverse', paddingHorizontal: spacing.lg, gap: spacing.md },
+  badgeCell: { width: 84, alignItems: 'center' },
+  badgeCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+  },
+  badgeCircleUnlocked: { backgroundColor: colors.primarySoft, borderColor: colors.accentDark },
+  badgeCircleLocked: { backgroundColor: colors.surfaceAlt, borderColor: colors.border },
+  badgeLockDot: {
+    position: 'absolute',
+    bottom: -2,
+    left: -2,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeLabel: { color: colors.text, fontSize: fontSize.small, fontWeight: '700', textAlign: 'center', marginTop: spacing.xs },
+  badgeLabelLocked: { color: colors.textFaint },
+  badgeDescription: { color: colors.textFaint, fontSize: fontSize.tiny, textAlign: 'center', marginTop: 2 },
   mapWrap: { height: 180, margin: spacing.lg, borderRadius: radius.md, overflow: 'hidden' },
   sectionHeaderRow: {
     flexDirection: 'row-reverse',
