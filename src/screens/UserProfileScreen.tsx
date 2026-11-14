@@ -223,12 +223,15 @@ export default function UserProfileScreen() {
           <PersonAvatar avatarUrl={profile.avatarUrl} size={80} style={styles.avatarMargin} />
           <Text style={styles.name}>{profile.name}</Text>
           <Text style={styles.username}>@{profile.username}</Text>
-          {countriesVisited > 0 || citiesVisited > 0 ? (
-            <View style={styles.travelStatsRow}>
-              <Ionicons name="earth-outline" size={13} color={colors.textMuted} />
-              <Text style={styles.travelStatsText}>{countriesVisited} دولة · {citiesVisited} مدينة</Text>
-            </View>
-          ) : null}
+          <TouchableOpacity
+            style={styles.travelStatsRow}
+            activeOpacity={0.7}
+            onPress={() => navigation.navigate('UserPassport', { userId: params.userId, name: profile.name })}
+          >
+            <Ionicons name="earth-outline" size={13} color={colors.textMuted} />
+            <Text style={styles.travelStatsText}>{countriesVisited} دولة · {citiesVisited} مدينة</Text>
+            <Ionicons name="chevron-back" size={14} color={colors.textFaint} />
+          </TouchableOpacity>
           {profile.bio ? <Text style={styles.bio}>{profile.bio}</Text> : null}
 
           {profile.interests.length > 0 ? (

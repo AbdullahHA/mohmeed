@@ -50,6 +50,7 @@ import CheckInSearchScreen from '../screens/CheckInSearchScreen';
 import CheckInVenueScreen from '../screens/CheckInVenueScreen';
 import MyCheckInsScreen from '../screens/MyCheckInsScreen';
 import UserProfileScreen from '../screens/UserProfileScreen';
+import UserPassportScreen from '../screens/UserPassportScreen';
 import FollowListScreen from '../screens/FollowListScreen';
 import AddTravelPostScreen from '../screens/AddTravelPostScreen';
 import WalletScreen from '../screens/WalletScreen';
@@ -153,6 +154,7 @@ export default function RootNavigator() {
       <Stack.Screen name="CheckInVenue" component={CheckInVenueScreen} />
       <Stack.Screen name="MyCheckIns" component={MyCheckInsScreen} />
       <Stack.Screen name="UserProfile" component={UserProfileScreen} />
+      <Stack.Screen name="UserPassport" component={UserPassportScreen} />
       <Stack.Screen name="FollowList" component={FollowListScreen} />
       <Stack.Screen
         name="AddTravelPost"
