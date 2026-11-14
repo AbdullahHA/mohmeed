@@ -82,7 +82,7 @@ export default function FriendsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="رجوع">
           <Ionicons name="arrow-forward" size={20} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>أصدقائي</Text>
@@ -134,7 +134,7 @@ export default function FriendsScreen() {
                         const { error } = await acceptFriendRequest(req.id);
                         if (error) Alert.alert('صار خطأ', error);
                       }}
-                    >
+                     accessibilityLabel="قبول الطلب">
                       <Ionicons name="checkmark" size={16} color={colors.textOnPrimary} />
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -144,7 +144,7 @@ export default function FriendsScreen() {
                         const { error } = await declineFriendRequest(req.id);
                         if (error) Alert.alert('صار خطأ', error);
                       }}
-                    >
+                     accessibilityLabel="رفض الطلب">
                       <Ionicons name="close" size={16} color={colors.textMuted} />
                     </TouchableOpacity>
                   </View>
@@ -171,7 +171,7 @@ export default function FriendsScreen() {
                       const { error } = await cancelFriendRequest(req.id);
                       if (error) Alert.alert('صار خطأ', error);
                     }}
-                  >
+                   accessibilityLabel="إلغاء الطلب">
                     <Ionicons name="close-circle-outline" size={18} color={colors.textFaint} />
                   </TouchableOpacity>
                 </View>
@@ -201,13 +201,13 @@ export default function FriendsScreen() {
                     style={styles.actionButton}
                     activeOpacity={0.7}
                     onPress={() => navigation.navigate('FriendChat', { friendId: friend.id })}
-                  >
+                   accessibilityLabel="محادثة">
                     <Ionicons name="chatbubble-outline" size={18} color={colors.primary} />
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.actionButton} activeOpacity={0.7} onPress={() => handleBlock(friend)}>
                     <Ionicons name="hand-left-outline" size={18} color={colors.textMuted} />
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.actionButton} activeOpacity={0.7} onPress={() => handleDelete(friend)}>
+                  <TouchableOpacity style={styles.actionButton} activeOpacity={0.7} onPress={() => handleDelete(friend)} accessibilityLabel="حذف">
                     <Ionicons name="trash-outline" size={18} color={colors.red} />
                   </TouchableOpacity>
                 </View>

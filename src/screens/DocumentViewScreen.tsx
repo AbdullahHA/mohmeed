@@ -60,7 +60,7 @@ export default function DocumentViewScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="إغلاق">
           <Ionicons name="close" size={22} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{doc ? TRIP_DOCUMENT_KIND_LABELS[doc.kind] : ''}</Text>

@@ -265,7 +265,7 @@ export default function HomeScreen() {
               onSubmitEditing={() => askGuide()}
               textAlign="right"
             />
-            <TouchableOpacity style={styles.askGo} activeOpacity={0.8} onPress={() => askGuide()}>
+            <TouchableOpacity style={styles.askGo} activeOpacity={0.8} onPress={() => askGuide()} accessibilityLabel="إرسال">
               <Ionicons name="send" size={14} color="#fff" />
             </TouchableOpacity>
           </View>

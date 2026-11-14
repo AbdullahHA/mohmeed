@@ -173,16 +173,23 @@ export default function DiscoverScreen() {
                 style={styles.iconBtn}
                 activeOpacity={0.8}
                 onPress={() => setViewMode((m) => (m === 'list' ? 'map' : 'list'))}
+                accessibilityLabel={viewMode === 'list' ? 'عرض الخريطة' : 'عرض القائمة'}
               >
                 <Ionicons name={viewMode === 'list' ? 'map-outline' : 'list-outline'} size={18} color={colors.text} />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.iconBtn} activeOpacity={0.8} onPress={() => navigation.navigate('Events')}>
+              <TouchableOpacity
+                style={styles.iconBtn}
+                activeOpacity={0.8}
+                onPress={() => navigation.navigate('Events')}
+                accessibilityLabel="الفعاليات"
+              >
                 <Ionicons name="calendar-outline" size={18} color={colors.text} />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.iconBtn}
                 activeOpacity={0.8}
                 onPress={() => requireAccount('recommend', () => navigation.navigate('SavedPlaces'))}
+                accessibilityLabel="الأماكن المحفوظة"
               >
                 <Ionicons name="heart-outline" size={18} color={colors.text} />
               </TouchableOpacity>
@@ -283,6 +290,7 @@ export default function DiscoverScreen() {
                           style={styles.pcardHeart}
                           activeOpacity={0.7}
                           onPress={() => requireAccount('recommend', () => toggleRecommended(place.id))}
+                          accessibilityLabel={isRecommended ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
                         >
                           <Ionicons
                             name={isRecommended ? 'heart' : 'heart-outline'}

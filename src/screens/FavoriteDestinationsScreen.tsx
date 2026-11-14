@@ -34,7 +34,7 @@ export default function FavoriteDestinationsScreen() {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="رجوع">
           <Ionicons name="chevron-forward" size={18} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>الوجهات المفضلة</Text>

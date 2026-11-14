@@ -221,11 +221,11 @@ export default function DestinationDetailScreen() {
               style={styles.glassButton}
               onPress={() => navigation.goBack()}
               activeOpacity={0.85}
-            >
+             accessibilityLabel="رجوع">
               <Ionicons name="arrow-forward" size={20} color={colors.textOnPrimary} />
             </TouchableOpacity>
             <View style={styles.glassGroup}>
-              <TouchableOpacity style={styles.glassButton} activeOpacity={0.85} onPress={handleShare}>
+              <TouchableOpacity style={styles.glassButton} activeOpacity={0.85} onPress={handleShare} accessibilityLabel="مشاركة">
                 <Ionicons name="share-social-outline" size={18} color={colors.textOnPrimary} />
               </TouchableOpacity>
               <TouchableOpacity

@@ -95,7 +95,7 @@ export default function GuideChatScreen() {
       <SafeAreaView style={styles.container}>
         <StatusBar style="dark" />
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} hitSlop={8} style={styles.headerIconButton}>
+          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} hitSlop={8} style={styles.headerIconButton} accessibilityLabel="رجوع">
             <Ionicons name="chevron-forward" size={18} color={colors.text} />
           </TouchableOpacity>
           <View style={styles.headerAvatar}>
@@ -105,7 +105,7 @@ export default function GuideChatScreen() {
             <Text style={styles.headerTitle}>دليل السفر</Text>
             <Text style={styles.headerSubtitle}>يعرف اهتماماتك وميزانيتك</Text>
           </View>
-          <TouchableOpacity onPress={handleResetConversation} activeOpacity={0.8} hitSlop={8} style={styles.headerIconButton}>
+          <TouchableOpacity onPress={handleResetConversation} activeOpacity={0.8} hitSlop={8} style={styles.headerIconButton} accessibilityLabel="تعديل">
             <Ionicons name="create-outline" size={18} color={colors.text} />
           </TouchableOpacity>
         </View>
@@ -225,7 +225,7 @@ export default function GuideChatScreen() {
         ) : null}
 
         <View style={styles.inputRow}>
-          <TouchableOpacity style={styles.sendButton} onPress={() => send()} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.sendButton} onPress={() => send()} activeOpacity={0.8} accessibilityLabel="إرسال">
             <Ionicons name="send" size={16} color="#FFFFFF" />
           </TouchableOpacity>
           <TextInput

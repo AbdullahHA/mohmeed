@@ -159,7 +159,7 @@ export default function FriendChatScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="رجوع">
           <Ionicons name="arrow-forward" size={20} color={colors.text} />
         </TouchableOpacity>
         <PersonAvatar avatarUrl={friend.avatarUrl} size={36} />
@@ -279,7 +279,7 @@ export default function FriendChatScreen() {
         )}
 
         <View style={styles.inputRow}>
-          <TouchableOpacity style={styles.sendButton} onPress={send} activeOpacity={0.8} disabled={sending}>
+          <TouchableOpacity style={styles.sendButton} onPress={send} activeOpacity={0.8} disabled={sending} accessibilityLabel="إرسال">
             <Ionicons name="send" size={16} color={colors.textOnPrimary} />
           </TouchableOpacity>
           <TextInput

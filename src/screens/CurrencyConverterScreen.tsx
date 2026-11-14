@@ -97,7 +97,7 @@ export default function CurrencyConverterScreen() {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="رجوع">
           <Ionicons name="chevron-forward" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>حاسبة تحويل العملات</Text>
@@ -122,7 +122,7 @@ export default function CurrencyConverterScreen() {
           />
         </View>
 
-        <TouchableOpacity style={styles.swapButton} activeOpacity={0.8} onPress={swap}>
+        <TouchableOpacity style={styles.swapButton} activeOpacity={0.8} onPress={swap} accessibilityLabel="تبديل الاتجاه">
           <Ionicons name="swap-vertical" size={20} color={colors.primary} />
         </TouchableOpacity>
 
