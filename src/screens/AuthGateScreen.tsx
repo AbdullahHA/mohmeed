@@ -44,8 +44,17 @@ function friendlyAuthError(result: AuthResult, fallback: string) {
 export default function AuthGateScreen() {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { signIn, signUp, signInWithGoogle, continueAsGuest, requestPasswordReset, confirmPasswordReset } = useAuth();
+  const {
+    signIn,
+    signUp,
+    signInWithGoogle,
+    signInWithApple,
+    continueAsGuest,
+    requestPasswordReset,
+    confirmPasswordReset,
+  } = useAuth();
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
   const [mode, setMode] = useState<Mode>('landing');
   const [resetStep, setResetStep] = useState<ResetStep>('request');
   const [name, setName] = useState('');
@@ -133,6 +142,16 @@ export default function AuthGateScreen() {
     }
   };
 
+  const handleAppleSignIn = async () => {
+    resetFeedback();
+    setAppleLoading(true);
+    const result = await signInWithApple();
+    setAppleLoading(false);
+    if (result.error) {
+      setError(friendlyAuthError(result, 'تعذّر تسجيل الدخول بآبل، حاول مرة ثانية.'));
+    }
+  };
+
   const goToMode = (next: Mode) => {
     resetFeedback();
     setResetStep('request');
@@ -160,10 +179,23 @@ export default function AuthGateScreen() {
               <View style={styles.heroBottom}>
                 {error ? <Text style={styles.heroError}>{error}</Text> : null}
 
-                <View style={[styles.sso, styles.ssoApple]}>
-                  <Ionicons name="logo-apple" size={20} color="#8891a6" />
-                  <Text style={styles.ssoAppleText}>المتابعة مع Apple — قريبًا</Text>
-                </View>
+                {Platform.OS === 'ios' ? (
+                  <TouchableOpacity
+                    style={[styles.sso, styles.ssoApple]}
+                    activeOpacity={0.8}
+                    onPress={handleAppleSignIn}
+                    disabled={appleLoading}
+                  >
+                    {appleLoading ? (
+                      <ActivityIndicator color="#5b4538" />
+                    ) : (
+                      <>
+                        <Ionicons name="logo-apple" size={20} color="#5b4538" />
+                        <Text style={styles.ssoAppleText}>المتابعة مع Apple</Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                ) : null}
 
                 <TouchableOpacity
                   style={[styles.sso, styles.ssoGoogleActive]}
