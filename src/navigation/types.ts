@@ -22,7 +22,7 @@ export type RootStackParamList = {
   DayMap: { tripId: string };
   Documents: { tripId: string };
   DocumentView: { documentId: string; tripId: string };
-  JoinTrip: undefined;
+  JoinTrip: { code?: string } | undefined;
   GroupChat: { tripId: string };
   GuideChat: undefined;
   CommunityChat: { communityId: string };

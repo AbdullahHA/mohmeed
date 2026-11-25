@@ -357,7 +357,7 @@ export default function TripDetailScreen() {
   const handleShare = () => {
     const dateLine = hasRealDates ? `\n${formatTripDateRange(trip.startDate, trip.endDate)}` : '';
     Share.share({
-      message: `رحلة ${trip.title} إلى ${trip.destination}${dateLine}\n\nرمز دعوة الرحلة: ${trip.shareCode}`,
+      message: `رحلة ${trip.title} إلى ${trip.destination}${dateLine}\n\nرمز دعوة الرحلة: ${trip.shareCode}\nانضم مباشرة: yallansafer://join/${trip.shareCode}`,
     });
   };
 

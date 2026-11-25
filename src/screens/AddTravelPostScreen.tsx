@@ -55,6 +55,19 @@ export default function AddTravelPostScreen() {
     }
   };
 
+  const hasUnsavedInput = Boolean(imageUrl || caption.trim());
+
+  const handleClose = () => {
+    if (!hasUnsavedInput) {
+      navigation.goBack();
+      return;
+    }
+    Alert.alert('تجاهل المدونة؟', 'بتفقد الصورة والنص اللي كتبته.', [
+      { text: 'إلغاء', style: 'cancel' },
+      { text: 'تجاهل', style: 'destructive', onPress: () => navigation.goBack() },
+    ]);
+  };
+
   const handleSubmit = async () => {
     if (!imageUrl || submitting) return;
     setSubmitting(true);
@@ -70,7 +83,7 @@ export default function AddTravelPostScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8} accessibilityLabel="إغلاق">
+        <TouchableOpacity onPress={handleClose} activeOpacity={0.8} accessibilityLabel="إغلاق">
           <Ionicons name="close" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>مدونة جديدة</Text>

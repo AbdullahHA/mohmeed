@@ -11,7 +11,7 @@ import {
   IBMPlexSansArabic_700Bold,
   useFonts,
 } from '@expo-google-fonts/ibm-plex-sans-arabic';
-import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, DarkTheme, type LinkingOptions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
 import { AppStateProvider } from './src/context/AppState';
@@ -23,6 +23,20 @@ import AuthGateScreen from './src/screens/AuthGateScreen';
 import AppIntro from './src/components/AppIntro';
 import BiometricLockGate from './src/components/BiometricLockGate';
 import WebAlertHost from './src/components/WebAlertHost';
+import type { RootStackParamList } from './src/navigation/types';
+
+// Only the trip-invite link is wired up for now — tapping a shared
+// "رمز دعوة الرحلة" link (yallansafer://join/<code>) jumps straight to
+// JoinTrip with the code pre-filled, instead of the friend having to copy
+// an 8-character code and type it in by hand.
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: ['yallansafer://'],
+  config: {
+    screens: {
+      JoinTrip: 'join/:code',
+    },
+  },
+};
 
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
 if (sentryDsn) {
@@ -74,7 +88,7 @@ function Gate() {
   return (
     <ContentProvider>
       <AppStateProvider>
-        <NavigationContainer theme={navigationTheme}>
+        <NavigationContainer theme={navigationTheme} linking={linking}>
           <RootNavigator />
         </NavigationContainer>
       </AppStateProvider>

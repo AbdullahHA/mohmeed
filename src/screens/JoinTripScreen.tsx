@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
@@ -24,16 +24,23 @@ import type { RootStackParamList } from '../navigation/types';
 import type { TripPreview } from '../types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
+type Route = RouteProp<RootStackParamList, 'JoinTrip'>;
 
 const CODE_LENGTH = 8;
 
 export default function JoinTripScreen() {
   const navigation = useNavigation<Nav>();
+  const route = useRoute<Route>();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { joinTripByCode, previewTripByCode } = useAppState();
 
-  const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(''));
+  const initialCode = (route.params?.code ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, CODE_LENGTH);
+  const [digits, setDigits] = useState<string[]>(() => {
+    const padded = Array(CODE_LENGTH).fill('');
+    for (let i = 0; i < initialCode.length; i++) padded[i] = initialCode[i];
+    return padded;
+  });
   const [error, setError] = useState('');
   const [preview, setPreview] = useState<TripPreview | null>(null);
   const [looking, setLooking] = useState(false);
@@ -54,6 +61,11 @@ export default function JoinTripScreen() {
     }
     setPreview(found);
   };
+
+  useEffect(() => {
+    if (initialCode.length === CODE_LENGTH) lookUp(initialCode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleChangeDigit = (index: number, raw: string) => {
     const value = raw.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(-1);

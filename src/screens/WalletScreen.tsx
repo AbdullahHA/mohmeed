@@ -193,7 +193,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
+    paddingVertical: spacing.xxs,
   },
   soonBadgeText: { color: colors.textFaint, fontSize: fontSize.small, fontWeight: '600' },
   balanceCard: {
@@ -201,7 +201,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     borderRadius: radius.lg,
     padding: spacing.lg,
     alignItems: 'center',
-    gap: 4,
+    gap: spacing.xs,
   },
   balanceLabel: { color: 'rgba(255,255,255,0.8)', fontSize: fontSize.base, fontWeight: '600' },
   balanceValue: { color: colors.success, fontSize: fontSize.heading, fontWeight: '700' },
