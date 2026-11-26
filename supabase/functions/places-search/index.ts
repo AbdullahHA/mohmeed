@@ -1,5 +1,9 @@
 // Proxies Google Places API (New) Text Search so the API key stays on the
 // server (GOOGLE_PLACES_API_KEY secret) and never ships inside the app bundle.
+import { createClient } from "npm:@supabase/supabase-js@2.118.0";
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const GOOGLE_API_KEY = Deno.env.get("GOOGLE_PLACES_API_KEY");
 
 const corsHeaders = {
@@ -45,6 +49,26 @@ Deno.serve(async (req) => {
   if (!GOOGLE_API_KEY) {
     return new Response(JSON.stringify({ error: "places_search_not_configured" }), {
       status: 503,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  // This proxies a paid Google API key — without this check, anyone who
+  // finds the function URL could call it unauthenticated and run up the
+  // project's Google Places billing.
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) {
+    return new Response(JSON.stringify({ error: "missing_auth" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+  const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+  const jwt = authHeader.replace(/^Bearer\s+/i, "");
+  const { data: userData, error: userError } = await admin.auth.getUser(jwt);
+  if (userError || !userData?.user) {
+    return new Response(JSON.stringify({ error: "invalid_session" }), {
+      status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

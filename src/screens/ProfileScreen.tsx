@@ -762,7 +762,16 @@ export default function ProfileScreen() {
         ) : null}
 
         {profile ? (
-          <TouchableOpacity style={styles.signOutButton} activeOpacity={0.8} onPress={() => signOut()}>
+          <TouchableOpacity
+            style={styles.signOutButton}
+            activeOpacity={0.8}
+            onPress={() =>
+              Alert.alert('تسجيل الخروج؟', 'بترجع تحتاج تسجّل دخولك مرة ثانية.', [
+                { text: 'إلغاء', style: 'cancel' },
+                { text: 'تسجيل الخروج', style: 'destructive', onPress: () => signOut() },
+              ])
+            }
+          >
             <Ionicons name="log-out-outline" size={16} color={colors.red} />
             <Text style={styles.signOutText}>تسجيل الخروج</Text>
           </TouchableOpacity>

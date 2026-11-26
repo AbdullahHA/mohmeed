@@ -143,7 +143,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700' },
   chipsRow: { flexGrow: 0, flexShrink: 0, borderBottomWidth: 1, borderBottomColor: colors.border },
   chipsContent: { flexDirection: 'row-reverse', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
-  chip: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt },
+  chip: { paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderRadius: radius.pill, backgroundColor: colors.surfaceAlt },
   chipActive: { backgroundColor: colors.primary },
   chipText: { color: colors.textMuted, fontSize: fontSize.base, fontWeight: '700' },
   chipTextActive: { color: colors.textOnPrimary },

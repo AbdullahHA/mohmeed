@@ -6,6 +6,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import Text from './Text';
+import * as StoreReview from 'expo-store-review';
 import { Ionicons } from '@expo/vector-icons';
 import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
@@ -45,6 +46,14 @@ export default function FeedbackCard({ feedback, onSubmit }: Props) {
     if (rating < 1) return;
     onSubmit({ rating: rating as Feedback['rating'], reasons, note: note.trim() });
     setSubmitted(true);
+    // A happy user telling us so, in the app, is exactly the moment Apple's
+    // own guidance recommends asking for an App Store rating — the native
+    // prompt throttles its own frequency, so no extra cooldown logic needed.
+    if (rating >= 4) {
+      StoreReview.isAvailableAsync().then((available) => {
+        if (available) StoreReview.requestReview();
+      });
+    }
   };
 
   if (submitted) return null;
