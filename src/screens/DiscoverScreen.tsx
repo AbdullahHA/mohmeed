@@ -208,6 +208,7 @@ export default function DiscoverScreen() {
               }}
               returnKeyType="search"
               textAlign="right"
+              clearButtonMode="while-editing"
             />
           </View>
         </View>
