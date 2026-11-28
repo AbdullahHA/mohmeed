@@ -56,7 +56,6 @@
         }
       ],
       "expo-splash-screen",
-      "expo-apple-authentication",
       [
         "expo-notifications",
         {
