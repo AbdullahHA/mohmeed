@@ -115,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadProfile = async (userId: string, email: string | null) => {
     try {
-      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+      const { data, error } = await supabase.rpc('get_my_profile');
       if (error) throw error;
       if (data) {
         const mapped = mapProfileRow(data, email);
