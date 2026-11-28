@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
-import * as AppleAuthentication from 'expo-apple-authentication';
 import DesertHero from '../components/DesertHero';
 import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
@@ -49,19 +48,11 @@ export default function AuthGateScreen() {
     signIn,
     signUp,
     signInWithGoogle,
-    signInWithApple,
     continueAsGuest,
     requestPasswordReset,
     confirmPasswordReset,
   } = useAuth();
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [appleLoading, setAppleLoading] = useState(false);
-  const [appleAvailable, setAppleAvailable] = useState(false);
-
-  useEffect(() => {
-    if (Platform.OS !== 'ios') return;
-    AppleAuthentication.isAvailableAsync().then(setAppleAvailable);
-  }, []);
   const [mode, setMode] = useState<Mode>('landing');
   const [resetStep, setResetStep] = useState<ResetStep>('request');
   const [name, setName] = useState('');
@@ -149,16 +140,6 @@ export default function AuthGateScreen() {
     }
   };
 
-  const handleAppleSignIn = async () => {
-    resetFeedback();
-    setAppleLoading(true);
-    const result = await signInWithApple();
-    setAppleLoading(false);
-    if (result.error) {
-      setError(friendlyAuthError(result, 'تعذّر تسجيل الدخول بآبل، حاول مرة ثانية.'));
-    }
-  };
-
   const goToMode = (next: Mode) => {
     resetFeedback();
     setResetStep('request');
@@ -185,24 +166,6 @@ export default function AuthGateScreen() {
 
               <View style={styles.heroBottom}>
                 {error ? <Text style={styles.heroError}>{error}</Text> : null}
-
-                {Platform.OS === 'ios' && appleAvailable ? (
-                  <TouchableOpacity
-                    style={[styles.sso, styles.ssoApple]}
-                    activeOpacity={0.8}
-                    onPress={handleAppleSignIn}
-                    disabled={appleLoading}
-                  >
-                    {appleLoading ? (
-                      <ActivityIndicator color="#5b4538" />
-                    ) : (
-                      <>
-                        <Ionicons name="logo-apple" size={20} color="#5b4538" />
-                        <Text style={styles.ssoAppleText}>المتابعة مع Apple</Text>
-                      </>
-                    )}
-                  </TouchableOpacity>
-                ) : null}
 
                 <TouchableOpacity
                   style={[styles.sso, styles.ssoGoogleActive]}

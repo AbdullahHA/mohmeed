@@ -4,8 +4,6 @@ import type { Session } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri } from 'expo-auth-session';
-import * as AppleAuthentication from 'expo-apple-authentication';
-import * as Crypto from 'expo-crypto';
 import { supabase } from '../lib/supabase';
 import { logEvent } from '../lib/analytics';
 
@@ -66,7 +64,6 @@ type AuthState = {
   signIn: (email: string, password: string) => Promise<AuthResult>;
   signUp: (email: string, password: string, name: string, username: string) => Promise<AuthResult>;
   signInWithGoogle: () => Promise<AuthResult>;
-  signInWithApple: () => Promise<AuthResult>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   updateInterests: (interests: string[]) => Promise<AuthResult>;
@@ -212,55 +209,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Native "Sign in with Apple" — required by App Store Review Guideline 4.8
-  // because the app already offers Google as a third-party sign-in option.
-  // Uses the device-native prompt (no browser redirect) and hands Apple's
-  // identity token straight to Supabase, with a hashed nonce round-trip to
-  // prevent replay, per Supabase's documented Apple Sign-In flow.
-  const signInWithApple: AuthState['signInWithApple'] = async () => {
-    try {
-      const rawNonce = Crypto.randomUUID();
-      const hashedNonce = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, rawNonce);
-
-      const credential = await AppleAuthentication.signInAsync({
-        requestedScopes: [
-          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-          AppleAuthentication.AppleAuthenticationScope.EMAIL,
-        ],
-        nonce: hashedNonce,
-      });
-
-      if (!credential.identityToken) {
-        return { error: 'تعذّر تسجيل الدخول بآبل', errorKind: 'auth' };
-      }
-
-      const { data, error } = await supabase.auth.signInWithIdToken({
-        provider: 'apple',
-        token: credential.identityToken,
-        nonce: rawNonce,
-      });
-      if (error) return { error: error.message, errorKind: 'auth' };
-
-      // Apple only ever sends the real name on the very first authorization
-      // (it's not in the identity token, so signInWithIdToken can't carry it)
-      // — patch it onto the freshly-created profile row here instead of
-      // leaving the trigger's email-prefix fallback as the permanent name.
-      const fullName = [credential.fullName?.givenName, credential.fullName?.familyName]
-        .filter(Boolean)
-        .join(' ')
-        .trim();
-      if (fullName && data.user) {
-        await supabase.from('profiles').update({ name: fullName }).eq('id', data.user.id);
-      }
-      return { error: null };
-    } catch (e: any) {
-      if (e?.code === 'ERR_REQUEST_CANCELED') {
-        return { error: null }; // user backed out — not an error to surface
-      }
-      return { error: e?.message ?? 'network error', errorKind: 'network' };
-    }
-  };
-
   const signUp: AuthState['signUp'] = async (email, password, name, username) => {
     try {
       const { data: isAvailable, error: lookupError } = await supabase.rpc('username_available', {
@@ -381,7 +329,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signIn,
         signUp,
         signInWithGoogle,
-        signInWithApple,
         signOut,
         refreshProfile,
         updateInterests,
