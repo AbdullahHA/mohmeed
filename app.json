@@ -1,17 +1,23 @@
 {
   "expo": {
-    "name": "mohmeed",
-    "slug": "mohmeed",
+    "name": "يلا نسافر",
+    "slug": "yalla-nsafer",
     "version": "1.0.0",
     "orientation": "portrait",
+    "scheme": "yallansafer",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yallansafer.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.yallansafer.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#F6F6F6",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -20,6 +26,43 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "44a23fa1-c44c-42b0-8320-92967af2907e"
+      }
+    },
+    "owner": "abdullbmo",
+    "plugins": [
+      "expo-status-bar",
+      "@react-native-community/datetimepicker",
+      "expo-font",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "يستخدم يلا نسافر بصمة الوجه عشان يحمي حسابك عند فتح التطبيق."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "يستخدم يلا نسافر موقعك عشان يحسب المسافة للأماكن ويرتّبها بالأقرب، وعشان تسجيل الوصول."
+        }
+      ],
+      [
+        "@sentry/react-native",
+        {
+          "disableAutoUpload": true
+        }
+      ],
+      "expo-splash-screen",
+      [
+        "expo-notifications",
+        {
+          "enableRemoteNotifications": false
+        }
+      ],
+      "expo-web-browser"
+    ]
   }
 }

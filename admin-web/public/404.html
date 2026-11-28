@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      // GitHub Pages serves this for any unknown path (deep link / refresh).
+      // Stash the real path and bounce to index.html, which restores it.
+      sessionStorage.setItem('spa-redirect-path', location.pathname + location.search + location.hash);
+      location.replace('/mohmeed/');
+    </script>
+  </head>
+  <body></body>
+</html>

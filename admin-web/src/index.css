@@ -1,0 +1,220 @@
+/*
+ * يلا نسافر — Design tokens (Tailwind v4 + shadcn/ui)
+ * ------------------------------------------------------------
+ * استبدل به ملف الثيم الحالي (مثل src/styles.css) أو انسخ منه:
+ *   1) @import للخط في أعلى الملف
+ *   2) @custom-variant dark
+ *   3) @theme inline
+ *   4) :root  (الوضع الفاتح)
+ *   5) .dark  (الوضع الداكن)
+ *   6) @layer base + الـ utilities
+ * كل الألوان oklch. الوضع الداكن يتفعّل بكلاس .dark على <html>.
+ * قاعدة التباين: النص الملوّن يستخدم *-ink (text-primary-ink, text-gold-ink, text-success-ink)،
+ * والخلفيات والأيقونات تستخدم اللون الأساسي (bg-primary, bg-gold, bg-success). كلها ≥ 4.5:1 بالوضعين.
+ */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+/* الخط: IBM Plex Sans Arabic. في التطبيق (Capacitor) الأفضل تثبيته محلياً:
+   npm i @fontsource/ibm-plex-sans-arabic  ثم استورد الأوزان 400/500/600/700 في main.tsx
+   وإذا تبي Google Fonts بدلاً منه، احذف التعليق عن السطر التالي: */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap");
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* shadcn */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* يلا نسافر — ألوان إضافية: bg-gold, text-success, bg-navy, bg-stamp-1 ... */
+  --color-primary-ink: var(--primary-ink);
+  --color-gold: var(--gold);
+  --color-gold-ink: var(--gold-ink);
+  --color-success-ink: var(--success-ink);
+  --color-gold-soft: var(--gold-soft);
+  --color-navy: var(--navy);
+  --color-navy-foreground: var(--navy-foreground);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-heart: var(--heart);
+  --color-stamp-1: var(--stamp-1);
+  --color-stamp-2: var(--stamp-2);
+  --color-stamp-3: var(--stamp-3);
+  --color-stamp-4: var(--stamp-4);
+  --color-stamp-5: var(--stamp-5);
+  --color-cat-food: var(--cat-food);
+  --color-cat-cafe: var(--cat-cafe);
+  --color-cat-events: var(--cat-events);
+  --color-cat-experiences: var(--cat-experiences);
+  --color-cat-hotels: var(--cat-hotels);
+  --color-cat-landmarks: var(--cat-landmarks);
+  --color-cat-nature: var(--cat-nature);
+  --color-cat-shopping: var(--cat-shopping);
+
+  /* الحواف: rounded-md 12px (أزرار) · rounded-lg 14px · rounded-xl 18px (بطاقات) · rounded-2xl 22px · rounded-3xl 28px (نوافذ سفلية) */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 14px);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-float: var(--shadow-float);
+}
+
+/* ========== الوضع الفاتح ========== */
+:root {
+  --radius: 0.875rem; /* 14px */
+
+  --background: oklch(0.978 0.005 258.3);        /* #f6f8fb  خلفية الشاشة */
+  --foreground: oklch(0.221 0.035 268.6);        /* #141a2b  النص */
+  --card: oklch(1 0 0);                          /* #ffffff */
+  --card-foreground: oklch(0.221 0.035 268.6);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.221 0.035 268.6);
+  --primary: oklch(0.5 0.23 262);                /* الأزرق الأساسي: خلفيات الأزرار */
+  --primary-ink: oklch(0.5 0.23 262);            /* النص الأزرق (روابط، أيقونات نشطة) */
+  --primary-foreground: oklch(0.99 0.005 240);
+  --secondary: oklch(0.94 0.04 262);             /* primary-soft: خلفية المختار والشارات */
+  --secondary-foreground: oklch(0.5 0.23 262);
+  --muted: oklch(0.958 0.009 264.5);             /* #eef1f7 */
+  --muted-foreground: oklch(0.5 0.035 269);      /* #5b6378  تباين 5.6:1 */
+  --accent: oklch(0.94 0.04 262);
+  --accent-foreground: oklch(0.5 0.23 262);
+  --destructive: oklch(0.583 0.179 27.7);        /* #d0433a */
+  --destructive-foreground: oklch(0.99 0.005 240);
+  --border: oklch(0.928 0.013 266.7);            /* #e3e7f0 */
+  --input: oklch(0.928 0.013 266.7);
+  --ring: oklch(0.5 0.23 262);
+
+  --gold: oklch(0.717 0.14 71.6);                /* #d9932b  المستوى، النجوم، تنبيه الميزانية */
+  --gold-soft: oklch(0.956 0.032 82.8);          /* #fbefd9 */
+  --gold-ink: oklch(0.5 0.1 70);                 /* #8f5a0c  النص الذهبي، تباين 5.1:1 */
+  --navy: oklch(0.286 0.102 268.5);              /* #16245c  بطاقة الجواز */
+  --navy-foreground: oklch(0.95 0.02 265);
+  --success: oklch(0.616 0.137 157.2);           /* #1f9d63  مفتوح الآن، منجز */
+  --success-soft: oklch(0.95 0.04 157);
+  --success-ink: oklch(0.49 0.1 157);            /* #13744a  النص الأخضر، تباين 5.1:1 */
+  --heart: oklch(0.62 0.2 15);                   /* القلب المحفوظ */
+
+  --stamp-1: oklch(0.683 0.155 55.3);            /* #e07b24 */
+  --stamp-2: oklch(0.616 0.137 157.2);           /* #1f9d63 */
+  --stamp-3: oklch(0.505 0.206 265.4);           /* #2a55d8 */
+  --stamp-4: oklch(0.565 0.174 337.2);           /* #b2449a */
+  --stamp-5: oklch(0.638 0.101 213.2);           /* #2a9bb0 */
+
+  --cat-food: oklch(0.683 0.155 55.3);
+  --cat-cafe: oklch(0.52 0.08 60);
+  --cat-events: oklch(0.565 0.174 337.2);
+  --cat-experiences: oklch(0.638 0.101 213.2);
+  --cat-hotels: oklch(0.505 0.206 265.4);
+  --cat-landmarks: oklch(0.55 0.12 40);
+  --cat-nature: oklch(0.616 0.137 157.2);
+  --cat-shopping: oklch(0.55 0.2 285);
+
+  --shadow-card: 0 1px 2px oklch(0.22 0.035 268 / 0.05), 0 8px 24px oklch(0.22 0.035 268 / 0.06);
+  --shadow-float: 0 10px 30px -8px oklch(0.22 0.035 268 / 0.18);
+  --scrim: linear-gradient(180deg, transparent 35%, oklch(0 0 0 / 0.6)); /* تدرّج فوق الصور */
+}
+
+/* ========== الوضع الداكن ========== */
+.dark {
+  --background: oklch(0.206 0.041 269.9);        /* #10162a */
+  --foreground: oklch(0.958 0.012 271.3);        /* #eef1fa */
+  --card: oklch(0.25 0.051 269.6);               /* #18203a */
+  --card-foreground: oklch(0.958 0.012 271.3);
+  --popover: oklch(0.25 0.051 269.6);
+  --popover-foreground: oklch(0.958 0.012 271.3);
+  --primary: oklch(0.56 0.2 262);                /* خلفية الأزرار: النص الأبيض عليها 4.8:1 */
+  --primary-ink: oklch(0.76 0.13 262);           /* النص الأزرق على الخلفية الداكنة: 7:1+ */
+  --primary-foreground: oklch(0.99 0.005 240);
+  --secondary: oklch(0.3 0.08 262);
+  --secondary-foreground: oklch(0.82 0.1 262);
+  --muted: oklch(0.277 0.057 269.8);             /* #1d2644 */
+  --muted-foreground: oklch(0.71 0.038 269.8);   /* #98a1ba */
+  --accent: oklch(0.3 0.08 262);
+  --accent-foreground: oklch(0.82 0.1 262);
+  --destructive: oklch(0.68 0.18 25);
+  --destructive-foreground: oklch(0.99 0.005 240);
+  --border: oklch(0.318 0.062 270.2);            /* #263052 */
+  --input: oklch(0.318 0.062 270.2);
+  --ring: oklch(0.76 0.13 262);
+
+  --gold: oklch(0.794 0.123 75.1);               /* #eab05a */
+  --gold-soft: oklch(0.303 0.043 79.5);          /* #3a2c14 */
+  --gold-ink: oklch(0.794 0.123 75.1);
+  --navy: oklch(0.352 0.123 269);                /* #22337a */
+  --navy-foreground: oklch(0.95 0.02 265);
+  --success: oklch(0.7 0.14 157);
+  --success-soft: oklch(0.3 0.05 157);
+  --success-ink: oklch(0.72 0.14 157);
+  --heart: oklch(0.7 0.19 15);
+
+  /* ألوان الأختام والتصنيفات نفسها في الوضعين */
+
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.3), 0 8px 24px oklch(0 0 0 / 0.3);
+  --shadow-float: 0 10px 30px -8px oklch(0 0 0 / 0.5);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { -webkit-tap-highlight-color: transparent; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  /* الأرقام في الإحصائيات والأسعار والتواريخ */
+  .num { font-variant-numeric: tabular-nums; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+}
+
+/* بطاقة قياسية: bg-card + حد + rounded-xl. الظل فقط للعناصر العائمة */
+@utility surface-card {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+}
+@utility surface-float {
+  background-color: color-mix(in oklab, var(--color-card) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-float);
+}
+@utility scrim {
+  background-image: var(--scrim);
+}
+@utility input {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-input);
+  background-color: var(--color-card);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-foreground);
+  outline: none;
+}
