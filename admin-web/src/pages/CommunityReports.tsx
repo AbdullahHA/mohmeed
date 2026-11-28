@@ -244,7 +244,7 @@ export default function CommunityReports() {
                 <div className="mt-1.5 flex flex-col gap-0.5">
                   {g.reasons.map((r, i) => (
                     <div key={i} className="text-xs text-muted-foreground">
-                      {r.reporter_name}: {r.reason} · {new Date(r.created_at).toLocaleDateString('ar')}
+                      {r.reporter_name}: {r.reason} · {new Date(r.created_at).toLocaleDateString('ar-u-ca-gregory')}
                     </div>
                   ))}
                 </div>

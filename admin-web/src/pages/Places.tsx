@@ -96,7 +96,7 @@ export default function Places() {
       key: 'updated_at',
       label: 'آخر تحديث',
       className: 'num text-xs text-muted-foreground',
-      render: (p) => new Date(p.updated_at).toLocaleDateString('ar-SA'),
+      render: (p) => new Date(p.updated_at).toLocaleDateString('ar-SA-u-ca-gregory'),
     },
   ];
 

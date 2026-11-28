@@ -75,7 +75,7 @@ export default function LocationViewScreen() {
             <Ionicons name="location" size={40} color={colors.success} />
             <Text style={styles.title}>{friend?.name} هنا الحين</Text>
             <Text style={styles.subtitle}>
-              آخر تحديث: {new Date(position.at).toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit' })}
+              آخر تحديث: {new Date(position.at).toLocaleTimeString('ar-SA-u-ca-gregory', { hour: 'numeric', minute: '2-digit' })}
             </Text>
             <TouchableOpacity
               style={styles.openMapsButton}

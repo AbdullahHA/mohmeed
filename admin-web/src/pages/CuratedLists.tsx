@@ -58,7 +58,7 @@ export default function CuratedLists() {
           {r.method === 'seasonal' && r.season_start && r.season_end ? (
             <span className="text-muted-foreground">
               {' '}
-              ({new Date(r.season_start).toLocaleDateString('ar-SA')} – {new Date(r.season_end).toLocaleDateString('ar-SA')})
+              ({new Date(r.season_start).toLocaleDateString('ar-SA-u-ca-gregory')} – {new Date(r.season_end).toLocaleDateString('ar-SA-u-ca-gregory')})
             </span>
           ) : null}
         </span>

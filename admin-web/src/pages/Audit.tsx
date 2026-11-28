@@ -68,7 +68,7 @@ export default function Audit() {
       key: 'at',
       label: 'الوقت',
       className: 'num text-xs text-muted-foreground',
-      render: (r) => new Date(r.at).toLocaleString('ar-SA'),
+      render: (r) => new Date(r.at).toLocaleString('ar-SA-u-ca-gregory'),
     },
   ];
 
@@ -82,7 +82,7 @@ export default function Audit() {
       <Drawer open={selected != null} onClose={() => setSelected(null)} title="تفاصيل العملية">
         {selected ? (
           <div className="flex flex-col gap-4 text-sm">
-            <Field label="الوقت" value={new Date(selected.at).toLocaleString('ar-SA')} />
+            <Field label="الوقت" value={new Date(selected.at).toLocaleString('ar-SA-u-ca-gregory')} />
             <Field label="العضو" value={selected.actor_name ?? selected.actor_id} />
             <Field label="النوع" value={TYPE_LABELS[selected.type] ?? selected.type} />
             <Field label="العملية" value={selected.action} />

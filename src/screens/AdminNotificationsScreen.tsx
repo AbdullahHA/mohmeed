@@ -152,7 +152,7 @@ export default function AdminNotificationsScreen() {
                   {item.body}
                 </Text>
                 <Text style={styles.logMeta}>
-                  {new Date(item.sent_at).toLocaleString('ar-SA')} · {item.recipient_count} جهاز
+                  {new Date(item.sent_at).toLocaleString('ar-SA-u-ca-gregory')} · {item.recipient_count} جهاز
                 </Text>
               </View>
             ))}

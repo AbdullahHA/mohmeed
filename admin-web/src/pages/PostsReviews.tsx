@@ -124,7 +124,7 @@ export default function PostsReviews() {
           <img src={p.image_url} alt="" className="h-10 w-10 shrink-0 rounded-md object-cover" />
           <div>
             <div className="max-w-xs truncate text-foreground">{p.caption || <span className="text-muted-foreground">بدون نص</span>}</div>
-            <div className="text-xs text-muted-foreground">{p.user_name} · {new Date(p.created_at).toLocaleDateString('ar-SA')}</div>
+            <div className="text-xs text-muted-foreground">{p.user_name} · {new Date(p.created_at).toLocaleDateString('ar-SA-u-ca-gregory')}</div>
           </div>
         </div>
       ),
@@ -165,7 +165,7 @@ export default function PostsReviews() {
             {r.place_name ?? r.place_id} <span className="text-gold-ink">{'★'.repeat(r.stars)}</span>
           </div>
           {r.note ? <div className="max-w-xs truncate text-xs text-muted-foreground">{r.note}</div> : null}
-          <div className="text-xs text-muted-foreground">{r.user_name} · {new Date(r.created_at).toLocaleDateString('ar-SA')}</div>
+          <div className="text-xs text-muted-foreground">{r.user_name} · {new Date(r.created_at).toLocaleDateString('ar-SA-u-ca-gregory')}</div>
         </div>
       ),
     },

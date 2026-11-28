@@ -10,7 +10,7 @@ const PAD_BOTTOM = 24;
 
 function formatShortDate(iso: string) {
   const d = new Date(iso);
-  return d.toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' });
+  return d.toLocaleDateString('ar-SA-u-ca-gregory', { day: 'numeric', month: 'short' });
 }
 
 export default function TrendChart({

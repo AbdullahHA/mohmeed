@@ -129,7 +129,7 @@ export default function SupportTicketScreen() {
             <View key={m.id} style={[styles.bubble, m.from_admin ? styles.bubbleAdmin : styles.bubbleUser]}>
               <Text style={[styles.bubbleText, m.from_admin && { color: colors.text }]}>{m.text}</Text>
               <Text style={[styles.bubbleTime, m.from_admin && { color: colors.textMuted }]}>
-                {new Date(m.created_at).toLocaleString('ar-SA')}
+                {new Date(m.created_at).toLocaleString('ar-SA-u-ca-gregory')}
               </Text>
             </View>
           ))}

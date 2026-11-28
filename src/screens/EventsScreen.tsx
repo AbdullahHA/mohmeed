@@ -23,8 +23,8 @@ type EventRow = {
 
 function fmtRange(startsAt: string, endsAt: string) {
   const opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
-  const start = new Date(startsAt).toLocaleDateString('ar-SA', opts);
-  const end = new Date(endsAt).toLocaleDateString('ar-SA', opts);
+  const start = new Date(startsAt).toLocaleDateString('ar-SA-u-ca-gregory', opts);
+  const end = new Date(endsAt).toLocaleDateString('ar-SA-u-ca-gregory', opts);
   return start === end ? start : `${start} — ${end}`;
 }
 

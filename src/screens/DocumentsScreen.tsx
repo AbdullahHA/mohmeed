@@ -137,7 +137,7 @@ export default function DocumentsScreen() {
         const itemDate = startDate.toISOString().slice(0, 10);
         await addItineraryItem(trip.id, {
           day: WEEKDAY[startDate.getDay()],
-          time: startDate.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit' }),
+          time: startDate.toLocaleTimeString('ar-SA-u-ca-gregory', { hour: 'numeric', minute: '2-digit' }),
           title: title.trim(),
           itemDate,
           slot: null,

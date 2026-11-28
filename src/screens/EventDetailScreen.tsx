@@ -36,7 +36,7 @@ const AUDIENCE_LABEL: Record<EventRow['audience'], string> = {
 const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
 
 function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString('ar-SA', { weekday: 'long', day: 'numeric', month: 'long' });
+  return new Date(iso).toLocaleDateString('ar-SA-u-ca-gregory', { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
 export default function EventDetailScreen() {

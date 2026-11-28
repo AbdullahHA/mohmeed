@@ -40,7 +40,7 @@ export default function SystemHealth() {
       </div>
       <p className="mb-6 text-sm text-muted-foreground">
         فحوصات حقيقية مباشرة من المتصفح — زمن استجابة فعلي، مو حالة ثابتة.
-        {checkedAt ? ` آخر فحص: ${checkedAt.toLocaleTimeString('ar-SA')}` : ''}
+        {checkedAt ? ` آخر فحص: ${checkedAt.toLocaleTimeString('ar-SA-u-ca-gregory')}` : ''}
       </p>
 
       {checks === null ? (

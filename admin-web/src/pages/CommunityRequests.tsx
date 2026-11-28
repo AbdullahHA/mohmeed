@@ -126,7 +126,7 @@ export default function CommunityRequests() {
       key: 'requester',
       label: 'الطالب',
       className: 'text-xs text-muted-foreground',
-      render: (r) => `${r.requester_name ?? r.requester_id} · ${new Date(r.created_at).toLocaleDateString('ar')}`,
+      render: (r) => `${r.requester_name ?? r.requester_id} · ${new Date(r.created_at).toLocaleDateString('ar-u-ca-gregory')}`,
     },
     {
       key: 'actions',

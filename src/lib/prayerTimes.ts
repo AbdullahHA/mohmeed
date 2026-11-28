@@ -57,7 +57,7 @@ export function getQiblaBearing(coord: Coordinate): number {
 // the OS keeps the device clock in sync with real location, so the
 // device's own timezone is correct there.
 export function formatTime(date: Date, timeZone?: string): string {
-  return date.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone });
+  return date.toLocaleTimeString('ar-SA-u-ca-gregory', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone });
 }
 
 export function formatCountdown(ms: number): string {

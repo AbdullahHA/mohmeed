@@ -36,7 +36,7 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 type ViewMode = 'list' | 'map' | 'friends' | 'leaderboard';
 
 function formatTime(ts: number) {
-  return new Date(ts).toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit' });
+  return new Date(ts).toLocaleTimeString('ar-SA-u-ca-gregory', { hour: 'numeric', minute: '2-digit' });
 }
 
 function timeAgo(ts: number): string {
@@ -56,7 +56,7 @@ function dateHeading(ts: number) {
   yesterday.setDate(today.getDate() - 1);
   if (d.toDateString() === today.toDateString()) return 'اليوم';
   if (d.toDateString() === yesterday.toDateString()) return 'أمس';
-  return d.toLocaleDateString('ar-SA', { day: 'numeric', month: 'long' });
+  return d.toLocaleDateString('ar-SA-u-ca-gregory', { day: 'numeric', month: 'long' });
 }
 
 function groupByDay(checkIns: CheckInRecord[]) {

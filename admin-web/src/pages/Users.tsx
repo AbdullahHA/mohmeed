@@ -69,7 +69,7 @@ export default function Users() {
       key: 'created_at',
       label: 'تاريخ الانضمام',
       className: 'num text-xs text-muted-foreground',
-      render: (u) => new Date(u.created_at).toLocaleDateString('ar-SA'),
+      render: (u) => new Date(u.created_at).toLocaleDateString('ar-SA-u-ca-gregory'),
     },
   ];
 
@@ -138,7 +138,7 @@ export default function Users() {
             </div>
 
             <div className="mb-5 text-xs text-muted-foreground">
-              انضم بتاريخ {new Date(selected.created_at).toLocaleDateString('ar-SA')}
+              انضم بتاريخ {new Date(selected.created_at).toLocaleDateString('ar-SA-u-ca-gregory')}
             </div>
 
             <h3 className="mb-2 text-xs font-bold text-muted-foreground">النشاط</h3>

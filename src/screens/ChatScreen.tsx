@@ -40,10 +40,10 @@ function formatRelativeChatTime(at: number): string {
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const startOfDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   const dayDiff = Math.round((startOfToday.getTime() - startOfDate.getTime()) / 86400000);
-  if (dayDiff === 0) return date.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit', hour12: true });
+  if (dayDiff === 0) return date.toLocaleTimeString('ar-SA-u-ca-gregory', { hour: 'numeric', minute: '2-digit', hour12: true });
   if (dayDiff === 1) return 'أمس';
   if (dayDiff > 1 && dayDiff < 7) return WEEKDAY_AR[date.getDay()];
-  return date.toLocaleDateString('ar-SA', { day: 'numeric', month: 'numeric' });
+  return date.toLocaleDateString('ar-SA-u-ca-gregory', { day: 'numeric', month: 'numeric' });
 }
 
 export default function ChatScreen() {

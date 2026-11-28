@@ -167,7 +167,7 @@ export default function Support() {
             <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_CLASS[t.status]}`}>{STATUS_LABEL[t.status]}</span>
           </div>
           <div className="mt-0.5 text-xs text-muted-foreground">
-            {t.user_name} · {TYPE_LABEL[t.type]} · {new Date(t.updated_at).toLocaleString('ar-SA')}
+            {t.user_name} · {TYPE_LABEL[t.type]} · {new Date(t.updated_at).toLocaleString('ar-SA-u-ca-gregory')}
           </div>
         </div>
       ),
@@ -245,7 +245,7 @@ export default function Support() {
                 >
                   <div>{m.text}</div>
                   <div className={`mt-1 text-[10px] ${m.from_admin ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
-                    {new Date(m.created_at).toLocaleString('ar-SA')}
+                    {new Date(m.created_at).toLocaleString('ar-SA-u-ca-gregory')}
                   </div>
                 </div>
               ))}

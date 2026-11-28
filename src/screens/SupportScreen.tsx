@@ -90,7 +90,7 @@ export default function SupportScreen() {
             >
               <View style={styles.rowBody}>
                 <Text style={styles.rowTitle} numberOfLines={1}>{t.subject}</Text>
-                <Text style={styles.rowSubtitle}>{STATUS_LABEL[t.status]} · {new Date(t.updated_at).toLocaleDateString('ar-SA')}</Text>
+                <Text style={styles.rowSubtitle}>{STATUS_LABEL[t.status]} · {new Date(t.updated_at).toLocaleDateString('ar-SA-u-ca-gregory')}</Text>
               </View>
               <Ionicons name="chevron-back" size={16} color={colors.textMuted} />
             </TouchableOpacity>

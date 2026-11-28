@@ -148,7 +148,7 @@ export default function Notifications() {
               <div className="text-sm font-bold text-foreground">{item.title}</div>
               <div className="mt-0.5 text-xs text-muted-foreground">{item.body}</div>
               <div className="mt-1 text-[11px] text-muted-foreground">
-                {new Date(item.sent_at).toLocaleString('ar-SA')} · وصل إلى {item.recipient_count} جهاز
+                {new Date(item.sent_at).toLocaleString('ar-SA-u-ca-gregory')} · وصل إلى {item.recipient_count} جهاز
               </div>
             </div>
           ))

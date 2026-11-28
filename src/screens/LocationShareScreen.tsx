@@ -151,7 +151,7 @@ export default function LocationShareScreen() {
           <View style={styles.activeBar}>
             <Ionicons name="radio-outline" size={16} color={colors.success} />
             <Text style={styles.activeText}>
-              تشارك موقعك مع {friend.name} — ينتهي {new Date(expiresAt).toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit' })}
+              تشارك موقعك مع {friend.name} — ينتهي {new Date(expiresAt).toLocaleTimeString('ar-SA-u-ca-gregory', { hour: 'numeric', minute: '2-digit' })}
             </Text>
             <TouchableOpacity style={styles.stopButton} activeOpacity={0.85} onPress={handleStop}>
               <Text style={styles.stopButtonText}>إيقاف</Text>

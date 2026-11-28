@@ -55,7 +55,7 @@ function computeStatus(row: Row): Status {
 }
 
 function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString('ar-SA', { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(iso).toLocaleDateString('ar-SA-u-ca-gregory', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 export default function Events() {
