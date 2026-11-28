@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, I18nManager, View } from 'react-native';
+import { ActivityIndicator, I18nManager, Linking, View } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import * as SystemUI from 'expo-system-ui';
@@ -24,6 +24,7 @@ import AppIntro from './src/components/AppIntro';
 import BiometricLockGate from './src/components/BiometricLockGate';
 import WebAlertHost from './src/components/WebAlertHost';
 import type { RootStackParamList } from './src/navigation/types';
+import { extractJoinCode, storePendingJoinCode, consumePendingJoinCode } from './src/lib/pendingDeepLink';
 
 // Only the trip-invite link is wired up for now — tapping a shared
 // "رمز دعوة الرحلة" link (yallansafer://join/<code>) jumps straight to
@@ -35,6 +36,15 @@ const linking: LinkingOptions<RootStackParamList> = {
     screens: {
       JoinTrip: 'join/:code',
     },
+  },
+  // A link tapped while logged out never reaches here live (see Gate()'s
+  // capture effect below) — it's replayed from storage the moment this
+  // NavigationContainer mounts, instead of being silently lost.
+  async getInitialURL() {
+    const pendingCode = await consumePendingJoinCode();
+    if (pendingCode) return `yallansafer://join/${pendingCode}`;
+    const url = await Linking.getInitialURL();
+    return url ?? undefined;
   },
 };
 
@@ -60,6 +70,26 @@ void SplashScreen.preventAutoHideAsync();
 function Gate() {
   const { session, guestMode, loading } = useAuth();
   const { colors, scheme } = useTheme();
+
+  const loggedOutRef = useRef(!session && !guestMode);
+  loggedOutRef.current = !session && !guestMode;
+
+  useEffect(() => {
+    // Only persist while the auth gate is actually showing — once a
+    // NavigationContainer is mounted, its own linking config already
+    // handles a live incoming link, so storing it too would just risk
+    // replaying a stale code on some unrelated future cold start.
+    const handleUrl = (url: string) => {
+      if (!loggedOutRef.current) return;
+      const code = extractJoinCode(url);
+      if (code) void storePendingJoinCode(code);
+    };
+    const sub = Linking.addEventListener('url', ({ url }) => handleUrl(url));
+    Linking.getInitialURL().then((url) => {
+      if (url) handleUrl(url);
+    });
+    return () => sub.remove();
+  }, []);
 
   const navigationTheme = {
     ...(scheme === 'dark' ? DarkTheme : DefaultTheme),

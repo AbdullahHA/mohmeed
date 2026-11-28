@@ -20,6 +20,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
 import { heroDestination } from '../data/destinations';
 import { formatTripDateRange } from '../lib/tripDates';
+import { logEvent } from '../lib/analytics';
 import type { RootStackParamList } from '../navigation/types';
 import type { TripPreview } from '../types';
 
@@ -63,7 +64,10 @@ export default function JoinTripScreen() {
   };
 
   useEffect(() => {
-    if (initialCode.length === CODE_LENGTH) lookUp(initialCode);
+    if (initialCode.length === CODE_LENGTH) {
+      logEvent('trip_invite_link_opened');
+      lookUp(initialCode);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

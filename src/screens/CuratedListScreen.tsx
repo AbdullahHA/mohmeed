@@ -4,7 +4,7 @@ import Text from '../components/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { fontSize, spacing, type ThemeColors } from '../theme/colors';
+import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useContent } from '../context/ContentContext';
 import { supabase } from '../lib/supabase';
@@ -22,17 +22,29 @@ export default function CuratedListScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { places } = useContent();
   const [placeIds, setPlaceIds] = useState<string[] | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [retryTick, setRetryTick] = useState(0);
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
-      const { data } = await supabase
+      setLoadError(false);
+      const { data, error } = await supabase
         .from('curated_list_items')
         .select('place_id')
         .eq('list_id', route.params.listId)
         .order('sort_order', { ascending: true });
+      if (cancelled) return;
+      if (error) {
+        setLoadError(true);
+        return;
+      }
       setPlaceIds((data ?? []).map((r) => r.place_id));
     })();
-  }, [route.params.listId]);
+    return () => {
+      cancelled = true;
+    };
+  }, [route.params.listId, retryTick]);
 
   const listPlaces = useMemo(() => {
     if (!placeIds) return [];
@@ -50,7 +62,14 @@ export default function CuratedListScreen() {
         <View style={{ width: 20 }} />
       </View>
 
-      {placeIds === null ? (
+      {loadError ? (
+        <View style={styles.centerState}>
+          <Text style={styles.emptyText}>تعذّر تحميل القائمة. تأكد من الاتصال وحاول مرة ثانية.</Text>
+          <TouchableOpacity style={styles.retryBtn} activeOpacity={0.8} onPress={() => setRetryTick((t) => t + 1)}>
+            <Text style={styles.retryBtnText}>إعادة المحاولة</Text>
+          </TouchableOpacity>
+        </View>
+      ) : placeIds === null ? (
         <Text style={styles.emptyText}>جاري التحميل...</Text>
       ) : listPlaces.length === 0 ? (
         <EmptyState icon="list-outline" title="القائمة فاضية حاليًا" subtitle="ما أضفنا أماكن لهذي القائمة بعد." />
@@ -78,5 +97,13 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   },
   headerTitle: { color: colors.text, fontSize: fontSize.subtitle, fontWeight: '700', flex: 1, textAlign: 'center' },
   body: { paddingTop: spacing.lg, paddingBottom: spacing.xxl },
-  emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl },
+  emptyText: { color: colors.textMuted, textAlign: 'center', marginTop: spacing.xxl, paddingHorizontal: spacing.xl },
+  centerState: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md },
+  retryBtn: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primary,
+  },
+  retryBtnText: { color: colors.textOnPrimary, fontSize: fontSize.body, fontWeight: '700' },
 });
