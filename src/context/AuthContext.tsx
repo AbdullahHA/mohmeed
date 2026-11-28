@@ -7,6 +7,7 @@ import { makeRedirectUri } from 'expo-auth-session';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
 import { supabase } from '../lib/supabase';
+import { logEvent } from '../lib/analytics';
 
 // Lets the web auth tab/window close itself and hand control back to the app
 // once Google redirects back with a session — a no-op on native.
@@ -273,6 +274,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
         options: { data: { name, username } },
       });
+      if (!error) logEvent('sign_up', { method: 'password' });
       return { error: error?.message ?? null, errorKind: 'auth' };
     } catch (e: any) {
       return { error: e?.message ?? 'network error', errorKind: 'network' };

@@ -6,7 +6,8 @@ import { heroDestination, type Destination } from '../data/destinations';
 import { useContent } from './ContentContext';
 import { useAuth } from './AuthContext';
 import { supabase } from '../lib/supabase';
-import { registerForPushNotifications } from '../lib/pushNotifications';
+import { maybeRequestPushPermission } from '../lib/pushNotifications';
+import { logEvent } from '../lib/analytics';
 import { colors } from '../theme/colors';
 import { useTheme } from './ThemeContext';
 import type {
@@ -1015,7 +1016,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     loadFriends();
     loadBlocked();
     loadVisitedPlaces();
-    if (profile) registerForPushNotifications(profile.id);
+    if (profile) logEvent('app_opened');
     loadFriendRequests();
     loadNotifications();
     loadMyCheckIns();
@@ -1216,6 +1217,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     });
     setTrips((prev) => [trip, ...prev]);
     mirrorTripWindow(trip);
+    logEvent('trip_created', { tripId: trip.id });
+    maybeRequestPushPermission(profile.id, 'أنشأت رحلة جديدة —');
     return trip;
   };
 
@@ -1297,6 +1300,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     if (error) return { tripId: null, error: 'تعذّر الانضمام، حاول مرة ثانية' };
     if (!data) return { tripId: null, error: 'ما لقينا رحلة بهذا الرمز. تأكد منه مع اللي أرسل لك الدعوة.' };
     await loadTrips();
+    logEvent('trip_joined', { tripId: data as string });
+    maybeRequestPushPermission(profile.id, 'انضميت لرحلة —');
     return { tripId: data as string, error: null };
   };
 

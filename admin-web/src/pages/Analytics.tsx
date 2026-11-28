@@ -3,10 +3,38 @@ import { supabase } from '../lib/supabase';
 
 type FunnelStep = { label: string; count: number };
 type Retention = { d7Pct: number | null; d30Pct: number | null; eligibleD7: number; eligibleD30: number };
+type EventCount = { name: string; last7: number; last30: number };
+
+const EVENT_LABELS: Record<string, string> = {
+  app_opened: 'فتح التطبيق',
+  sign_up: 'تسجيل حساب جديد',
+  trip_created: 'إنشاء رحلة',
+  trip_joined: 'الانضمام لرحلة',
+};
 
 export default function Analytics() {
   const [funnel, setFunnel] = useState<FunnelStep[] | null>(null);
   const [retention, setRetention] = useState<Retention | null>(null);
+  const [events, setEvents] = useState<EventCount[] | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const since30 = new Date(Date.now() - 30 * 86400000).toISOString();
+      const { data: eventRows } = await supabase
+        .from('analytics_events')
+        .select('name,created_at')
+        .gte('created_at', since30);
+      const since7Ms = Date.now() - 7 * 86400000;
+      const counts = new Map<string, EventCount>();
+      (eventRows ?? []).forEach((e: any) => {
+        const row = counts.get(e.name) ?? { name: e.name, last7: 0, last30: 0 };
+        row.last30 += 1;
+        if (new Date(e.created_at).getTime() >= since7Ms) row.last7 += 1;
+        counts.set(e.name, row);
+      });
+      setEvents(Array.from(counts.values()).sort((a, b) => b.last30 - a.last30));
+    })();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -74,8 +102,8 @@ export default function Analytics() {
     <div>
       <h1 className="mb-1 text-xl font-bold text-foreground">التحليلات</h1>
       <p className="mb-6 text-sm text-muted-foreground">
-        قمع تفعيل حقيقي محسوب من بيانات فعلية (تسجيل، رحلات، تسجيلات حضور، دليل السفر) — مو تتبع أحداث مفصّل (مثل مدة الجلسة أو
-        مسار الشاشات)، لأن هذا يحتاج بنية تتبّع أحداث غير موجودة بالمشروع حاليًا.
+        قمع تفعيل حقيقي محسوب من بيانات فعلية (تسجيل، رحلات، تسجيلات حضور، دليل السفر)، بالإضافة لعدّادات أحداث خفيفة
+        (analytics_events) تساعد تتابع هل الميزات الجديدة فعليًا تُستخدم.
       </p>
 
       <h2 className="mb-3 text-sm font-bold text-foreground">قمع التفعيل</h2>
@@ -119,6 +147,34 @@ export default function Analytics() {
             {retention ? `من ${retention.eligibleD30} مستخدم عمره شهر فأكثر` : ''}
           </div>
         </div>
+      </div>
+
+      <h2 className="mb-3 mt-8 text-sm font-bold text-foreground">الأحداث</h2>
+      <div className="surface-card overflow-hidden">
+        {events === null ? (
+          <div className="p-5 text-sm text-muted-foreground">جاري التحميل...</div>
+        ) : events.length === 0 ? (
+          <div className="p-5 text-sm text-muted-foreground">ولا حدث مسجّل آخر 30 يوم.</div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border text-right text-xs text-muted-foreground">
+                <th className="px-5 py-3 font-medium">الحدث</th>
+                <th className="px-5 py-3 font-medium">آخر 7 أيام</th>
+                <th className="px-5 py-3 font-medium">آخر 30 يوم</th>
+              </tr>
+            </thead>
+            <tbody>
+              {events.map((e) => (
+                <tr key={e.name} className="border-b border-border last:border-0">
+                  <td className="px-5 py-3 font-semibold text-foreground">{EVENT_LABELS[e.name] ?? e.name}</td>
+                  <td className="num px-5 py-3 text-muted-foreground">{e.last7}</td>
+                  <td className="num px-5 py-3 text-muted-foreground">{e.last30}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

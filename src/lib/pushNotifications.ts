@@ -2,6 +2,7 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { supabase } from './supabase';
+import { Alert } from './alert';
 
 export async function getNotificationPermissionStatus(): Promise<Notifications.PermissionStatus | 'web'> {
   if (Platform.OS === 'web') return 'web';
@@ -50,4 +51,26 @@ export async function registerForPushNotifications(
     // Expo Go without a dev build, etc.) — permission was still granted.
     return { granted: true };
   }
+}
+
+// Ask for notification permission at a moment the user has a concrete
+// reason to want it (just created/joined a trip), instead of blindly on
+// every app open — per Apple's HIG, and because iOS never re-shows its own
+// prompt once denied, so a cold contextless ask burns that one shot for
+// good. Shows a short explainer first, only the very first time (status
+// "undetermined"); a returning user who already decided isn't interrupted
+// again.
+export async function maybeRequestPushPermission(profileId: string, context: string) {
+  if (Platform.OS === 'web') return;
+  const { status } = await Notifications.getPermissionsAsync();
+  if (status === 'granted') {
+    registerForPushNotifications(profileId);
+    return;
+  }
+  if (status !== 'undetermined') return;
+
+  Alert.alert('فعّل الإشعارات؟', `${context} فعّل الإشعارات عشان نذكّرك بتحديثات رحلتك ورسائل أعضائها.`, [
+    { text: 'لاحقًا', style: 'cancel' },
+    { text: 'تفعيل', onPress: () => registerForPushNotifications(profileId) },
+  ]);
 }
