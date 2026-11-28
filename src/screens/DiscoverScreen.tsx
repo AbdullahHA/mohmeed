@@ -20,6 +20,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PlacesMapView from '../components/PlacesMapView';
+import RtlScrollRow from '../components/RtlScrollRow';
 import { fontSize, radius, spacing, fixedColors, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
@@ -255,7 +256,7 @@ export default function DiscoverScreen() {
                 <View style={styles.secTitle}>
                   <Text style={styles.secTitleText}>المختارات</Text>
                 </View>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.curatedRow}>
+                <RtlScrollRow contentContainerStyle={styles.curatedRow}>
                   {curatedLists.map((l) => (
                     <TouchableOpacity
                       key={l.id}
@@ -267,7 +268,7 @@ export default function DiscoverScreen() {
                       <Text style={styles.curatedTitle} numberOfLines={2}>{l.title}</Text>
                     </TouchableOpacity>
                   ))}
-                </ScrollView>
+                </RtlScrollRow>
               </View>
             ) : null}
 

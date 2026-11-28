@@ -22,6 +22,7 @@ import { PLACE_TYPE_LABELS, type PlaceType } from '../data/places';
 import PlaceCard from '../components/PlaceCard';
 import PersonAvatar from '../components/PersonAvatar';
 import PrayerTimesCard from '../components/PrayerTimesCard';
+import RtlScrollRow from '../components/RtlScrollRow';
 import { useAppState } from '../context/AppState';
 import { useContent } from '../context/ContentContext';
 import { useRequireAccount } from '../hooks/useRequireAccount';
@@ -340,12 +341,7 @@ export default function DestinationDetailScreen() {
 
           {activeTab === 'places' ? (
             <>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.typeFiltersScroll}
-                contentContainerStyle={styles.typeFiltersRow}
-              >
+              <RtlScrollRow style={styles.typeFiltersScroll} contentContainerStyle={styles.typeFiltersRow}>
                 {TYPE_FILTERS.map((item) => {
                   const active = activeType === item;
                   const label = item === 'all' ? 'الكل' : PLACE_TYPE_LABELS[item];
@@ -360,7 +356,7 @@ export default function DestinationDetailScreen() {
                     </TouchableOpacity>
                   );
                 })}
-              </ScrollView>
+              </RtlScrollRow>
 
               {hasCoordinate ? (
                 <View style={styles.googleSearchWrap}>

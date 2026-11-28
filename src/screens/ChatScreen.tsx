@@ -12,6 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import TopBar from '../components/TopBar';
 import SectionHeader from '../components/SectionHeader';
+import RtlScrollRow from '../components/RtlScrollRow';
 import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import { useAppState } from '../context/AppState';
@@ -301,11 +302,7 @@ export default function ChatScreen() {
         ) : null}
 
         <SectionHeader title="استكشف مجتمعات سفر" />
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.discoverRow}
-        >
+        <RtlScrollRow contentContainerStyle={styles.discoverRow}>
           {discoverCommunities.map((community) => (
             <TouchableOpacity
               key={community.id}
@@ -333,7 +330,7 @@ export default function ChatScreen() {
               اطلب إنشاء مجتمع
             </Text>
           </TouchableOpacity>
-        </ScrollView>
+        </RtlScrollRow>
       </ScrollView>
     </SafeAreaView>
   );

@@ -7,6 +7,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { fontSize, radius, spacing, type ThemeColors } from '../theme/colors';
 import { useTheme } from '../context/ThemeContext';
 import EmptyState from '../components/EmptyState';
+import RtlScrollRow from '../components/RtlScrollRow';
 import { supabase } from '../lib/supabase';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -69,7 +70,7 @@ export default function EventsScreen() {
       </View>
 
       {cities.length > 1 ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsRow} contentContainerStyle={styles.chipsContent}>
+        <RtlScrollRow style={styles.chipsRow} contentContainerStyle={styles.chipsContent}>
           <TouchableOpacity
             onPress={() => setCityFilter(null)}
             style={[styles.chip, !cityFilter && styles.chipActive]}
@@ -87,7 +88,7 @@ export default function EventsScreen() {
               <Text style={[styles.chipText, cityFilter === c && styles.chipTextActive]}>{c}</Text>
             </TouchableOpacity>
           ))}
-        </ScrollView>
+        </RtlScrollRow>
       ) : null}
 
       {events === null ? (
