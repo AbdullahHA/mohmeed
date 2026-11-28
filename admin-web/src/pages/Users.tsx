@@ -30,11 +30,11 @@ export default function Users() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('id,name,username,emoji,is_admin,created_at')
-        .order('created_at', { ascending: false });
-      setRows(data ?? []);
+      const { data } = await supabase.rpc('admin_list_profiles');
+      const sorted = ((data ?? []) as any[]).sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      setRows(sorted);
       if (openUserId) {
         const match = (data ?? []).find((r) => r.id === openUserId);
         if (match) openUser(match);

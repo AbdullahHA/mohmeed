@@ -10,12 +10,12 @@ export default function Team() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('id,name,username,admin_role')
-        .eq('is_admin', true)
-        .order('name');
-      setRows(data ?? []);
+      const { data } = await supabase.rpc('admin_list_profiles');
+      const admins = ((data ?? []) as any[])
+        .filter((r) => r.is_admin)
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((r) => ({ id: r.id, name: r.name, username: r.username, admin_role: r.admin_role }));
+      setRows(admins);
     })();
   }, []);
 

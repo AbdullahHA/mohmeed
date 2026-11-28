@@ -21,12 +21,12 @@ type AuthState = {
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
-async function loadProfile(userId: string): Promise<AdminProfile | null> {
-  const { data } = await supabase
-    .from('profiles')
-    .select('id,name,username,is_admin,admin_role')
-    .eq('id', userId)
-    .single();
+// profiles' RLS/column grants only let a user read their own is_admin/
+// admin_role directly; get_my_profile() (security definer, scoped to
+// auth.uid()) is the one shared way to read your own full row — same RPC
+// the main app uses for the same reason.
+async function loadProfile(_userId: string): Promise<AdminProfile | null> {
+  const { data } = await supabase.rpc('get_my_profile');
   if (!data) return null;
   return { id: data.id, name: data.name, username: data.username, isAdmin: data.is_admin, adminRole: data.admin_role };
 }
